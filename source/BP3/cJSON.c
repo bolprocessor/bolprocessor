@@ -868,10 +868,8 @@ static cJSON_bool parse_string(cJSON * const item, parse_buffer * const input_bu
                 case 'u':
                     sequence_length = utf16_literal_to_utf8(input_pointer, input_end, &output_pointer);
                     if(sequence_length == 0)
-                    {
                         /* failed to convert UTF16-literal to UTF-8 */
                         goto fail;
-                    }
                     break;
 
                 default:

@@ -634,8 +634,7 @@ int ResizeCsoundInstrumentsSpace(int howmany) {
 			if((p_CsPanoramic[i]=(double**) GiveSpace((Size)howmany * sizeof(double))) == NULL) return(ABORT);
 			}
 		}
-		
-	for(j=howmany; j < Jinstr; j++) {
+	for(j = howmany; j < Jinstr; j++) {
 		/* Downsizing */
 		ptr = (*pp_CsInstrumentName)[j];
 		MyDisposeHandle((Handle*)&ptr);
@@ -690,13 +689,15 @@ int ResizeCsoundInstrumentsSpace(int howmany) {
 	for(j=Jinstr; j < howmany; j++) {
 		if((ptr=(char**) GiveSpace((Size)2L * sizeof(char))) == NULL) return(ABORT);
 		(*pp_CsInstrumentName)[j] = ptr;
-		(*((*pp_CsInstrumentName)[j]))[0] = '\0';
+		strcpy((*((*pp_CsInstrumentName)[j])),"");
 		if((ptr=(char**) GiveSpace((Size)2L * sizeof(char))) == NULL) return(ABORT);
 		(*pp_CsInstrumentComment)[j] = ptr;
-		(*((*pp_CsInstrumentComment)[j]))[0] = '\0';
+		strcpy((*((*pp_CsInstrumentComment)[j])),"");
 		ResetCsoundInstrument(j,NO,YES);
 		}
-		
+	if(howmany >= MAXINS) {
+		BPPrintMessage(0,odError,"=> Too many Csound instruments in this performance (max %d). Reduce the number in your attached '-cs' file!\n",MAXINS);
+		}
 	Jinstr = howmany;
 	if(iCsoundInstrument >= Jinstr) iCsoundInstrument = 0;
 	return(OK);

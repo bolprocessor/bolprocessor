@@ -413,6 +413,7 @@ int SetPrototypeDuration(int j,int *p_longerCsound) {
 	else dur = 0.;
 	if(dur < 0.) dur = 0.;
 	(*p_Dur)[j] = dur;
+	// BPPrintMessage(0,odInfo,"§ Dur[%d] = %ld\n",j,(*p_Dur)[j]);
 
 CSOUND:
 	size = (*p_CsoundSize)[j];

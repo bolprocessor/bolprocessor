@@ -159,7 +159,6 @@ T30 x _panrate(x)  (all channels)  0 < x < 1001 (samples per second)
 T31 x _pancontrol(x)  -1 < x < 128  Which controller sets pan (deft 10)
 
 T32 x Csound instrument assignment _ins(x)
-	if x > 127 the value assigned is ParamValue[x-128]
 
 T33 x _step(paramname)
     x = paramnameindex

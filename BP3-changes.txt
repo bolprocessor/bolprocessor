@@ -7,10 +7,15 @@ Geeks can also read the "to-do" file:
 https://raw.githubusercontent.com/bolprocessor/bolprocessor/graphics-for-BP3/BP3-To-Do.txt
 
 -----
-2026-10-07 (version 3.5.6)
-Full implementation of sound-objects, including silent sound-objects. Documentation:
+2026-10-07 -> 2026-10-11 (version 3.5.6)
+Full implementation of sound-objects, including silent sound-objects. Read:
 https://bolprocessor.org/sound-objects/
 https://bolprocessor.org/silent-sound-objects/
+
+When the 'Event list' output option is selected, JSON descriptions of Csound instruments are exported, if used in the production. These will be made more explicit in the next version. Read:
+https://bolprocessor.org/event-lists/
+
+Bug fixed: an expression such as "C4 {D4 E4} _ F4" (that is syntactically incorrect) is now automatically corrected to "C4 {D4 E4} - F4"
 
 Don't forget to update the PHP interface:
 https://github.com/bolprocessor/php-frontend/

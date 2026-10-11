@@ -38,7 +38,7 @@ extern int Version;
 extern long MemoryUsed,MemoryUsedInit,MaxMemoryUsed,
 	MaxHandles,SessionTime;
 extern int CheckMem;
-extern int NumberMessages;
+extern long NumberMessages;
 
 extern int EmergencyExit,FixedMaxQuantization,
 	TraceMemory,EventState,Beta;
@@ -384,7 +384,7 @@ extern long MaxConsoleTime;
 extern int NumberScales, MaxScales, DefaultScaleParam, ToldAboutScale;
 extern char LastSeen_scale[100];
 extern t_scale** Scale;
-extern char Exported_scale[500];
+extern char Exported_scale[100],Exported_instrument[MAXINSTRUMENTS];
 extern int trace_scale, trace_capture;
 
 extern int WarnedBlockKey,WarnedRangeKey;

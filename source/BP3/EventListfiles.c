@@ -52,7 +52,7 @@ int MakeEventListFile(OutFileInfo* finfo) {
 		}
 	else EventListPtr = fout;
 	BPPrintMessage(0,odInfo,"👉 An event list file has been created\n");
-	WriteToEventListFile("event,item,k,id proto,label,start time,end time,MIDI channel,Csound instrument,random time,velocity,random velocity,trunc beg,trunc end,dilation ratio beta (actual),dilation ratio alpha (declared),cyclic,cyclic after (ms or percent),force integer number of cycles,articul,preroll (ms),postroll (ms),transposition,transpose first,expand value,expand key,keymap mode,keymap0 p1,keymap0 q1,keymap0 p2,keymap0 q2,keymap1 p1,keymap1 q1,keymap1 p2,keymap1 q2,volume start,volume end,volume channel,volume mode,modulation start,modulation end,modulation channel,modulation mode,panoramic start,panoramic end,panoramic channel,panoramic mode,pressure start,pressure end,pressure channel, pressure mode,pitchbend start,pitchbend end,pitchbend channel,pitchbend mode,tonal scale,block key");
+	WriteToEventListFile("event,item,k,id proto,label,start time,end time,MIDI channel,Csound instrument(s),random time,velocity,random velocity,trunc beg,trunc end,dilation ratio beta (actual),dilation ratio alpha (declared),cyclic,cyclic after (ms or percent),force integer number of cycles,articul,preroll (ms),postroll (ms),transposition,transpose first,expand value,expand key,keymap mode,keymap0 p1,keymap0 q1,keymap0 p2,keymap0 q2,keymap1 p1,keymap1 q1,keymap1 p2,keymap1 q2,volume start,volume end,volume channel,volume mode,modulation start,modulation end,modulation channel,modulation mode,panoramic start,panoramic end,panoramic channel,panoramic mode,pressure start,pressure end,pressure channel, pressure mode,pitchbend start,pitchbend end,pitchbend channel,pitchbend mode,tonal scale,block key");
 	return result;
 	}
 
@@ -83,9 +83,9 @@ int WriteToEventListFile(const char *line) {
 
 int AddEventToList(int k) {
 	long starttime,endtime,shift;
-	int j,id_proto,articul,trans,cyclic_after,blockkey,keymap0_p1,keymap0_q1,keymap0_p2,keymap0_q2,keymap1_p1,keymap1_q1,keymap1_p2,keymap1_q2,cyclic,sound_object,silent;
+	int i,j,jj,ins,id_proto,articul,trans,cyclic_after,blockkey,keymap0_p1,keymap0_q1,keymap0_p2,keymap0_q2,keymap1_p1,keymap1_q1,keymap1_p2,keymap1_q2,cyclic,sound_object,silent;
 	short xpandval,xpandkey;
-	char line[MAXLIN],label[MAXNAME],scalename[MAXNAME],keymapmode[MAXNAME],channel_txt[MAXNAME],instrument_txt[MAXNAME],pitchbendmode_txt[15],pressuremode_txt[15],panoramicmode_txt[15],volumemode_txt[15],modulationmode_txt[15],pitchbendstart_txt[15],pitchbendend_txt[15],pitchbendchannel_txt[15],xpandkey_txt[15],blockkey_txt[10];
+	char line[MAXLIN],label[MAXNAME],scalename[MAXNAME],keymapmode[MAXNAME],channel_txt[MAXNAME],instrument_txt[MAXNAME],pitchbendmode_txt[15],pressuremode_txt[15],panoramicmode_txt[15],volumemode_txt[15],modulationmode_txt[15],pitchbendstart_txt[15],pitchbendend_txt[15],pitchbendchannel_txt[15],xpandkey_txt[15],blockkey_txt[10],id_proto_txt[15];
 	double beta,preroll,postroll,expand;
 	int transposefirst,forceintegercycles,i_scale;
 	int localchan,instrument;
@@ -97,6 +97,7 @@ int AddEventToList(int k) {
 	j = (*p_Instance)[k].object;
 	if(j == -1) return(OK);
 	if(j == 0) return(OK);
+	if(j == 1) return(OK);
 	if(j < 16384 && j >= Jbol) return(OK); // Time-pattern
 
 	// BPPrintMessage(0,odError,"k = %d, j = %d\n",k,j);
@@ -280,6 +281,7 @@ int AddEventToList(int k) {
 		if(beta == 0.) preroll = postroll = 0.;
 		if((*p_DefaultChannel)[j] != 0) localchan = (*p_DefaultChannel)[j];
 		if((*p_CsoundInstrumentMode)[j] != 0) instrument = (*p_CsoundInstrumentMode)[j];
+		else if(instrument <= 0) instrument = 1;
 		}
 	if(p_Articul != NULL) articul =	(*p_Articul)[k];
 	else articul = 0;
@@ -300,10 +302,26 @@ int AddEventToList(int k) {
 	else my_sprintf(channel_txt,"%d",localchan);
 	if(silent) strcpy(channel_txt,"");
 
-	if(instrument < 0) strcpy(instrument_txt,"LOCAL_CS"); 
-	else if(instrument == 0) strcpy(instrument_txt,"GLOBAL_CS");
-	else my_sprintf(instrument_txt,"%d",instrument);
-	if(silent) strcpy(instrument_txt,"");
+	if(!sound_object && instrument == 0) instrument = 1;
+	if(instrument > 0 && instrument < MAXINSTRUMENTS) {
+		for(jj = 0; jj < Jinstr; jj++) {
+			if((*p_CsInstrumentIndex)[jj] == instrument) break;
+			}
+		if(jj < Jinstr) MystrcpyHandleToString(MAXLIN,0,instrument_txt,(*pp_CsInstrumentName)[jj]);
+		else my_sprintf(instrument_txt,"%ld ?",(long)instrument);
+		}
+	else strcpy(instrument_txt,"");
+	if(sound_object) {				
+		if(instrument <= 0) {
+			strcpy(instrument_txt,"LOCAL_CS");
+			for(i = 0; i < (*p_CsoundSize)[j]; i++) {
+				ins = (*((*pp_CsoundScore)[j]))[i].instrument;
+			//	BPPrintMessage(0,odInfo,"@@@ ins = %d\n",ins);
+				if(!Exported_instrument[ins]) SaveJsonCsoundInstrument(ins);
+				}
+			}
+		}
+	if(silent || Jinstr < 2) strcpy(instrument_txt,"");
 
 	int velocity = ByteToInt((*p_Instance)[k].velocity);
 	int rndvel = (*p_Instance)[k].rndvel;
@@ -325,9 +343,11 @@ int AddEventToList(int k) {
 	keymap1_p2 = (*p_Instance)[k].map1.p2;
 	keymap1_q2 = (*p_Instance)[k].map1.q2;
 	if(j == 1 && starttime == endtime && strcmp(keymapmode,"OFF") == 0) return(OK);
+	if(id_proto > 0) my_sprintf(id_proto_txt,"%d",id_proto);
+	else strcpy(id_proto_txt,"");
 
 	EventNumber++;
-	my_sprintf(line,"#%ld,%ld,(%d),%d,%s,%ld,%ld,%s,%s,%d,%d,%d,%ld,%ld,%.4f,%.4f,%d,%d,%d,%d,%.4f,%.4f,%d,%d,%.4f,%s,%s,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%s,%d,%d,%d,%s,%d,%d,%d,%s,%d,%d,%d,%s,%s,%s,%s,%s,%s,%s",EventNumber,ItemNumber,k,id_proto,label,starttime,endtime,channel_txt,instrument_txt,randomtime,velocity,rndvel,(*p_Instance)[k].truncbeg,(*p_Instance)[k].truncend,beta,(*p_Instance)[k].alpha,cyclic,cyclic_after,forceintegercycles,articul,preroll,postroll,trans,transposefirst,expand,xpandkey_txt,keymapmode,keymap0_p1,keymap0_q1,keymap0_p2,keymap0_q2,keymap1_p1,keymap1_q1,keymap1_p2,keymap1_q2,volumestart,volumeend,volumechannel,volumemode_txt,modulationstart,modulationend,modulationchannel,modulationmode_txt,panoramicstart,panoramicend,panoramicchannel,panoramicmode_txt,pressurestart,pressureend,pressurechannel,pressuremode_txt,pitchbendstart_txt,pitchbendend_txt,pitchbendchannel_txt,pitchbendmode_txt,scalename,blockkey_txt);
+	my_sprintf(line,"#%ld,%ld,(%d),%s,%s,%ld,%ld,%s,%s,%d,%d,%d,%ld,%ld,%.4f,%.4f,%d,%d,%d,%d,%.4f,%.4f,%d,%d,%.4f,%s,%s,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%s,%d,%d,%d,%s,%d,%d,%d,%s,%d,%d,%d,%s,%s,%s,%s,%s,%s,%s",EventNumber,ItemNumber,k,id_proto_txt,label,starttime,endtime,channel_txt,instrument_txt,randomtime,velocity,rndvel,(*p_Instance)[k].truncbeg,(*p_Instance)[k].truncend,beta,(*p_Instance)[k].alpha,cyclic,cyclic_after,forceintegercycles,articul,preroll,postroll,trans,transposefirst,expand,xpandkey_txt,keymapmode,keymap0_p1,keymap0_q1,keymap0_p2,keymap0_q2,keymap1_p1,keymap1_q1,keymap1_p2,keymap1_q2,volumestart,volumeend,volumechannel,volumemode_txt,modulationstart,modulationend,modulationchannel,modulationmode_txt,panoramicstart,panoramicend,panoramicchannel,panoramicmode_txt,pressurestart,pressureend,pressurechannel,pressuremode_txt,pitchbendstart_txt,pitchbendend_txt,pitchbendchannel_txt,pitchbendmode_txt,scalename,blockkey_txt);
 	if(WriteToEventListFile(line) != OK) return MISSED;
 	return(OK);
 	}

@@ -40,8 +40,7 @@
  
 int trace_cs_scoremake = 0;
 
-int CscoreWrite(Milliseconds cut_the_end,Rect* p_graphrect,int leftoffset,int topoffset,int hrect,int minkey,int maxkey,int strikeagain,int onoffline,double beta,Milliseconds time_ms,int iline,
-	int key,int velocity,int chan,int instrument,int j,int nseq,int kcurrentinstance,
+int CscoreWrite(Milliseconds cut_the_end,Rect* p_graphrect,int leftoffset,int topoffset,int hrect,int minkey,int maxkey,int strikeagain,int onoffline,double beta,Milliseconds time_ms,int iline,int key,int velocity,int chan,int instrument,int j,int nseq,int kcurrentinstance,
 	PerfParameters ****pp_currentparams,int scale,int blockkey)
 {
 // j is the sound-object prototype
@@ -50,7 +49,7 @@ int CscoreWrite(Milliseconds cut_the_end,Rect* p_graphrect,int leftoffset,int to
 // onoffline = OFF -- terminate Csound process as a NoteOff has been encountered, and
 //    write Csound score line
 
-int i,jj,k,c,ins,index,paramnameindex,iarg,ip,ipitch,iargmax,octave,changedpitch,overflow,comeback,pitchclass,result,maxparam,itable,pitch_format,i_scale;
+int i,jj,k,c,ins,index,paramnameindex,iarg,ip,ipitch,iargmax,octave,changedpitch,overflow,comeback,pitchclass,result,maxparam,itable,pitch_format,i_scale,mode;
 char line[MAXLIN],line2[MAXLIN];
 long imax,pivloc,trbeg,starttime;
 double time,x,xx,cents,deltakey,dur,**scorearg,alpha1,alpha2,startvalue,endvalue,ratio,oldtime_on;
@@ -72,8 +71,15 @@ if(chan < 0 || chan >= MAXCHAN) {
 	
 perf = (*pp_currentparams)[nseq]; 
 
+mode = -1;
+if(line >= 0 && j > 0 && j < Jbol) {
+	mode = (*p_CsoundInstrumentMode)[j];
+	if(mode > 0) instrument = (*p_CsoundInstr)[j];
+	else if(mode == LOCAL_CS) instrument = (*((*pp_CsoundScore)[j]))[iline].instrument;
+	}
+
 if(trace_cs_scoremake)
-	BPPrintMessage(0,odInfo,"\nRunning CscoreWrite for iline = %d channel = %d instrument = %d k = %d, onoffline = %d\n",iline,chan,instrument,kcurrentinstance,onoffline);
+	BPPrintMessage(0,odInfo,"\nRunning CscoreWrite for iline = %d channel = %d instrument = %d k = %d, j = %d, onoffline = %d, mode = %d\n",iline,chan,instrument,kcurrentinstance,j,onoffline,mode);
 
 if(onoffline == LINE) {
 	if(j >= Jbol) {
@@ -106,8 +112,6 @@ if(Jinstr < 2) {
 else {
 	if(onoffline == LINE) {
 		index = instrument;
-	/*	if((*p_CsoundInstr)[j] > 0) index = (*p_CsoundInstr)[j];
-		if((*p_CsoundInstr)[j] < 0) index = (*((*pp_CsoundScore)[j]))[iline].instrument; */
 		}
 	else {
 		if(instrument > 0) index = instrument;
@@ -115,13 +119,14 @@ else {
 		else if(WhichCsoundInstrument[chan+1] >= 0) index = WhichCsoundInstrument[chan+1];
 		else index = 0;
 		}
-	for(ins=0; ins < Jinstr; ins++) {
+	for(ins = 0; ins < Jinstr; ins++) {
 		if((*p_CsInstrumentIndex)[ins] == index) break;
 		}
 	if(index == 0 || ins >= Jinstr) {
 		ins = 0; index = 1;
 		}
 	}
+
 instrparamlist = (*p_CsInstrument)[ins].paramlist;
 
 time = ((double) time_ms) / 1000.;

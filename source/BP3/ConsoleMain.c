@@ -82,7 +82,7 @@ long MaxConsoleTime; // seconds: time allowed for console work
 int NumberScales, MaxScales, DefaultScaleParam, ToldAboutScale; // Microtonal scales loaded from tonality file
 t_scale** Scale;
 char LastSeen_scale[100]; // Last scale found during compilation of grammar
-char Exported_scale[500];
+char Exported_scale[100],Exported_instrument[MAXINSTRUMENTS];
 Handle mem_ptr[5000];
 int i_ptr, hist_mem_ptr[5000], size_mem_ptr[5000];
 

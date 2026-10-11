@@ -166,7 +166,7 @@ int MySetHandleSize(Handle* p_h, Size size) {
 	s_handle_priv*	h;
 	Size oldsize;
 	int i;
-//	BPPrintMessage(0,odInfo,"size = %ld\n",(long) size);
+	// BPPrintMessage(0,odInfo,"size = %ld\n",(long) size);
 	if(size <= 0L) {
 		BPPrintMessage(0,odError,"=> Err. MySetHandleSize() size <= 0\n");
 		Panic = TRUE;

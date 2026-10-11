@@ -262,6 +262,7 @@ int Inits(void) {
 		= NULL;
 	p_CsPitchFormat = NULL;
 	pp_CsInstrumentName = pp_CsInstrumentComment = p_StringConstant = NULL;
+	for(i = 0; i < MAXINSTRUMENTS; i++) Exported_instrument[i] = FALSE;
 	p_NumberConstant = NULL;
 	FileSaveMode = ALLSAME;
 	FileWriteMode = NOW;
@@ -384,7 +385,7 @@ int Inits(void) {
 		}
 	FileName[wScript][0] = '\0';
 	CurrentChannel = 1;	/* Used for program changes,by default. */
-	NumberMessages = 0;
+	NumberMessages = ZERO;
 	if(SetNoteNames() != OK) return(ABORT);
 	NeedAlphabet = FALSE;
 	for(i=0; i < MAXCHAN; i++) {
@@ -417,8 +418,7 @@ int Inits(void) {
 	Jinstr = 0;
 	NeedZouleb = 0;
 	UseBullet = TRUE;
-	// Code[7] = '�';
-	Code[7] = '.'; // Fixed by BB 2022-02-18
+	Code[7] = '.';
 	if(ResizeCsoundInstrumentsSpace(1) != OK) return(ABORT);
 	iCsoundInstrument = 0;
 	ResetCsoundInstrument(iCsoundInstrument,YES,NO);

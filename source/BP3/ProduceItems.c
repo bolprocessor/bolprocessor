@@ -1408,10 +1408,10 @@ for(i=0; (c=GetTextChar(w,pos)) != '\r' && c != '\n' && c != '\0'; pos++) {
 		
 	if(c == '_') {
 		if(isalpha(GetTextChar(w,pos+1))) {
-		//	BPPrintMessage(0,odInfo,"c == '_'\n");
-			/* Look for tool or performance control */
+			// Look for tool or performance control
 			p = &((*h)[pos]);
 			j = GetPerformanceControl(&p,0,&n,NO,&u,&v,&map);
+			// BPPrintMessage(0,odInfo,"@ GetPerformanceControl() c == '_', n = %d\n",n);
 			if(j == 61) {	/* _tempo */
 				(**pp_a)[i++] = T43; (**pp_a)[i++] = (tokenbyte) u;
 				(**pp_a)[i++] = T43; (**pp_a)[i++] = (tokenbyte) v;

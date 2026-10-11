@@ -48,7 +48,7 @@ tokenbyte **Encode(t_gram* p_gram,int sequence,int notargument, int igram, int i
 	int ii,ig,ir,j,jj,key,n,l,ln,lmax,bound,leftside,rightcontext,
 	neg,cv,needsK,needsflag,i_scale,j_scale,result;
 	long i,imax,k,siz,buffsize,y,u,v;
-	char c,d,**pp,*p_mem,*p,*q,*qmax,*r,*ptr,line[MAXLIN],**p_x;
+	char c,d,**pp,*p_mem,*p,*q,*qmax,*r,*ptr,line[MAXLIN],**p_x,last_is_terminal;
 	// wchar_t c;
 
 	p_flaglist **nexth,**oldh;
@@ -56,6 +56,7 @@ tokenbyte **Encode(t_gram* p_gram,int sequence,int notargument, int igram, int i
 	double x;
 
 	*p_result = OK;
+	last_is_terminal = TRUE;
 	if(p_Script == NULL && GetScriptSpace() != OK) return(NULL);
 	if(p_Flagname == NULL && GetFlagSpace() != OK) return(NULL);
 	if(p_Var == NULL && GetVariableSpace() != OK) return(NULL);
@@ -143,66 +144,85 @@ tokenbyte **Encode(t_gram* p_gram,int sequence,int notargument, int igram, int i
 			if((j=GetPerformanceControl(pp,arg_nr,&n,quick,&u,&v,&map)) == ABORT) {
 				goto ERR;
 				}
+			// BPPrintMessage(0,odInfo,"@ GetPerformanceControl() Encode.c, n = %d\n",n);
 			if(j != RESUME) {
 				switch(j) {
 					case 0:	/* _chan() */
 						(*p_buff)[i++] = T10; (*p_buff)[i++] = (tokenbyte) n;
+						last_is_terminal = FALSE;
 						break;
 					case 1:	/* _vel() */
 						(*p_buff)[i++] = T11; (*p_buff)[i++] = (tokenbyte) n;
+						last_is_terminal = FALSE;
 						break;
 					case 2:	/* _velstep */
 					case 3:	/* _velcont */
 						(*p_buff)[i++] = T12; (*p_buff)[i++] = (tokenbyte)(j - 2);
+						last_is_terminal = FALSE;
 						break;
 					case 4: /* _script() */
 						(*p_buff)[i++] = T13; (*p_buff)[i++] = (tokenbyte) n;
 						// It won't be used if it is a IN script
 						if(TraceMIDIinteraction) BPPrintMessage(0,odInfo,"Tokenised [T13.%d] as Jscriptline = %d in Encode()\n\n",(int)n,Jscriptline);
+						last_is_terminal = FALSE;
 						break;
 					case 5:	/* _mod() */
 						(*p_buff)[i++] = T14; (*p_buff)[i++] = (tokenbyte)n;
+						last_is_terminal = FALSE;
 						break;
 					case 6:	/* _modstep */
 					case 7:	/* _modcont */
 						(*p_buff)[i++] = T12; (*p_buff)[i++] = (tokenbyte)(j - 4);
+						last_is_terminal = FALSE;
 						break;
 					case 8:	/* _pitchbend */
 						(*p_buff)[i++] = T15; (*p_buff)[i++] = (tokenbyte) n;
+						last_is_terminal = FALSE;
 						break;
 					case 9:	/* _pitchstep */
 					case 10: /* _pitchcont */
 						(*p_buff)[i++] = T12; (*p_buff)[i++] = (tokenbyte)(j - 5);
+						last_is_terminal = FALSE;
 						break;
 					case 11: /* _press */
 						(*p_buff)[i++] = T16; (*p_buff)[i++] = (tokenbyte) n;
+						last_is_terminal = FALSE;
 						break;
 					case 12: /* _presstep */
 					case 13: /* _presscont */
 						(*p_buff)[i++] = T12; (*p_buff)[i++] = (tokenbyte)(j - 6);
+						last_is_terminal = FALSE;
 						break;
 					case 14: /* _switchon */
 						(*p_buff)[i++] = T17; (*p_buff)[i++] = (tokenbyte) n;
+						last_is_terminal = FALSE;
 						break;
 					case 15: /* _switchoff */
 						(*p_buff)[i++] = T18; (*p_buff)[i++] = (tokenbyte) n;
+						last_is_terminal = FALSE;
 						break;
 					case 16: /* _volume */
 						(*p_buff)[i++] = T19; (*p_buff)[i++] = (tokenbyte) n;
+						last_is_terminal = FALSE;
 						break;
 					case 17: /* _volumestep */
 					case 18: /* _volumecont */
 						(*p_buff)[i++] = T12; (*p_buff)[i++] = (tokenbyte)(j - 9);
+						last_is_terminal = FALSE;
+						last_is_terminal = FALSE;
 						break;
 					case 19:	/* _legato() */
 						(*p_buff)[i++] = T20; (*p_buff)[i++] = (tokenbyte) n;
+						last_is_terminal = FALSE;
 						break;
 					case 20:	/* _staccato() */
 						(*p_buff)[i++] = T20; (*p_buff)[i++] = (tokenbyte)(- n);
+						last_is_terminal = FALSE;
 						break;
 					case 21: /* _articulstep */
 					case 22: /* _articulcont */
 						(*p_buff)[i++] = T12; (*p_buff)[i++] = (tokenbyte)(j - 11);
+						last_is_terminal = FALSE;
 						break;
 					case 23: /* _velfixed */
 					case 24: /* _modfixed */
@@ -211,112 +231,146 @@ tokenbyte **Encode(t_gram* p_gram,int sequence,int notargument, int igram, int i
 					case 27: /* _volumefixed */
 					case 28: /* _articulfixed */
 						(*p_buff)[i++] = T12; (*p_buff)[i++] = (tokenbyte)(j - 11);
+						last_is_terminal = FALSE;
 						break;
 					case 29: /* _pitchrange */
 						(*p_buff)[i++] = T21; (*p_buff)[i++] = (tokenbyte) n;
+						last_is_terminal = FALSE;
 						break;
 					case 30: /* _pitchrate */
 						(*p_buff)[i++] = T22; (*p_buff)[i++] = (tokenbyte) n;
+						last_is_terminal = FALSE;
 						break;
 					case 31: /* _modrate */
 						(*p_buff)[i++] = T23; (*p_buff)[i++] = (tokenbyte) n;
+						last_is_terminal = FALSE;
 						break;
 					case 32: /* _pressrate */
 						(*p_buff)[i++] = T24; (*p_buff)[i++] = (tokenbyte) n;
+						last_is_terminal = FALSE;
 						break;
 					case 33: /* _transpose */
 						(*p_buff)[i++] = T26; (*p_buff)[i++] = (tokenbyte) n;
+						last_is_terminal = FALSE;
 						break;
 					case 34: /* _volumerate */
 						(*p_buff)[i++] = T27; (*p_buff)[i++] = (tokenbyte) n;
+						last_is_terminal = FALSE;
 						break;
 					case 35: /* _volumecontrol */
 						(*p_buff)[i++] = T28; (*p_buff)[i++] = (tokenbyte) n;
+						last_is_terminal = FALSE;
 						break;
 					case 36: /* _pan */
 						(*p_buff)[i++] = T29; (*p_buff)[i++] = (tokenbyte) n;
+						last_is_terminal = FALSE;
 						break;
 					case 37: /* _panstep */
 						(*p_buff)[i++] = T12; (*p_buff)[i++] = (tokenbyte) 19;
+						last_is_terminal = FALSE;
 						break;
 					case 38: /* _pancont */
 						(*p_buff)[i++] = T12; (*p_buff)[i++] = (tokenbyte) 20;
+						last_is_terminal = FALSE;
 						break;
 					case 40: /* _panrate */
 						(*p_buff)[i++] = T30; (*p_buff)[i++] = (tokenbyte) n;
+						last_is_terminal = FALSE;
 						break;
 					case 41: /* _pancontrol */
 						(*p_buff)[i++] = T31; (*p_buff)[i++] = (tokenbyte) n;
+						last_is_terminal = FALSE;
 						break;
 					case 42: /* _rest */
 						(*p_buff)[i++] = T0; (*p_buff)[i++] = 17;
+						last_is_terminal = FALSE;
 						break;
 					case 43: /* _ins() */
+						// BPPrintMessage(1,odInfo,"@@@ case 43 _ins(%d)\n",(int)n);
 						(*p_buff)[i++] = T32; (*p_buff)[i++] = (tokenbyte) n;
+						last_is_terminal = FALSE;
 						break;
 					case 67: /* _part() */
 				//		BPPrintMessage(1,odInfo,"@@@ case 67 _part(%d)\n",(int)n);
 						(*p_buff)[i++] = T46; (*p_buff)[i++] = (tokenbyte) n;
+						last_is_terminal = FALSE;
 						break;
 					case 44: /* _value() */
 						(*p_buff)[i++] = T35; (*p_buff)[i++] = (tokenbyte) n;
+						last_is_terminal = FALSE;
 						break;
 					case 45: /* _step() */
 						(*p_buff)[i++] = T33; (*p_buff)[i++] = (tokenbyte) n;
+						last_is_terminal = FALSE;
 						break;
 					case 46: /* _cont() */
 						(*p_buff)[i++] = T34; (*p_buff)[i++] = (tokenbyte) n;
+						last_is_terminal = FALSE;
 						break;
 					case 47: /* _fixed() */
 						(*p_buff)[i++] = T36; (*p_buff)[i++] = (tokenbyte) n;
+						last_is_terminal = FALSE;
 						break;
 					case 48: /* _retro */
 						(*p_buff)[i++] = T12; (*p_buff)[i++] = (tokenbyte) 21;
 						if(arg_nr == 2) NotBPCase[7] = TRUE;
+						last_is_terminal = FALSE;
 						break;
 					case 49: /* _rndseq */
 						(*p_buff)[i++] = T12; (*p_buff)[i++] = (tokenbyte) 22;
 						if(arg_nr == 2) NotBPCase[7] = TRUE;
+						last_is_terminal = FALSE;
 						break;
 					case 50: /* _randomize */
 						(*p_buff)[i++] = T12; (*p_buff)[i++] = (tokenbyte) 23;
 						if(arg_nr < 4) WillRandomize = TRUE;
+						last_is_terminal = FALSE;
 						break;
 					case 51: /* _ordseq */
 						(*p_buff)[i++] = T12; (*p_buff)[i++] = (tokenbyte) 24;
+						last_is_terminal = FALSE;
 						break;
 					case 52: /* _keymap */
 						(*p_buff)[i++] = T37; (*p_buff)[i++] = (tokenbyte)(map.p1 + 128 * map.q1);
 						(*p_buff)[i++] = T37; (*p_buff)[i++] = (tokenbyte)(map.p2 + 128 * map.q2);
+						last_is_terminal = FALSE;
 						break;
 					case 53: /* _mapfixed */
 					case 54: /* _mapcont */
 					case 55: /* _mapstep */
 						(*p_buff)[i++] = T12; (*p_buff)[i++] = (tokenbyte)(j - 28);
+						last_is_terminal = FALSE;
 						break;
 					case 56:	/* _rndvel() */
 						(*p_buff)[i++] = T38; (*p_buff)[i++] = (tokenbyte) n;
+						last_is_terminal = FALSE;
 						break;
 					case 57:	/* _rotate() */
 						(*p_buff)[i++] = T39; (*p_buff)[i++] = (tokenbyte) n;
+						last_is_terminal = FALSE;
 						break;
 					case 58: /* _keyxpand() */
 						(*p_buff)[i++] = T40; (*p_buff)[i++] = (tokenbyte) n;
+						last_is_terminal = FALSE;
 						break;
 					case 59: /* _rndtime() */
 						(*p_buff)[i++] = T41; (*p_buff)[i++] = (tokenbyte) n;
+						last_is_terminal = FALSE;
 						break;
 					case 60: /* _srand() */
 						(*p_buff)[i++] = T42; (*p_buff)[i++] = (tokenbyte) n;
+						last_is_terminal = FALSE;
 						break;
 					case 61: /* _tempo() */
 						(*p_buff)[i++] = T43; (*p_buff)[i++] = (tokenbyte) u;
 						(*p_buff)[i++] = T43; (*p_buff)[i++] = (tokenbyte) v;
+						last_is_terminal = FALSE;
 						break;
 					case 62: /* _transposefixed */
 					case 63: /* _transposecont */
 					case 64: /* _transposestep */
 						(*p_buff)[i++] = T12; (*p_buff)[i++] = (tokenbyte)(j - 34);
+						last_is_terminal = FALSE;
 						break;
 					case 65: /* _scale */
 #ifdef __BP3_WASM__
@@ -410,7 +464,7 @@ tokenbyte **Encode(t_gram* p_gram,int sequence,int notargument, int igram, int i
 				p_mem = *pp;
 				continue;
 				}
-			goto SEARCHTERMINAL2;	/* Found "_" */
+			goto SEARCHTERMINAL2;	// Found "_"
 			}
 		if(islower(c)) goto SEARCHNOTE;
 		if(c == '/') {		/* Look for /flag/ */
@@ -650,7 +704,7 @@ tokenbyte **Encode(t_gram* p_gram,int sequence,int notargument, int igram, int i
 				}
 			(*pp)++;
 			(*p_x)[l++] = '\0';
-			/* May be it's an out-time simple note */
+			// May be it's an out-time simple note
 			cv = NoteConvention;
 			lmax = 0;
 			for(j=0; j < MAXKEY; j++) {
@@ -685,12 +739,13 @@ tokenbyte **Encode(t_gram* p_gram,int sequence,int notargument, int igram, int i
 					BPPrintMessage(0,odError,"=> i > imax. Err. Encode()");
 					goto ERR;
 					}
+				last_is_terminal = TRUE;
 				c = NextChar(pp);
 				p_mem = *pp;
 				continue;
 				}
 			
-			/* It must be an out-time sound-object (or variable converted to silent sound-object) */
+			// It must be an out-time sound-object (or variable converted to silent sound-object)
 			if(l >= BOLSIZE) {
 				ShowError(4,igram,irul);
 				my_sprintf(Message,"Max length: %ld chars!\n",(long)BOLSIZE);
@@ -773,7 +828,7 @@ tokenbyte **Encode(t_gram* p_gram,int sequence,int notargument, int igram, int i
 				j = 1;
 				goto OKCODE;
 				}
-			else {				/* found '?n' */
+			else {				// found '?n'
 				n = 0;
 				*p_meta = 1;
 				(*p_buff)[i++] = T6;
@@ -828,7 +883,7 @@ tokenbyte **Encode(t_gram* p_gram,int sequence,int notargument, int igram, int i
 					}
 				}
 			}
-	if(NoteConvention <= KEYS) {
+		if(NoteConvention <= KEYS) {
 			for(j=0; j < MAXKEY; j++) {
 				q = *pp; l = (*(p_NoteLength[NoteConvention]))[j];
 				if(l > 0 && Match(TRUE,&q,(*(p_NoteName[NoteConvention]))[j],l)
@@ -878,6 +933,7 @@ tokenbyte **Encode(t_gram* p_gram,int sequence,int notargument, int igram, int i
 				goto ERR;
 				}
 			if((**pp) == '&') bound = TRUE;
+			last_is_terminal = TRUE;
 			c = NextChar(pp);
 			p_mem = *pp;
 			continue;
@@ -887,7 +943,12 @@ tokenbyte **Encode(t_gram* p_gram,int sequence,int notargument, int igram, int i
 		if(OkBolChar(c)) {
 			
 	SEARCHTERMINAL2:
-			lmax = 0;		/* Look for terminal symbol */
+			if(!last_is_terminal && c == '_') {
+				// This is a syntax error, confusing '_' with '-'
+			//	BPPrintMessage(0,odError,"=> fixed '_'\n");
+				**pp = '-'; 
+				}
+			lmax = 0;		// Look for terminal symbol
 			for(j=0; j < Jbol; j++) {
 				q = *pp;
 				l = MyHandleLen((*p_Bol)[j]);
@@ -909,6 +970,7 @@ tokenbyte **Encode(t_gram* p_gram,int sequence,int notargument, int igram, int i
 					goto ERR;
 					}
 				if((**pp) == '&') bound = TRUE;
+				last_is_terminal = TRUE;
 				c = NextChar(pp);
 				p_mem = *pp;
 				continue;
@@ -916,7 +978,7 @@ tokenbyte **Encode(t_gram* p_gram,int sequence,int notargument, int igram, int i
 			}
 			
 	SEARCHTIMEPATTERN:
-		lmax = 0;	/* Look for time pattern */
+		lmax = 0;	// Look for time pattern
 		for(j=0; j < Jpatt; j++) {
 			q = *pp;
 			l = MyHandleLen((*p_Patt)[j]);
@@ -973,8 +1035,8 @@ tokenbyte **Encode(t_gram* p_gram,int sequence,int notargument, int igram, int i
 		
 	SEARCHCODE:
 		neg = FALSE;
-		if((j=FindCode(c)) != -1) {	/* found special char */
-			if(j == 10) { 		/* 'S' */
+		if((j=FindCode(c)) != -1) {	// found special char
+			if(j == 10) { 		// 'S'
 				(*pp)++;
 				if(OkChar(**pp) && (*pp) <= (*pp2)) {
 					(*pp)--;
@@ -982,14 +1044,14 @@ tokenbyte **Encode(t_gram* p_gram,int sequence,int notargument, int igram, int i
 					}
 				else (*pp)--;
 				}
-			if(j == 18) {		/* '&' */
-				if(!bound) j = 19; /* precedes terminal or variable */
+			if(j == 18) {		// '&'
+				if(!bound) j = 19; // precedes terminal or variable
 				else bound = FALSE;
 				}
-			if(j == 2) {		/* '#' */
+			if(j == 2) {		// '#'
 				neg = TRUE;
 				}
-			if(j == 7) {		/* '.' */
+			if(j == 7) {		// '.'
 	//			NotBPCase[9] = TRUE;
 				}
 	OKCODE:	
@@ -1002,9 +1064,10 @@ tokenbyte **Encode(t_gram* p_gram,int sequence,int notargument, int igram, int i
 			(*pp)++;
 			c = NextChar(pp);
 			p_mem = *pp;
+			last_is_terminal = FALSE;
 			continue;
 			}
-		if(c == '\'') {			/* terminal between single quotes */
+		if(c == '\'') {			// terminal between single quotes
 			(*pp)++;
 			(*p_x)[0] = '\''; l = 0;
 			while((c=(**pp)) != '\'') {
@@ -1014,7 +1077,6 @@ tokenbyte **Encode(t_gram* p_gram,int sequence,int notargument, int igram, int i
 					"Terminal %s...' is too long. Max length: %ld chars.\n",(*p_x),(long)BOLSIZE);
 					Print(wTrace,Message);
 					ShowError(22,igram,irul);
-					
 					goto ERR;
 					}
 				(*p_x)[++l] = c;
@@ -1024,7 +1086,6 @@ tokenbyte **Encode(t_gram* p_gram,int sequence,int notargument, int igram, int i
 					my_sprintf(Message,"Missing single quote for terminal %s...\n",(*p_x));
 					Print(wTrace,Message);
 					ShowError(11,igram,irul);
-					
 					goto ERR;
 					}
 				}
@@ -1040,12 +1101,12 @@ tokenbyte **Encode(t_gram* p_gram,int sequence,int notargument, int igram, int i
 			for(ii=0; ii < Jhomo; ii++) (*((*p_Image)[ii]))[jj] = (tokenbyte) jj;
 			(*p_buff)[i++] = T3; (*p_buff)[i++] = (tokenbyte) jj;
 			if(i > imax) {
-				BPPrintMessage(0,odError,"=> i > imax. Err. Encode()");
-				
+				BPPrintMessage(0,odError,"=> i > imax. Err. Encode()");	
 				goto ERR;
 				}
 			if((**pp) == '&') bound = TRUE;
 			leftside = neg = FALSE;
+			last_is_terminal = TRUE;
 			c = NextChar(pp);
 			p_mem = *pp;
 			continue;
@@ -1311,29 +1372,28 @@ return(ABORT);
 }
 
 
-int FindCode(char x)
-{
-int j;
-for(j=0; j < MAXCODE; j++)
-	if(Code[j] == x) {
-		switch(j) {
-			case 12:
-			case 13:
-			case 14:
-			case 17:
-			case 18:
-			case 19:
-//			case 21:
-				NotBPCase[4] = TRUE;
-				break;
+int FindCode(char x) {
+	int j;
+	for(j=0; j < MAXCODE; j++)
+		if(Code[j] == x) {
+			switch(j) {
+				case 12:
+				case 13:
+				case 14:
+				case 17:
+				case 18:
+				case 19:
+	//			case 21:
+					NotBPCase[4] = TRUE;
+					break;
+				}
+			return(j);
 			}
-		return(j);
-		}
-if(x == '.') return(7);
-if(x == '*') return(21);
-if(x == '\\') return(25);
-return(-1);
-}
+	if(x == '.') return(7);
+	if(x == '*') return(21);
+	if(x == '\\') return(25);
+	return(-1);
+	}
 
 
 int Recode(int notargument,long *p_imax,tokenbyte ***pp_buff)
@@ -1559,7 +1619,7 @@ for(k=1; k <= (*p_nbmaster); k++) {
 	for(i=iorg,j=orgmaster[k]; j <= endmaster[k]; i+=2,j+=2) {
 		p1 = (int)(**pp_buff)[i]; q1 = (int)(**pp_buff)[i+1];
 		p2 = (int)(**pp_buff)[j]; q2 = (int)(**pp_buff)[j+1];
-		if(p1 == T25 || p2 == T25) {	/* Fixed 12/7/98 */
+		if(p1 == T25 || p2 == T25) {
 			if(p1 == T25) q1 += 16384;
 			if(p2 == T25) q2 += 16384;
 			p1 = p2 = T3;

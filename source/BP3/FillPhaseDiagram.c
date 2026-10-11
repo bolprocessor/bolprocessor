@@ -1344,10 +1344,11 @@ int FillPhaseDiagram(tokenbyte ***pp_buff,long* p_numberobjects,unsigned long *p
 		//		if(trace_capture) BPPrintMessage(1,odInfo,"§§ channel = %d\n",channel);
 				break;
 			case T32:	/* Instrument assignment _ins() */
-				value = FindValue(m,p,currentparameters.currchan);
+				value = (float) FindValue(m,p,currentparameters.currchan);
 				currentparameters.currinstr = (int) value;
 				if(value == Infpos) goto ENDDIAGRAM;
 				instrument = roundf(value);
+				// BPPrintMessage(0,odInfo,"@@@ instrument = %d, p = %ld\n",instrument,(long)p);
 				break;
 			case T46:	/* Part assignment _part() */
 				currentparameters.currpart = value = FindValue(m,p,currentparameters.currchan);
@@ -2459,19 +2460,23 @@ int MakeEmptyTokensSilent(tokenbyte ***pp_buff,double *p_maxseqapprox) {
 			MySetHandleSize((Handle*)&p_Instance,(Size)MaxObjects * sizeof(SoundObjectInstanceParameters));
 			MySetHandleSize((Handle*)&p_ObjectSpecs,(Size)MaxObjects * sizeof(objectspecs**));
 			MySetHandleSize((Handle*)&p_Articul,(Size)MaxObjects * sizeof(short));
+			(*p_Tref)[p] = ZERO; (*p_Dur)[p] = 1000L;
 			CreateSilentSoundObject(p);
 			}
-		if((m == T3 || m == T47) && p > 1 && p < Jbol && (*p_MIDIsize)[p] == ZERO && (*p_CsoundSize)[p] == ZERO) {
-			CreateSilentSoundObject(p);
-			if(trace_diagram)
-				BPPrintMessage(0,odInfo,"@@@ Created silent sound-object “%s”\n",*(*p_Bol)[p]);
+		if((m == T3 || m == T47) && p > 1 && p < Jbol && (*p_MIDIsize)[p] == ZERO && (*p_CsoundSize)[p] == ZERO && (*p_Tref)[p] > ZERO) {
+			// BPPrintMessage(0,odInfo,"@@@ Not smooth silent sound-object “%s”,Tref = %ld, Dur = %ld; RescaleMode = %d\n",*(*p_Bol)[p],(*p_Tref)[p],(*p_Dur)[p],(*p_RescaleMode)[p]);
+			}
+		if((m == T3 || m == T47) && p > 1 && p < Jbol && (*p_MIDIsize)[p] == ZERO && (*p_CsoundSize)[p] == ZERO && (*p_Tref)[p] == ZERO) {
+				CreateSilentSoundObject(p);
+				if(trace_diagram)
+					BPPrintMessage(0,odInfo,"@@@ Created silent sound-object “%s” for m =%d\n",*(*p_Bol)[p],m);
 			}
 		}
 	return OK;
 	}
 
 int CreateSilentSoundObject(int p) {
-//	BPPrintMessage(0,odInfo,"@@@ Creating silent sound-object « %s », Tref  = %ld, Dur= %ld\n",*(*p_Bol)[p],(*p_Tref)[p],(*p_Dur)[p]);
+//	BPPrintMessage(0,odInfo,"@@@ Creating silent sound-object « %s », Tref  = %ld,\n",*(*p_Bol)[p],(*p_Tref)[p]);
 
 	(*p_SilentObject)[p] = TRUE;
 	(*p_MIDIsize)[p] = (*p_CsoundSize)[p] = ZERO;
@@ -2496,5 +2501,6 @@ int CreateSilentSoundObject(int p) {
 		(*p_MaxTruncBeg)[p] = (*p_MaxTruncEnd)[p] = 0L;
 		(*p_PivPos)[p] = (*p_PreRoll)[p] = (*p_PostRoll)[p] = (*p_CyclicAfter)[p] = ZERO;
 		}
+	else (*p_Dur)[p] = (*p_Tref)[p];
 	return OK;
 	}

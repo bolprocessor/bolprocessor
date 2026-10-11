@@ -120,10 +120,9 @@ ERREUR:
 
 
 int LoadCsoundInstruments(int checkversion,int tryname) {
-	int i,io,iv,ip,jmax,j,result,y,maxticks,maxbeats,arg,length,i_table,ipmax;
+	int i,iv,ip,jmax,j,result,length,i_table,ipmax;
 	char **ptr;
 	char line[MAXLIN];
-	Handle **ptr2;
 	CsoundParam **ptr3;
 	long pos,x;
 	char **p_line,**p_completeline;
@@ -131,17 +130,15 @@ int LoadCsoundInstruments(int checkversion,int tryname) {
 	FILE* csfile;
 
 	if(trace_load_csound_instruments) BPPrintMessage(0,odInfo, "LoadCsoundInstruments(%d,%d)\n",checkversion,tryname);
-
 	if(LoadedCsoundInstruments) {
 		if(trace_load_csound_instruments) BPPrintMessage(0,odInfo,"Csound instruments file has already been loaded\n");
 		return(OK);
 		}
-
 	iCsoundInstrument = 0;
 	LoadOn++;
 	pos = ZERO;
 	CompiledRegressions = CompiledCsObjects = 0;
-	p_line = p_completeline = NULL;
+	p_line = p_completeline = ptr = NULL;
 
 	if(trace_load_csound_instruments) BPPrintMessage(0,odInfo,"Opening Csound instruments file: %s\n",FileName[wCsoundResources]);
 
@@ -182,9 +179,15 @@ int LoadCsoundInstruments(int checkversion,int tryname) {
 	else CsoundOrchestraName[0] = '\0';
 	if(trace_load_csound_instruments) BPPrintMessage(0,odInfo,"CsoundOrchestraName = %s\n",CsoundOrchestraName);
 	if(ReadInteger(csfile,&jmax,&pos) == MISSED) goto ERR;
-	if(trace_load_csound_instruments) BPPrintMessage(0,odInfo,"jmax = %d\n",jmax);
+	if(trace_load_csound_instruments) 
+		BPPrintMessage(0,odInfo,"jmax = %d\n",jmax);
 	if(jmax < 0) {
 		BPPrintMessage(0,odError,"=> This file is empty or in an unknown format\n");
+		goto QUIT;
+		}
+	if(jmax >= 100) {
+		BPPrintMessage(0,odError,"=> Too many Csound instruments (%d)\n",jmax);
+		jmax = 0; result = ABORT;
 		goto QUIT;
 		}
 	if(jmax > 0 && (result=ResizeCsoundInstrumentsSpace(jmax)) != OK) goto ERR;
@@ -196,29 +199,18 @@ int LoadCsoundInstruments(int checkversion,int tryname) {
 		ResetCsoundInstrument(j,YES,YES);
 		if(trace_load_csound_instruments) BPPrintMessage(0,odInfo,"j = %d\n",j);
 		if(ReadOne(FALSE,TRUE,FALSE,csfile,TRUE,&p_line,&p_completeline,&pos) == MISSED) goto ERR;
-	//	ptr = (*pp_CsInstrumentName)[j];
-		ptr = NULL; // Fixed by BB 2021-02-14
 		if((*p_completeline)[0] != '\0') {
 			MystrcpyHandleToString(MAXLIN,0,LineBuff,p_completeline);
-		//	if(ShowMessages) ShowMessage(TRUE,wMessage,LineBuff);
-			if(MySetHandleSize((Handle*)&ptr,(1L + MyHandleLen(p_completeline)) * sizeof(char)) != OK)
-				goto ERR;
+			ptr = NULL;
+			if(MySetHandleSize((Handle*)&ptr,(Size)(1L + MyHandleLen(p_completeline)) * sizeof(char)) != OK) goto ERR;
 			MystrcpyHandleToHandle(0,&ptr,p_completeline);
 			(*pp_CsInstrumentName)[j] = ptr;
 			}
-		else strcpy((*((*pp_CsInstrumentName)[j])),""); // (*((*pp_CsInstrumentName)[j]))[0] = '\0'; Fixed by BB 2021-02-14
+		else strcpy((*((*pp_CsInstrumentName)[j])),"");
 		
-		if(trace_load_csound_instruments) BPPrintMessage(0,odInfo,"Loading Csound instrument %d = \"%s\" out of %d\n",(j+1),(*((*pp_CsInstrumentName)[j])),jmax);
-	//	p_line = p_completeline = NULL; 
+		if(trace_load_csound_instruments)
+			BPPrintMessage(0,odInfo,"Loading Csound instrument %d = \"%s\" out of %d\n",(j+1),(*((*pp_CsInstrumentName)[j])),jmax);
 		if(ReadOne(FALSE,TRUE,FALSE,csfile,TRUE,&p_line,&p_completeline,&pos) == MISSED) goto ERR;
-	/*	if((*p_completeline)[0] != '\0') {
-			if(MySetHandleSize((Handle*)&ptr,(1L + MyHandleLen(p_completeline)) * sizeof(char)) != OK)
-				goto ERR;
-			MystrcpyHandleToHandle(0,&ptr,p_completeline);
-			(*pp_CsInstrumentComment)[j] = ptr;
-			if(trace_load_csound_instruments) BPPrintMessage(0,odInfo,"Comment: %s\n",(*p_completeline));
-			}
-		else strcpy((*((*pp_CsInstrumentComment)[j])),""); // (*((*pp_CsInstrumentComment)[j]))[0] = '\0'; Fixed by BB 2021-02-14 */
 		strcpy((*((*pp_CsInstrumentComment)[j])),""); // Forget comment! 2024-05-20
 		if(ReadInteger(csfile,&i,&pos) == MISSED) goto ERR;
 		(*p_CsInstrument)[j].iargmax = i;
@@ -369,8 +361,7 @@ int LoadCsoundInstruments(int checkversion,int tryname) {
 			if(ReadOne(FALSE,TRUE,FALSE,csfile,TRUE,&p_line,&p_completeline,&pos) == MISSED) goto ERR;
 			length = MyHandleLen(p_completeline);
 			if(length > 0) {
-				if((ptr=(char**) GiveSpace((Size)((1L + length)
-					* sizeof(char)))) == NULL) goto ERR;
+				if((ptr=(char**) GiveSpace((Size)((1L + length) * sizeof(char)))) == NULL) goto ERR;
 				MystrcpyHandleToHandle(0,&ptr,p_completeline);
 				(*((*p_CsInstrument)[j].paramlist))[ip].name = ptr;
 				i = FixStringConstant(*p_completeline);
@@ -454,10 +445,10 @@ int LoadCsoundInstruments(int checkversion,int tryname) {
 		}
 	goto QUIT;
 
-	ERR:
+ERR:
 	BPPrintMessage(0,odError,"=> Error reading Csound instruments file:  %s\n",FileName[wCsoundResources]);
 
-	QUIT:
+QUIT:
 	MyDisposeHandle((Handle*)&p_line);
 	MyDisposeHandle((Handle*)&p_completeline);
 	my_fclose(csfile);
@@ -968,16 +959,15 @@ int LoadObjectPrototypes(int checkversion,int tryname) {
 		const char *basename;
 		int length;
 
-		/* Select the last path separator, whether / or \ */
+		// Select the last path separator, whether '/' or '\'
 		if (slash == NULL) separator = backslash;
 		else if (backslash == NULL) separator = slash;
 		else separator = (slash > backslash) ? slash : backslash;
 		basename = (separator != NULL) ? separator + 1 : path;
 
 		if(strncmp(basename, "-so.",4) == 0) {
-			// Keep the directory, remove "-so.", and add ".json".
-
-			length = snprintf(json_path, sizeof json_path,"%s%s.json", OutputDir, basename + 4);
+			// Keep the directory, remove "-so.", and add "proto-" + ".json"
+			length = snprintf(json_path, sizeof json_path,"%sproto-%s.json", OutputDir, basename + 4);
 			if (length < 0 || (size_t)length >= sizeof json_path) {
 				BPPrintMessage(0, odError,"=> JSON file path is too long: %s\n", path);
 				sojson = NULL;
@@ -1328,6 +1318,7 @@ NEXTBOL:
 	(*p_PasteDone)[j] = FALSE;
 	(*p_MIDIsize)[j] = (*p_Ifrom)[j] = ZERO;
 	(*pp_MIDIcode)[j] = NULL;
+	(*p_SilentObject)[j] = FALSE;
 	if(imax > 0) {
 		if((p_b = (MIDIcode**) GiveSpace((Size)sizeof(MIDIcode)*(imax+1))) == NULL) goto ERR;
 		rep = OK;
@@ -1447,9 +1438,6 @@ void thismode_csound(int value,char mode[30]) {
 		case LOCAL_CS:
 			strcpy(mode,"LOCAL_CS");
 			break;
-	/*	case  GLOBAL_CS:
-			strcpy(mode,"GLOBAL_CS");
-			break; */
 		default:
 			strcpy(mode,"UNKNOWN");
 			break;

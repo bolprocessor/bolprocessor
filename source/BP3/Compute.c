@@ -332,14 +332,14 @@ int ComputeInGram(tokenbyte ***pp_a,t_gram *p_gram,int igram,int inrul,long *p_l
 		mode,&equalweight,learn,time_end_compute)) > 0) || (nb_candidates == AGAIN)) {
 
 		if(!Improvize && !Interactive && time_end_compute > 0L  && getClockTime() > time_end_compute) {
-			EmergencyExit =TRUE;
+			EmergencyExit = TRUE;
 			BPPrintMessage(0,odInfo,"=> (5) Maximum allowed time (%d seconds) has been spent in ComputeInGram(). Stopped computing...\n➡ This limit can be modified in the settings\n\n",MaxConsoleTime);
 			return(ABORT);
 			}
 		try = irep = 0;
 		if(TraceDetail) equalweight = FALSE; // 2026-05-03, so all candidate rules will be listed
 		if(trace_compute) 
-			BPPrintMessage(1,odInfo,"nb_candidates = %d (*p_repeat) = %d\n",nb_candidates,(*p_repeat));
+			BPPrintMessage(1,odInfo,"nb_candidates = %d (*p_repeat) = %d, equalweight = %d\n",nb_candidates,(*p_repeat),equalweight);
 		if(nb_candidates == EXIT) {
 			rep = ABORT; goto QUIT;
 			}
@@ -781,7 +781,7 @@ MORE:
 			}
 		}   // End of while() loop
 
-	if(mode == PROD &&  !LoadedData && (*p_length) < 3L && igram == 1 && nb_candidates == 0) {
+	if(mode == PROD && !LoadedData && (*p_length) < 2L && igram == 1 && nb_candidates == 0) {
 		BPPrintMessage(1,odError,"=> Cannot produce items because all weights are nil in gram#%d\n",igram);
 		nb_candidates = ABORT;
 		}
@@ -789,7 +789,7 @@ MORE:
 			|| nb_candidates == STOP) {
 		rep = nb_candidates;
 		if(rep == ABORT && !Panic) {
-			BPPrintMessage(0,odError,"=> Error finding nb_candidates in Compute.c\n");
+			BPPrintMessage(0,odError,"=> Error finding candidate rules in this grammar\n");
 			}
 		goto QUIT;
 		}
@@ -1368,7 +1368,7 @@ int FindCandidateRules(tokenbyte ***pp_a,t_gram *p_gram,int startfrom,int igram,
 		
 	if(i > 1) {
 		(*p_freedom) = TRUE;
-		if(grtype == LINtype) {	/* Find left/rightmost derivation(s) */
+		if(grtype == LINtype) {	// Find left/rightmost derivation(s)
 			switch(mode) {
 				case PROD:
 				case TEMP:

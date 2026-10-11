@@ -401,6 +401,7 @@ int InterruptCompile(void);
 int CompilePatterns(void);
 int GetPatterns(int,int);
 int ReadPatterns(char**,int);
+int InstrumentIndex(int);
 int ResetVariables(int);
 int KillSubTree(node);
 tokenbyte Image(int,int);
@@ -629,6 +630,7 @@ int DrawObject(int,char*,int,double,int,int,int,int,long,long,long,long,long,int
 int DrawSequence(int,SoundObjectInstanceParameters**,Milliseconds**,Milliseconds**,long,unsigned long,
 	unsigned long**,int,long**,long**,long**);
 int DrawPrototype(int,int,Rect*);
+int SaveJsonCsoundInstrument(int);
 int PrintArg(int,int,int,char,int,int,FILE*,int,tokenbyte***,tokenbyte***);
 int PrintArgSub(PrintargType*,unsigned long*,TextHandle,FILE*,tokenbyte***,tokenbyte***,unsigned long*,int*,double*,int*,int*,int*,int,int*,int,int,int*,int*,int,int,int*,int*,int*,double*);
 int check_and_remove_duplicate_last_line(const char*);
@@ -742,7 +744,7 @@ int AppendSilence(int,Milliseconds);
 int DurationToPoint(MIDIcode****,Milliseconds****,long**,int);
 int PointToDuration(MIDIcode****,Milliseconds****,long**,int);
 int sort_csound_score(char**);
-int ThisInstrument(int,int,int);
+int ThisInstrument(int,int,int,int*);
 // int ChangeControlValue(int,ControlHandle,int);
 int SortMIDIdates(long,int);
 int SortCsoundDates(long,int);

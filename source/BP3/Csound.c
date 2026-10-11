@@ -39,6 +39,7 @@
 #include "-BP3decl.h"
 
 int trace_csound = 0;
+int trace_find_instrument = 0;
 
 #if BP_CARBON_GUI_FORGET_THIS
 
@@ -729,7 +730,8 @@ return(OK);
 /* New argument "newinstr" should be YES when the instrument space
    is newly allocated and uninitialized.  This is the case when called from 
    ResizeCsoundInstrumentsSpace().  When "all" is NO, then the instrument
-   index, name, and comment are preserved.  Changes by BB. */
+   index, name, and comment are preserved. */
+
 int ResetCsoundInstrument(int j,int all, int newinstr) {
 	Handle ptr;
 	int i,channel;
@@ -747,8 +749,11 @@ int ResetCsoundInstrument(int j,int all, int newinstr) {
 				}
 			}
 		}
-
-	if(all || newinstr) (*p_CsInstrumentIndex)[j] = -1;
+	if(all || newinstr) {
+		(*p_CsInstrumentIndex)[j] = -1;
+	//	BPPrintMessage(0,odInfo,"@@@@@ all = %d, newinstr = %d, j = %d\n",all,newinstr,j);
+		}
+	// else BPPrintMessage(0,odInfo,"@@@@@ CsInstrumentIndex[%d] = %d\n",j,(*p_CsInstrumentIndex)[j]);
 	(*p_CsDilationRatioIndex)[j] = (*p_CsAttackVelocityIndex)[j]
 		= (*p_CsReleaseVelocityIndex)[j]
 		= (*p_CsPressureStartIndex)[j] = (*p_CsModulationStartIndex)[j]
@@ -774,7 +779,7 @@ int ResetCsoundInstrument(int j,int all, int newinstr) {
 		= (*p_CsInstrument)[j].rModulation.islogx = (*p_CsInstrument)[j].rModulation.islogy
 		= (*p_CsInstrument)[j].rPanoramic.islogx = (*p_CsInstrument)[j].rPanoramic.islogy = FALSE;
 
-	(*p_CsInstrument)[j].pitchbendrange = 200; // 2025-01-19
+	(*p_CsInstrument)[j].pitchbendrange = 200;
 
 	(*p_CsInstrument)[j].pressuretable = (*p_CsInstrument)[j].modulationtable
 		= (*p_CsInstrument)[j].panoramictable = -1;
@@ -783,7 +788,7 @@ int ResetCsoundInstrument(int j,int all, int newinstr) {
 		= (*p_CsInstrument)[j].pressureGEN = (*p_CsInstrument)[j].modulationGEN
 		= (*p_CsInstrument)[j].panoramicGEN = 7;
 
-	(*p_CsInstrument)[j].iargmax = 10;	/* Three Arguments are compulsory */
+	(*p_CsInstrument)[j].iargmax = 10;	// Three Arguments are compulsory
 
 	if(!newinstr) {
 		for(i=0; i < (*p_CsInstrument)[j].ipmax; i++) {
@@ -791,6 +796,7 @@ int ResetCsoundInstrument(int j,int all, int newinstr) {
 				BPPrintMessage(0,odError,"=> Err. ResetCsoundInstrument(). (*p_CsInstrument)[j].paramlist == NULL\n",j);
 				continue;
 				}
+			
 			ptr = (Handle) (*((*p_CsInstrument)[j].paramlist))[i].name;
 			MyDisposeHandle(&ptr);
 			ptr = (Handle) (*((*p_CsInstrument)[j].paramlist))[i].comment;
@@ -807,14 +813,12 @@ int ResetCsoundInstrument(int j,int all, int newinstr) {
 		ptr = (Handle)(*pp_CsInstrumentName)[j];
 		MySetHandleSize(&ptr,(Size)2L * sizeof(char));
 		(*pp_CsInstrumentName)[j] = (char**) ptr;
-	//	(*((*pp_CsInstrumentName)[j]))[0] = '\0';
-		strcpy((*((*pp_CsInstrumentName)[j])),""); // Fixed by BB 2021-02-14
+		strcpy((*((*pp_CsInstrumentName)[j])),"");
 		
 		ptr = (Handle)(*pp_CsInstrumentComment)[j];
 		MySetHandleSize(&ptr,(Size)2L * sizeof(char));
 		(*pp_CsInstrumentComment)[j] = (char**) ptr;
-	//	(*((*pp_CsInstrumentComment)[j]))[0] = '\0';
-		strcpy((*((*pp_CsInstrumentComment)[j])),""); // Fixed by BB 2021-02-14
+		strcpy((*((*pp_CsInstrumentComment)[j])),"");
 		}
 
 	(*(p_CsPitchBend[0]))[j] = 0.; (*(p_CsPitchBend[1]))[j] = DEFTPITCHBEND;
@@ -1219,12 +1223,6 @@ int CompileObjectScore(int j,int *p_longerCsound) {
 				if(Jinstr < 2)
 					BPPrintMessage(0,odError,"=> You probably forgot to create or load a '-cs' instrument file\n");
 				if((*p_CsoundInstr)[j] > 0) {
-	#if BP_CARBON_GUI_FORGET_THIS
-					ShowWindow(Window[wPrototype1]);
-					BringToFront(Window[wPrototype1]);
-					BPActivateWindow(SLOW,wPrototype8);
-					SelectField(NULL,wPrototype8,fForceToInstrument,TRUE);
-	#endif /* BP_CARBON_GUI_FORGET_THIS */
 					my_sprintf(Message,"=> Perhaps the problem is that this sound-object is instructed to use instrument %ld",
 						(long)param);
 					BPPrintMessage(0,odError,"%s\n",Message);
@@ -1258,7 +1256,6 @@ int CompileObjectScore(int j,int *p_longerCsound) {
 
 	SORTIR:
 	if(CompileOn) CompileOn--;
-	// HideWindow(Window[wMessage]);
 	MyDisposeHandle((Handle*)&h); /* Useful when result != OK */
 
 	if(result != OK) ievent = 0;
@@ -1277,7 +1274,7 @@ int CompileObjectScore(int j,int *p_longerCsound) {
 		}
 
 	PointCsound = TRUE;
-	// BPPrintMessage(0,odError,"CompiledObjectScore(%d)\n",j);
+	// BPPrintMessage(0,odInfo,"CompiledObjectScore(%d)\n",j);
 
 	if(PointToDuration(NULL,pp_CsoundTime,p_CsoundSize,j) != OK) return(ABORT); 
 
@@ -1304,7 +1301,6 @@ if(j < 2 || j >= Jbol) {
 result = OK;
 if((*p_CsoundSize)[j] < 1L) return(OK);
 if(CompileRegressions() != OK) return(MISSED);
-// if((rep=ClearWindow(NO,wPrototype7)) != OK) return(rep);
 
 CompileOn++;
 
@@ -1315,20 +1311,10 @@ if(DurationToPoint(NULL,pp_CsoundTime,p_CsoundSize,j) != OK) {
 	if(CompileOn) CompileOn--;
 	return(ABORT);
 	}
-#if BP_CARBON_GUI_FORGET_THIS
-if(j != iProto) SetPrototype(iProto=j);
-#endif /* BP_CARBON_GUI_FORGET_THIS */
 PrintBehind(wPrototype7,"t 0 ");
 WriteFloatToLine(LineBuff,(double)(*p_CsoundTempo)[j]);
 PrintBehindln(wPrototype7,LineBuff);
 for(ievent=ZERO; ievent < (*p_CsoundSize)[j]; ievent++) {
-	PleaseWait();
-#if BP_CARBON_GUI_FORGET_THIS
-	// FIXME ? Should non-Carbon builds call a "poll events" callback here ?
-	if((result=MyButton(1)) != MISSED) {
-		if(result != OK || (result=InterruptCompileCscore()) != OK) goto SORTIR;
-		}
-#endif /* BP_CARBON_GUI_FORGET_THIS */
 	result = OK;
 	instrumentindex = (*((*pp_CsoundScore)[j]))[ievent].instrument;
 	for(ins=0; ins < Jinstr; ins++) {
@@ -1411,41 +1397,58 @@ return(result);
 }
 
 int FindCsoundInstrument(char* line) {
+	// Find the instrument index in the compiled '-cs' file
 	int i,j,isnumber;
 
 	Strip(line);
-	if(line[0] == '\0') {
+	if(strlen(line) == 0) {
+		if(trace_find_instrument) BPPrintMessage(0,odInfo,"@§ line is empty\n");
 		isnumber = FALSE; goto ERR;
 		}
 	isnumber = TRUE;
-	for(i=0; i < strlen(line); i++) {
+	for(i = 0; i < strlen(line); i++) {
 		if(!isdigit(line[i])) {
+			if(trace_find_instrument) BPPrintMessage(0,odInfo,"@§ non-digit found\n");
 			isnumber = FALSE; break;
 			}
 		}
 	if(isnumber) {
 		i = (int) atol(line);
-		for(j=0; j < Jinstr; j++) {
-	//		BPPrintMessage(0,odInfo,"InstrumentIndex = %d, j = %d\n",(*p_CsInstrumentIndex)[j],j);
-			if(i == (*p_CsInstrumentIndex)[j]) break;
+		if(i < 1 || i >=  MAXINSTRUMENTS) {
+			BPPrintMessage(0,odError,"=> ins(%d) is incorrect, beyond range 1 to %d\n",i,MAXINSTRUMENTS);
+			return MISSED;
+			}
+		if(trace_find_instrument) BPPrintMessage(0,odInfo,"@§ found number i = %d\n",i);
+		for(j = 0; j < Jinstr; j++) {
+		//	BPPrintMessage(0,odInfo,"InstrumentIndex[%d] = %d, i = %d (%s)\n",j,(*p_CsInstrumentIndex)[j],i,(*(*pp_CsInstrumentName)[j]));
+			if(i == (*p_CsInstrumentIndex)[j]) {
+				if(trace_find_instrument) BPPrintMessage(0,odInfo,"@§ found instrument index j = %d\n",j);
+				break;
+				}
 			}
 		if(j < Jinstr) return(i);
 		goto ERR;
 		}
-	for(j=0; j < Jinstr; j++) {
-	//	BPPrintMessage(0,odInfo,"InstrumentName = %s, j = %d\n",(*(*pp_CsInstrumentName)[j]),j);
-		if(Mystrcmp((*pp_CsInstrumentName)[j],line) == 0) break;
+	for(j = 0; j < Jinstr; j++) {
+	//	BPPrintMessage(0,odInfo,"InstrumentName[%d] = %s\n",j,(*(*pp_CsInstrumentName)[j]),j);
+	//	if(Mystrcmp((*pp_CsInstrumentName)[j],line) == 0) break;
+		if(strcmp(*((*pp_CsInstrumentName)[j]),line) == 0) {
+			if(trace_find_instrument) BPPrintMessage(0,odInfo,"@§ found instrument name j = %d “%s”\n",j,line);
+			break;
+			}
 		}
 	if(j < Jinstr) return((*p_CsInstrumentIndex)[j]);
 
 	ERR:
 	if(Jinstr < 2) {
-		Print(wTrace,"\n=> You probably forgot to create or load a '-cs' instrument file");
+		BPPrintMessage(0,odInfo,"👉 You probably forgot to create or declare a '-cs' instrument file\n");
 		}
-	if(isnumber) my_sprintf(Message,"=> Instrument %ld was not found in the '-cs' instrument file",(long) i);
-	else my_sprintf(Message,"=> Instrument \"%s\" was not found in the '-cs' instrument file",line);
-	BPPrintMessage(0,odError,"%s\n",Message);
-	return(ABORT);
+	if(isnumber) {
+		BPPrintMessage(0,odError,"=> Instrument #%d was not found in a '-cs' instrument file %d\n",i,Jinstr);
+		return(1);
+		}
+	else BPPrintMessage(0,odError,"=> Instrument \"%s\" was not found in a '-cs' instrument file",line);
+	return(1);
 	}
 
 
@@ -1510,27 +1513,25 @@ static int compare_lines(const void *a, const void *b)
 }
 
 
-int sort_csound_score(char **p_line)
-// Sorts each block of consecutive i-statements by start date (p2).
-// Returns 0 on success, -1 on error.
-{
+int sort_csound_score(char **p_line) {
+// Sorts each block of consecutive i-statements by start date (p2)
     char *str, *buf, *dst;
     const char *p, *next;
     size_t total, n = 1, k = 0, a, b;
     ScoreLine *lines;
 
-    if (p_line == NULL || *p_line == NULL) return -1;
+    if (p_line == NULL || *p_line == NULL) return ABORT;
     str = *p_line;
     total = strlen(str);
 
-    /* Count lines */
+    // Count lines
     for (p = str; (p = strstr(p, LINE_SEP)) != NULL; p += LINE_SEP_LEN) n++;
 
     lines = (ScoreLine *)malloc(n * sizeof(ScoreLine));
     buf   = (char *)malloc(total + 1);
-    if (lines == NULL || buf == NULL) { free(lines); free(buf); return -1; }
+    if (lines == NULL || buf == NULL) { free(lines); free(buf); return ABORT; }
 
-    /* Split into lines, each keeping its trailing <BR> */
+	// Split into lines, each keeping its trailing <BR>
     p = str;
     for (;;) {
         size_t content_len;
@@ -1544,28 +1545,235 @@ int sort_csound_score(char **p_line)
         k++;
         if (next == NULL) break;
         p = next + LINE_SEP_LEN;
-    }
+    	}
 
-    /* Sort each run of consecutive i-statements; other lines
-       (t, f, s, comments, <HTML>...) stay where they are. */
+    // Sort each run of consecutive i-statements; other lines (t, f, s, comments, <HTML>...) stay where they are.
     for (a = 0; a < n; a = b) {
         if (!lines[a].is_i) { b = a + 1; continue; }
         for (b = a; b < n && lines[b].is_i; b++) ;
         if (b - a > 1)
             qsort(lines + a, b - a, sizeof(ScoreLine), compare_lines);
-    }
+    	}
 
-    /* Rebuild, then copy back (same length, so the handle size is unchanged) */
+    // Rebuild, then copy back (same length, so the handle size is unchanged)
     dst = buf;
     for (k = 0; k < n; k++) {
         memcpy(dst, lines[k].text, lines[k].len);
         dst += lines[k].len;
-    }
+    	}
     *dst = '\0';
     memcpy(str, buf, total + 1);
-
     free(lines);
     free(buf);
-    return 0;
-}
+    return OK;
+	}
 
+/* Escape a C string for JSON (quotes, backslashes, control characters).
+   Returns a malloc'd string the caller must free(), or NULL. */
+static char *JsonEscapeString(const char*);
+
+static char *JsonEscapeString(const char *s) {
+	size_t len;
+	const unsigned char *p;
+	char *out,*q;
+
+	if(s == NULL) s = "";
+	len = strlen(s);
+	out = (char*) malloc(6 * len + 1);
+	if(out == NULL) return(NULL);
+	q = out;
+	for(p = (const unsigned char*) s; *p != '\0'; p++) {
+		switch(*p) {
+			case '"':  *q++ = '\\'; *q++ = '"';  break;
+			case '\\': *q++ = '\\'; *q++ = '\\'; break;
+			case '\n': *q++ = '\\'; *q++ = 'n';  break;
+			case '\r': *q++ = '\\'; *q++ = 'r';  break;
+			case '\t': *q++ = '\\'; *q++ = 't';  break;
+			default:
+				if(*p < 0x20) {
+					my_sprintf(q,"\\u%04x",(unsigned int) *p);
+					q += 6;
+					}
+				else *q++ = (char) *p;
+			}
+		}
+	*q = '\0';
+	return(out);
+	}
+
+static int SaveEscapedStringAsJson(FILE*,const char*,const char*,const char*,const char*);
+
+static int SaveEscapedStringAsJson(FILE *csjson,const char *key,const char *unit,const char *name,const char *value) {
+	char *esc;
+	int result;
+
+	esc = JsonEscapeString(value);
+	if(esc == NULL) return(MISSED);
+	result = SaveStringAsJson(csjson,key,unit,name,esc);
+	free(esc);
+	return(result);
+	}
+
+static const char *CsPitchFormatName(int);
+
+static const char *CsPitchFormatName(int format) {
+	switch(format) {
+		case OPPC:    return("OPPC");
+		case OPD:     return("OPD");
+		case CPS:     return("CPS");
+		case IGNORER: return("IGNORER");
+		}
+	return("UNKNOWN");
+	}
+
+/* Shortcuts: #var turns the variable name into the JSON label */
+#define CSI ((*p_CsInstrument)[j])
+
+#define SAVE_CS_INT(var) \
+	SaveIntAsJson(csjson,#var,"",#var,(int)((*p_##var)[j]))
+
+#define SAVE_INSTR_INT(field,unit) \
+	SaveIntAsJson(csjson,#field,unit,#field,(int)(CSI.field))
+
+#define SAVE_INSTR_BOOL(reg,field) \
+	SaveIntAsJson(csjson,#reg "." #field,"boolean",#reg "." #field,(CSI.reg.field != 0))
+
+#define SAVE_CS_TABLE(var) do { \
+	for(k = 0; k < 6; k++) { \
+		snprintf(label,sizeof(label),"%s[%d]",#var,k); \
+		SaveFloatAsJson(csjson,label,"",label,(double)((*(p_##var[k]))[j])); \
+		} \
+	} while(0)
+
+
+int SaveJsonCsoundInstrument(int instrument) {
+	int i,j,k,ipmax;
+	CsoundParam **params;
+	FILE *csjson;
+	char instrument_path[1024],label[MAXNAME];
+	int length;
+
+	// BPPrintMessage(0,odInfo,"👉 Creating json file ??? instrument = %d\n",instrument);
+	if(instrument < 1 || instrument >= MAXINSTRUMENTS) return(OK);
+	for(j = 0; j < Jinstr; j++)
+		if((*p_CsInstrumentIndex)[j] == instrument) break;
+	if(j < Jinstr) snprintf(label,sizeof label,"%s",*((*pp_CsInstrumentName)[j]));
+	else return(OK);
+
+	Exported_instrument[instrument] = TRUE;
+	csjson = NULL;
+
+	BPPrintMessage(0,odInfo,"👉 Creating json file of Csound instr #%d « %s »\n",instrument,label);
+
+	length = snprintf(instrument_path, sizeof instrument_path,"%sinstr-%s.json",OutputDir,label);
+	if(length < 0 || (size_t)length >= sizeof instrument_path) {
+		BPPrintMessage(0,odError,"=> Csound instrument file path is too long\n");
+		return(MISSED);
+		}
+	else csjson = fopen(instrument_path,"w");
+
+	if(csjson == NULL) return(MISSED);
+
+	fprintf(csjson,"{\n\"header\": \"Bol Processor Csound instrument\",\n");
+
+	/* Identification */
+	SAVE_CS_INT(CsInstrumentIndex);
+	SaveEscapedStringAsJson(csjson,"CsInstrumentName","","CsInstrumentName",*((*pp_CsInstrumentName)[j]));
+	SaveEscapedStringAsJson(csjson,"CsInstrumentComment","","CsInstrumentComment",*((*pp_CsInstrumentComment)[j]));
+	SAVE_INSTR_INT(iargmax,"");
+
+	/* Argument indexes */
+	SAVE_CS_INT(CsDilationRatioIndex);
+	SAVE_CS_INT(CsAttackVelocityIndex);
+	SAVE_CS_INT(CsReleaseVelocityIndex);
+	SAVE_CS_INT(CsoundTempo);
+	SAVE_CS_INT(CsPitchIndex);
+	SaveStringAsJson(csjson,"CsPitchFormat","enum","CsPitchFormat",
+		CsPitchFormatName((int)(*p_CsPitchFormat)[j]));
+	SAVE_CS_INT(CsVolumeStartIndex);
+	SAVE_CS_INT(CsVolumeEndIndex);
+	SAVE_CS_INT(CsPitchBendStartIndex);
+	SAVE_CS_INT(CsPitchBendEndIndex);
+	SAVE_CS_INT(CsPressureStartIndex);
+	SAVE_CS_INT(CsPressureEndIndex);
+	SAVE_CS_INT(CsModulationStartIndex);
+	SAVE_CS_INT(CsModulationEndIndex);
+	SAVE_CS_INT(CsPanoramicStartIndex);
+	SAVE_CS_INT(CsPanoramicEndIndex);
+
+	/* Pitchbend range */
+	SaveFloatAsJson(csjson,"pitchbendrange","cents","pitchbendrange",CSI.pitchbendrange);
+
+	/* Tables */
+	SAVE_INSTR_INT(pitchbendtable,"");
+	SAVE_INSTR_INT(volumetable,"");
+	SAVE_INSTR_INT(pressuretable,"");
+	SAVE_INSTR_INT(modulationtable,"");
+	SAVE_INSTR_INT(panoramictable,"");
+
+	/* GEN types */
+	SAVE_INSTR_INT(pitchbendGEN,"");
+	SAVE_INSTR_INT(volumeGEN,"");
+	SAVE_INSTR_INT(pressureGEN,"");
+	SAVE_INSTR_INT(modulationGEN,"");
+	SAVE_INSTR_INT(panoramicGEN,"");
+
+	/* Logarithmic scales of the regressions */
+	SAVE_INSTR_BOOL(rPitchBend,islogx);
+	SAVE_INSTR_BOOL(rPitchBend,islogy);
+	SAVE_INSTR_BOOL(rVolume,islogx);
+	SAVE_INSTR_BOOL(rVolume,islogy);
+	SAVE_INSTR_BOOL(rPressure,islogx);
+	SAVE_INSTR_BOOL(rPressure,islogy);
+	SAVE_INSTR_BOOL(rModulation,islogx);
+	SAVE_INSTR_BOOL(rModulation,islogy);
+	SAVE_INSTR_BOOL(rPanoramic,islogx);
+	SAVE_INSTR_BOOL(rPanoramic,islogy);
+
+	/* MIDI -> Csound mapping points: [0..2] MIDI values, [3..5] Csound values */
+	SAVE_CS_TABLE(CsPitchBend);
+	SAVE_CS_TABLE(CsVolume);
+	SAVE_CS_TABLE(CsPressure);
+	SAVE_CS_TABLE(CsModulation);
+	SAVE_CS_TABLE(CsPanoramic);
+
+	/* Associated (untyped) parameters */
+	ipmax = CSI.ipmax;
+	SAVE_INSTR_INT(ipmax,"");
+	params = CSI.paramlist;
+	for(i = 0; i < ipmax; i++) {
+		snprintf(label,sizeof(label),"paramlist[%d].name",i);
+		SaveEscapedStringAsJson(csjson,label,"",label,*((*params)[i].name));
+
+		snprintf(label,sizeof(label),"paramlist[%d].comment",i);
+		SaveEscapedStringAsJson(csjson,label,"",label,*((*params)[i].comment));
+
+		snprintf(label,sizeof(label),"paramlist[%d].startindex",i);
+		SaveIntAsJson(csjson,label,"",label,(*params)[i].startindex);
+
+		snprintf(label,sizeof(label),"paramlist[%d].endindex",i);
+		SaveIntAsJson(csjson,label,"",label,(*params)[i].endindex);
+
+		snprintf(label,sizeof(label),"paramlist[%d].table",i);
+		SaveIntAsJson(csjson,label,"",label,(*params)[i].table);
+
+		snprintf(label,sizeof(label),"paramlist[%d].defaultvalue",i);
+		SaveFloatAsJson(csjson,label,"",label,(*params)[i].defaultvalue);
+
+		snprintf(label,sizeof(label),"paramlist[%d].GENtype",i);
+		SaveIntAsJson(csjson,label,"",label,(*params)[i].GENtype);
+
+		snprintf(label,sizeof(label),"paramlist[%d].combinationtype",i);
+		SaveStringAsJson(csjson,label,"enum",label,
+			((*params)[i].combinationtype == MULT) ? "MULT" : "ADD");
+		}
+	fprintf(csjson,"     \"end\": {\n      }\n  }");
+	fclose(csjson);
+	return(OK);
+	}
+
+#undef CSI
+#undef SAVE_CS_INT
+#undef SAVE_INSTR_INT
+#undef SAVE_INSTR_BOOL
+#undef SAVE_CS_TABLE

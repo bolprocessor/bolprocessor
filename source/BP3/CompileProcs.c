@@ -720,7 +720,7 @@ int GetPerformanceControl(char **pp,int arg_nr,int *p_n,int quick,long *p_u,long
 	if(trace_scale)
 		BPPrintMessage(0,odInfo,"Start GetPerformanceControl()\n");
 	for(j=0; j < MaxPerformanceControl; j++) {
-	//	BPPrintMessage(0,odInfo,"%s\n",(*(*p_PerformanceControl)[j]));
+	//	BPPrintMessage(0,odInfo,"j = %d  %s\n",j,(*(*p_PerformanceControl)[j]));
 		ptr = *pp; i = 0; length = MyHandleLen((*p_PerformanceControl)[j]);
 		while(MySpace(*ptr)) ptr++;
 		while(i < length && (((c=(*ptr)) == (d=(*((*p_PerformanceControl)[j]))[i]))
@@ -732,7 +732,7 @@ int GetPerformanceControl(char **pp,int arg_nr,int *p_n,int quick,long *p_u,long
 			}
 		}
 	if(jinstr == -1) return(RESUME);
-//	BPPrintMessage(1,odInfo,"GetPerformanceControl() j = %d MaxPerformanceControl = %d\n",jinstr,MaxPerformanceControl);
+	// BPPrintMessage(1,odInfo,"GetPerformanceControl() j = %d MaxPerformanceControl = %d\n",jinstr,MaxPerformanceControl);
 	if(arg_nr == 1 || arg_nr == 4) {
 		my_sprintf(Message,"\n'%s' should not appear in the left argument of a rule",
 			*((*p_PerformanceControl)[jinstr]));
@@ -763,15 +763,12 @@ int GetPerformanceControl(char **pp,int arg_nr,int *p_n,int quick,long *p_u,long
 		case 60: /* _srand() */
 		case 66: /* _capture() */
 			goto GETARG;
-			break;
 		case 8:	/* _pitchbend() */
 			k = 4;
 			goto GETARGN;
-			break;
 		case 33: /* _transpose() */
 			k = 5;
 			goto GETARGN;
-			break;
 		case 2:	/* _velstep */
 		case 3:	/* _velcont */
 		case 6:	/* _modstep */
@@ -811,7 +808,6 @@ int GetPerformanceControl(char **pp,int arg_nr,int *p_n,int quick,long *p_u,long
 				return(ABORT);
 				}
 			return(jinstr);
-			break;
 		case 4:	/* _script() */
 		case 43: /* _ins() */
 		case 67: /* _part() */
@@ -819,22 +815,17 @@ int GetPerformanceControl(char **pp,int arg_nr,int *p_n,int quick,long *p_u,long
 		case 46: /* _cont() */
 		case 47: /* _fixed() */
 			goto GETSTRING;
-			break;
 		case 14: /* _switchon() */
 		case 15: /* _switchoff() */
 			goto GET2ARGS;
-			break;
 		case 44: /* _value() */
 		case 58: /* _keyxpand() */
 		case 65: /* _scale() */
 			goto GET2CONSTANTS;
-			break;
 		case 52: /* _keymap() */
 			goto GET4ARGS;
-			break;
 		case 61: /* _tempo() */
 			goto GETRATIO;
-			break;
 		default:
 			my_sprintf(Message,"=> Err. GetPerformanceControl(). Unknown instruction");
 			BPPrintMessage(0,odError,"%s",Message);
@@ -1280,9 +1271,10 @@ int GetPerformanceControl(char **pp,int arg_nr,int *p_n,int quick,long *p_u,long
 			if(*p_n < 0) return(*p_n);
 			break;
 		case 43: // _ins()
-		//	BPPrintMessage(0,odError,"instrument = %s\n",line);
 			*p_n = FindCsoundInstrument(line);
+			// BPPrintMessage(0,odInfo,"@@@ instrument = %s #%d\n",line,*p_n);
 			if(*p_n < 0) return(*p_n);
+		//	if(*p_n < MAXINSTRUMENTS) Exported_instrument[*p_n] = FALSE;
 			break;
 		case 67: // _part()
 		//	BPPrintMessage(1,odInfo,"@ part = %s\n",line);

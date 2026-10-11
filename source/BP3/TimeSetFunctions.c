@@ -217,7 +217,7 @@ if(k == -1) {	/* 'NIL' end-of-line marker */
 		if(kk > 1) (*p_delta)[kk] = (*p_delta1)[ii] + (*p_delta2)[ii];
 	//	if(kk > 1) BPPrintMessage(0,odError,"\nBefore Solution_is_accepted:\nii = %ld kk = %ld starttime = %ld endtime = %ld, ts1[%ld] = %ld ts2[%ld] = %ld\n",(long)ii,(long)kk,(long)(*p_Instance)[kk].starttime,(long)(*p_Instance)[kk].endtime,ii,(*p_ts1)[ii],ii,(*p_ts2)[ii]);
 		}
-//	BPPrintMessage(0,odInfo,"1) ts1[1] = %ld ts2[1] = %ld\n",(*p_ts1)[1],(*p_ts2)[1]);
+	// BPPrintMessage(0,odInfo,"1) ts1[1] = %ld ts2[1] = %ld, k = %d\n",(*p_ts1)[1],(*p_ts2)[1],k);
 	if((result=Solution_is_accepted(++nsol,nseq,p_imaxseq,kmax,p_ts1,p_ts2,p_delta,
 				p_ddelta0,p_ddelta1,p_ddelta2)) == OK) {
 		if(imaxseq > 1) {

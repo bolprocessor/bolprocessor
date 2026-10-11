@@ -1200,10 +1200,16 @@ PRINTPROLONGATIONS:
 							}
 						}
 					else {
+						if(p == 12) {		// '{'
+							Space(f,th,&sp);
+							}
 						if(p < MAXCODE2 && Display(Code[p],nhomo,levpar,homoname,depth,
 							p_maxib,pp_a,&i,istemplate,m,p,nocode,pp_b,p_ib,f,th,"%c",NULL,-1)
 									== ABORT) {
 							goto SORTIR;
+							}
+						if(p == 7 || p == 14) {		// '•' or ','
+							Space(f,th,&sp);
 							}
 						}
 					sp = 2;
@@ -1225,7 +1231,7 @@ PRINTPROLONGATIONS:
 							sp = 1; break;
 						}
 					}
-				if(p == 7 || p == 14) {		/* '�' or ',' */
+				if(p == 7 || p == 14) {		// '•' or ',' 
 					(*p_pos) = 0;	/* Restart sequence */
 					(*p_newsection) = FALSE;
 					}
@@ -1531,12 +1537,11 @@ PRINTPROLONGATIONS:
 								my_sprintf(line,"%ld",(long) p / 100);
 							break;
 						case T32:
-							for(ii=0; ii < Jinstr; ii++) {
-								if((*p_CsInstrumentIndex)[ii] == p) break;
-								}
-							if(ii < Jinstr && (*pp_CsInstrumentName)[ii] != NULL
-										&& (*((*pp_CsInstrumentName)[ii]))[0] != '\0') {
-								MystrcpyHandleToString(MAXLIN,0,line,(*pp_CsInstrumentName)[ii]);
+							if(p > 0 && p < MAXINSTRUMENTS) {
+								for(j = 0; j < Jinstr; j++)
+									if((*p_CsInstrumentIndex)[j] == p) break;
+								if(j < Jinstr) MystrcpyHandleToString(MAXLIN,0,line,(*pp_CsInstrumentName)[j]);
+								else my_sprintf(line,"%ld",(long)p);
 								}
 							else my_sprintf(line,"%ld",(long)p);
 							break;

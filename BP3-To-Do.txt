@@ -38,12 +38,6 @@ Various issues
 - Check quadratic adjustment of _vel and _volume.
 
 
-Event lists
------------
-
-- Export '-cs' file in JSON
-
-
 Inference engine
 ----------------
 

@@ -48,7 +48,7 @@ int MakeSound(long *p_kmax,unsigned long imaxstreak,int maxnsequences,long tmin,
 	ParameterSpecs **currentinstancevalues;
 	ParameterStream **stream;
 	char this_note[20];
-	int w,y,ii,iii,j,jj,k,kcurrentinstance,n,occurrence,s,in,itick,c,c0,c1,oldc1,c2,kfirstinstance,ch,oldk,
+	int w,y,ii,iii,j,jj,k,kcurrentinstance,instr_index,n,occurrence,s,in,itick,c,c0,c1,oldc1,c2,kfirstinstance,ch,oldk,
 		alph,alphach,r,result,pos,instrument,nseq,key,sequence,control,doneobjects,trans,simplenote,
 		rep,rep1,rep2,rep3,mustwait,waitcompletion,strike,iparam,chan,objectchannel,resetok,**p_istartperiod,**p_iendperiod,**p_icycle,maxconc,hastabs,
 		compiledmem,ifunc,interruptedonce,strikeagain,onoff,icont,chancont,minkey,maxkey,
@@ -177,10 +177,10 @@ int MakeSound(long *p_kmax,unsigned long imaxstreak,int maxnsequences,long tmin,
 	// BPPrintMessage(0,odInfo,"In MakeSound.c maxparam = %ld\n",(long)maxparam);
 
 	if(cswrite) {
-		for(instrument = 0; instrument < MAXINS; instrument++) {
-			if((p_keyinstrument[instrument] = (char**) GiveSpace((Size)(MAXKEY+1)*sizeof(char))) == NULL) return(ABORT);
+		for(instr_index = 0; instr_index < Jinstr; instr_index++) {
+			if((p_keyinstrument[instr_index] = (char**) GiveSpace((Size)(MAXKEY+1)*sizeof(char))) == NULL) return(ABORT);
 			for(key = 0; key < MAXKEY; key++)
-				(*p_keyinstrument[instrument])[key] = 0;
+				(*p_keyinstrument[instr_index])[key] = 0;
 			}
 		}
 
@@ -415,13 +415,8 @@ int MakeSound(long *p_kmax,unsigned long imaxstreak,int maxnsequences,long tmin,
 					// We extract "key" from each event in the sound-object's score
 					for(i = 0; i < (*p_CsoundSize)[j]; i++) {
 						this_key = (*((*((*pp_CsoundScore)[j]))[i].h_param))[0];
-					//	instrument = (*((*pp_CsoundScore)[j]))[i].instrument - 1;
-						instrument = ThisInstrument(cswrite,k,i);
-						if(instrument >= Jinstr) {
-							BPPrintMessage(0,odError,"=> Sound-object « %s » is calling instrument #%d, but only %d instruments are known\n",*((*p_Bol)[j]),(instrument + 1),Jinstr);
-							goto OVER;
-							}
-						switch((*p_CsPitchFormat)[instrument]) {
+						instrument = ThisInstrument(cswrite,k,i,&instr_index);
+						switch((*p_CsPitchFormat)[instr_index]) {
 							case OPPC:
 								octave = MyInt(this_key);
 								pitchclass = MyInt(100. * (this_key - octave));
@@ -603,7 +598,6 @@ int MakeSound(long *p_kmax,unsigned long imaxstreak,int maxnsequences,long tmin,
 	if(cswrite) {
 		if(Jinstr == 1 && (*p_CsInstrumentIndex)[0] == -1) {
 			BPPrintMessage(0,odInfo,"\nCouldn't find a Csound instrument index. Value '1' will be assigned by default\n\n");
-			WaitABit(1000L);
 			}
 		if(!ConvertMIDItoCsound) {
 			if((result=PrepareCsFile()) != OK) goto OVER;
@@ -753,9 +747,9 @@ int MakeSound(long *p_kmax,unsigned long imaxstreak,int maxnsequences,long tmin,
 		resetok = FALSE;
 
 		if(cswrite) {
-			for(instrument = 0; instrument < MAXINS; instrument++) {
+			for(instr_index = 0; instr_index < Jinstr; instr_index++) {
 				for(key = 0; key < MAXKEY; key++)
-					(*p_keyinstrument[instrument])[key] = 0;
+					(*p_keyinstrument[instr_index])[key] = 0;
 				}
 			}
 		
@@ -861,8 +855,9 @@ int MakeSound(long *p_kmax,unsigned long imaxstreak,int maxnsequences,long tmin,
 				if(j < Jbol) BPPrintMessage(0,odInfo,"DefaultChannel[%d] = %d\n",j,(*p_DefaultChannel)[j]);
 				}
 			sequence = 0;  // Normally not required
-			instrument = ThisInstrument(cswrite,kcurrentinstance,ievent);
-			// if(trace_makesound) BPPrintMessage(0,odInfo,"kcurrentinstance = %d, channel = %d instrument = %d scale = %d\n",kcurrentinstance,(*p_Instance)[kcurrentinstance].channel,(*p_Instance)[kcurrentinstance].instrument,scale);
+			instrument = ThisInstrument(cswrite,kcurrentinstance,ievent,&instr_index);
+		/*	if(trace_makesound) 
+				BPPrintMessage(0,odInfo,"kcurrentinstance = %d, channel = %d instrument = %d scale = %d\n",kcurrentinstance,(*p_Instance)[kcurrentinstance].channel,(*p_Instance)[kcurrentinstance].instrument,scale); */
 			nseq = (*p_Instance)[kcurrentinstance].nseq;
 			if(nseq < 0 || nseq >= maxconc) {
 				BPPrintMessage(0,odError,"=> Err. MakeSound(). nseq < 0 || nseq >= maxconc");
@@ -1382,7 +1377,7 @@ int MakeSound(long *p_kmax,unsigned long imaxstreak,int maxnsequences,long tmin,
 										}
 									}
 								else {
-									instrument = ThisInstrument(cswrite,kcurrentinstance,ievent);
+									instrument = ThisInstrument(cswrite,kcurrentinstance,ievent,&instr_index);
 									if(trace_makesound)
 										BPPrintMessage(0,odInfo,"Before CscoreWrite(1) kcurrentinstance = %ld j = %ld beta = %.2f t0 = %ld t1 = %ld c1 = %ld c2 = %ld, localchan = %d instrument = %d\n",(long)kcurrentinstance,(long)j,beta,(long)t0,(long)t1,(long)key,(long)c2,localchan,instrument);
 									if((result =
@@ -1409,7 +1404,7 @@ int MakeSound(long *p_kmax,unsigned long imaxstreak,int maxnsequences,long tmin,
 					localchan = 0;
 					cut_the_end = ZERO;
 					if(!(*p_silence)[kcurrentinstance]) {
-						instrument = ThisInstrument(cswrite,kcurrentinstance,ievent);
+						instrument = ThisInstrument(cswrite,kcurrentinstance,ievent,&instr_index);
 						if((*p_Instance)[kcurrentinstance].truncend > EPSILON) {
 							startsilence = (*p_Instance)[kcurrentinstance].starttime - (*p_Instance)[kcurrentinstance].truncbeg + (beta * (*p_Dur)[j]) - (*p_Instance)[kcurrentinstance].truncend;
 							end_this_event = (t0 + t1) + (*((*pp_CsoundScore)[j]))[ievent].duration * beta;
@@ -1418,7 +1413,8 @@ int MakeSound(long *p_kmax,unsigned long imaxstreak,int maxnsequences,long tmin,
 							if(trace_makesound) BPPrintMessage(0,odInfo,"@) kcurrentinstance = %d j = %d, ievent = %ld, t1 = %ld, startsilence = %ld, end_this_event = %ld, cut_the_end = %ld, Dur= %ld, beta = %.2f, starttime = %ld, truncend = %ld\n",kcurrentinstance,j,ievent,(long)t1,startsilence,end_this_event,cut_the_end,(*p_Dur)[j],beta,(*p_Instance)[kcurrentinstance].starttime,(*p_Instance)[kcurrentinstance].truncend);
 							}
 						else startsilence = end_this_event = ZERO;
-						if(trace_makesound) BPPrintMessage(0,odInfo,"Before CscoreWrite(2) kcurrentinstance = %ld, j = %ld, beta = %.2f, t0 = %ld, t1 = %ld, t2 = %ld, t3 = %ld, c1 = %ld, c2 = %ld, localchan = %d instrument = %d\n",(long)kcurrentinstance,(long)j,beta,(long)t0,(long)t1,t2,t3,(long)c1,(long)c2,localchan,instrument);
+						if(trace_makesound) 
+							BPPrintMessage(0,odInfo,"Before CscoreWrite(2) kcurrentinstance = %ld, j = %ld, beta = %.2f, t0 = %ld, t1 = %ld, t2 = %ld, t3 = %ld, c1 = %ld, c2 = %ld, localchan = %d instrument = %d\n",(long)kcurrentinstance,(long)j,beta,(long)t0,(long)t1,t2,t3,(long)c1,(long)c2,localchan,instrument);
 						if((result=CscoreWrite(cut_the_end,&graphrect,leftoffset,topoffset,hrect,minkey,maxkey,strikeagain,LINE,beta,(t0 + t1),ievent,0,0,localchan,instrument,j,nseq,kcurrentinstance,pp_currentparams,scale,blockkey)) == ABORT) goto OVER;
 						}
 					goto NEWPERIOD;
@@ -1506,14 +1502,13 @@ SENDNOTEOFF:
 											}
 										}
 									else {
-										instrument = ThisInstrument(cswrite,kcurrentinstance,ievent);
-										if((*p_keyinstrument[instrument])[c1] > 0) {
+										instrument = ThisInstrument(cswrite,kcurrentinstance,ievent,&instr_index);
+										if((*p_keyinstrument[instr_index])[c1] > 0) {
 											onoff = TRUE;
-											((*p_keyinstrument[instrument])[c1])--;
+											((*p_keyinstrument[instr_index])[c1])--;
 											}
 										else onoff = FALSE;
 										if(onoff) {
-									//	if(!(*p_silence)[kcurrentinstance]) {
 											if(trace_makesound)
 												BPPrintMessage(0,odInfo,"Before CscoreWrite(3) NoteOff kcurrentinstance = %ld j = %ld, ievent = %ld, beta = %.2f t0 = %ld t1 = %ld c1 = %ld c2 = %ld, localchan = %d instrument = %d\n",(long)kcurrentinstance,(long)j,ievent,beta,(long)t0,(long)t1,(long)c1,(long)c2,localchan,instrument);
 											if((result =
@@ -1605,8 +1600,8 @@ SENDNOTEOFF:
 											if((result=SendToDriver(kcurrentinstance,scale,blockkey,(t0 + t1),nseq,&rs,&e)) != OK) goto OVER;
 											}
 										else {
-											instrument = ThisInstrument(cswrite,kcurrentinstance,ievent);
-											((*p_keyinstrument[instrument])[c1])++;
+											instrument = ThisInstrument(cswrite,kcurrentinstance,ievent,&instr_index);
+											((*p_keyinstrument[instr_index])[c1])++;
 											if(trace_makesound)
 												BPPrintMessage(0,odInfo,"Before CscoreWrite(4) NoteOn kcurrentinstance = %ld, j = %ld, ievent = %d, beta = %.2f t0 = %ld t1 = %ld c1 = %ld c2 = %ld, localchan = %d instrument = %d\n",(long)kcurrentinstance,(long)j,ievent,beta,(long)t0,(long)t1,(long)c1,(long)c2,localchan,instrument);
 											if((result =
@@ -2037,14 +2032,16 @@ OVER2:
 	if(cswrite && result == OK && !Improvize && !PlayAllChunks && !ConvertMIDItoCsound && !AllItems) // ConvertMIDItoCsound is always false in the console version
 		WriteToFile(NO,CsoundFileFormat,"s",CsRefNum); // This line will automatically be deleted if this score belongs to a sound-object prototype — see function fix_csound_score() in prototype.php
 
-	if(cswrite) WriteToFile(NO,CsoundFileFormat,";",CsRefNum);
+	if(cswrite) {
+		WriteToFile(NO,CsoundFileFormat,";",CsRefNum);
+		for(instr_index = 0; instr_index < Jinstr; instr_index++) {
+			h = (Handle) p_keyinstrument[instr_index];
+			MyDisposeHandle((Handle*)&h);
+			}
+		}
 	for(ch = 0; ch < MAXCHAN; ch++) {
 		h = (Handle) p_keychannel[ch];
 		MyDisposeHandle((Handle*)&h);
-		if(cswrite) {
-			h = (Handle) p_keyinstrument[ch];
-			MyDisposeHandle((Handle*)&h);
-			}
 		h = (Handle) p_last_timeon[ch];
 		MyDisposeHandle((Handle*)&h);
 		h = (Handle) p_t2cont[ch];
@@ -2084,7 +2081,6 @@ OVER2:
 	Interrupted = FALSE;
 	return(result);
 	}
-
 
 int ExecuteScriptList(p_list **scriptlist) {
 	int x,r,idummy,check;
@@ -2612,25 +2608,38 @@ int MIDIchannel(int cswrite,int j,int objectchannel,int *p_c0) {
 	return localchan;
 	}
 
-int ThisInstrument(int cswrite,int k, int line) {
+int ThisInstrument(int cswrite,int k, int iline, int *p_index) {
 	int instrument,mode,j;
+
 	j = (*p_Instance)[k].object;
 	if(j < 0) j = -j;
 	instrument = (*p_Instance)[k].instrument;
+	*p_index = InstrumentIndex(instrument);
+	if(EventListOn && instrument > 0 && instrument < MAXINSTRUMENTS && !Exported_instrument[instrument]) SaveJsonCsoundInstrument(instrument);
 	if(j < 2 || j >= Jbol) return instrument;
 	if(!((*p_Type)[j] & 4)) return instrument;
-	// BPPrintMessage(0,odInfo,"@@@ instrument = %d, j = %d, k = %d, line = %d\n",instrument,j,k,line);
 	mode = (*p_CsoundInstrumentMode)[j];
 	if(mode == GLOBAL_CS) return instrument;
 	if(mode > 0) return (*p_CsoundInstr)[j];
 	if(mode == LOCAL_CS) {
-		if(PlayCsoundLine(cswrite,j) && line < (*p_CsoundSize)[j])
-		// Checking 'line' is not really necessary, just prevent a crash!
-			instrument = (*((*pp_CsoundScore)[j]))[line].instrument;
+		if(PlayCsoundLine(cswrite,j) && iline < (*p_CsoundSize)[j]) {
+		// Checking 'iline' is not really necessary, just prevent a crash!
+			instrument = (*((*pp_CsoundScore)[j]))[iline].instrument;
+			*p_index = InstrumentIndex(instrument);
+			if(EventListOn && instrument > 0 && instrument < MAXINSTRUMENTS && !Exported_instrument[instrument]) SaveJsonCsoundInstrument(instrument);
+			}
 		return instrument;
 		}
 	BPPrintMessage(0,odError,"=> Error CsoundInstrumentMode = %d, j = %d\n",mode,j);
 	return instrument;
+	}
+
+int InstrumentIndex(int instrument) {
+	int j;
+	for(j = 0; j < Jinstr; j++) 
+		if((*p_CsInstrumentIndex)[j] == instrument) break;
+	if(j < Jinstr) return(j);
+	else return(-1);
 	}
 
 int TransposeAndExpand(int k,int *p_c1,int trans) {

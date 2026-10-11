@@ -995,13 +995,13 @@ if(nature_time == STRIATED || nseq == 0) {
 			}
 		d = (double) (inext - i) * Kpress / Ratio; // Symbolic duration
 	//	BPPrintMessage(0,odInfo,"@ k = %ld j = %ld nseq = %d i = %ld inext = %ld seq[inext] = %d d = %.2f, T[i] = %ld T[i+1] = %ld, T[inext] = %ld T[inext+1] = %ld Kpress = %.0f Ratio = %.0f Kpress/Ratio = %.3f Pclock = %.2f\n",(long)k,(long)j,nseq,(long)i,(long)inext,(*((*p_Seq)[nseq]))[inext],d,(long)(*p_T)[i],(long)(*p_T)[i+1],(long)(*p_T)[inext],(long)(*p_T)[inext+1],Kpress,Ratio,Kpress/Ratio,(double)Pclock);
+		// BPPrintMessage(0,odInfo,"@@@ j = %d, Tref = %ld, Dur = %ld\n",j,(*p_Tref)[j],(*p_Dur)[j]);
 		if(nature_time == SMOOTH) {
 			if(Qclock < 1L) {
 				BPPrintMessage(0,odError,"=> Err. Calculate_alpha(). Qclock < 1.\n");
 				return(ABORT);
 				}
 			if(Pclock > 0.) {	// Measured smooth time
-			// BPPrintMessage(0,odInfo,"@@@ j = %d, Tref = %ld, Dur = %ld\n",j,(*p_Tref)[j],(*p_Dur)[j]);
 				if(j >= 16383) // simple note
 					alpha = (double) d * clockperiod / 1000L;
 				else if(j >= Jbol) // time pattern
@@ -1032,15 +1032,14 @@ if(nature_time == STRIATED || nseq == 0) {
 					if(nature_time == STRIATED) alpha = 0.; // 2025-02-05
 					else  alpha = (double) ((*p_T)[inext] - (*p_T)[i]) / (*p_Tref)[j];
 					}
-				else if((*p_Tref)[j] > EPSILON) { // Striated object declared as a prototype
+				else if((*p_Tref)[j] > EPSILON) { // Silence or triated object declared as a prototype
 					alpha = ((double)(*p_T)[inext] - (*p_T)[i]) / (*p_Tref)[j];
+				//	BPPrintMessage(0,odInfo,"@@ alpha = %.2f, i = %ld, j = %d, inext = %ld\n",alpha,i,j,inext);
 					if((*p_Dur)[j] == ZERO) (*p_SilentObject)[j] = TRUE;
 					if((*p_SilentObject)[j]) {
-				//		(*p_Dur)[j] = (*p_Tref)[j];
-						(*p_Dur)[j] = (long) (((*p_T)[inext] - (*p_T)[i]));
 						if((*p_Dur)[j] < EPSILON) (*p_Dur)[j] = (*p_Tref)[j];
-				//		alpha =  (double) (*p_Dur)[j] / (double) (*p_Tref)[j];
-						alpha = (double) (*p_Tref)[j] / 1000.;
+						if((*p_Dur)[j] < EPSILON) (*p_Dur)[j] = (long) (((*p_T)[inext] - (*p_T)[i]));
+				//		alpha = (double) (inext - i) * (*p_Tref)[j] / (*p_Dur)[j];
 						}
 					}
 				else if((*p_Dur)[j] > EPSILON) // Smooth object
@@ -1048,8 +1047,8 @@ if(nature_time == STRIATED || nseq == 0) {
 				else alpha = 1.;
 				}
 			else alpha = 0.;
-			if(trace_object_features && j < Jbol)
-				BPPrintMessage(0,odInfo,"Calculate_alpha striated nseq = %ld k = %ld j = %ld nseq = %d alpha = %.2f d = %.2f i = %ld inext = %ld Dur = %ld Tref = %ld T[i] = %ld T[inext] = %ld\n",(long)nseq,(long)k,(long)j,nseq,alpha,d,(long)i,(long)inext,(long)(*p_Dur)[j],(long)(*p_Tref)[j],(long)(*p_T)[i],(long)(*p_T)[inext]);
+			if(trace_object_features)
+				if(j > 1 && j < Jbol) BPPrintMessage(0,odInfo,"Calculate_alpha striated nseq = %ld k = %ld j = %ld « %s » nseq = %d alpha = %.2f d = %.2f i = %ld inext = %ld Dur = %ld Tref = %ld T[i] = %ld, T[inext] = %ld, silent = %d\n",(long)nseq,(long)k,(long)j,*((*p_Bol)[j]),nseq,alpha,d,(long)i,(long)inext,(long)(*p_Dur)[j],(long)(*p_Tref)[j],(long)(*p_T)[i],(long)(*p_T)[inext],(*p_SilentObject)[j]);
 			}
 		
 		beta = alpha;
@@ -1062,9 +1061,6 @@ if(nature_time == STRIATED || nseq == 0) {
 				goto OKALPHA1;
 				}
 			}
-/*		if((*p_FixScale)[j] && (*p_CyclicMode)[j] == IRRELEVANT) {
-			alpha = beta = 1.; goto OKALPHA1;
-			} */
 		if(FixDilationRatioInCyclicObject(j,d,&alpha,&beta,&ncycles) == OK) goto OKALPHA1;
 CHECKMORE1:
 		if((*p_RescaleMode)[j] == DILATION_RATIO) { // 2026-09-15
@@ -1087,7 +1083,7 @@ OKALPHA1:
 		if(beta < 0.) beta = 0.;
 		(*p_Instance)[k].alpha = alpha;
 		if(trace_object_features)
-			BPPrintMessage(0,odInfo,"Calculate_alpha() nseq = %d k = %d i = %ld inext = %ld, alpha = %.2f, beta = %.2f ncycles = %d, ForceRatio = %.2f\n",nseq,k,i,inext,alpha,beta,ncycles,ForceRatio);
+			BPPrintMessage(0,odInfo,"Calculate_alpha() nseq = %d k = %d i = %ld j = %d inext = %ld, alpha = %.2f, beta = %.2f ncycles = %d, Dur = %ld, RescaleMode = %d, ForceRatio = %.2f\n",nseq,k,i,j,inext,alpha,beta,ncycles,(*p_Dur)[j],(*p_RescaleMode)[j],ForceRatio);
 		if(ForceRatio >= 0.) (*p_Instance)[k].alpha = beta = ForceRatio;
 		(*p_Instance)[k].beta = beta;
 		(*p_Instance)[k].ncycles = ncycles;
@@ -1557,30 +1553,31 @@ double FindValue(tokenbyte m,tokenbyte p,int chan) {
 	double x,xx;
 	int value,paramvalueindex,paramnameindex;
 
-	if(m == T37) return(0.); // _keymap()
 	// BPPrintMessage(0,odInfo,"FindValue m = %ld p = %ld chan = %d\n",(long)m,(long)p,chan);
 	paramnameindex = -1;
 	switch(m) {
+		case T37: // _keymap()
+			return(0.);
+		case T32: // _ins()
+		case T26: // _transpose()
+		case T20: // _legato()
+			return (double) p;
 		case T10: // _chan()
 		case T11: // _vel()
 		case T16: // _press()
 		case T19: // _volume()
-		case T20: // _legato()
-	//	case T26: /* _transpose() */
 		case T29: // _pan()
-		case T32: // _ins()
 		case T38: // _rndvel()
 		case T39: // _rotate() 
-			if(p >= 128 && m != T26 && (m != T20 || p < 0)) {
+			if(p >= 128) {
 				value = ParamValue[p-128];
 				if(value == INT_MAX) {
-					BPPrintMessage(0,odError,"=> Err. FindValue(). value == INT_MAX");
+					BPPrintMessage(0,odError,"=> Err. FindValue(). value == INT_MAX\n");
 					value = 127;
 					}
 				return((double) value);
 				}
 			else return((double) p);
-			break;
 		}
 	if(m == T35) {	// _value()
 		paramnameindex = (p % 256);
@@ -1598,11 +1595,9 @@ double FindValue(tokenbyte m,tokenbyte p,int chan) {
 		if(x == 16384) x = 16383;
 		if(x < 0 || x > 16383) {
 			if(PitchbendRange[chan] > 0)
-				my_sprintf(Message,"=> Pitchbend value (%ld cents) on channel %ld out of range (-%ld..%ld cents)",
-					(long)xx,(long)chan,(long)PitchbendRange[chan],(long)PitchbendRange[chan]);
+				my_sprintf(Message,"=> Pitchbend value (%ld cents) on channel %ld out of range (-%ld..%ld cents)",(long)xx,(long)chan,(long)PitchbendRange[chan],(long)PitchbendRange[chan]);
 			else
-				my_sprintf(Message,"=> Pitchbend value (%ld) on channel %ld out of range (0..16384)",
-					(long)xx,(long)chan);
+				my_sprintf(Message,"=> Pitchbend value (%ld) on channel %ld out of range (0..16384)",(long)xx,(long)chan);
 			BPPrintMessage(0,odError,"%s\n",Message);
 			if(x < 0) x = 0;
 			if(x >= 16384) x = 16383;

@@ -46,18 +46,16 @@ int Print(int w, const char *format, ...) { // 2026-04-27
     int length;
     char buffer[4096];
 
-	if(w == wTrace) {
-		NumberTraceLines++;
-		if(!OKtraceLines) return(OK);
-		if(NumberTraceLines == MAXMESSAGES) {
-			Print(w,"\n\n<< MAX MESSAGES (%d) REACHED >>\n",MAXMESSAGES);
-			OKtraceLines = FALSE;
-			return OK;
-			}
-		if(NumberTraceLines > MAXMESSAGES) {
-			OKtraceLines = FALSE;
-			return OK;
-			}
+	NumberTraceLines++;
+	if(!OKtraceLines) return(OK);
+	if(NumberTraceLines == MAXMESSAGES) {
+		Print(w,"\n\n<< MAX MESSAGES (%d) REACHED >>\n",MAXMESSAGES);
+		OKtraceLines = FALSE;
+		return OK;
+		}
+	if(NumberTraceLines > MAXMESSAGES) {
+		OKtraceLines = FALSE;
+		return OK;
 		}
 	if (!FirstGrammar) return OK;
     if (w < 0 || w >= WMAX) {
@@ -84,106 +82,130 @@ int Print(int w, const char *format, ...) { // 2026-04-27
 	}
 
 
-int PrintHandle(int w,char** p_t)
-{
-long length;
+int PrintHandle(int w,char** p_t) {
+	long length;
 
-if(w < 0 || w >= WMAX) {
-	BPPrintMessage(0,odError,"=> Err1. Print()");
+	if(w < 0 || w >= WMAX) {
+		BPPrintMessage(0,odError,"=> Err1. Print()");
+		return(OK);
+		}
+	if(!Editable[w]) {
+		BPPrintMessage(0,odError,"=> Err2. Print()");
+		return(MISSED);
+		}
+	if(p_t == NULL) {
+		BPPrintMessage(0,odError,"=> Err. PrintHandle(). p_t == NULL");
+		return(OK);
+		}
+	NumberTraceLines++;
+	if(!OKtraceLines) return(OK);
+	if(NumberTraceLines == MAXMESSAGES) {
+		OKtraceLines = FALSE;
+		return OK;
+		}
+	if(NumberTraceLines > MAXMESSAGES) {
+		OKtraceLines = FALSE;
+		return OK;
+		}
+	length = MyHandleLen(p_t);
+	BPActivateWindow(QUICK,w);
+	MyLock(FALSE,(Handle)p_t);
+	TextInsert(*p_t,length,TEH[w]);
+	MyUnlock((Handle)p_t);
+	CheckTextSize(w);
+	if(LockedWindow[w]) Deactivate(TEH[w]);
+	w = FindGoodIndex(w);
 	return(OK);
 	}
-if(!Editable[w]) {
-	BPPrintMessage(0,odError,"=> Err2. Print()");
-	return(MISSED);
-	}
-if(p_t == NULL) {
-	BPPrintMessage(0,odError,"=> Err. PrintHandle(). p_t == NULL");
+
+
+int PrintHandleBehind(int w,char** p_t) {
+	long length;
+
+	if(w < 0 || w >= WMAX) {
+		BPPrintMessage(0,odError,"=> Err1. PrintHandleBehind()");
+		return(OK);
+		}
+	if(!Editable[w]) {
+		BPPrintMessage(0,odError,"=> Err2. PrintHandleBehind()");
+		return(MISSED);
+		}
+	if(p_t == NULL) {
+		BPPrintMessage(0,odError,"=> Err. PrintHandleBehind(). p_t == NULL");
+		return(OK);
+		}
+	NumberTraceLines++;
+	if(!OKtraceLines) return(OK);
+	if(NumberTraceLines == MAXMESSAGES) {
+		OKtraceLines = FALSE;
+		return OK;
+		}
+	if(NumberTraceLines > MAXMESSAGES) {
+		OKtraceLines = FALSE;
+		return OK;
+		}
+	length = MyHandleLen(p_t);
+	MyLock(FALSE,(Handle)p_t);
+	TextInsert(*p_t,length,TEH[w]);
+	MyUnlock((Handle)p_t);
+	CheckTextSize(w);
+	if(LockedWindow[w]) Deactivate(TEH[w]);
+	w = FindGoodIndex(w);
 	return(OK);
 	}
-length = MyHandleLen(p_t);
-BPActivateWindow(QUICK,w);
-MyLock(FALSE,(Handle)p_t);
-TextInsert(*p_t,length,TEH[w]);
-MyUnlock((Handle)p_t);
-CheckTextSize(w);
-if(LockedWindow[w]) Deactivate(TEH[w]);
-w = FindGoodIndex(w);
-return(OK);
-}
 
 
-int PrintHandleBehind(int w,char** p_t)
-{
-long length;
-
-if(w < 0 || w >= WMAX) {
-	BPPrintMessage(0,odError,"=> Err1. PrintHandleBehind()");
+int PrintHandleln(int w,char** p_t) {
+	PrintHandle(w,p_t);
+	Print(w,"\n");
 	return(OK);
 	}
-if(!Editable[w]) {
-	BPPrintMessage(0,odError,"=> Err2. PrintHandleBehind()");
-	return(MISSED);
-	}
-if(p_t == NULL) {
-	BPPrintMessage(0,odError,"=> Err. PrintHandleBehind(). p_t == NULL");
+
+
+int Println(int w,char* t) {
+	Print(w,t);
+	Print(w,"\n");
 	return(OK);
 	}
-length = MyHandleLen(p_t);
-MyLock(FALSE,(Handle)p_t);
-TextInsert(*p_t,length,TEH[w]);
-MyUnlock((Handle)p_t);
-CheckTextSize(w);
-if(LockedWindow[w]) Deactivate(TEH[w]);
-w = FindGoodIndex(w);
-return(OK);
-}
 
 
-int PrintHandleln(int w,char** p_t)
-{
-PrintHandle(w,p_t);
-Print(w,"\n");
-return(OK);
-}
-
-
-int Println(int w,char* t)
-{
-Print(w,t);
-Print(w,"\n");
-return(OK);
-}
-
-
-int PrintBehind(int w,char* t)
-{
-long length;
-char *ptr;
-if(!FirstGrammar) return(OK);
-if(w < 0 || w >= WMAX) {
-	BPPrintMessage(0,odError,"=> Err1. Print()");
+int PrintBehind(int w,char* t) {
+	long length;
+	char *ptr;
+	if(!FirstGrammar) return(OK);
+	if(w < 0 || w >= WMAX) {
+		BPPrintMessage(0,odError,"=> Err1. Print()");
+		return(OK);
+		}
+	if(!Editable[w]) {
+		BPPrintMessage(0,odError,"=> Err2. Print()");
+		return(MISSED);
+		}
+	NumberTraceLines++;
+	if(!OKtraceLines) return(OK);
+	if(NumberTraceLines == MAXMESSAGES) {
+		OKtraceLines = FALSE;
+		return OK;
+		}
+	if(NumberTraceLines > MAXMESSAGES) {
+		OKtraceLines = FALSE;
+		return OK;
+		}
+	length = strlen(t);
+	ptr = t;
+	TextInsert(ptr,length,TEH[w]);
+	CheckTextSize(w);
+	if(LockedWindow[w]) Deactivate(TEH[w]);
+	w = FindGoodIndex(w);
 	return(OK);
 	}
-if(!Editable[w]) {
-	BPPrintMessage(0,odError,"=> Err2. Print()");
-	return(MISSED);
+
+
+int PrintBehindln(int w,char* t) {
+	PrintBehind(w,t);
+	PrintBehind(w,"\n");
+	return(OK);
 	}
-length = strlen(t);
-ptr = t;
-TextInsert(ptr,length,TEH[w]);
-CheckTextSize(w);
-if(LockedWindow[w]) Deactivate(TEH[w]);
-w = FindGoodIndex(w);
-return(OK);
-}
-
-
-int PrintBehindln(int w,char* t)
-{
-PrintBehind(w,t);
-PrintBehind(w,"\n");
-return(OK);
-}
 
 
 int DisplayGrammar(t_gram *p_gram,int wind,int producemode,int showweights,int for_trace) {
