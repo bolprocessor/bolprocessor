@@ -230,7 +230,7 @@ int CloseCsScore(void)
 	// 'e' terminates a Csound score
 	if(!ConvertMIDItoCsound) WriteToFile(NO,CsoundFileFormat,line,CsRefNum);
 	Date(line);
-	my_sprintf(Message,"\n; this score was created by BP console on %s",line);
+	my_sprintf(Message,"\n; this score was created by the Bol Processor console on %s",line);
 	WriteToFile(NO,CsoundFileFormat,Message,CsRefNum);
 	SetOutputDestinations(odCsScore, NULL);
 	CloseOutputFile(&(gOptions.outputFiles[ofiCsScore]));

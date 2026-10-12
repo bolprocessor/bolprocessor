@@ -1568,6 +1568,7 @@ int sort_csound_score(char **p_line) {
     return OK;
 	}
 
+
 /* Escape a C string for JSON (quotes, backslashes, control characters).
    Returns a malloc'd string the caller must free(), or NULL. */
 static char *JsonEscapeString(const char*);
@@ -1626,24 +1627,36 @@ static const char *CsPitchFormatName(int format) {
 	return("UNKNOWN");
 	}
 
-/* Shortcuts: #var turns the variable name into the JSON label */
+/* Returns the description if it is not empty, otherwise the fallback (variable name) */
+static const char *JsonLabel(const char*,const char*);
+
+static const char *JsonLabel(const char *description,const char *fallback) {
+	if(description == NULL || description[0] == '\0') return(fallback);
+	return(description);
+	}
+
+/* Shortcuts: #var turns the variable name into the JSON key.
+   The last argument is the description used as the JSON label;
+   if it is "", the variable name is used as the label. */
 #define CSI ((*p_CsInstrument)[j])
 
-#define SAVE_CS_INT(var) \
-	SaveIntAsJson(csjson,#var,"",#var,(int)((*p_##var)[j]))
+#define SAVE_CS_INT(var,desc) \
+	SaveIntAsJson(csjson,#var,"",JsonLabel(desc,#var),(int)((*p_##var)[j]))
 
-#define SAVE_INSTR_INT(field,unit) \
-	SaveIntAsJson(csjson,#field,unit,#field,(int)(CSI.field))
+#define SAVE_INSTR_INT(field,unit,desc) \
+	SaveIntAsJson(csjson,#field,unit,JsonLabel(desc,#field),(int)(CSI.field))
 
-#define SAVE_INSTR_BOOL(reg,field) \
-	SaveIntAsJson(csjson,#reg "." #field,"boolean",#reg "." #field,(CSI.reg.field != 0))
+#define SAVE_INSTR_BOOL(reg,field,desc) \
+	SaveIntAsJson(csjson,#reg "." #field,"boolean",JsonLabel(desc,#reg "." #field),(CSI.reg.field != 0))
 
-#define SAVE_CS_TABLE(var) do { \
+#define SAVE_CS_TABLE(var,desc) do { \
 	for(k = 0; k < 6; k++) { \
 		snprintf(label,sizeof(label),"%s[%d]",#var,k); \
-		SaveFloatAsJson(csjson,label,"",label,(double)((*(p_##var[k]))[j])); \
+		snprintf(label2,sizeof(label2),"%s#%d",JsonLabel(desc,#var),(k + 1)); \
+		SaveFloatAsJson(csjson,label,"",label2,(double)((*(p_##var[k]))[j])); \
 		} \
 	} while(0)
+
 
 
 int SaveJsonCsoundInstrument(int instrument) {
@@ -1677,10 +1690,13 @@ int SaveJsonCsoundInstrument(int instrument) {
 	fprintf(csjson,"{\n\"header\": \"Bol Processor Csound instrument\",\n");
 
 	/* Identification */
-	SAVE_CS_INT(CsInstrumentIndex);
-	SaveEscapedStringAsJson(csjson,"CsInstrumentName","","CsInstrumentName",*((*pp_CsInstrumentName)[j]));
-	SaveEscapedStringAsJson(csjson,"CsInstrumentComment","","CsInstrumentComment",*((*pp_CsInstrumentComment)[j]));
-	SAVE_INSTR_INT(iargmax,"");
+	my_sprintf(label,"%s",BaseName(FileName[wCsoundResources]));
+	SaveEscapedStringAsJson(csjson,"Source","","Csound resource file",label);
+
+	SAVE_CS_INT(CsInstrumentIndex,"Index of this instrument");
+	SaveEscapedStringAsJson(csjson,"CsInstrumentName","","Name of this instrument",*((*pp_CsInstrumentName)[j]));
+	SaveEscapedStringAsJson(csjson,"CsInstrumentComment","","Comment on this instrument",*((*pp_CsInstrumentComment)[j]));
+	SAVE_INSTR_INT(iargmax,"","Number of arguments");
 
 	for(chan = 1; chan <= MAXCHAN; chan++) {
 		if(WhichCsoundInstrument[chan] > 0) {
@@ -1693,91 +1709,102 @@ int SaveJsonCsoundInstrument(int instrument) {
 		}
 
 	/* Argument indexes */
-	SAVE_CS_INT(CsDilationRatioIndex);
-	SAVE_CS_INT(CsAttackVelocityIndex);
-	SAVE_CS_INT(CsReleaseVelocityIndex);
-	SAVE_CS_INT(CsoundTempo);
-	SAVE_CS_INT(CsPitchIndex);
-	SaveStringAsJson(csjson,"CsPitchFormat","enum","CsPitchFormat",
-		CsPitchFormatName((int)(*p_CsPitchFormat)[j]));
-	SAVE_CS_INT(CsVolumeStartIndex);
-	SAVE_CS_INT(CsVolumeEndIndex);
-	SAVE_CS_INT(CsPitchBendStartIndex);
-	SAVE_CS_INT(CsPitchBendEndIndex);
-	SAVE_CS_INT(CsPressureStartIndex);
-	SAVE_CS_INT(CsPressureEndIndex);
-	SAVE_CS_INT(CsModulationStartIndex);
-	SAVE_CS_INT(CsModulationEndIndex);
-	SAVE_CS_INT(CsPanoramicStartIndex);
-	SAVE_CS_INT(CsPanoramicEndIndex);
+	SAVE_CS_INT(CsDilationRatioIndex,"Argument of dilation ratio (-1 means empty)");
+	SAVE_CS_INT(CsAttackVelocityIndex,"Argument of attack velocity (-1 means empty)");
+	SAVE_CS_INT(CsReleaseVelocityIndex,"Argument of release velocity (-1 means empty)");
+	// SAVE_CS_INT(CsoundTempo,"");
+	SAVE_CS_INT(CsPitchIndex,"Argument of pitch");
+	SaveStringAsJson(csjson,"CsPitchFormat","enum","CsPitchFormat",CsPitchFormatName((int)(*p_CsPitchFormat)[j]));
+	SAVE_CS_INT(CsVolumeStartIndex,"Argument of start volume");
+	SAVE_CS_INT(CsVolumeEndIndex,"Argument of end volume");
+	SAVE_CS_INT(CsPitchBendStartIndex,"Argument of start pitchbend");
+	SAVE_CS_INT(CsPitchBendEndIndex,"Argument of end pitchbend");
+	SAVE_CS_INT(CsPressureStartIndex,"Argument of start pressure");
+	SAVE_CS_INT(CsPressureEndIndex,"Argument of end pressure");
+	SAVE_CS_INT(CsModulationStartIndex,"Argument of start modulation");
+	SAVE_CS_INT(CsModulationEndIndex,"Argument of end modulation");
+	SAVE_CS_INT(CsPanoramicStartIndex,"Argument of start panoramic");
+	SAVE_CS_INT(CsPanoramicEndIndex,"Argument of end panoramic");
 
 	/* Pitchbend range */
 	SaveFloatAsJson(csjson,"pitchbendrange","cents","pitchbendrange",CSI.pitchbendrange);
 
 	/* Tables */
-	SAVE_INSTR_INT(pitchbendtable,"");
-	SAVE_INSTR_INT(volumetable,"");
-	SAVE_INSTR_INT(pressuretable,"");
-	SAVE_INSTR_INT(modulationtable,"");
-	SAVE_INSTR_INT(panoramictable,"");
+	SAVE_INSTR_INT(pitchbendtable,"","Argument of pitchbend table (-1 means empty)");
+	SAVE_INSTR_INT(volumetable,"","Argument of volume table (-1 means empty)");
+	SAVE_INSTR_INT(pressuretable,"","Argument of pressure table (-1 means empty)");
+	SAVE_INSTR_INT(modulationtable,"","Argument of modulation table (-1 means empty)");
+	SAVE_INSTR_INT(panoramictable,"","Argument of panoramic table (-1 means empty)");
 
 	/* GEN types */
-	SAVE_INSTR_INT(pitchbendGEN,"");
-	SAVE_INSTR_INT(volumeGEN,"");
-	SAVE_INSTR_INT(pressureGEN,"");
-	SAVE_INSTR_INT(modulationGEN,"");
-	SAVE_INSTR_INT(panoramicGEN,"");
+	SAVE_INSTR_INT(pitchbendGEN,"","Pitchbend GEN type");
+	SAVE_INSTR_INT(volumeGEN,"","Volume GEN type");
+	SAVE_INSTR_INT(pressureGEN,"","Pressure GEN type");
+	SAVE_INSTR_INT(modulationGEN,"","Modulation GEN type");
+	SAVE_INSTR_INT(panoramicGEN,"","Panoramic GEN type");
 
 	/* Logarithmic scales of the regressions */
-	SAVE_INSTR_BOOL(rPitchBend,islogx);
-	SAVE_INSTR_BOOL(rPitchBend,islogy);
-	SAVE_INSTR_BOOL(rVolume,islogx);
-	SAVE_INSTR_BOOL(rVolume,islogy);
-	SAVE_INSTR_BOOL(rPressure,islogx);
-	SAVE_INSTR_BOOL(rPressure,islogy);
-	SAVE_INSTR_BOOL(rModulation,islogx);
-	SAVE_INSTR_BOOL(rModulation,islogy);
-	SAVE_INSTR_BOOL(rPanoramic,islogx);
-	SAVE_INSTR_BOOL(rPanoramic,islogy);
+	SAVE_INSTR_BOOL(rPitchBend,islogx,"MIDI pitchbend is logarithmic");
+	SAVE_INSTR_BOOL(rPitchBend,islogy,"Csound pitchbend is logarithmic");
+	SAVE_INSTR_BOOL(rVolume,islogx,"MIDI volume is logarithmic");
+	SAVE_INSTR_BOOL(rVolume,islogy,"Csound volume is logarithmic");
+	SAVE_INSTR_BOOL(rPressure,islogx,"MIDI pressure is logarithmic");
+	SAVE_INSTR_BOOL(rPressure,islogy,"Csound pressure is logarithmic");
+	SAVE_INSTR_BOOL(rModulation,islogx,"MIDI modulation is logarithmic");
+	SAVE_INSTR_BOOL(rModulation,islogy,"Csound modulation is logarithmic");
+	SAVE_INSTR_BOOL(rPanoramic,islogx,"MIDI panoramic is logarithmic");
+	SAVE_INSTR_BOOL(rPanoramic,islogy,"Csound panoramic is logarithmic");
 
 	/* MIDI -> Csound mapping points: [0..2] MIDI values, [3..5] Csound values */
-	SAVE_CS_TABLE(CsPitchBend);
-	SAVE_CS_TABLE(CsVolume);
-	SAVE_CS_TABLE(CsPressure);
-	SAVE_CS_TABLE(CsModulation);
-	SAVE_CS_TABLE(CsPanoramic);
+	SAVE_CS_TABLE(CsPitchBend,"MIDI to Csound pitchbend conversion (number > 100000 means no mapping) ");
+	SAVE_CS_TABLE(CsVolume,"MIDI to Csound volume mapping (number > 100000 means no mapping) ");
+	SAVE_CS_TABLE(CsPressure,"MIDI to Csound pressure mapping (number > 100000 means no mapping) ");
+	SAVE_CS_TABLE(CsModulation,"MIDI to Csound modulation mapping (number > 100000 means no mapping) ");
+	SAVE_CS_TABLE(CsPanoramic,"MIDI to Csound panoramic mapping (number > 100000 means no mapping) ");
 
 	/* Associated (untyped) parameters */
 	ipmax = CSI.ipmax;
-	SAVE_INSTR_INT(ipmax,"");
+	SAVE_INSTR_INT(ipmax,"","Number of additional parameters");
 	params = CSI.paramlist;
 	for(i = 0; i < ipmax; i++) {
 		snprintf(label,sizeof(label),"paramlist[%d].name",i);
-		SaveEscapedStringAsJson(csjson,label,"",label,*((*params)[i].name));
-
+		snprintf(label2,sizeof(label2),"Name of additional parameter #%d",(i + 1));
+		SaveEscapedStringAsJson(csjson,label,"",label2,*((*params)[i].name));
 		snprintf(label,sizeof(label),"paramlist[%d].comment",i);
-		SaveEscapedStringAsJson(csjson,label,"",label,*((*params)[i].comment));
-
+		snprintf(label2,sizeof(label2),"Comment on additional parameter #%d",(i + 1));
+		SaveEscapedStringAsJson(csjson,label,"",label2,*((*params)[i].comment));
 		snprintf(label,sizeof(label),"paramlist[%d].startindex",i);
-		SaveIntAsJson(csjson,label,"",label,(*params)[i].startindex);
-
+		snprintf(label2,sizeof(label2),"Start index of additional parameter #%d",(i + 1));
+		SaveIntAsJson(csjson,label,"",label2,(*params)[i].startindex);
 		snprintf(label,sizeof(label),"paramlist[%d].endindex",i);
-		SaveIntAsJson(csjson,label,"",label,(*params)[i].endindex);
-
+		snprintf(label2,sizeof(label2),"End index of additional parameter #%d",(i + 1));
+		SaveIntAsJson(csjson,label,"",label2,(*params)[i].endindex);
 		snprintf(label,sizeof(label),"paramlist[%d].table",i);
-		SaveIntAsJson(csjson,label,"",label,(*params)[i].table);
-
+		snprintf(label2,sizeof(label2),"Table index of additional parameter #%d",(i + 1));
+		SaveIntAsJson(csjson,label,"",label2,(*params)[i].table);
 		snprintf(label,sizeof(label),"paramlist[%d].defaultvalue",i);
-		SaveFloatAsJson(csjson,label,"",label,(*params)[i].defaultvalue);
-
+		snprintf(label2,sizeof(label2),"Default value of additional parameter #%d",(i + 1));
+		SaveFloatAsJson(csjson,label,"",label2,(*params)[i].defaultvalue);
 		snprintf(label,sizeof(label),"paramlist[%d].GENtype",i);
-		SaveIntAsJson(csjson,label,"",label,(*params)[i].GENtype);
-
+		snprintf(label2,sizeof(label2),"GEN type of additional parameter #%d",(i + 1));
+		SaveIntAsJson(csjson,label,"",label2,(*params)[i].GENtype);
 		snprintf(label,sizeof(label),"paramlist[%d].combinationtype",i);
-		SaveStringAsJson(csjson,label,"enum",label,
+		snprintf(label2,sizeof(label2),"Combination mode of additional parameter #%d",(i + 1));
+		SaveStringAsJson(csjson,label,"enum",label2,
 			((*params)[i].combinationtype == MULT) ? "MULT" : "ADD");
 		}
-	fprintf(csjson,"     \"end\": {\n      }\n  }");
+	for(i = k = 0; i < MaxCsoundTables; i++) {
+		if((*p_CsoundTables)[i] == NULL || strlen((*(*p_CsoundTables)[i])) == 0) continue;
+		my_sprintf(label,"table%d",k);
+		my_sprintf(label2,"Csound table line [%d]",k);
+		SaveEscapedStringAsJson(csjson,label,"",label2,(*(*p_CsoundTables)[i]));
+		k++;
+		}
+	if(strlen(CsoundOrchestraName) > 0)
+		SaveEscapedStringAsJson(csjson,"CsoundOrchestraName","","Csound orchestra file",CsoundOrchestraName);
+	else SaveEscapedStringAsJson(csjson,"CsoundOrchestraName","","Csound orchestra file","no file");
+		
+	fprintf(csjson,"    \"End of file\": {\n      }\n  }");
 	fclose(csjson);
 	return(OK);
 	}

@@ -38,6 +38,7 @@
 
 #include "-BP3decl.h"
 
+int trace_eventlist = 0;
 
 int MakeEventListFile(OutFileInfo* finfo) {
 	int result;
@@ -109,6 +110,7 @@ int AddEventToList(int k) {
 	cyclic_after = forceintegercycles = cyclic = 0;
 	localchan = (*p_Instance)[k].channel;
 	instrument = (*p_Instance)[k].instrument;
+	if(trace_eventlist) BPPrintMessage(0,odInfo,"@@@ instrument = %d\n",instrument);
 	int volumestart = VolumeStart(k);
 	int volumeend = VolumeEnd(k);
 	int volumechannel = VolumeChannel(k);
@@ -281,7 +283,12 @@ int AddEventToList(int k) {
 		if(beta == 0.) preroll = postroll = 0.;
 		if((*p_DefaultChannel)[j] != 0) localchan = (*p_DefaultChannel)[j];
 		if((*p_CsoundInstrumentMode)[j] != 0) instrument = (*p_CsoundInstrumentMode)[j];
-		else if(instrument <= 0) instrument = 1;
+		else if(instrument <= 0) {
+			if(WhichCsoundInstrument[localchan] > 0) {
+				instrument = WhichCsoundInstrument[localchan];
+				}
+			else instrument = 1;
+			}
 		}
 	if(p_Articul != NULL) articul =	(*p_Articul)[k];
 	else articul = 0;
@@ -302,26 +309,35 @@ int AddEventToList(int k) {
 	else my_sprintf(channel_txt,"%d",localchan);
 	if(silent) strcpy(channel_txt,"");
 
-	if(!sound_object && instrument == 0) instrument = 1;
+	if(!sound_object && instrument <= 0) {
+	//	BPPrintMessage(0,odInfo,"@@@ instrument = %d, channel = %d\n",instrument,localchan);
+		if(WhichCsoundInstrument[localchan] > 0) instrument = WhichCsoundInstrument[localchan];
+		else instrument = 1;
+		}
 	if(instrument > 0 && instrument < MAXINSTRUMENTS) {
+	//	BPPrintMessage(0,odInfo,"@@@ instrument = %d, channel = %d, Jinstr = %d\n",instrument,localchan,Jinstr);
 		for(jj = 0; jj < Jinstr; jj++) {
-			if((*p_CsInstrumentIndex)[jj] == instrument) break;
+			if((*p_CsInstrumentIndex)[jj] == instrument) {
+		//		BPPrintMessage(0,odInfo,"+++(%d) %s, CsInstrumentIndex = %d\n",jj,*((*pp_CsInstrumentName)[jj]),(*p_CsInstrumentIndex)[jj]);
+				strcpy(instrument_txt,*((*pp_CsInstrumentName)[jj]));
+				break;
+				}
 			}
-		if(jj < Jinstr) MystrcpyHandleToString(MAXLIN,0,instrument_txt,(*pp_CsInstrumentName)[jj]);
-		else my_sprintf(instrument_txt,"%ld ?",(long)instrument);
+		if(jj >= Jinstr) my_sprintf(instrument_txt,"%ld ?",(long)instrument);
 		}
 	else strcpy(instrument_txt,"");
+
 	if(sound_object) {				
 		if(instrument <= 0) {
 			strcpy(instrument_txt,"LOCAL_CS");
 			for(i = 0; i < (*p_CsoundSize)[j]; i++) {
 				ins = (*((*pp_CsoundScore)[j]))[i].instrument;
 			//	BPPrintMessage(0,odInfo,"@@@ ins = %d\n",ins);
-				if(!Exported_instrument[ins]) SaveJsonCsoundInstrument(ins);
 				}
 			}
 		}
-	if(silent || Jinstr < 2) strcpy(instrument_txt,"");
+	if(silent || Jinstr < 1) strcpy(instrument_txt,"");
+	if(instrument > 0 && instrument < MAXINSTRUMENTS && !Exported_instrument[instrument]) SaveJsonCsoundInstrument(instrument);
 
 	int velocity = ByteToInt((*p_Instance)[k].velocity);
 	int rndvel = (*p_Instance)[k].rndvel;

@@ -39,6 +39,7 @@
 
 int trace_makesound = 0;
 int trace_maps = 0;
+int trace_missed_noteoff = 0;
 
 int MakeSound(long *p_kmax,unsigned long imaxstreak,int maxnsequences,long tmin,long tmax,Milliseconds **p_delta) {
 
@@ -1355,7 +1356,7 @@ int MakeSound(long *p_kmax,unsigned long imaxstreak,int maxnsequences,long tmin,
 						BPPrintMessage(0,odInfo,"§§ t1 >= t3, t1 = %ld, t3 = %ld\n",(long)t1,(long)t3);
 					if(ievent == (im - 1) && !EventListOn) {
 						if(trace_makesound) BPPrintMessage(0,odInfo,"§§§ ievent = %ld, im = %ld\n",ievent,im);
-						if(cswrite) localchan = 0;
+					//	if(cswrite) localchan = 0;
 						for(key = 0; key < MAXKEY; key++) {
 							onoff = ByteToInt((*p_keychannel[localchan])[key]);
 							if(onoff) {
@@ -1386,6 +1387,7 @@ int MakeSound(long *p_kmax,unsigned long imaxstreak,int maxnsequences,long tmin,
 											goto OVER;
 									}
 								}
+							else if(trace_missed_noteoff) BPPrintMessage(0,odInfo,"@ missed_noteoff key = %d, instrument = %d, kcurrentinstance = %d\n",key,instrument,kcurrentinstance);
 							}
 						}
 					goto NEWPERIOD;
@@ -1401,8 +1403,9 @@ int MakeSound(long *p_kmax,unsigned long imaxstreak,int maxnsequences,long tmin,
 					}
 				if(PlayCsoundLine(cswrite,j)) { 
 				// Writing a Csound event taken from the Csound score of a sound-object 
-					localchan = 0;
+				//	localchan = 0;
 					cut_the_end = ZERO;
+					localchan = MIDIchannel(cswrite,j,objectchannel,&c0);
 					if(!(*p_silence)[kcurrentinstance]) {
 						instrument = ThisInstrument(cswrite,kcurrentinstance,ievent,&instr_index);
 						if((*p_Instance)[kcurrentinstance].truncend > EPSILON) {
@@ -1519,6 +1522,7 @@ SENDNOTEOFF:
 										}
 									}
 								}
+							else if(trace_missed_noteoff) BPPrintMessage(0,odInfo,"@ missed_noteoff2 key = %d, instrument = %d, kcurrentinstance = %d\n",key,instrument,kcurrentinstance);
 							}
 						else { // NoteOn
 							oldc1 = c1;
@@ -1636,7 +1640,7 @@ SENDNOTEOFF:
 						if(!cswrite && ChannelEvent(c0)) {	// Channel message
 							c0 = c0 + localchan;
 							}
-						else localchan = 0;
+					//	else localchan = 0;
 						if(j < Jbol && !PlayCsoundLine(cswrite,j)) {
 							if(ThreeByteEvent(c0)) {
 								sequence = (*((*pp_MIDIcode)[j]))[ievent].sequence;
@@ -2601,7 +2605,7 @@ int MIDIchannel(int cswrite,int j,int objectchannel,int *p_c0) {
 			return localchan;
 			}
 		}
-	if(cswrite) return 0;
+	// if(cswrite) return 0;
 	localchan = 0;
 	if(objectchannel > 0) localchan = objectchannel - 1; // This object has a specific channel
 	if(localchan < 0) localchan = 0;

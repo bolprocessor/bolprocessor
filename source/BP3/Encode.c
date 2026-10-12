@@ -38,6 +38,8 @@
 
 #include "-BP3decl.h"
 
+int trace_last_is_terminal = 0;
+
 tokenbyte **Encode(t_gram* p_gram,int sequence,int notargument, int igram, int irul, char **pp1, char **pp2, p_context *p_pleftcontext, p_context *p_prightcontext, int *p_meta, int arg_nr, p_flaglist ***ph_flag,int quick,int *p_result) {
 	// arg_nr = 0: item 
 	// arg_nr = 1: left argument (grammar)
@@ -149,80 +151,62 @@ tokenbyte **Encode(t_gram* p_gram,int sequence,int notargument, int igram, int i
 				switch(j) {
 					case 0:	/* _chan() */
 						(*p_buff)[i++] = T10; (*p_buff)[i++] = (tokenbyte) n;
-						last_is_terminal = FALSE;
 						break;
 					case 1:	/* _vel() */
 						(*p_buff)[i++] = T11; (*p_buff)[i++] = (tokenbyte) n;
-						last_is_terminal = FALSE;
 						break;
 					case 2:	/* _velstep */
 					case 3:	/* _velcont */
 						(*p_buff)[i++] = T12; (*p_buff)[i++] = (tokenbyte)(j - 2);
-						last_is_terminal = FALSE;
 						break;
 					case 4: /* _script() */
 						(*p_buff)[i++] = T13; (*p_buff)[i++] = (tokenbyte) n;
 						// It won't be used if it is a IN script
 						if(TraceMIDIinteraction) BPPrintMessage(0,odInfo,"Tokenised [T13.%d] as Jscriptline = %d in Encode()\n\n",(int)n,Jscriptline);
-						last_is_terminal = FALSE;
 						break;
 					case 5:	/* _mod() */
 						(*p_buff)[i++] = T14; (*p_buff)[i++] = (tokenbyte)n;
-						last_is_terminal = FALSE;
 						break;
 					case 6:	/* _modstep */
 					case 7:	/* _modcont */
 						(*p_buff)[i++] = T12; (*p_buff)[i++] = (tokenbyte)(j - 4);
-						last_is_terminal = FALSE;
 						break;
 					case 8:	/* _pitchbend */
 						(*p_buff)[i++] = T15; (*p_buff)[i++] = (tokenbyte) n;
-						last_is_terminal = FALSE;
 						break;
 					case 9:	/* _pitchstep */
 					case 10: /* _pitchcont */
 						(*p_buff)[i++] = T12; (*p_buff)[i++] = (tokenbyte)(j - 5);
-						last_is_terminal = FALSE;
 						break;
 					case 11: /* _press */
 						(*p_buff)[i++] = T16; (*p_buff)[i++] = (tokenbyte) n;
-						last_is_terminal = FALSE;
 						break;
 					case 12: /* _presstep */
 					case 13: /* _presscont */
 						(*p_buff)[i++] = T12; (*p_buff)[i++] = (tokenbyte)(j - 6);
-						last_is_terminal = FALSE;
 						break;
 					case 14: /* _switchon */
 						(*p_buff)[i++] = T17; (*p_buff)[i++] = (tokenbyte) n;
-						last_is_terminal = FALSE;
 						break;
 					case 15: /* _switchoff */
 						(*p_buff)[i++] = T18; (*p_buff)[i++] = (tokenbyte) n;
-						last_is_terminal = FALSE;
 						break;
 					case 16: /* _volume */
 						(*p_buff)[i++] = T19; (*p_buff)[i++] = (tokenbyte) n;
-						last_is_terminal = FALSE;
 						break;
 					case 17: /* _volumestep */
 					case 18: /* _volumecont */
 						(*p_buff)[i++] = T12; (*p_buff)[i++] = (tokenbyte)(j - 9);
-						last_is_terminal = FALSE;
-						last_is_terminal = FALSE;
 						break;
 					case 19:	/* _legato() */
 						(*p_buff)[i++] = T20; (*p_buff)[i++] = (tokenbyte) n;
-						last_is_terminal = FALSE;
 						break;
 					case 20:	/* _staccato() */
 						(*p_buff)[i++] = T20; (*p_buff)[i++] = (tokenbyte)(- n);
-						last_is_terminal = FALSE;
 						break;
 					case 21: /* _articulstep */
 					case 22: /* _articulcont */
 						(*p_buff)[i++] = T12; (*p_buff)[i++] = (tokenbyte)(j - 11);
-						last_is_terminal = FALSE;
 						break;
 					case 23: /* _velfixed */
 					case 24: /* _modfixed */
@@ -231,85 +215,65 @@ tokenbyte **Encode(t_gram* p_gram,int sequence,int notargument, int igram, int i
 					case 27: /* _volumefixed */
 					case 28: /* _articulfixed */
 						(*p_buff)[i++] = T12; (*p_buff)[i++] = (tokenbyte)(j - 11);
-						last_is_terminal = FALSE;
 						break;
 					case 29: /* _pitchrange */
 						(*p_buff)[i++] = T21; (*p_buff)[i++] = (tokenbyte) n;
-						last_is_terminal = FALSE;
 						break;
 					case 30: /* _pitchrate */
 						(*p_buff)[i++] = T22; (*p_buff)[i++] = (tokenbyte) n;
-						last_is_terminal = FALSE;
 						break;
 					case 31: /* _modrate */
 						(*p_buff)[i++] = T23; (*p_buff)[i++] = (tokenbyte) n;
-						last_is_terminal = FALSE;
 						break;
 					case 32: /* _pressrate */
 						(*p_buff)[i++] = T24; (*p_buff)[i++] = (tokenbyte) n;
-						last_is_terminal = FALSE;
 						break;
 					case 33: /* _transpose */
 						(*p_buff)[i++] = T26; (*p_buff)[i++] = (tokenbyte) n;
-						last_is_terminal = FALSE;
 						break;
 					case 34: /* _volumerate */
 						(*p_buff)[i++] = T27; (*p_buff)[i++] = (tokenbyte) n;
-						last_is_terminal = FALSE;
 						break;
 					case 35: /* _volumecontrol */
 						(*p_buff)[i++] = T28; (*p_buff)[i++] = (tokenbyte) n;
-						last_is_terminal = FALSE;
 						break;
 					case 36: /* _pan */
 						(*p_buff)[i++] = T29; (*p_buff)[i++] = (tokenbyte) n;
-						last_is_terminal = FALSE;
 						break;
 					case 37: /* _panstep */
 						(*p_buff)[i++] = T12; (*p_buff)[i++] = (tokenbyte) 19;
-						last_is_terminal = FALSE;
 						break;
 					case 38: /* _pancont */
 						(*p_buff)[i++] = T12; (*p_buff)[i++] = (tokenbyte) 20;
-						last_is_terminal = FALSE;
 						break;
 					case 40: /* _panrate */
 						(*p_buff)[i++] = T30; (*p_buff)[i++] = (tokenbyte) n;
-						last_is_terminal = FALSE;
 						break;
 					case 41: /* _pancontrol */
 						(*p_buff)[i++] = T31; (*p_buff)[i++] = (tokenbyte) n;
-						last_is_terminal = FALSE;
 						break;
 					case 42: /* _rest */
 						(*p_buff)[i++] = T0; (*p_buff)[i++] = 17;
-						last_is_terminal = FALSE;
 						break;
 					case 43: /* _ins() */
 						// BPPrintMessage(1,odInfo,"@@@ case 43 _ins(%d)\n",(int)n);
 						(*p_buff)[i++] = T32; (*p_buff)[i++] = (tokenbyte) n;
-						last_is_terminal = FALSE;
 						break;
 					case 67: /* _part() */
 				//		BPPrintMessage(1,odInfo,"@@@ case 67 _part(%d)\n",(int)n);
 						(*p_buff)[i++] = T46; (*p_buff)[i++] = (tokenbyte) n;
-						last_is_terminal = FALSE;
 						break;
 					case 44: /* _value() */
 						(*p_buff)[i++] = T35; (*p_buff)[i++] = (tokenbyte) n;
-						last_is_terminal = FALSE;
 						break;
 					case 45: /* _step() */
 						(*p_buff)[i++] = T33; (*p_buff)[i++] = (tokenbyte) n;
-						last_is_terminal = FALSE;
 						break;
 					case 46: /* _cont() */
 						(*p_buff)[i++] = T34; (*p_buff)[i++] = (tokenbyte) n;
-						last_is_terminal = FALSE;
 						break;
 					case 47: /* _fixed() */
 						(*p_buff)[i++] = T36; (*p_buff)[i++] = (tokenbyte) n;
-						last_is_terminal = FALSE;
 						break;
 					case 48: /* _retro */
 						(*p_buff)[i++] = T12; (*p_buff)[i++] = (tokenbyte) 21;
@@ -339,11 +303,9 @@ tokenbyte **Encode(t_gram* p_gram,int sequence,int notargument, int igram, int i
 					case 54: /* _mapcont */
 					case 55: /* _mapstep */
 						(*p_buff)[i++] = T12; (*p_buff)[i++] = (tokenbyte)(j - 28);
-						last_is_terminal = FALSE;
 						break;
 					case 56:	/* _rndvel() */
 						(*p_buff)[i++] = T38; (*p_buff)[i++] = (tokenbyte) n;
-						last_is_terminal = FALSE;
 						break;
 					case 57:	/* _rotate() */
 						(*p_buff)[i++] = T39; (*p_buff)[i++] = (tokenbyte) n;
@@ -355,22 +317,18 @@ tokenbyte **Encode(t_gram* p_gram,int sequence,int notargument, int igram, int i
 						break;
 					case 59: /* _rndtime() */
 						(*p_buff)[i++] = T41; (*p_buff)[i++] = (tokenbyte) n;
-						last_is_terminal = FALSE;
 						break;
 					case 60: /* _srand() */
 						(*p_buff)[i++] = T42; (*p_buff)[i++] = (tokenbyte) n;
-						last_is_terminal = FALSE;
 						break;
 					case 61: /* _tempo() */
 						(*p_buff)[i++] = T43; (*p_buff)[i++] = (tokenbyte) u;
 						(*p_buff)[i++] = T43; (*p_buff)[i++] = (tokenbyte) v;
-						last_is_terminal = FALSE;
 						break;
 					case 62: /* _transposefixed */
 					case 63: /* _transposecont */
 					case 64: /* _transposestep */
 						(*p_buff)[i++] = T12; (*p_buff)[i++] = (tokenbyte)(j - 34);
-						last_is_terminal = FALSE;
 						break;
 					case 65: /* _scale */
 #ifdef __BP3_WASM__
@@ -832,6 +790,7 @@ tokenbyte **Encode(t_gram* p_gram,int sequence,int notargument, int igram, int i
 				n = 0;
 				*p_meta = 1;
 				(*p_buff)[i++] = T6;
+				last_is_terminal = TRUE;
 				if(i > imax) {
 					BPPrintMessage(0,odError,"=> i > imax. Err. Encode()");
 					goto ERR;
@@ -943,9 +902,9 @@ tokenbyte **Encode(t_gram* p_gram,int sequence,int notargument, int igram, int i
 		if(OkBolChar(c)) {
 			
 	SEARCHTERMINAL2:
-			if(!last_is_terminal && c == '_') {
-				// This is a syntax error, confusing '_' with '-'
-			//	BPPrintMessage(0,odError,"=> fixed '_'\n");
+			if(arg_nr == 0 && !last_is_terminal && c == '_') {
+			// This is a syntax error, confusing '_' with '-'
+				if(trace_last_is_terminal) BPPrintMessage(0,odError,"=> fixed '_'\n");
 				**pp = '-'; 
 				}
 			lmax = 0;		// Look for terminal symbol
@@ -1057,6 +1016,7 @@ tokenbyte **Encode(t_gram* p_gram,int sequence,int notargument, int igram, int i
 	OKCODE:	
 			(*p_buff)[i++] = T0;
 			(*p_buff)[i++] = (tokenbyte) j;
+			if(j == 12 || j == 13 || j == 14) last_is_terminal = FALSE; // { } ,
 			if(i > imax) {
 				BPPrintMessage(0,odError,"=> i > imax. Err. Encode()");
 				goto ERR;
@@ -1064,7 +1024,6 @@ tokenbyte **Encode(t_gram* p_gram,int sequence,int notargument, int igram, int i
 			(*pp)++;
 			c = NextChar(pp);
 			p_mem = *pp;
-			last_is_terminal = FALSE;
 			continue;
 			}
 		if(c == '\'') {			// terminal between single quotes

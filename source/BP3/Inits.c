@@ -422,7 +422,7 @@ int Inits(void) {
 	if(ResizeCsoundInstrumentsSpace(1) != OK) return(ABORT);
 	iCsoundInstrument = 0;
 	ResetCsoundInstrument(iCsoundInstrument,YES,NO);
-	for(i=1; i <= MAXCHAN; i++) WhichCsoundInstrument[i] = -1; // FIXME: this is done above too?
+	for(i=1; i <= MAXCHAN; i++) WhichCsoundInstrument[i] = -1;
 	SetMidiFileNr = 0;
 	return(OK);
 	}

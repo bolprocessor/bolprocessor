@@ -64,6 +64,13 @@
 
 int trace_FixNumberConstant = 0;
 
+const char *BaseName(const char *path) {
+	const char *p1 = strrchr(path,'/');
+	const char *p2 = strrchr(path,'\\');
+	const char *p = (p1 > p2) ? p1 : p2;
+	return (p != NULL) ? p + 1 : path;
+	}
+
 char* str_replace(const char *search, const char *replace, const char *str) {
     char *result; // The return string
     const char *insert_point; // Next insert point
@@ -950,78 +957,69 @@ return(OK);
 }
 
 
-int FixStringConstant(char* line)
-{
-int i,j,maxparam,found;
-Handle h;
-char ****pp_h,**ptr;
+int FixStringConstant(char* line) {
+	int i,j,maxparam,found;
+	Handle h;
+	char ****pp_h,**ptr;
 
-Strip(line);
-if(line[0] == '\0') goto ERR;
-
-found = FALSE;
-
-if(p_StringConstant == NULL) maxparam = 0;
-else maxparam = (MyGetHandleSize((Handle)p_StringConstant) / sizeof(char**));
-
-if(maxparam == 0) {
-	if((pp_h = (char****) GiveSpace((Size)(10) * sizeof(char**))) == NULL) return(ABORT);
-	p_StringConstant = pp_h;
-	maxparam = 10;
-	if((ptr = (char**) GiveSpace((Size)(strlen("pitchbend")+1))) == NULL) return(ABORT);
-	(*p_StringConstant)[IPITCHBEND] = ptr;
-	MystrcpyStringToTable(p_StringConstant,IPITCHBEND,"pitchbend");
-	if((ptr = (char**) GiveSpace((Size)(strlen("volume")+1))) == NULL) return(ABORT);
-	(*p_StringConstant)[IVOLUME] = ptr;
-	MystrcpyStringToTable(p_StringConstant,IVOLUME,"volume");
-	if((ptr = (char**) GiveSpace((Size)(strlen("modulation")+1))) == NULL) return(ABORT);
-	(*p_StringConstant)[IMODULATION] = ptr;
-	MystrcpyStringToTable(p_StringConstant,IMODULATION,"modulation");
-	if((ptr = (char**) GiveSpace((Size)(strlen("pressure")+1))) == NULL) return(ABORT);
-	(*p_StringConstant)[IPRESSURE] = ptr;
-	MystrcpyStringToTable(p_StringConstant,IPRESSURE,"pressure");
-	if((ptr = (char**) GiveSpace((Size)(strlen("panoramic")+1))) == NULL) return(ABORT);
-	(*p_StringConstant)[IPANORAMIC] = ptr;
-	MystrcpyStringToTable(p_StringConstant,IPANORAMIC,"panoramic");
-	
-	for(i=5; i < maxparam; i++) (*p_StringConstant)[i] = NULL;
-	}
-
-for(j=0; j < maxparam; j++) {
-	if((*p_StringConstant)[j] == NULL) break;
-	if(Mystrcmp((*p_StringConstant)[j],line) == 0) {
-		found = TRUE;
-		break;
+	Strip(line);
+	if(line[0] == '\0') goto ERR;
+	found = FALSE;
+	if(p_StringConstant == NULL) maxparam = 0;
+	else maxparam = (MyGetHandleSize((Handle)p_StringConstant) / sizeof(char**));
+	if(maxparam == 0) {
+		if((pp_h = (char****) GiveSpace((Size)(10) * sizeof(char**))) == NULL) return(ABORT);
+		p_StringConstant = pp_h;
+		maxparam = 10;
+		if((ptr = (char**) GiveSpace((Size)(strlen("pitchbend")+1))) == NULL) return(ABORT);
+		(*p_StringConstant)[IPITCHBEND] = ptr;
+		MystrcpyStringToTable(p_StringConstant,IPITCHBEND,"pitchbend");
+		if((ptr = (char**) GiveSpace((Size)(strlen("volume")+1))) == NULL) return(ABORT);
+		(*p_StringConstant)[IVOLUME] = ptr;
+		MystrcpyStringToTable(p_StringConstant,IVOLUME,"volume");
+		if((ptr = (char**) GiveSpace((Size)(strlen("modulation")+1))) == NULL) return(ABORT);
+		(*p_StringConstant)[IMODULATION] = ptr;
+		MystrcpyStringToTable(p_StringConstant,IMODULATION,"modulation");
+		if((ptr = (char**) GiveSpace((Size)(strlen("pressure")+1))) == NULL) return(ABORT);
+		(*p_StringConstant)[IPRESSURE] = ptr;
+		MystrcpyStringToTable(p_StringConstant,IPRESSURE,"pressure");
+		if((ptr = (char**) GiveSpace((Size)(strlen("panoramic")+1))) == NULL) return(ABORT);
+		(*p_StringConstant)[IPANORAMIC] = ptr;
+		MystrcpyStringToTable(p_StringConstant,IPANORAMIC,"panoramic");
+		
+		for(i=5; i < maxparam; i++) (*p_StringConstant)[i] = NULL;
 		}
-	}
-if(found) return(j);
-
-if(j >= MAXSTRINGCONSTANTS) {
-	my_sprintf(Message,
-			"Too many identifiers found (max %ld)\nCan't store '%s'\n",
-				(long)MAXSTRINGCONSTANTS,line);
-	BPPrintMessage(0,odError,"%s",Message);
+	for(j=0; j < maxparam; j++) {
+		if((*p_StringConstant)[j] == NULL) break;
+		if(Mystrcmp((*p_StringConstant)[j],line) == 0) {
+			found = TRUE;
+			break;
+			}
+		}
+	if(found) return(j);
+	if(j >= MAXSTRINGCONSTANTS) {
+		my_sprintf(Message,
+				"Too many identifiers found (max %ld)\nCan't store '%s'\n",
+					(long)MAXSTRINGCONSTANTS,line);
+		BPPrintMessage(0,odError,"%s",Message);
+		return(ABORT);
+		}
+	if(j >= maxparam) {
+		h = (Handle) p_StringConstant;
+		if((h = IncreaseSpace(h)) == NULL) return(ABORT);
+		p_StringConstant = (char****) h;
+		maxparam = (MyGetHandleSize((Handle)p_StringConstant) / sizeof(char**));
+		for(i=j; i < maxparam; i++) (*p_StringConstant)[i] = NULL;
+		}
+	if((ptr = (char**) GiveSpace((Size)(strlen(line)+1))) == NULL) return(ABORT);
+	(*p_StringConstant)[j] = ptr;
+	MystrcpyStringToTable(p_StringConstant,j,line);
+	if(trace_scale) BPPrintMessage(0,odInfo, "FixStringConstant() j = %d, line = %s\n",j,line);
+	return(j);
+	ERR:
+	BPPrintMessage(0,odError,"Missing parameter name");
 	return(ABORT);
 	}
-
-if(j >= maxparam) {
-	h = (Handle) p_StringConstant;
-	if((h = IncreaseSpace(h)) == NULL) return(ABORT);
-	p_StringConstant = (char****) h;
-	maxparam = (MyGetHandleSize((Handle)p_StringConstant) / sizeof(char**));
-	for(i=j; i < maxparam; i++) (*p_StringConstant)[i] = NULL;
-	}
-	
-if((ptr = (char**) GiveSpace((Size)(strlen(line)+1))) == NULL) return(ABORT);
-(*p_StringConstant)[j] = ptr;
-MystrcpyStringToTable(p_StringConstant,j,line);
-if(trace_scale) BPPrintMessage(0,odInfo, "FixStringConstant() j = %d, line = %s\n",j,line);
-return(j);
-
-ERR:
-BPPrintMessage(0,odError,"Missing parameter name");
-return(ABORT);
-}
 
 
 int FixNumberConstant(char* line)

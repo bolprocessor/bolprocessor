@@ -745,6 +745,7 @@ int DurationToPoint(MIDIcode****,Milliseconds****,long**,int);
 int PointToDuration(MIDIcode****,Milliseconds****,long**,int);
 int sort_csound_score(char**);
 int ThisInstrument(int,int,int,int*);
+const char *BaseName(const char*);
 // int ChangeControlValue(int,ControlHandle,int);
 int SortMIDIdates(long,int);
 int SortCsoundDates(long,int);

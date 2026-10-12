@@ -120,7 +120,7 @@ ERREUR:
 
 
 int LoadCsoundInstruments(int checkversion,int tryname) {
-	int i,iv,ip,jmax,j,result,length,i_table,ipmax;
+	int i,iv,ip,jmax,j,chan,result,length,i_table,ipmax;
 	char **ptr;
 	char line[MAXLIN];
 	CsoundParam **ptr3;
@@ -147,8 +147,7 @@ int LoadCsoundInstruments(int checkversion,int tryname) {
 	csfile = my_fopen(0,line,"r");
 	if(csfile != NULL) {
 		BPPrintMessage(0,odError,"\n=> As the Csound instruments file was locked I waited for 3 seconds...\n");
-	//	sleep(2);
-		delay(3); // Fixed by BB 2022-02-20
+		delay(3);
 		}
 
 	csfile = my_fopen(1,FileName[wCsoundResources],"r");
@@ -168,9 +167,9 @@ int LoadCsoundInstruments(int checkversion,int tryname) {
 		BPPrintMessage(0,odError,"=> This file is empty or in an unknown format\n");
 		goto QUIT;
 		}
-	for(j=1; j <= jmax; j++) {
+	for(chan = 1; chan <= jmax; chan++) {
 		if(ReadInteger(csfile,&i,&pos) == MISSED) goto ERR;
-		WhichCsoundInstrument[j] = i;
+		WhichCsoundInstrument[chan] = i;
 		}
 	if(iv > 11) {
 		if(ReadOne(FALSE,TRUE,FALSE,csfile,TRUE,&p_line,&p_completeline,&pos) == MISSED) goto ERR;
@@ -211,7 +210,15 @@ int LoadCsoundInstruments(int checkversion,int tryname) {
 		if(trace_load_csound_instruments)
 			BPPrintMessage(0,odInfo,"Loading Csound instrument %d = \"%s\" out of %d\n",(j+1),(*((*pp_CsInstrumentName)[j])),jmax);
 		if(ReadOne(FALSE,TRUE,FALSE,csfile,TRUE,&p_line,&p_completeline,&pos) == MISSED) goto ERR;
-		strcpy((*((*pp_CsInstrumentComment)[j])),""); // Forget comment! 2024-05-20
+
+		if((*p_completeline)[0] != '\0') {
+			MystrcpyHandleToString(MAXLIN,0,LineBuff,p_completeline);
+			ptr = NULL;
+			if(MySetHandleSize((Handle*)&ptr,(Size)(1L + MyHandleLen(p_completeline)) * sizeof(char)) != OK) goto ERR;
+			MystrcpyHandleToHandle(0,&ptr,p_completeline);
+			(*pp_CsInstrumentComment)[j] = ptr;
+			}
+		else strcpy((*((*pp_CsInstrumentComment)[j])),"");
 		if(ReadInteger(csfile,&i,&pos) == MISSED) goto ERR;
 		(*p_CsInstrument)[j].iargmax = i;
 		if(trace_load_csound_instruments) BPPrintMessage(0,odInfo,"iargmax = %d\n",i);
@@ -360,6 +367,7 @@ int LoadCsoundInstruments(int checkversion,int tryname) {
 		for(ip=0; ip < (*p_CsInstrument)[j].ipmax; ip++) {
 			if(ReadOne(FALSE,TRUE,FALSE,csfile,TRUE,&p_line,&p_completeline,&pos) == MISSED) goto ERR;
 			length = MyHandleLen(p_completeline);
+			if(trace_load_csound_instruments) BPPrintMessage(0,odInfo,"-> Name: \"%s\"\n",*p_completeline);
 			if(length > 0) {
 				if((ptr=(char**) GiveSpace((Size)((1L + length) * sizeof(char)))) == NULL) goto ERR;
 				MystrcpyHandleToHandle(0,&ptr,p_completeline);
@@ -367,27 +375,34 @@ int LoadCsoundInstruments(int checkversion,int tryname) {
 				i = FixStringConstant(*p_completeline);
 				if(i >= 0) (*((*p_CsInstrument)[j].paramlist))[ip].nameindex = i;
 				}
-			
-			if(trace_load_csound_instruments) BPPrintMessage(0,odInfo,"-> Parameter: \"%s\"\n",*p_completeline);
-		//	strcpy(line,"");
+			else {
+				BPPrintMessage(0,odError,"=> Error loading Csound instruments: the name of an additional parameter is missing\n");
+				goto ERR;
+				}
 			fseek(csfile,pos,SEEK_SET);
-			if(fgets(line,sizeof(line),csfile) != NULL) { // Necessary to read a line that might be empty
+			if(fgets(line,sizeof(line),csfile) != NULL) {	
+				// Necessary to read a line that might be empty
 				remove_carriage_returns(line);
 				pos = ftell(csfile);
 				}
 			else {
-				BPPrintMessage(0,odError,"=> Error reading line in LoadCsoundInstruments()\n");
+				BPPrintMessage(0,odError,"=> Error reading comment of an additional parameter in LoadCsoundInstruments()\n");
 				goto ERR;
 				}
-			// fscanf(csfile, "%[^\n]",line2); Obsolete, not good for Windows
-			if(strlen(line) > 0) {
+			length = strlen(line);
+			if((ptr=(char**) GiveSpace((Size)((1L + length) * sizeof(char)))) == NULL) goto ERR;
+			if(length > 0) {
+				Strip(line);
 				MystrcpyStringToHandle(&ptr,line);
 				(*((*p_CsInstrument)[j].paramlist))[ip].comment = ptr;
-			//	pos += strlen(line);
+				}
+			else {
+				MystrcpyStringToHandle(&ptr," ");
+				(*((*p_CsInstrument)[j].paramlist))[ip].comment = ptr;
 				}
 			if(trace_load_csound_instruments) BPPrintMessage(0,odInfo, "This line: %s\n",line);
 			if(ReadInteger(csfile,&i,&pos) == MISSED) {
-				BPPrintMessage(0,odError, "Missed the first integer in LoadCsoundInstruments()\n");
+				BPPrintMessage(0,odError, "Missed the first integer of an additional parameter during LoadCsoundInstruments()\n");
 				goto ERR;
 				}
 			(*((*p_CsInstrument)[j].paramlist))[ip].startindex = i;
