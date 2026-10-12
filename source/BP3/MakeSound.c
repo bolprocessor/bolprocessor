@@ -1601,9 +1601,9 @@ SENDNOTEOFF:
 											}
 										else {
 											instrument = ThisInstrument(cswrite,kcurrentinstance,ievent,&instr_index);
-											((*p_keyinstrument[instr_index])[c1])++;
 											if(trace_makesound)
-												BPPrintMessage(0,odInfo,"Before CscoreWrite(4) NoteOn kcurrentinstance = %ld, j = %ld, ievent = %d, beta = %.2f t0 = %ld t1 = %ld c1 = %ld c2 = %ld, localchan = %d instrument = %d\n",(long)kcurrentinstance,(long)j,ievent,beta,(long)t0,(long)t1,(long)c1,(long)c2,localchan,instrument);
+												BPPrintMessage(0,odInfo,"Before CscoreWrite(4) NoteOn kcurrentinstance = %ld, j = %ld, ievent = %d, beta = %.2f t0 = %ld t1 = %ld c1 = %ld c2 = %ld, localchan = %d instrument = %d instr_index = %d\n",(long)kcurrentinstance,(long)j,ievent,beta,(long)t0,(long)t1,(long)c1,(long)c2,localchan,instrument,instr_index);
+											((*p_keyinstrument[instr_index])[c1])++;
 											if((result =
 					CscoreWrite(ZERO,&graphrect,leftoffset,topoffset,hrect,minkey,maxkey,strikeagain,ON,beta,(t0 + t1),-1,c1,c2,localchan,instrument,
 						j,nseq,kcurrentinstance,pp_currentparams,scale,blockkey)) == ABORT)
@@ -2639,7 +2639,7 @@ int InstrumentIndex(int instrument) {
 	for(j = 0; j < Jinstr; j++) 
 		if((*p_CsInstrumentIndex)[j] == instrument) break;
 	if(j < Jinstr) return(j);
-	else return(-1);
+	else return(0);
 	}
 
 int TransposeAndExpand(int k,int *p_c1,int trans) {

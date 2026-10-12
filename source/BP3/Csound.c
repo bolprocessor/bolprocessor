@@ -1647,10 +1647,10 @@ static const char *CsPitchFormatName(int format) {
 
 
 int SaveJsonCsoundInstrument(int instrument) {
-	int i,j,k,ipmax;
+	int i,j,k,ipmax,chan;
 	CsoundParam **params;
 	FILE *csjson;
-	char instrument_path[1024],label[MAXNAME];
+	char instrument_path[1024],label[MAXNAME],label2[MAXNAME];
 	int length;
 
 	// BPPrintMessage(0,odInfo,"👉 Creating json file ??? instrument = %d\n",instrument);
@@ -1681,6 +1681,16 @@ int SaveJsonCsoundInstrument(int instrument) {
 	SaveEscapedStringAsJson(csjson,"CsInstrumentName","","CsInstrumentName",*((*pp_CsInstrumentName)[j]));
 	SaveEscapedStringAsJson(csjson,"CsInstrumentComment","","CsInstrumentComment",*((*pp_CsInstrumentComment)[j]));
 	SAVE_INSTR_INT(iargmax,"");
+
+	for(chan = 1; chan <= MAXCHAN; chan++) {
+		if(WhichCsoundInstrument[chan] > 0) {
+			if(WhichCsoundInstrument[chan] == instrument) {
+				my_sprintf(label,"WhichCsoundInstrument[%d]",chan);
+				my_sprintf(label2,"%d",chan);
+				SaveEscapedStringAsJson(csjson,label,"","MIDI channel associated with this instrument",label2);
+				}
+			}
+		}
 
 	/* Argument indexes */
 	SAVE_CS_INT(CsDilationRatioIndex);
