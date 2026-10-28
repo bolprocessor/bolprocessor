@@ -1533,41 +1533,52 @@ int AssignUniqueChannel(int status, int note, int value, int i_scale, int pitch,
 		BPPrintMessage(1,odError,"=> Error i_scale = %d, >= MAXCONVENTIONS (100)\n",i_scale);
 		i_scale = 0;
 		}
-	if(test) BPPrintMessage(1,odInfo,"\n#### \nNote %d pitch = %d, value = %d, time = %ld\n",note,pitch,value,(long)(time - MIDIsetUpTime));
-	if(status == NoteOff || value == 0) {
+	if(status == NoteOn && value == 0) status = NoteOff;
+	if(test) BPPrintMessage(1,odInfo,"\n#### \nNote %d, status = %d, pitch = %d, value = %d, pitch =  %d, time = %ld\n",note,status,pitch,value,pitch,(long)(time - MIDIsetUpTime));
+	if(status == NoteOff) {
 		for(ch = 1; ch < MAXCHAN; ch++) { // "ch = 1" is channel 2 of MIDI
-			if(test) BPPrintMessage(0,odInfo,"@ NoteOff ch = %d  value = %d, MPEold_note[ch] = %d, MPEscale[ch] = %d, MPEpitch[ch] == %d\n",ch,value,MPEold_note[ch],MPEscale[ch],MPEpitch[ch]);
+			if(test) BPPrintMessage(0,odInfo,"@ NoteOff ch = %d  value = %d, MPEnote[ch] =%d, MPEold_note[ch] = %d, MPEscale[ch] = %d, MPEpitch[ch] == %d\n",ch,value,MPEnote[ch],MPEold_note[ch],MPEscale[ch],MPEpitch[ch]);
 			if(MPEold_note[ch] == note && MPEscale[ch] == i_scale && MPEpitch[ch] == pitch) {
+				if(test) BPPrintMessage(1,odInfo,"• NoteOff %d pitch = %d -> ch = %d time = %ld\n",note,pitch,ch,(long)(time - MIDIsetUpTime));
 				MPEnote[ch] = 0;
 				MPEscale[ch] = -1;
 				MPEpitch[ch] = -1;
-				if(test) BPPrintMessage(1,odInfo,"• NoteOff %d pitch = %d -> ch = %d time = %ld\n",note,pitch,ch,(long)(time - MIDIsetUpTime));
             	return ch;
 				}
 			}
-		}
-    for(ch = 1; ch < MAXCHAN; ch++) {
-		if(test) BPPrintMessage(0,odInfo,"@@ NoteOff ch = %d  value = %d, MPEold_note[ch] = %d, MPEscale[ch] = %d, MPEpitch[ch] == %d\n",ch,value,MPEold_note[ch],MPEscale[ch],MPEpitch[ch]);
-        if(MPEnote[ch] == note)  {
-            if((status == NoteOff || value == 0) && MPEscale[ch] == i_scale && MPEpitch[ch] == pitch) {
+		for(ch = 1; ch < MAXCHAN; ch++) {
+			if(test) BPPrintMessage(0,odInfo,"@@ NoteOff ch = %d  value = %d, MPEnote[ch] = %d, MPEold_note[ch] = %d, MPEscale[ch] = %d, MPEpitch[ch] == %d\n",ch,value,MPEnote[ch],MPEold_note[ch],MPEscale[ch],MPEpitch[ch]);
+			if(MPEnote[ch] == note && MPEscale[ch] == i_scale && MPEpitch[ch] == pitch) {
+				if(test) BPPrintMessage(1,odInfo,"•• NoteOff %d pitch = %d -> ch = %d time = %ld\n",note,pitch,ch,(long)(time - MIDIsetUpTime));
 				MPEnote[ch] = 0;
 				MPEscale[ch] = -1;
 				MPEpitch[ch] = -1;
-				if(test) BPPrintMessage(1,odInfo,"•• NoteOff %d pitch = %d -> ch = %d time = %ld\n",note,pitch,ch,(long)(time - MIDIsetUpTime));
-            	return ch;
+				return ch;
 				}
 			if(status == NoteOn && value > 0 && MPEscale[ch] == i_scale && MPEpitch[ch] == pitch) return ch;
-            }
-        }
+			}
+		// Now we'll ignore 'pitch' (fixed 2026-10-13)
+		for(ch = 1; ch < MAXCHAN; ch++) {
+			if(test) BPPrintMessage(0,odInfo,"@@@ NoteOff ch = %d  value = %d, MPEnote[ch] = %d, MPEold_note[ch] = %d, MPEscale[ch] = %d, MPEpitch[ch] == %d\n",ch,value,MPEnote[ch],MPEold_note[ch],MPEscale[ch],MPEpitch[ch]);
+			if(MPEnote[ch] == note && MPEscale[ch] == i_scale) {
+				if(test) BPPrintMessage(1,odInfo,"••• NoteOff %d pitch = %d -> ch = %d time = %ld\n",note,pitch,ch,(long)(time - MIDIsetUpTime));
+				MPEnote[ch] = 0;
+				MPEscale[ch] = -1;
+				MPEpitch[ch] = -1;
+				return ch;
+				}
+			if(status == NoteOn && value > 0 && MPEscale[ch] == i_scale && MPEpitch[ch] == pitch) return ch;
+			}
+		}
     for(ch = 1; ch < MAXCHAN; ch++) {
-		if(test) BPPrintMessage(0,odInfo,"@@ NoteOn ch = %d  value = %d, MPEold_note[ch] = %d, MPEscale[ch] = %d, MPEpitch[ch] == %d\n",ch,value,MPEold_note[ch],MPEscale[ch],MPEpitch[ch]);
+		if(test) BPPrintMessage(0,odInfo,"@ NoteOn ch = %d  value = %d, MPEnote[ch] = %d, MPEold_note[ch] = %d, MPEscale[ch] = %d, MPEpitch[ch] == %d\n",ch,value,MPEnote[ch],MPEold_note[ch],MPEscale[ch],MPEpitch[ch]);
         if(MPEnote[ch] == 0 && MPEscale[ch] == -1) {
 			if(test) BPPrintMessage(0,odInfo,"ch = %d  value = %d\n",ch,value);
-            if(status == NoteOn && value > 0) { // Record a new NoteOn
+            if(status == NoteOn) { // Record a new NoteOn
 				MPEnote[ch] = note;
 				MPEscale[ch] = i_scale;
 				MPEpitch[ch] = pitch;
-				if(test) BPPrintMessage(1,odInfo,"NoteOn %d pitch = %d -> ch = %d time = %ld\n",note,pitch,ch,(long)(time - MIDIsetUpTime));
+				if(test) BPPrintMessage(1,odInfo,"• NoteOn %d pitch = %d -> ch = %d time = %ld\n",note,pitch,ch,(long)(time - MIDIsetUpTime));
                 return ch;
                 }
             }
@@ -1616,7 +1627,7 @@ int SendToDriver(int kcurrentinstance, int scale, int blockkey, Milliseconds tim
 			if(pitchbend_master > 0 && pitchbend_master < 16384) pitchbend_master -= DEFTPITCHBEND;
 			else pitchbend_master = 0;
 			channel = AssignUniqueChannel(type,note,value,i_scale,pitchbend_master,time);
-			// BPPrintMessage(0,odInfo,"@ key %d, value = %d scale = %d channel = %d\n",note,value,scale,channel);
+		//	BPPrintMessage(0,odInfo,"@ key %d, value = %d scale = %d channel = %d\n",note,value,scale,channel);
 			if(channel < 1) { // Added 2025-01-07
 				if(SaidChannel < 5) {
 					BPPrintMessage(1,odInfo,"=> No channel available for key #%d vel = %d pitch = %d time = %ld ms in SendToDriver()",note,value,pitchbend_master,(time - MIDIsetUpTime));

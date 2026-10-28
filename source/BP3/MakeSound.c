@@ -851,6 +851,7 @@ int MakeSound(long *p_kmax,unsigned long imaxstreak,int maxnsequences,long tmin,
 				BPPrintMessage(0,odError,"=> Error MakeSound(), Instance[%d].channel = %d,objectchannel = %d\n",kcurrentinstance,(*p_Instance)[kcurrentinstance].channel,objectchannel);
 				objectchannel = 0;
 				}
+		//	BPPrintMessage(0,odInfo,"§§§ imax[5] = %d\n",(*currentinstancevalues)[5].imax);
 			if(trace_makesound) {
 				BPPrintMessage(0,odInfo,"@@@ Instance[%d].channel = %d --> objectchannel = %d, kcurrentinstance = %d\n",kcurrentinstance,(*p_Instance)[kcurrentinstance].channel,objectchannel,kcurrentinstance);
 				if(j < Jbol) BPPrintMessage(0,odInfo,"DefaultChannel[%d] = %d\n",j,(*p_DefaultChannel)[j]);
@@ -1109,6 +1110,9 @@ int MakeSound(long *p_kmax,unsigned long imaxstreak,int maxnsequences,long tmin,
 				
 				// Pass on parameters to pp_currentparams
 			//	BPPrintMessage(0,odInfo,"k = %ld, contparameters.number = %d\n",(long)kcurrentinstance, (*p_Instance)[kcurrentinstance].contparameters.number);
+
+				params = (*((*pp_currentparams)[nseq]))->params; // $$$$
+
 				if((kcurrentinstance > 1) && (*p_Instance)[kcurrentinstance].contparameters.number > 0) {
 					if(trace_makesound)
 						BPPrintMessage(0,odInfo,"k = %ld > 1, contparameters.number = %d\n",(long)kcurrentinstance,(*p_Instance)[kcurrentinstance].contparameters.number);
@@ -1127,46 +1131,51 @@ int MakeSound(long *p_kmax,unsigned long imaxstreak,int maxnsequences,long tmin,
 							(*params)[index].active = FALSE;
 							}
 						}
-					maxparam = MyGetHandleSize((Handle)(*((*pp_currentparams)[nseq]))->params) / sizeof(ParameterStatus);
-					// This value maybe oversized if continuous _value() statements were found earlier on this sequence
-					// but this will be fixed in CscoreWrite() - BB 2021-02-15
+
+					int currparamnr = MyGetHandleSize((Handle)(*((*pp_currentparams)[nseq]))->params) / sizeof(ParameterStatus);
 					params = (*((*pp_currentparams)[nseq]))->params;
-			//		BPPrintMessage(0,odInfo,"Found maxparam = %d, (*p_Instance)[%d].contparameters.number = %d\n",maxparam,kcurrentinstance,(*p_Instance)[kcurrentinstance].contparameters.number);
-					(*p_Instance)[kcurrentinstance].contparameters.number = maxparam; // 2024-07-05
-					for(i=0; i < (*p_Instance)[kcurrentinstance].contparameters.number; i++) {
-						index = (*currentinstancevalues)[i].index;
-						if(index < 0) continue;
-						if(index >= maxparam) {
-							iparam = maxparam;
-							maxparam = index + 1;
-							BPPrintMessage(0,odInfo,"Resizing maxparam = %ld, kcurrentinstance = %d, index (1) = %ld\n",(long)maxparam,(int)kcurrentinstance,(long)index);
-							h = (Handle) params;
-							MySetHandleSize(&h,(Size)maxparam * sizeof(ParameterStatus));
-							params = (*((*pp_currentparams)[nseq]))->params = (ParameterStatus**) h;
-				//			BPPrintMessage(0,odInfo,"active = FALSE (2) with maxparam = %d\n",maxparam);
-							for(iparam=iparam; iparam < maxparam; iparam++) {
-								(*params)[iparam].active = FALSE;
-								}
+					instrument = ThisInstrument(cswrite,kcurrentinstance,ievent,&instr_index);
+					maxparam = (*p_CsInstrument)[instr_index].ipmax + IPANORAMIC + 1;
+					// BPPrintMessage(0,odInfo,"@@ Found currparamnr = %d, instrument = %d,instr_index = %d, ipmax = %d, maxparam = %d, k = %d\n",currparamnr,instrument,instr_index,(*p_CsInstrument)[instr_index].ipmax,maxparam,kcurrentinstance);
+					if(maxparam > currparamnr) {
+					//	BPPrintMessage(0,odInfo,"Resizing (1) maxparam = %ld, kcurrentinstance = %d\n",(long)maxparam,(int)kcurrentinstance);
+						h = (Handle) (*((*pp_currentparams)[nseq]))->params;
+						MySetHandleSize(&h,(Size)maxparam * sizeof(ParameterStatus));
+						(*((*pp_currentparams)[nseq]))->params = params = (ParameterStatus**) h;
+						(*((*pp_currentparams)[nseq]))->numberparams = maxparam;
+						h = (Handle) params;
+						MySetHandleSize(&h,(Size)maxparam * sizeof(ParameterStatus));
+						params = (ParameterStatus**) h;
+						h = (Handle) currentinstancevalues;
+						MySetHandleSize(&h,(Size)maxparam * sizeof(ParameterSpecs));
+						currentinstancevalues = (ParameterSpecs**) h;
+						for(iparam = (currparamnr); iparam < maxparam; iparam++) {
+						//	BPPrintMessage(0,odInfo,"++ iparam = %d\n",iparam);
+						//	BPPrintMessage(0,odInfo,"active = FALSE (2) for iparam = %d\n",iparam);
+							(*params)[iparam].active = FALSE;
+							(*params)[iparam].startvalue = 0.;
+							(*params)[iparam].endvalue = 0.;
+							(*params)[iparam].imax = ZERO; 
+							(*params)[iparam].point = NULL;
+							(*params)[iparam].starttime = ZERO;
+							(*params)[iparam].dur = ZERO;
 							}
-						if(index >= (*((*pp_currentparams)[nseq]))->numberparams) {
-							BPPrintMessage(0,odInfo,"Resizing for index (2) = %ld\n",(long)index);
-							(*((*pp_currentparams)[nseq]))->numberparams = index + 1;
-							}
-							
-						(*params)[index].startvalue = (*currentinstancevalues)[i].v0;
-						(*params)[index].endvalue = (*currentinstancevalues)[i].v1;
-						(*params)[index].imax = (*currentinstancevalues)[i].imax;
+						}
+					(*((*pp_currentparams)[nseq]))->numberparams = maxparam;
+					(*p_Instance)[kcurrentinstance].contparameters.number = maxparam;
+					for(index = 0; index < maxparam; index++) {
+						(*params)[index].startvalue = (*currentinstancevalues)[index].v0;
+						(*params)[index].endvalue = (*currentinstancevalues)[index].v1;
+						(*params)[index].imax = (*currentinstancevalues)[index].imax;
 						(*params)[index].dur = objectduration;
-						(*params)[index].starttime
-								= t0 + (*p_Instance)[kcurrentinstance].starttime - (*p_Instance)[kcurrentinstance].truncbeg;
-						(*params)[index].mode = (*currentinstancevalues)[i].mode;
-						(*params)[index].point = (*currentinstancevalues)[i].point;
-						// BPPrintMessage(0,odInfo,"Copying cont param for i = %d index = %d mode = %d startvalue = %ld endvalue = %ld\n",i,index,(*params)[index].mode,(long)(*params)[index].startvalue,(long)(*params)[index].endvalue);
-						if((index == IPANORAMIC && j < Jbol && !(*p_OkPan)[j])
-									|| (index == IVOLUME && j < Jbol && !(*p_OkVolume)[j]))
+						(*params)[index].starttime = t0 + (*p_Instance)[kcurrentinstance].starttime;
+						(*params)[index].mode = (*currentinstancevalues)[index].mode;
+						(*params)[index].point = (*currentinstancevalues)[index].point;
+						if((index == IPANORAMIC && j < Jbol && !(*p_OkPan)[j]) || (index == IVOLUME && j < Jbol && !(*p_OkVolume)[j]))
 							(*params)[index].active = FALSE;
 						else
 							(*params)[index].active = TRUE;
+						// BPPrintMessage(0,odInfo,"• index = %d, maxparam = %d, imax = %d, active = %d, startvalue = %.2f, endvalue = %.2f, dur = %ld, mode = %d\n",index,maxparam,(*params)[index].imax,(*params)[index].active,(*params)[index].startvalue,(*params)[index].endvalue,(*params)[index].dur,(*params)[index].mode);
 						}
 					}
 	FORGETIT:
@@ -1210,21 +1219,20 @@ int MakeSound(long *p_kmax,unsigned long imaxstreak,int maxnsequences,long tmin,
 					if(trace_makesound)
 						BPPrintMessage(0,odInfo,"\nMakeSound() kcurrentinstance = %d number = %d\n",kcurrentinstance,(*p_Instance)[kcurrentinstance].contparameters.number);
 					if(PlayCsoundLine(cswrite,j)) goto SWITCHES;
-					for(i=0; i < (*p_Instance)[kcurrentinstance].contparameters.number; i++) {
-						index = (*currentinstancevalues)[i].index;
+					for(index = 0; index < (*p_Instance)[kcurrentinstance].contparameters.number; index++) {
+				//		index = (*currentinstancevalues)[index].index;
 						if(index < 0) continue;
 						if((index == IPANORAMIC && j < Jbol && !(*p_OkPan)[j])
 								|| (index == IVOLUME && j < Jbol && !(*p_OkVolume)[j])) {
 							(*stream)[index].ibm = -1L;
 							continue;
 							}
-						if(index <= IPANORAMIC && (*currentinstancevalues)[i].mode == CONTINUOUS) {
-							/* First terminate current control. May occur because of rounding errors */
+						if(index <= IPANORAMIC && (*currentinstancevalues)[index].mode == CONTINUOUS) {
+							// First terminate current control. May occur because of rounding errors
 							if((*stream)[index].ibm > -1L) {
 								ch = (*stream)[index].channel;
 								if((*(p_active[ch]))[index]) {
-									if(SendControl(p_control,t0,ch,index,maxconc,cswrite,showpianoroll,&rs,
-										p_active,p_t2cont,p_seqcont,p_Oldvalue,pp_currentparams) != OK) goto OVER;
+									if((result=SendControl(p_control,t0,ch,index,maxconc,cswrite,showpianoroll,&rs,p_active,p_t2cont,p_seqcont,p_Oldvalue,pp_currentparams)) != OK) goto OVER;
 									(*(p_active[ch]))[index] = FALSE;
 									}
 								(*stream)[index].ibm = -1L;
@@ -1232,27 +1240,27 @@ int MakeSound(long *p_kmax,unsigned long imaxstreak,int maxnsequences,long tmin,
 							
 							(*stream)[index].starttime
 								= (*p_Instance)[kcurrentinstance].starttime - (*p_Instance)[kcurrentinstance].truncbeg;
-							(*stream)[index].channel = ch = (*currentinstancevalues)[i].channel - 1;
+							(*stream)[index].channel = ch = (*currentinstancevalues)[index].channel - 1;
 							if(ch < 0 || ch >= MAXCHAN) {
 							//	BPPrintMessage(0,odError,"=> Err. MakeSound(). ch < 0 || ch >= MAXCHAN");
 								result = ABORT;
 								goto OVER;
 								}
-							(*stream)[index].startvalue = (*currentinstancevalues)[i].v0;
-							(*stream)[index].endvalue = (*currentinstancevalues)[i].v1;
+							(*stream)[index].startvalue = (*currentinstancevalues)[index].v0;
+							(*stream)[index].endvalue = (*currentinstancevalues)[index].v1;
 							(*stream)[index].duration = objectduration;
 							(*stream)[index].ibm = Findibm(index,(*stream)[index].duration,ch);
 							(*stream)[index].ib = 0;
-							(*stream)[index].imax = (*currentinstancevalues)[i].imax;
+							(*stream)[index].imax = (*currentinstancevalues)[index].imax;
+							BPPrintMessage(0,odInfo,"## stream[%d].imax = %d\n",index,(*stream)[index].imax);
 							if((*stream)[index].imax > ZERO) {
-								(*stream)[index].point = (*currentinstancevalues)[i].point;
+								(*stream)[index].point = (*currentinstancevalues)[index].point;
 								}
 							else (*stream)[index].point = NULL;
 							if(!(*(p_active[ch]))[index] && (*stream)[index].ibm > ZERO) {
 								(*(p_active[ch]))[index] = TRUE;
 								(*(p_seqcont[ch]))[index] = nseq;
-								if(SendControl(p_control,t0,ch,index,maxconc,cswrite,showpianoroll,&rs,
-									p_active,p_t2cont,p_seqcont,p_Oldvalue,pp_currentparams) != OK) goto OVER;
+								if((result=SendControl(p_control,t0,ch,index,maxconc,cswrite,showpianoroll,&rs,p_active,p_t2cont,p_seqcont,p_Oldvalue,pp_currentparams) != OK)) goto OVER;
 								if(t2 > (*(p_t2cont[ch]))[index]) {
 									t2 = (*(p_t2cont[ch]))[index];
 									icont = index;
@@ -1802,8 +1810,7 @@ SENDCONTROLMESSAGE:
 				goto OVER;
 				}
 			if(t2 != Infpos && t2 == (*(p_t2cont[chancont]))[icont])
-				if(SendControl(p_control,t0,chancont,icont,maxconc,
-				cswrite,showpianoroll,&rs,p_active,p_t2cont,p_seqcont,p_Oldvalue,pp_currentparams) != OK)
+				if((result=SendControl(p_control,t0,chancont,icont,maxconc,cswrite,showpianoroll,&rs,p_active,p_t2cont,p_seqcont,p_Oldvalue,pp_currentparams)) != OK)
 					goto OVER;
 
 
@@ -2289,7 +2296,6 @@ int SendControl(ContinuousControl **p_control,Milliseconds t0,int chan,int ipara
 
 	if((value = GetTableValue(alpha,(*param)[iparam].imax,(*param)[iparam].point,
 			(*param)[iparam].startvalue,(*param)[iparam].endvalue)) == Infpos) {
-		BPPrintMessage(0,odError,"=> Err. SendControl(). value == Infpos");
 		BPPrintMessage(0,odError,"=> Err. SendControl(). value == Infpos\n");
 		return(ABORT);
 		}
@@ -2297,12 +2303,10 @@ int SendControl(ContinuousControl **p_control,Milliseconds t0,int chan,int ipara
 	if(value > 16383. && value < 16384.) value = 16383.;
 
 	if(value < 0. || value > 16383.) {
-		{
 			my_sprintf(Message,"=> Err. SendControl(). value = %.3f\n",value);
 			Print(wTrace,Message);
 			BPPrintMessage(0,odError,"=> Err. SendControl(). value = %.3f\n",value);
-			}
-		return(OK);
+		return(ABORT);
 		}
 
 	time = t0 + (*param)[iparam].starttime
@@ -2396,9 +2400,10 @@ int SendControl(ContinuousControl **p_control,Milliseconds t0,int chan,int ipara
 		(*param)[iparam].ibm = -1L;
 		(*(p_active[chan]))[iparam] = FALSE;
 		(*(p_t2cont[chan]))[iparam] = Infpos;
+	//	BPPrintMessage(0,odInfo,"@&&  chan = %d, iparam = %d\n",chan,iparam);
 		
-		/* Try to activate the same parameter+channel in another sequence */
-		for(nn=0; nn < maxconc; nn++) {
+		// Try to activate the same parameter+channel in another sequence
+		for(nn = 0; nn < maxconc; nn++) {
 			if(nn == seq) continue;
 			if((*((*p_control)[nn].param))[iparam].ibm <= ZERO) continue;
 			if(chan == (*((*p_control)[nn].param))[iparam].channel) {
@@ -2456,18 +2461,16 @@ double GetTableValue(double alpha,long imax,Coordinates** coords,double startval
 
 	if(imax < ZERO) {
 		// BPPrintMessage(0,odError,"=> Err. GetTableValue(). imax < ZERO || imax > 255");
-		return(Infpos);
+		return(0.);
 		}
 	if(coords == NULL) {
 		// BPPrintMessage(0,odError,"=> Err. GetTableValue(). coords == NULL");
-		return(Infpos);
+		return(0.);
 		}
-	{
-		if(imax > MyGetHandleSize((Handle)coords) / sizeof(Coordinates)) {
-		//	BPPrintMessage(0,odError,"=> Err. GetTableValue(). imax >= MyGetHandleSize((Handle)coords) / sizeof(Coordinates)");
-			return(Infpos);
+	if(imax > MyGetHandleSize((Handle)coords) / sizeof(Coordinates)) {
+	//	BPPrintMessage(0,odError,"=> Err. GetTableValue(). imax >= MyGetHandleSize((Handle)coords) / sizeof(Coordinates)");
+		return(0.);
 			}
-		}
 	xmax = (*(coords))[imax-1L].i;
 	x = alpha * (double) xmax;
 	i = 0; while((*(coords))[i].i < x) i++;
@@ -2619,18 +2622,18 @@ int ThisInstrument(int cswrite,int k, int iline, int *p_index) {
 	if(j < 0) j = -j;
 	instrument = (*p_Instance)[k].instrument;
 	*p_index = InstrumentIndex(instrument);
-	if(EventListOn && instrument > 0 && instrument < MAXINSTRUMENTS && !Exported_instrument[instrument]) SaveJsonCsoundInstrument(instrument);
+	if(EventListOn && instrument > 0 && instrument < MAXINSTRUMENTS && !Exported_instrument[instrument]) ExportJsonCsoundInstrument(instrument);
 	if(j < 2 || j >= Jbol) return instrument;
 	if(!((*p_Type)[j] & 4)) return instrument;
 	mode = (*p_CsoundInstrumentMode)[j];
 	if(mode == GLOBAL_CS) return instrument;
 	if(mode > 0) return (*p_CsoundInstr)[j];
 	if(mode == LOCAL_CS) {
-		if(PlayCsoundLine(cswrite,j) && iline < (*p_CsoundSize)[j]) {
+		if(PlayCsoundLine(cswrite,j) && iline >= 0 && iline < (*p_CsoundSize)[j]) {
 		// Checking 'iline' is not really necessary, just prevent a crash!
 			instrument = (*((*pp_CsoundScore)[j]))[iline].instrument;
 			*p_index = InstrumentIndex(instrument);
-			if(EventListOn && instrument > 0 && instrument < MAXINSTRUMENTS && !Exported_instrument[instrument]) SaveJsonCsoundInstrument(instrument);
+			if(EventListOn && instrument > 0 && instrument < MAXINSTRUMENTS && !Exported_instrument[instrument]) ExportJsonCsoundInstrument(instrument);
 			}
 		return instrument;
 		}

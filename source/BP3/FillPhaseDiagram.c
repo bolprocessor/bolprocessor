@@ -42,6 +42,8 @@ int show_diagram = 0;
 int trace_diagram = 0;
 int trace_toofast = 0;
 int trace_overstrike = 0;
+int trace_FindParameterIndex = 0;
+int trace_make_silent = 0;
 
 // int new_thing = 1; // This change should be confirmed (BB 2022-02-17)
 
@@ -61,7 +63,7 @@ int FillPhaseDiagram(tokenbyte ***pp_buff,long* p_numberobjects,unsigned long *p
 		**p_currobject,**p_objectsfound,objectsfound,part_of_ip;
 	short rndvel,velcontrol,**p_deftrndvel,**p_deftvelcontrol,**p_deftstartvel,
 		velincrement,**p_deftvelincrement,**p_deftarticulincrement,**p_deftstartarticul;
-	int i,j,nseq,oldnseq,nseqmem,newswitch,v,ch,gotnewline,foundobject,
+	int i,j,nseq,oldnseq,nseqmem,newswitch,v,ch,gotnewline,foundobject,paramindex,
 		failed,paramnameindex,paramvalueindex,maxparam,newxpandval,newkeyval,
 		**p_deftxpandval,**p_deftxpandkey,number_skipped,suggested_quantization,
 		r,rest,oldm,oldp,**p_seq,**p_deftnseq,startvel,articulincrement,
@@ -114,7 +116,8 @@ int FillPhaseDiagram(tokenbyte ***pp_buff,long* p_numberobjects,unsigned long *p
 		return(ABORT);
 	for(i=0; i < MAXSTRINGCONSTANTS; i++) {
 		(*h_table)[i].point = NULL;
-		(*h_table)[i].imax = (*h_table)[i].offset = 0;
+		(*h_table)[i].imax = ZERO;
+		(*h_table)[i].offset = 0;
 		}
 
 	if((p_T = (Milliseconds**) GiveSpace((Size) (maxseqapprox+1.)*sizeof(Milliseconds))) == NULL)
@@ -366,7 +369,7 @@ int FillPhaseDiagram(tokenbyte ***pp_buff,long* p_numberobjects,unsigned long *p
 		BPPrintMessage(0,odInfo,"id = %d, m = %d, p = %d\n",id,m,p);
 		if(m == TEND && p == TEND) break;
 		} */
-	for(id=istop=ZERO; ;id += 2,istop++) {
+	for(id = istop = ZERO; ;id += 2,istop++) {
 	/*	if(istop == 20) istop = 0;
 		if((istop == 0 && Button()) && (r=InterruptTimeSet(FALSE,&tstart)) != OK) {
 			result = r;
@@ -379,15 +382,18 @@ int FillPhaseDiagram(tokenbyte ***pp_buff,long* p_numberobjects,unsigned long *p
 		if(trace_diagram)
 			BPPrintMessage(1,odInfo,"\n1) FillPhaseDiagram() m = %d p = %d level = %ld nseq = %ld id = %ld\n",m,p,(long)level,(long)nseq,(long)id);
 		if((m != T3 && m != T47) || p != 0) part_of_ip = Kpress; // Added by BB 2021-03-25
+
 		if(m == T33 || m == T34) {	/* _step() or _cont() */
 			paramnameindex = p;
-			i = FindParameterIndex(p_contparameters,level,paramnameindex);
-			if(trace_diagram || trace_toofast) BPPrintMessage(1,odInfo, "_step() or _cont() m = %d paramnameindex = %d i = %d\n",m,paramnameindex,i);
-			if(i >= 0) {
-				UpdateParameter(i,p_contparameters,level,ZERO);
-				if(m == T33) (*((*p_contparameters)[level].values))[i].mode = STEPWISE;
-				else (*((*p_contparameters)[level].values))[i].mode = CONTINUOUS;
-				if(SetVariation(-1,p_deftcurrentparameters,&currentparameters,p_contparameters,level,i,id,*pp_buff,speed,scale,&endval,&mapendvalue,&maxbeats,h_table) != OK)
+			paramindex = FindParameterIndex(p_contparameters,level,paramnameindex);
+			if(trace_diagram || trace_toofast) 
+				BPPrintMessage(1,odInfo, "_step() or _cont() m = %d paramnameindex = %d paramindex = %d\n",m,paramnameindex,paramindex);
+			if(paramindex >= 0) {
+			//	BPPrintMessage(1,odInfo,"#@# paramindex = %d\n",paramindex);
+				UpdateParameter(paramindex,p_contparameters,level,ZERO);
+				if(m == T33) (*((*p_contparameters)[level].values))[paramindex].mode = STEPWISE;
+				else (*((*p_contparameters)[level].values))[paramindex].mode = CONTINUOUS;
+				if(SetVariation(-1,p_deftcurrentparameters,&currentparameters,p_contparameters,level,paramindex,id,*pp_buff,speed,scale,&endval,&mapendvalue,&maxbeats,h_table) != OK)
 					goto ENDDIAGRAM;
 				if(trace_toofast) BPPrintMessage(1,odInfo,"SetVariation(1) maxbeats = %d endval = %ld\n",maxbeats,(long)endval);
 				}
@@ -395,13 +401,14 @@ int FillPhaseDiagram(tokenbyte ***pp_buff,long* p_numberobjects,unsigned long *p
 			}
 		if(m == T36) {	/* _fixed() */
 			paramnameindex = p;
-			i = FindParameterIndex(p_contparameters,level,paramnameindex);
-			if(i >= 0) {
-				UpdateParameter(i,p_contparameters,level,ZERO);
-				(*((*p_contparameters)[level].values))[i].ibeats = 0;
-				(*((*p_contparameters)[level].values))[i].maxbeats = 1;
-				(*((*p_contparameters)[level].values))[i].increment = 0;
-				(*((*p_contparameters)[level].values))[i].mode = FIXMAPMODE;
+			paramindex = FindParameterIndex(p_contparameters,level,paramnameindex);
+			if(paramindex >= 0) {
+				UpdateParameter(paramindex,p_contparameters,level,ZERO);
+				(*((*p_contparameters)[level].values))[paramindex].ibeats = 0.;
+				(*((*p_contparameters)[level].values))[paramindex].maxbeats = 1.;
+				(*((*p_contparameters)[level].values))[paramindex].increment = 0;
+				(*((*p_contparameters)[level].values))[paramindex].mode = FIXMAPMODE;
+				(*((*p_contparameters)[level].values))[paramindex].point = NULL;
 				}
 			goto NEXTTOKEN;
 			}
@@ -423,48 +430,48 @@ int FillPhaseDiagram(tokenbyte ***pp_buff,long* p_numberobjects,unsigned long *p
 					break;
 				case 2:	/* _modstep */
 				case 3: /* _modcont */
-					i = IMODULATION;
-					UpdateParameter(i,p_contparameters,level,ZERO);
-					if(p == 2) (*((*p_contparameters)[level].values))[i].mode = STEPWISE;
-					else (*((*p_contparameters)[level].values))[i].mode = CONTINUOUS;
-					if(SetVariation(-1,p_deftcurrentparameters,&currentparameters,p_contparameters,level,i,id,
+					paramindex = IMODULATION;
+					UpdateParameter(paramindex,p_contparameters,level,ZERO);
+					if(p == 2) (*((*p_contparameters)[level].values))[paramindex].mode = STEPWISE;
+					else (*((*p_contparameters)[level].values))[paramindex].mode = CONTINUOUS;
+					if(SetVariation(-1,p_deftcurrentparameters,&currentparameters,p_contparameters,level,paramindex,id,
 							*pp_buff,speed,scale,&endval,&mapendvalue,&maxbeats,h_table) != OK)
 						goto ENDDIAGRAM;
 					break;
 				case 4:	/* _pitchstep */
 				case 5:	/* _pitchcont */
-					i = IPITCHBEND;
-					UpdateParameter(i,p_contparameters,level,ZERO);
+					paramindex = IPITCHBEND;
+					UpdateParameter(paramindex,p_contparameters,level,ZERO);
 					if(p == 4) {
-						(*((*p_contparameters)[level].values))[i].mode = STEPWISE;
-						if(trace_toofast) BPPrintMessage(1,odInfo,"_pitchstep level = %d  i = %ld\n",level,(long)i);
+						(*((*p_contparameters)[level].values))[paramindex].mode = STEPWISE;
+						if(trace_toofast) BPPrintMessage(1,odInfo,"_pitchstep level = %d  paramindex = %ld\n",level,(long)paramindex);
 						}
 					else {
-						(*((*p_contparameters)[level].values))[i].mode = CONTINUOUS;
-						if(trace_toofast) BPPrintMessage(1,odInfo,"_pitchcont level = %d  i = %ld\n",level,(long)i);
+						(*((*p_contparameters)[level].values))[paramindex].mode = CONTINUOUS;
+						if(trace_toofast) BPPrintMessage(1,odInfo,"_pitchcont level = %d  paramindex = %ld\n",level,(long)paramindex);
 						}
-					if(SetVariation(-1,p_deftcurrentparameters,&currentparameters,p_contparameters,level,i,id,
+					if(SetVariation(-1,p_deftcurrentparameters,&currentparameters,p_contparameters,level,paramindex,id,
 							*pp_buff,speed,scale,&endval,&mapendvalue,&maxbeats,h_table) != OK)
 						goto ENDDIAGRAM;
-					if(trace_toofast) BPPrintMessage(1,odInfo,"-> pitchbend maxbeats = %d, endval = %ld v0 = %ld v1 = %ld\n",(int)maxbeats,(long)endval,(long)(*((*p_contparameters)[level].values))[i].v0,(long)(*((*p_contparameters)[level].values))[i].v1);
+					if(trace_toofast) BPPrintMessage(1,odInfo,"-> pitchbend maxbeats = %d, endval = %ld v0 = %ld v1 = %ld\n",(int)maxbeats,(long)endval,(long)(*((*p_contparameters)[level].values))[paramindex].v0,(long)(*((*p_contparameters)[level].values))[paramindex].v1);
 					break;
 				case 6:	/* _presstep */
 				case 7:	/* _presscont */
-					i = IPRESSURE;
-					UpdateParameter(i,p_contparameters,level,ZERO);
-					if(p == 6) (*((*p_contparameters)[level].values))[i].mode = STEPWISE;
-					else (*((*p_contparameters)[level].values))[i].mode = CONTINUOUS;
-					if(SetVariation(-1,p_deftcurrentparameters,&currentparameters,p_contparameters,level,i,id,
+					paramindex = IPRESSURE;
+					UpdateParameter(paramindex,p_contparameters,level,ZERO);
+					if(p == 6) (*((*p_contparameters)[level].values))[paramindex].mode = STEPWISE;
+					else (*((*p_contparameters)[level].values))[paramindex].mode = CONTINUOUS;
+					if(SetVariation(-1,p_deftcurrentparameters,&currentparameters,p_contparameters,level,paramindex,id,
 						*pp_buff,speed,scale,&endval,&mapendvalue,&maxbeats,h_table) != OK)
 							goto ENDDIAGRAM;
 					break;
 				case 8: /* _volumestep */
 				case 9: /* _volumecont */
-					i = IVOLUME;
-					UpdateParameter(i,p_contparameters,level,ZERO);
-					if(p == 8) (*((*p_contparameters)[level].values))[i].mode = STEPWISE;
-					else (*((*p_contparameters)[level].values))[i].mode = CONTINUOUS;
-					if(SetVariation(-1,p_deftcurrentparameters,&currentparameters,p_contparameters,level,i,id,
+					paramindex = IVOLUME;
+					UpdateParameter(paramindex,p_contparameters,level,ZERO);
+					if(p == 8) (*((*p_contparameters)[level].values))[paramindex].mode = STEPWISE;
+					else (*((*p_contparameters)[level].values))[paramindex].mode = CONTINUOUS;
+					if(SetVariation(-1,p_deftcurrentparameters,&currentparameters,p_contparameters,level,paramindex,id,
 						*pp_buff,speed,scale,&endval,&mapendvalue,&maxbeats,h_table) != OK)
 							goto ENDDIAGRAM;
 					break;
@@ -492,36 +499,40 @@ int FillPhaseDiagram(tokenbyte ***pp_buff,long* p_numberobjects,unsigned long *p
 					ibeatsvel = 0.; maxbeatsvel = 1.; velincrement = 0.;
 					break;
 				case 13: /* _modfixed */
-					i = IMODULATION;
-					UpdateParameter(i,p_contparameters,level,ZERO);
-					(*((*p_contparameters)[level].values))[i].ibeats = 0;
-					(*((*p_contparameters)[level].values))[i].maxbeats = 1;
-					(*((*p_contparameters)[level].values))[i].increment = 0;
-					(*((*p_contparameters)[level].values))[i].mode = FIXMAPMODE;
+					paramindex = IMODULATION;
+					UpdateParameter(paramindex,p_contparameters,level,ZERO);
+					(*((*p_contparameters)[level].values))[paramindex].ibeats = 0.;
+					(*((*p_contparameters)[level].values))[paramindex].maxbeats = 1.;
+					(*((*p_contparameters)[level].values))[paramindex].increment = 0;
+					(*((*p_contparameters)[level].values))[paramindex].mode = FIXMAPMODE;
+					(*((*p_contparameters)[level].values))[paramindex].point = NULL;
 					break;
 				case 14: /* _pitchfixed */
-					i = IPITCHBEND;
-					UpdateParameter(i,p_contparameters,level,ZERO);
-					(*((*p_contparameters)[level].values))[i].ibeats = 0;
-					(*((*p_contparameters)[level].values))[i].maxbeats = 1;
-					(*((*p_contparameters)[level].values))[i].increment = 0;
-					(*((*p_contparameters)[level].values))[i].mode = FIXMAPMODE;
+					paramindex = IPITCHBEND;
+					UpdateParameter(paramindex,p_contparameters,level,ZERO);
+					(*((*p_contparameters)[level].values))[paramindex].ibeats = 0.;
+					(*((*p_contparameters)[level].values))[paramindex].maxbeats = 1.;
+					(*((*p_contparameters)[level].values))[paramindex].increment = 0;
+					(*((*p_contparameters)[level].values))[paramindex].mode = FIXMAPMODE;
+					(*((*p_contparameters)[level].values))[paramindex].point = NULL;
 					break;
 				case 15: /* _pressfixed */
-					i = IPRESSURE;
-					UpdateParameter(i,p_contparameters,level,ZERO);
-					(*((*p_contparameters)[level].values))[i].ibeats = 0;
-					(*((*p_contparameters)[level].values))[i].maxbeats = 1;
-					(*((*p_contparameters)[level].values))[i].increment = 0;
-					(*((*p_contparameters)[level].values))[i].mode = FIXMAPMODE;
+					paramindex = IPRESSURE;
+					UpdateParameter(paramindex,p_contparameters,level,ZERO);
+					(*((*p_contparameters)[level].values))[paramindex].ibeats = 0.;
+					(*((*p_contparameters)[level].values))[paramindex].maxbeats = 1.;
+					(*((*p_contparameters)[level].values))[paramindex].increment = 0;
+					(*((*p_contparameters)[level].values))[paramindex].mode = FIXMAPMODE;
+					(*((*p_contparameters)[level].values))[paramindex].point = NULL;
 					break;
 				case 16: /* _volumefixed */
-					i = IVOLUME;
-					UpdateParameter(i,p_contparameters,level,ZERO);
-					(*((*p_contparameters)[level].values))[i].ibeats = 0;
-					(*((*p_contparameters)[level].values))[i].maxbeats = 1;
-					(*((*p_contparameters)[level].values))[i].increment = 0;
-					(*((*p_contparameters)[level].values))[i].mode = FIXMAPMODE;
+					paramindex = IVOLUME;
+					UpdateParameter(paramindex,p_contparameters,level,ZERO);
+					(*((*p_contparameters)[level].values))[paramindex].ibeats = 0.;
+					(*((*p_contparameters)[level].values))[paramindex].maxbeats = 1.;
+					(*((*p_contparameters)[level].values))[paramindex].increment = 0;
+					(*((*p_contparameters)[level].values))[paramindex].mode = FIXMAPMODE;
+					(*((*p_contparameters)[level].values))[paramindex].point = NULL;
 					break;
 				case 17: /* _articulfixed */
 					currentparameters.articulmode = FIXMAPMODE;
@@ -530,20 +541,21 @@ int FillPhaseDiagram(tokenbyte ***pp_buff,long* p_numberobjects,unsigned long *p
 					ibeatsarticul = 0; maxbeatsarticul = 1; articulincrement = 0;
 					break;
 				case 18: /* _panfixed */
-					i = IPANORAMIC;
-					UpdateParameter(i,p_contparameters,level,ZERO);
-					(*((*p_contparameters)[level].values))[i].ibeats = 0;
-					(*((*p_contparameters)[level].values))[i].maxbeats = 1;
-					(*((*p_contparameters)[level].values))[i].increment = 0;
-					(*((*p_contparameters)[level].values))[i].mode = FIXMAPMODE;
+					paramindex = IPANORAMIC;
+					UpdateParameter(paramindex,p_contparameters,level,ZERO);
+					(*((*p_contparameters)[level].values))[paramindex].ibeats = 0.;
+					(*((*p_contparameters)[level].values))[paramindex].maxbeats = 1.;
+					(*((*p_contparameters)[level].values))[paramindex].increment = 0;
+					(*((*p_contparameters)[level].values))[paramindex].mode = FIXMAPMODE;
+					(*((*p_contparameters)[level].values))[paramindex].point = NULL;
 					break;
 				case 19: /* _panstep */
 				case 20: /* _pancont */
-					i = IPANORAMIC;
-					UpdateParameter(i,p_contparameters,level,ZERO);
-					if(p == 19) (*((*p_contparameters)[level].values))[i].mode = STEPWISE;
-					else (*((*p_contparameters)[level].values))[i].mode = CONTINUOUS;
-					if(SetVariation(-1,p_deftcurrentparameters,&currentparameters,p_contparameters,level,i,id,
+					paramindex = IPANORAMIC;
+					UpdateParameter(paramindex,p_contparameters,level,ZERO);
+					if(p == 19) (*((*p_contparameters)[level].values))[paramindex].mode = STEPWISE;
+					else (*((*p_contparameters)[level].values))[paramindex].mode = CONTINUOUS;
+					if(SetVariation(-1,p_deftcurrentparameters,&currentparameters,p_contparameters,level,paramindex,id,
 							*pp_buff,speed,scale,&endval,&mapendvalue,&maxbeats,h_table) != OK)
 						goto ENDDIAGRAM;
 					break;
@@ -674,7 +686,7 @@ int FillPhaseDiagram(tokenbyte ***pp_buff,long* p_numberobjects,unsigned long *p
 					oldm = m; oldp = p;
 					skipzeros = FALSE;
 					if((*p_contparameters)[level].number > 0) {
-						for(i=0; i < (*p_contparameters)[level].number; i++) {
+						for(i = 0; i < (*p_contparameters)[level].number; i++) {
 							if(trace_toofast)
 								BPPrintMessage(1,odInfo,"Continuous? kobj = %d m = %d p = %d level = %d id = %ld i = %d\n",kobj,(int)m,(int)p,level,id,i);
 							if((*((*p_contparameters)[level].values))[i].active) {
@@ -684,11 +696,15 @@ int FillPhaseDiagram(tokenbyte ***pp_buff,long* p_numberobjects,unsigned long *p
 								break;
 								}
 							}
+						// BPPrintMessage(0,odInfo,"§@§ GetSymbolicDuration() m = %d, p = %d, speed = %.2f, scale = %.2f, level = %d, foundendconcatenation = %d\n",m,p,speed,scale,level,foundendconcatenation);
 						objectduration = GetSymbolicDuration(TRUE,*pp_buff,m,p,id,speed,scale,channel,instrument,part,foundendconcatenation,level); // 2028-08-30
 						if(iscontinuous) {
 							if(trace_toofast) BPPrintMessage(1,odInfo,"iscontinuous -> objectduration = %ld\n",(long)objectduration);
-							for(i=0; i < (*p_contparameters)[level].number; i++)
+							// BPPrintMessage(0,odInfo,"§@§ (*p_contparameters)[%d].number = %d, objectduration = %.2f\n",level,(*p_contparameters)[level].number,objectduration);
+							for(i = 0; i < (*p_contparameters)[level].number; i++) {
+								// BPPrintMessage(0,odInfo,"§@§ UpdateParameter(%i), level = %d\n",i,level);
 								UpdateParameter(i,p_contparameters,level,objectduration);
+								}
 							}
 						}
 					}
@@ -761,13 +777,13 @@ int FillPhaseDiagram(tokenbyte ***pp_buff,long* p_numberobjects,unsigned long *p
 					else currentparameters.map1 = currentparameters.map0;
 
 					if(!overstrike) {
-						if(SetObjectParams(TRUE,level,nseq,kobj,p,&currentparameters,p_contparameters,h_table) != OK)
+						if((result=SetObjectParams(TRUE,level,nseq,kobj,p,&currentparameters,p_contparameters,h_table)) != OK)
 							goto ENDDIAGRAM;
 						}
 					for(i=0; i < (*p_contparameters)[level].number; i++) {
 						if((*((*p_contparameters)[level].values))[i].active) {
 							if((*((*p_contparameters)[level].values))[i].increment == 0) {
-							//	BPPrintMessage(1,odInfo,"active = FALSE for i = %d\n",i);
+							//	BPPrintMessage(1,odInfo,"§§§ active = FALSE for i = %d\n",i);
 								(*((*p_contparameters)[level].values))[i].active = FALSE;
 								}
 							}
@@ -827,7 +843,7 @@ int FillPhaseDiagram(tokenbyte ***pp_buff,long* p_numberobjects,unsigned long *p
 							}
 						else {
 							(*p_Instance)[kobj].object = p;
-							if(SetObjectParams(TRUE,level,nseq,kobj,p,&currentparameters,p_contparameters,h_table) != OK) goto ENDDIAGRAM;
+							if((result=SetObjectParams(TRUE,level,nseq,kobj,p,&currentparameters,p_contparameters,h_table)) != OK) goto ENDDIAGRAM;
 							}
 						for(i=0; i < (*p_contparameters)[level].number; i++) {
 							if((*((*p_contparameters)[level].values))[i].active) {
@@ -944,8 +960,8 @@ int FillPhaseDiagram(tokenbyte ***pp_buff,long* p_numberobjects,unsigned long *p
 				currentparameters.map1 = currentparameters.map0;
 				
 				if(!overstrike) {
-					if(SetObjectParams(TRUE,level,(nseqplot-1),kobj,p,
-							&currentparameters,p_contparameters,h_table) != OK)
+					if((result=SetObjectParams(TRUE,level,(nseqplot-1),kobj,p,
+							&currentparameters,p_contparameters,h_table)) != OK)
 						goto ENDDIAGRAM;
 					}
 				for(i=0; i < (*p_contparameters)[level].number; i++) {
@@ -1127,12 +1143,9 @@ int FillPhaseDiagram(tokenbyte ***pp_buff,long* p_numberobjects,unsigned long *p
 						while((++nseq) <= (*p_nmax) && (*p_maxcol)[nseq] > classofinext);
 						if(nseq >= Minconc) {
 							Panic = TRUE;
-							{
-								BPPrintMessage(1,odError,"=> Formula too complex (case 2)\n"); // BB 2021-01-29
-								BPPrintMessage(1,odError,"nseq = %ld Minconc = %ld classofinext = %ld inext = %.0f\n",(long)nseq,(long)Minconc,(long)classofinext,inext);
-								goto ENDDIAGRAM;
-								}
-							goto NEWSEQUENCE;
+							BPPrintMessage(1,odError,"=> Formula too complex (case 2)\n"); // BB 2021-01-29
+							BPPrintMessage(1,odError,"nseq = %ld Minconc = %ld classofinext = %ld inext = %.0f\n",(long)nseq,(long)Minconc,(long)classofinext,inext);
+							goto ENDDIAGRAM;
 							}
 						if(nseq > (*p_nmax)) {
 							BPPrintMessage(1,odError,"\n=> Error 3 FillPhaseDiagram(). nseq > (*p_nmax) after ','");
@@ -1421,8 +1434,7 @@ int FillPhaseDiagram(tokenbyte ***pp_buff,long* p_numberobjects,unsigned long *p
 				if(i >= 0) {
 					value = FindValue(m,p,currentparameters.currchan);
 					if(value == Infpos) goto ENDDIAGRAM;
-					if(AssignValue(i,value,0,level,p_numberobjects,p_deftcurrentparameters,&currentparameters,
-						p_contparameters,id,pp_buff,tempo,scale,h_table) != OK)
+					if(AssignValue(i,value,0,level,p_numberobjects,p_deftcurrentparameters,&currentparameters,p_contparameters,id,pp_buff,tempo,scale,h_table) != OK)
 							goto ENDDIAGRAM;
 					}
 				break;
@@ -1432,17 +1444,15 @@ int FillPhaseDiagram(tokenbyte ***pp_buff,long* p_numberobjects,unsigned long *p
 				paramvalueindex = (p - paramnameindex) / 256;
 				i = FindParameterIndex(p_contparameters,level,paramnameindex);
 				if(i >= 0) {
-					{
-						if(paramvalueindex >= (MyGetHandleSize((Handle)p_NumberConstant)
-							/ sizeof(double))) {
-							BPPrintMessage(1,odError,"=> Err FillPhaseDiagram(). paramvalueindex overflow");
-							goto ENDDIAGRAM;
-							}
+					if(paramvalueindex >= (MyGetHandleSize((Handle)p_NumberConstant)
+						/ sizeof(double))) {
+						BPPrintMessage(1,odError,"=> Err FillPhaseDiagram(). paramvalueindex overflow\n");
+						goto ENDDIAGRAM;
 						}
 					value = FindValue(m,p,currentparameters.currchan);
-					if(trace_diagram) BPPrintMessage(1,odInfo, "_value() paramnameindex = %d i = %d value = %.3f\n",paramnameindex,i,value);
-					if(AssignValue(i,value,0,level,p_numberobjects,p_deftcurrentparameters,&currentparameters,
-						p_contparameters,id,pp_buff,tempo,scale,h_table) != OK)
+					if(trace_diagram) 
+						BPPrintMessage(1,odInfo, "_value() paramnameindex = %d, paramindex = %d, value = %.3f\n",paramnameindex,i,value);
+					if(AssignValue(i,value,0,level,p_numberobjects,p_deftcurrentparameters,&currentparameters,p_contparameters,id,pp_buff,tempo,scale,h_table) != OK)
 							goto ENDDIAGRAM;
 					}
 				break;
@@ -1763,8 +1773,8 @@ int FillPhaseDiagram(tokenbyte ***pp_buff,long* p_numberobjects,unsigned long *p
 		if(Plot(BORDERLINE,&nseqplot,&ip,&overstrike,TRUE,p_nmax,p_maxcol,p_im,p_Seq,&nseq,
 			maxseqapprox,ip,kobj) != OK) goto ENDDIAGRAM;
 		(*p_maxcol)[nseq]++;
-		if(!overstrike && SetObjectParams(FALSE,-1,Minconc,kobj,1,&currentparameters,
-				p_contparameters,h_table) != OK) goto ENDDIAGRAM;
+		if(!overstrike && (result=SetObjectParams(FALSE,-1,Minconc,kobj,1,&currentparameters,
+				p_contparameters,h_table)) != OK) goto ENDDIAGRAM;
 		}
 
 
@@ -1790,8 +1800,8 @@ int FillPhaseDiagram(tokenbyte ***pp_buff,long* p_numberobjects,unsigned long *p
 			nseqmem = nseq;
 			if(Plot(ANYWHERE,&nseqplot,&ip,&overstrike,TRUE,p_nmax,p_maxcol,p_im,p_Seq,
 				&nseq,maxseqapprox,ip,kobj)!= OK) goto ENDDIAGRAM;
-			if(!overstrike && SetObjectParams(FALSE,-1,nseq,kobj,1,&currentparameters,
-				p_contparameters,h_table) != OK) goto ENDDIAGRAM;
+			if(!overstrike && (result=SetObjectParams(FALSE,-1,nseq,kobj,1,&currentparameters,
+				p_contparameters,h_table)) != OK) goto ENDDIAGRAM;
 			nseq = nseqmem;
 			}
 		// BPPrintMessage(1,odInfo,"@@ nseq = %d, ip = %ld, (*p_maxseq) = %ld\n",nseq,(long) ip,(long)(*p_maxseq));
@@ -2059,7 +2069,7 @@ unsigned long Class(double i) {
 
 
 int FindParameterIndex(ContParameters **p_param,int level,int paramnameindex) {
-	int i,j,maxnumber;
+	int i,j,maxnumber,maxnumber2;
 	Handle h;
 	ContParameterSpecs **ptr;
 
@@ -2068,15 +2078,16 @@ int FindParameterIndex(ContParameters **p_param,int level,int paramnameindex) {
 		return(ABORT);
 		}
 	if((*p_param)[level].values == NULL) {
+		if(trace_FindParameterIndex) BPPrintMessage(0,odInfo,"@&@  (*p_param)[%d].values = NULL\n",level);
 		maxnumber = IPANORAMIC + 1;
 		if((ptr=(ContParameterSpecs**)
 			GiveSpace((Size)maxnumber * sizeof(ContParameterSpecs))) == NULL) return(ABORT);
 		(*p_param)[level].values = ptr;
-		for(j=0; j < maxnumber; j++) {
+		for(j = 0; j < maxnumber; j++) {
 			(*((*p_param)[level].values))[j].index = -1;
-			(*((*p_param)[level].values))[j].mode = FIXVALUE;
+			(*((*p_param)[level].values))[j].mode = FIXMAPMODE;
 			(*((*p_param)[level].values))[j].increment = 0.;
-			(*((*p_param)[level].values))[j].maxbeats = 1;
+			(*((*p_param)[level].values))[j].maxbeats = 1.;
 			(*((*p_param)[level].values))[j].active = FALSE;
 			(*((*p_param)[level].values))[j].known = FALSE;
 			(*((*p_param)[level].values))[j].control = -1;
@@ -2087,7 +2098,7 @@ int FindParameterIndex(ContParameters **p_param,int level,int paramnameindex) {
 			(*((*p_param)[level].values))[j].channel = 0;
 			(*((*p_param)[level].values))[j].scale = DefaultScaleParam;
 			(*((*p_param)[level].values))[j].blockkey = DefaultBlockKey;
-			(*((*p_param)[level].values))[j].imax = 0;
+			(*((*p_param)[level].values))[j].imax = ZERO;
 			(*((*p_param)[level].values))[j].ibeats = 0;
 			(*((*p_param)[level].values))[j].point = NULL;
 			}
@@ -2118,32 +2129,43 @@ int FindParameterIndex(ContParameters **p_param,int level,int paramnameindex) {
 		(*((*p_param)[level].values))[IPRESSURE].index = IPRESSURE;
 		(*((*p_param)[level].values))[IMODULATION].index = IMODULATION;
 		(*p_param)[level].number = IPANORAMIC + 1;
+		}		
+	if(paramnameindex < 0) {
+		if(trace_FindParameterIndex) BPPrintMessage(0,odInfo,"@&@ paramnameindex = %d\n",paramnameindex);
+		return(-1);
 		}
-		
-	if(paramnameindex < 0) return(-1);
-
 	maxnumber = MyGetHandleSize((Handle)(*p_param)[level].values) / sizeof(ContParameterSpecs);
-	for(i=0; i < maxnumber; i++) {
-		if((*((*p_param)[level].values))[i].index == -1) {
-			(*((*p_param)[level].values))[i].index = paramnameindex;
+	if(trace_FindParameterIndex) BPPrintMessage(0,odInfo,"@&@ maxnumber = %d\n",maxnumber);
+
+	for(i = 0; i < maxnumber; i++) {
+		if(paramnameindex >= 0 && (*((*p_param)[level].values))[i].index == paramnameindex) {
+			if(FALSE && trace_FindParameterIndex) BPPrintMessage(0,odInfo,"@&@ Found1 paramnameindex (%d) « %s » for i = %d, level = %d\n",paramnameindex,*((*p_StringConstant)[paramnameindex]),i,level);
+		//	return(i); // 2026-10-20
 			break;
 			}
-		if((*((*p_param)[level].values))[i].index == paramnameindex) break;
+		if((*((*p_param)[level].values))[i].index == -1) {
+			(*((*p_param)[level].values))[i].index = paramnameindex;
+			if(FALSE && trace_FindParameterIndex) BPPrintMessage(0,odInfo,"@&@ Found2 paramnameindex (%d) « %s » for i = %d, level = %d\n",paramnameindex,*((*p_StringConstant)[paramnameindex]),i,level);
+		//	return(i); // 2026-10-26
+			break;
+			}
 		}
+	if(FALSE && trace_FindParameterIndex) BPPrintMessage(0,odInfo,"@&@ Found3 paramnameindex (%d) « %s » for i = %d, level = %d\n",paramnameindex,*((*p_StringConstant)[paramnameindex]),i,level);
 	if(i >= maxnumber) {
+		if(trace_FindParameterIndex) BPPrintMessage(0,odInfo,"@&@ i(%d) >= maxnumber(%d)\n",i,maxnumber);
 		h = (Handle) ((*p_param)[level].values);
-		MySetHandleSize(&h,(Size)(i+2) * sizeof(ContParameterSpecs));
-		/* We give space for 2 more parameters to save time */
+		MySetHandleSize(&h,(Size)(i+1) * sizeof(ContParameterSpecs)); // 2026-10-19 it was (i+2)
 		(*p_param)[level].values = (ContParameterSpecs**) h;
-		maxnumber = MyGetHandleSize(h) / sizeof(ContParameterSpecs);
-		for(j=i; j < maxnumber; j++) {
-			(*((*p_param)[level].values))[j].index = -1;
-			(*((*p_param)[level].values))[j].mode = FIXVALUE;
+		(*((*p_param)[level].values))[i].index = paramnameindex;
+		maxnumber2 = MyGetHandleSize(h) / sizeof(ContParameterSpecs);
+		for(j = i; j < maxnumber2; j++) { // 2026-10-21 it was j = (i + 1)
+			if(trace_FindParameterIndex) BPPrintMessage(0,odInfo,"+ j = %d\n",j);
+			if(j > i) (*((*p_param)[level].values))[j].index = -1;
+			(*((*p_param)[level].values))[j].mode = FIXMAPMODE;
 			(*((*p_param)[level].values))[j].increment = 0.;
-			(*((*p_param)[level].values))[j].maxbeats = 1;
+			(*((*p_param)[level].values))[j].maxbeats = 1.;
 			(*((*p_param)[level].values))[j].active = FALSE;
 			(*((*p_param)[level].values))[j].known = FALSE;
-		// (*(*p_CsInstrument)[j].paramlist)[ip].defaultvalue ???
 			(*((*p_param)[level].values))[j].start
 				= (*((*p_param)[level].values))[j].v0
 				= (*((*p_param)[level].values))[j].v1
@@ -2151,13 +2173,34 @@ int FindParameterIndex(ContParameters **p_param,int level,int paramnameindex) {
 			(*((*p_param)[level].values))[j].channel = 0;
 			(*((*p_param)[level].values))[j].scale = DefaultScaleParam;
 			(*((*p_param)[level].values))[j].blockkey = DefaultBlockKey;
-			(*((*p_param)[level].values))[j].imax = 0;
+			(*((*p_param)[level].values))[j].imax = ZERO;
 			(*((*p_param)[level].values))[j].ibeats = 0;
 			(*((*p_param)[level].values))[j].point = NULL;
 			}
-		(*((*p_param)[level].values))[i].index = paramnameindex;
+		if(!DoneSpecial && i > (IPANORAMIC + 1)) {
+			if(trace_FindParameterIndex) BPPrintMessage(0,odInfo,"=> @&@ !DoneSpecial, i = %d, (*p_param)[%d].number = %d, paramnameindex = %d\n",i,level,(*p_param)[level].number,paramnameindex);
+		//	DoneSpecial = TRUE;
+			i--;
+			(*((*p_param)[level].values))[i].index = paramnameindex;
+			(*((*p_param)[level].values))[i].mode = CONTINUOUS;
+			(*((*p_param)[level].values))[i].increment = 0.;
+			(*((*p_param)[level].values))[i].maxbeats = 1.;
+			(*((*p_param)[level].values))[i].active = FALSE;
+			(*((*p_param)[level].values))[i].known = FALSE;
+			(*((*p_param)[level].values))[i].start
+				= (*((*p_param)[level].values))[i].v0
+				= (*((*p_param)[level].values))[i].v1
+				= 0.;
+			(*((*p_param)[level].values))[i].channel = 0;
+			(*((*p_param)[level].values))[i].scale = DefaultScaleParam;
+			(*((*p_param)[level].values))[i].blockkey = DefaultBlockKey;
+			(*((*p_param)[level].values))[i].imax = ZERO;
+			(*((*p_param)[level].values))[i].ibeats = 0;
+			(*((*p_param)[level].values))[i].point = NULL;
+			}
 		}
-	if(i >= (*p_param)[level].number) (*p_param)[level].number = i + 1;
+	(*p_param)[level].number = i + 1;
+	DoneSpecial = TRUE;
 	return(i);
 	}
 
@@ -2165,7 +2208,7 @@ int FindParameterIndex(ContParameters **p_param,int level,int paramnameindex) {
 int UpdateParameter(int i,ContParameters **p_contparameters,int level,long duration) {
 	int imax;
 	double start;
-	unsigned long ibeats,maxbeats;
+	long ibeats,maxbeats;
 
 	if(level >= Maxlevel) {
 		BPPrintMessage(0,odError,"=> Err. UpdateParameter(). level >= Maxlevel");
@@ -2190,12 +2233,13 @@ int UpdateParameter(int i,ContParameters **p_contparameters,int level,long durat
 	if(trace_toofast) BPPrintMessage(1,odInfo,"contparameter #%d level = %d active = %d start = %.3f\n",i,level,(*((*p_contparameters)[level].values))[i].active,(*((*p_contparameters)[level].values))[i].start);
 
 	if((*((*p_contparameters)[level].values))[i].active) {
-		ibeats = (*((*p_contparameters)[level].values))[i].ibeats;
-		maxbeats = (*((*p_contparameters)[level].values))[i].maxbeats;
-		if(trace_toofast)BPPrintMessage(1,odInfo,"UpdateParameter() ibeats = %d maxbeats = %d duration = %ld\n",ibeats,maxbeats,(long)duration);
+		ibeats = (long)(*((*p_contparameters)[level].values))[i].ibeats;
+		maxbeats = (long)(*((*p_contparameters)[level].values))[i].maxbeats;
+		if(trace_toofast)
+			BPPrintMessage(1,odInfo,"UpdateParameter(%d) ibeats = %ld maxbeats = %ld duration = %ld\n",i,ibeats,maxbeats,(long)duration);
 		if((*((*p_contparameters)[level].values))[i].point != NULL
 				&& (ibeats + duration) > maxbeats) {
-			BPPrintMessage(0,odError,"=> Err. UpdateParameter(). ibeats + duration > maxbeats");
+		//	BPPrintMessage(0,odError,"=> Err. UpdateParameter(). ibeats(%ld) + duration(%ld) > maxbeats(%ld), i = %d\n",ibeats,duration,maxbeats,i);
 			(*((*p_contparameters)[level].values))[i].active = FALSE;
 			return(OK);
 			}
@@ -2204,8 +2248,8 @@ int UpdateParameter(int i,ContParameters **p_contparameters,int level,long durat
 		(*((*p_contparameters)[level].values))[i].v1
 			= start
 			+ (((*((*p_contparameters)[level].values))[i].increment * (ibeats + duration)) / maxbeats);
-		//  If the variation is tabulated this v1 may be wrong when (ibeats + duration) > maxbeats, but it will later
-		// be set properly by SetObjectParam() using the last value in the table...
+		//  If the variation is tabulated, this v1 may be wrong when (ibeats + duration) > maxbeats, but it will later be set properly by SetObjectParam() using the last value in the table...
+	//	BPPrintMessage(1,odInfo,"-> v0 = %.2f, v1 = %.2f\n",(*((*p_contparameters)[level].values))[i].v0,(*((*p_contparameters)[level].values))[i].v1);
 		}
 	else
 		(*((*p_contparameters)[level].values))[i].v0
@@ -2278,42 +2322,40 @@ int MakeNewLineInPhaseTable(int nseq,int *p_nmax,double **p_im,double maxseq,
 	}
 
 
-int CopyContinuousParameters(ContParameters **p_a,int na,ContParameters **p_b,int nb)
-{
+int CopyContinuousParameters(ContParameters **p_a,int na,ContParameters **p_b,int nb) {
 // Makes a copy of the record except 'imax' and 'point', the pointer to a table
+	int i,j;
 
-int i,j;
+	if(na >= Maxlevel) return(OK);
 
-if(na >= Maxlevel) return(OK);
-
-if((*p_a)[na].values == NULL) {
-	BPPrintMessage(0,odError,"=> Err. CopyContinuousParameters(). (*p_a)[na].values) == NULL");
-	return(ABORT);
+	if((*p_a)[na].values == NULL) {
+		BPPrintMessage(0,odError,"=> Err. CopyContinuousParameters(). (*p_a)[na].values) == NULL");
+		return(ABORT);
+		}
+	for(i = 0; i < (*p_a)[na].number; i++) {
+		j = FindParameterIndex(p_b,nb,(*((*p_a)[na].values))[i].index);
+		if(j < 0) return(OK);
+		// Creates storage if needed	
+		(*((*p_b)[nb].values))[i].index = (*((*p_a)[na].values))[i].index;
+		(*((*p_b)[nb].values))[i].channel = (*((*p_a)[na].values))[i].channel;
+		(*((*p_b)[nb].values))[i].scale = (*((*p_a)[na].values))[i].scale;
+		(*((*p_b)[nb].values))[i].blockkey = (*((*p_a)[na].values))[i].blockkey;
+		(*((*p_b)[nb].values))[i].mode = (*((*p_a)[na].values))[i].mode;
+		(*((*p_b)[nb].values))[i].active = (*((*p_a)[na].values))[i].active;
+		(*((*p_b)[nb].values))[i].known = (*((*p_a)[na].values))[i].known;
+		(*((*p_b)[nb].values))[i].control = (*((*p_a)[na].values))[i].control;
+		(*((*p_b)[nb].values))[i].start = (*((*p_a)[na].values))[i].start;
+		(*((*p_b)[nb].values))[i].increment = (*((*p_a)[na].values))[i].increment;
+		(*((*p_b)[nb].values))[i].ibeats = (*((*p_a)[na].values))[i].ibeats;
+		(*((*p_b)[nb].values))[i].maxbeats = (*((*p_a)[na].values))[i].maxbeats;
+		(*((*p_b)[nb].values))[i].point = (*((*p_a)[na].values))[i].point;
+		(*((*p_b)[nb].values))[i].v0 = (*((*p_a)[na].values))[i].v0;
+		(*((*p_b)[nb].values))[i].v1 = (*((*p_a)[na].values))[i].v1;
+		}
+	(*p_b)[nb].number = (*p_a)[na].number;
+	DoneSpecial = TRUE;
+	return(OK);
 	}
-for(i=0; i < (*p_a)[na].number; i++) {
-	j = FindParameterIndex(p_b,nb,(*((*p_a)[na].values))[i].index);
-	if(j < 0) return(OK);
-	/* Creates storage if needed */
-	
-	(*((*p_b)[nb].values))[i].index = (*((*p_a)[na].values))[i].index;
-	(*((*p_b)[nb].values))[i].channel = (*((*p_a)[na].values))[i].channel;
-	(*((*p_b)[nb].values))[i].scale = (*((*p_a)[na].values))[i].scale;
-	(*((*p_b)[nb].values))[i].blockkey = (*((*p_a)[na].values))[i].blockkey;
-	(*((*p_b)[nb].values))[i].mode = (*((*p_a)[na].values))[i].mode;
-	(*((*p_b)[nb].values))[i].active = (*((*p_a)[na].values))[i].active;
-	(*((*p_b)[nb].values))[i].known = (*((*p_a)[na].values))[i].known;
-	(*((*p_b)[nb].values))[i].control = (*((*p_a)[na].values))[i].control;
-	(*((*p_b)[nb].values))[i].start = (*((*p_a)[na].values))[i].start;
-	(*((*p_b)[nb].values))[i].increment = (*((*p_a)[na].values))[i].increment;
-	(*((*p_b)[nb].values))[i].ibeats = (*((*p_a)[na].values))[i].ibeats;
-	(*((*p_b)[nb].values))[i].maxbeats = (*((*p_a)[na].values))[i].maxbeats;
-	(*((*p_b)[nb].values))[i].v0 = (*((*p_a)[na].values))[i].v0;
-	(*((*p_b)[nb].values))[i].v1 = (*((*p_a)[na].values))[i].v1;
-	}
-(*p_b)[nb].number = (*p_a)[na].number;
-
-return(OK);
-}
 
 
 int PutZeros(int nseq_current, char toofast,double **p_im,unsigned long **p_maxcol,double maxseq,double numberzeros,int *p_nmax,int kobj) {
@@ -2438,14 +2480,18 @@ int ShowPhaseDiagram(int nmax,unsigned long* imaxseq) {
 
 int MakeEmptyTokensSilent(tokenbyte ***pp_buff,double *p_maxseqapprox) {
 	unsigned long id;
-	tokenbyte m,p;
-	for(id=ZERO; ;id += 2) {
+	tokenbyte m,p,j;
+	for(id = ZERO; ;id += 2) {
 		m = (**pp_buff)[id];
 		p = (**pp_buff)[id+1];
 		if(m == TEND && p == TEND) break;
+		if(trace_make_silent) BPPrintMessage(0,odInfo,"@@@ m = %d, p = %d\n",m,p);
+		j = p;
+		if(j < 0) j = -j;
+		if(trace_make_silent && j > 0 && j < Jbol && m > 1) BPPrintMessage(0,odInfo,"@@@ Sound-object « %s », m = %d, p = %d, Jbol = %d, SilentObject = %d\n",*(*p_Bol)[j],m,p,Jbol,(*p_SilentObject)[j]);
 		if(m == T4) { // 2026-03-23
-			if(trace_diagram)
-				BPPrintMessage(0,odInfo,"Variable “%s” converted to silent sound-object\n",*(*p_Var)[p]);
+			if(trace_make_silent)
+				BPPrintMessage(0,odInfo,"@@@ Variable “%s” converted to silent sound-object\n",*(*p_Var)[p]);
 			int oldJbol = Jbol;
 			p = CreateBol(TRUE,FALSE,(char**)(*p_Var)[p],FALSE,FALSE,BOL);
 			if(Jbol > oldJbol) {
@@ -2461,28 +2507,35 @@ int MakeEmptyTokensSilent(tokenbyte ***pp_buff,double *p_maxseqapprox) {
 			MySetHandleSize((Handle*)&p_ObjectSpecs,(Size)MaxObjects * sizeof(objectspecs**));
 			MySetHandleSize((Handle*)&p_Articul,(Size)MaxObjects * sizeof(short));
 			(*p_Tref)[p] = ZERO; (*p_Dur)[p] = 1000L;
+			if(trace_make_silent) BPPrintMessage(0,odInfo,"@@@ Creating silent sound-object from variable, m = %d, p = %d\n",m,p);
 			CreateSilentSoundObject(p);
+			continue;
 			}
-		if((m == T3 || m == T47) && p > 1 && p < Jbol && (*p_MIDIsize)[p] == ZERO && (*p_CsoundSize)[p] == ZERO && (*p_Tref)[p] > ZERO) {
-			// BPPrintMessage(0,odInfo,"@@@ Not smooth silent sound-object “%s”,Tref = %ld, Dur = %ld; RescaleMode = %d\n",*(*p_Bol)[p],(*p_Tref)[p],(*p_Dur)[p],(*p_RescaleMode)[p]);
+		if(m != T3 || p < 2 || p >= Jbol || (*p_SilentObject)[p]) continue;
+		if(trace_make_silent) BPPrintMessage(0,odInfo,"@@@ MIDIsize = %ld, CsoundSize = %ld, Tref = %ld, Dur = %ld\n",(*p_MIDIsize)[p],(*p_CsoundSize)[p],(*p_Tref)[p],(*p_Dur)[p]);
+		if((*p_MIDIsize)[p] > ZERO || (*p_CsoundSize)[p] > ZERO) continue;
+
+		if((*p_Tref)[p] > ZERO) {
+			if(trace_make_silent) BPPrintMessage(0,odInfo,"@@@ Striated silent sound-object « %s »,Tref = %ld, Dur = %ld; RescaleMode = %d\n",*(*p_Bol)[p],(*p_Tref)[p],(*p_Dur)[p],(*p_RescaleMode)[p]);
+			(*p_Dur)[p] = (*p_Tref)[p];
+			CreateSilentSoundObject(p);
+			continue;
 			}
-		if((m == T3 || m == T47) && p > 1 && p < Jbol && (*p_MIDIsize)[p] == ZERO && (*p_CsoundSize)[p] == ZERO && (*p_Tref)[p] == ZERO) {
-				CreateSilentSoundObject(p);
-				if(trace_diagram)
-					BPPrintMessage(0,odInfo,"@@@ Created silent sound-object “%s” for m =%d\n",*(*p_Bol)[p],m);
-			}
+		if(trace_make_silent) BPPrintMessage(0,odInfo,"@@@ Smooth silent sound-object « %s »,Tref = %ld, Dur = %ld; RescaleMode = %d\n",*(*p_Bol)[p],(*p_Tref)[p],(*p_Dur)[p],(*p_RescaleMode)[p]);
+		(*p_Tref)[p] = ZERO; (*p_Dur)[p] = 1000L;
+		CreateSilentSoundObject(p);
+		if(trace_diagram)
+			BPPrintMessage(0,odInfo,"@@@ Created silent sound-object « %s » for m = %d\n",*(*p_Bol)[p],m);
 		}
 	return OK;
 	}
 
 int CreateSilentSoundObject(int p) {
-//	BPPrintMessage(0,odInfo,"@@@ Creating silent sound-object « %s », Tref  = %ld,\n",*(*p_Bol)[p],(*p_Tref)[p]);
-
+	if(trace_make_silent) BPPrintMessage(0,odInfo,"@@@ Creating silent sound-object « %s », Tref  = %ld\n",*(*p_Bol)[p],(*p_Tref)[p]);
 	(*p_SilentObject)[p] = TRUE;
 	(*p_MIDIsize)[p] = (*p_CsoundSize)[p] = ZERO;
 	(*p_Type)[p] = 0;
 	if((*p_Tref)[p] == ZERO) { // Created from a variable or an undeclared terminal
-	//	(*p_Dur)[p] = (*p_Tref)[p] = 1000L; 2026-10-06
 		(*p_Dur)[p] = 1000L;
 		(*p_OkExpand)[p] = (*p_OkCompress)[p] = (*p_OkRelocate)[p] = TRUE;
 		(*p_BreakTempo)[p] = TRUE;

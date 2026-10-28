@@ -1938,7 +1938,7 @@ int CheckItemProduced(t_gram *p_gram,int igram,tokenbyte ***pp_a,long *p_length,
 			if(trace_produce_all) BPPrintMessage(1,odInfo,"???\n");
 			if(r) {
 				ItemNumber++;
-				if(TraceProduce && !TraceDetail) Print(wTrace,"\n");
+				if(TraceProduce && !TraceDetail) Print(wTrace,"\n\n");
 				if(trace_produce_all) BPPrintMessage(1,odInfo,"*** %d\n",ItemNumber);
 				if(!template && (rtMIDI || OutCsound || WriteMIDIfile || EventListOn)) {
 					if(trace_produce_all) 

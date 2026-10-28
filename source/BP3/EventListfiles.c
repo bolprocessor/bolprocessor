@@ -96,12 +96,11 @@ int AddEventToList(int k) {
         return MISSED;
     	}
 	j = (*p_Instance)[k].object;
-	if(j == -1) return(OK);
+	// BPPrintMessage(0,odInfo,"k = %d, j = %d\n",k,j);
+	if(j == -1) return(OK); // End of item
 	if(j == 0) return(OK);
-	if(j == 1) return(OK);
+	// if(j == 1) return(OK);
 	if(j < 16384 && j >= Jbol) return(OK); // Time-pattern
-
-	// BPPrintMessage(0,odError,"k = %d, j = %d\n",k,j);
 	
 	silent = FALSE;
 	if(j > 0 && j < Jbol && (*p_CsoundSize)[j] == ZERO && (*p_MIDIsize)[j] == ZERO && (*p_Tref)[j] == ZERO) silent = TRUE;
@@ -333,11 +332,12 @@ int AddEventToList(int k) {
 			for(i = 0; i < (*p_CsoundSize)[j]; i++) {
 				ins = (*((*pp_CsoundScore)[j]))[i].instrument;
 			//	BPPrintMessage(0,odInfo,"@@@ ins = %d\n",ins);
+				if(ins > 0 && ins < MAXINSTRUMENTS && !Exported_instrument[ins]) ExportJsonCsoundInstrument(ins);
 				}
 			}
 		}
 	if(silent || Jinstr < 1) strcpy(instrument_txt,"");
-	if(instrument > 0 && instrument < MAXINSTRUMENTS && !Exported_instrument[instrument]) SaveJsonCsoundInstrument(instrument);
+	if(instrument > 0 && instrument < MAXINSTRUMENTS && !Exported_instrument[instrument]) ExportJsonCsoundInstrument(instrument);
 
 	int velocity = ByteToInt((*p_Instance)[k].velocity);
 	int rndvel = (*p_Instance)[k].rndvel;
@@ -358,7 +358,7 @@ int AddEventToList(int k) {
 	keymap1_q1 = (*p_Instance)[k].map1.q1;
 	keymap1_p2 = (*p_Instance)[k].map1.p2;
 	keymap1_q2 = (*p_Instance)[k].map1.q2;
-	if(j == 1 && starttime == endtime && strcmp(keymapmode,"OFF") == 0) return(OK);
+	// if(j == 1 && starttime == endtime && strcmp(keymapmode,"OFF") == 0) return(OK);
 	if(id_proto > 0) my_sprintf(id_proto_txt,"%d",id_proto);
 	else strcpy(id_proto_txt,"");
 

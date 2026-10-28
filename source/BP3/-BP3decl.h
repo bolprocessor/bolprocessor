@@ -52,6 +52,7 @@ extern int LoadedAlphabet,LoadedData;
 extern char **p_MessageMem[MAXMESSAGE],**p_HTMLchar1,**p_HTMLchar2,**p_HTMLdiacritical;
 extern MIDIstream Stream;
 
+extern char DoneSpecial;
 extern node PrefixTree,SuffixTree;
 extern char InitToken[6];
 extern char Mode[MAXMODE][MODELENGTH];

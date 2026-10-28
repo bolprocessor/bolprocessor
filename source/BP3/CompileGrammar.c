@@ -1714,12 +1714,12 @@ int ShowNotBP(t_gram* p_gram) {
 
 	if(!CompiledGr || p_gram->trueBP) return(OK);
 	BPPrintMessage(0,odError,"=> This is not a true BP grammar.\nThe following features are not standard:\n");
-	for(i=0; i < MAXNOTBPCASES; i++) {
+	/* for(i=0; i < MAXNOTBPCASES; i++) {
 		if(NotBPCase[i]) {
 			BPPrintMessage(0,odError,"&nbsp;%d) %s\n",j,err[i]);
 			j++;
 			}
-		}
+		} */
 	BPPrintMessage(0,odError,"\n");
 	return(MISSED);
 	}

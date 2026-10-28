@@ -69,7 +69,7 @@ int ResetPrototype(int j) {
    (*p_MaxCoverBeg)[j] = (*p_MaxCoverEnd)[j] = 100L;
    (*p_MaxTruncBeg)[j] = (*p_MaxTruncEnd)[j] = 0L;
    (*p_PivPos)[j] = (*p_PreRoll)[j] = (*p_PostRoll)[j] = (*p_CyclicAfter)[j] = ZERO;
-  (*p_CyclicMode)[j] = IRRELEVANT;
+   (*p_CyclicMode)[j] = IRRELEVANT;
 
    (*p_AlphaCtrlNr)[j] = 255; (*p_AlphaCtrlChan)[j] = 255;
    (*p_Ifrom)[j] = 0;
@@ -88,7 +88,7 @@ int ResetPrototype(int j) {
    (*p_Dur)[j] = ZERO;
    (*p_SilentObject)[j] = FALSE;
    (*p_Resolution)[j] = 1;
-   (*p_Tref)[j] = ZERO; // 2026-10-06
+   (*p_Tref)[j] = ZERO;
    (*p_ForceIntegerCycles)[j] = FALSE;
    (*p_DefaultChannel)[j] = (*p_Quan)[j] = 0;
    // BPPrintMessage(0,odInfo,"=> §&§ DefaultChannel[%d] = %d\n",j,(*p_DefaultChannel)[j]);
@@ -113,6 +113,7 @@ int ResetPrototype(int j) {
    (*p_CsoundInstr)[j] = 0;
    (*p_CsoundInstrumentMode)[j] = -1;
    (*p_MIDIsize)[j] = (*p_CsoundSize)[j] = ZERO;
+   (*p_SilentObject)[j] = FALSE;
    ChangedProtoType(j);
    CompiledCsObjects = (*p_CompiledCsoundScore)[j] = 0;
    return(OK);
@@ -158,14 +159,15 @@ int CheckConsistency(int j,int check) {
       }
    SetPrototypeDuration(j,&longerCsound);
    dur = (*p_Dur)[j];
-   // if(trace_consistency) BPPrintMessage(0,odInfo,"@@ %s, dur = %ld\n",*((*p_Bol)[j]),dur);
+   if(trace_consistency) 
+      BPPrintMessage(0,odInfo,"@@ %s, dur[%d] = %ld, Jbol = %d\n",*((*p_Bol)[j]),j,dur,Jbol);
    if(dur < EPSILON) {
       BPPrintMessage(0,odInfo,"👉 Duration of « %s » (%d) is null\n",*((*p_Bol)[j]),j);
       if((*p_Tref)[j] > ZERO) {
-         BPPrintMessage(0,odInfo,"-> We take it as a silent object with Tref = %ld ms\n",(*p_Tref)[j]);
+         BPPrintMessage(0,odInfo,"-> We will use it as a silent object with Tref = %ld ms\n",(*p_Tref)[j]);
          }
       else {
-         BPPrintMessage(0,odInfo,"-> We take it as a smooth silent object with Tref = 0\n");
+         BPPrintMessage(0,odInfo,"-> We will use it as a smooth silent object with Tref = 0\n");
          (*p_PivType)[j] = PIVBEG; (*p_PivPos)[j] = ZERO;
          (*p_CoverBegMode)[j] = (*p_CoverEndMode)[j] = (*p_TruncBegMode)[j] = (*p_TruncEndMode)[j]= FIXVALUE;
          (*p_ContBegMode)[j] = (*p_ContEndMode)[j] = IRRELEVANT;

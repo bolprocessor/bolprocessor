@@ -630,7 +630,7 @@ int DrawObject(int,char*,int,double,int,int,int,int,long,long,long,long,long,int
 int DrawSequence(int,SoundObjectInstanceParameters**,Milliseconds**,Milliseconds**,long,unsigned long,
 	unsigned long**,int,long**,long**,long**);
 int DrawPrototype(int,int,Rect*);
-int SaveJsonCsoundInstrument(int);
+int ExportJsonCsoundInstrument(int);
 int PrintArg(int,int,int,char,int,int,FILE*,int,tokenbyte***,tokenbyte***);
 int PrintArgSub(PrintargType*,unsigned long*,TextHandle,FILE*,tokenbyte***,tokenbyte***,unsigned long*,int*,double*,int*,int*,int*,int,int*,int,int,int*,int*,int,int,int*,int*,int*,double*);
 int check_and_remove_duplicate_last_line(const char*);

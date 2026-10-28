@@ -1022,62 +1022,62 @@ int FixStringConstant(char* line) {
 	}
 
 
-int FixNumberConstant(char* line)
-{
-int i,j,maxparam,oldmaxparam;
-Handle h;
-double x;
-long p,q;
+int FixNumberConstant(char* line) {
+	int i,j,maxparam,oldmaxparam;
+	Handle h;
+	double x;
+	long p,q;
 
-Strip(line);
-if(line[0] == '\0') goto ERR;
+	Strip(line);
+	if(line[0] == '\0') goto ERR;
 
-x = Myatof(line,&p,&q);
-// if(trace_scale) BPPrintMessage(0,odInfo,"FixNumberConstant line = %s x = %.3f\n",line,x);
+	x = Myatof(line,&p,&q);
+	// if(trace_scale) BPPrintMessage(0,odInfo,"FixNumberConstant line = %s x = %.3f\n",line,x);
 
-if(p_NumberConstant == NULL) maxparam = 0;
-else maxparam = (MyGetHandleSize((Handle)p_NumberConstant) / sizeof(double));
+	if(p_NumberConstant == NULL) maxparam = 0;
+	else maxparam = (MyGetHandleSize((Handle)p_NumberConstant) / sizeof(double));
 
-if(maxparam == 0) {
-	maxparam = 10;
-	if((p_NumberConstant=(double**) GiveSpace((Size)(maxparam) * sizeof(double))) == NULL)
-		return(ABORT);
-	for(i=0; i < maxparam; i++) (*p_NumberConstant)[i] = Infpos;
-	}
-else {
-	}
-
-for(j = 1; j < maxparam; j++) {
-	if((*p_NumberConstant)[j] == x) break;
-	if((*p_NumberConstant)[j] == Infpos) {
-		(*p_NumberConstant)[j] = x;
-		break;
+	if(maxparam == 0) {
+		maxparam = 10;
+		if((p_NumberConstant=(double**) GiveSpace((Size)(maxparam) * sizeof(double))) == NULL)
+			return(ABORT);
+		for(i=0; i < maxparam; i++) (*p_NumberConstant)[i] = Infpos;
 		}
-	}
-if(j < maxparam) {
-	if(trace_FixNumberConstant || trace_scale) BPPrintMessage(0,odInfo,"FixNumberConstant() line = %s j = %ld, x = %.3f\n",line,(long)j,x);
+	else {
+		}
+
+	for(j = 1; j < maxparam; j++) {
+		if((*p_NumberConstant)[j] == x) break;
+		if((*p_NumberConstant)[j] == Infpos) {
+			(*p_NumberConstant)[j] = x;
+			break;
+			}
+		}
+	if(j < maxparam) {
+		if(trace_FixNumberConstant || trace_scale) BPPrintMessage(0,odInfo,"FixNumberConstant() line = %s j = %ld, x = %.3f\n",line,(long)j,x);
+		return(j);
+		}
+	if(j >= MAXSTRINGCONSTANTS) {
+		BPPrintMessage(0,odError,"=> Too many numeric constants found (max %ld)\nCan't store '%s'\n",(long)MAXSTRINGCONSTANTS,line);
+		return(ABORT);
+		}
+		
+	h = (Handle) p_NumberConstant;
+	if((h = IncreaseSpace(h)) == NULL) return(ABORT);
+	p_NumberConstant = (double**) h;
+	oldmaxparam = maxparam;
+	maxparam = (MyGetHandleSize((Handle)p_NumberConstant) / sizeof(double));
+	for(i = oldmaxparam + 1; i < maxparam; i++) (*p_NumberConstant)[i] = Infpos;
+			
+	(*p_NumberConstant)[j] = x;
+	if(trace_FixNumberConstant) 
+		BPPrintMessage(0,odInfo,"FixNumberConstant() after increasing space line = '%s' j = %ld, x = %.3f\n",line,(long)j,x);
 	return(j);
-	}
-if(j >= MAXSTRINGCONSTANTS) {
-	BPPrintMessage(0,odError,"=> Too many numeric constants found (max %ld)\nCan't store '%s'\n",(long)MAXSTRINGCONSTANTS,line);
+
+	ERR:
+	BPPrintMessage(0,odError,"=> Missing value in FixNumberConstant()\n");
 	return(ABORT);
 	}
-	
-h = (Handle) p_NumberConstant;
-if((h = IncreaseSpace(h)) == NULL) return(ABORT);
-p_NumberConstant = (double**) h;
-oldmaxparam = maxparam;
-maxparam = (MyGetHandleSize((Handle)p_NumberConstant) / sizeof(double));
-for(i = oldmaxparam + 1; i < maxparam; i++) (*p_NumberConstant)[i] = Infpos;
-		
-(*p_NumberConstant)[j] = x;
-if(trace_FixNumberConstant) BPPrintMessage(0,odInfo,"FixNumberConstant() after increasing space line = '%s' j = %ld, x = %.3f\n",line,(long)j,x);
-return(j);
-
-ERR:
-BPPrintMessage(0,odError,"=> Missing value in FixNumberConstant()\n");
-return(ABORT);
-}
 
 int WaitABit(long thedelay) {
 	// Wait for thedelay milliseconds

@@ -282,21 +282,19 @@ int MyHandleLen(char **p_t) {
 
 
 int Strip(char *word) {
-// Eliminate leading and trailing blanks
-	int i,j;
-
-	if(word[0] == '\0') return(OK);
-	j = 0; while(isspace(word[j])) j++;
-	if(j > 0) {
-		for(i=j; i <= strlen(word); i++) {
-			word[i-j] = word[i];
-			}
-		}
-	i = strlen(word) - 1;
-	while(isspace(word[i])) {
-		word[i] = '\0'; i--;
-		}
-	return(OK);
+    // Eliminate leading and trailing blanks (including \n, \r, \t)
+    size_t len, start;
+    if (word == NULL || word[0] == '\0') return(OK);
+    len = strlen(word);
+    // Trailing: never go below index 0
+    while (len > 0 && isspace((unsigned char) word[len - 1])) len--;
+    word[len] = '\0';
+    // Leading
+    start = 0;
+    while (start < len && isspace((unsigned char) word[start])) start++;
+    if (start > 0)
+        memmove(word, word + start, len - start + 1);  // +1 copies the '\0'
+    return(OK);
 	}
 
 void remove_trailing_newline(char *str) {

@@ -160,10 +160,13 @@ int ReleasePhaseDiagram(int nmax,unsigned long*** pp_imaxseq) {
 		}
 		
 	if(p_Instance != NULL) {
-		for(k=0; k < (MyGetHandleSize((Handle)p_Instance) / sizeof(SoundObjectInstanceParameters)); k++) {
-			for(i=0; i < ((*p_Instance)[k].contparameters.number); i++) {
-				ptr = (Handle) (*((*p_Instance)[k].contparameters.values))[i].point;
-				MyDisposeHandle(&ptr);
+		for(k = 0; k < (MyGetHandleSize((Handle)p_Instance) / sizeof(SoundObjectInstanceParameters)); k++) {
+			for(i = 0; i < (*p_Instance)[k].contparameters.number; i++) {
+				if((*((*p_Instance)[k].contparameters.values))[i].imax > ZERO) {
+					BPPrintMessage(0,odInfo,"@§& i = %d, k = %d\n",i,k);
+					ptr = (Handle) (*((*p_Instance)[k].contparameters.values))[i].point;
+					MyDisposeHandle(&ptr);
+					}
 				}
 			ptr = (Handle) (*p_Instance)[k].contparameters.values;
 			MyDisposeHandle(&ptr);
@@ -714,7 +717,7 @@ int ReleaseObjectPrototypes(void) {
 	if(pp_MIDIcode == NULL) max = 0;
 	else max = MyGetHandleSize((Handle) pp_MIDIcode) / sizeof(MIDIcode**);
 	// BPPrintMessage(0,odInfo,"@@@ max = %d\n",max);
-	for(j=2; j < max; j++) {
+	for(j = 2; j < max; j++) {
 		/* Here we also release time-patterns */
 	/*	if((*pp_MIDIcode)[j] != NULL) {
 			for(i=0; i < (*p_MIDIsize)[j]; i++) {
@@ -745,7 +748,7 @@ int ReleaseObjectPrototypes(void) {
 		ptr = (Handle) (*pp_CsoundScore)[j];
 		if(MyDisposeHandle(&ptr) != OK) return(ABORT);
 		(*pp_CsoundScore)[j] = NULL;
-		(*p_CsoundSize)[j] = 0;
+		(*p_CsoundSize)[j] = ZERO;
 		}
 	/* ptr = (Handle) p_MIDIsize;
 	if(MyDisposeHandle(&ptr) != OK) return(ABORT); */
@@ -927,12 +930,14 @@ int MakeSoundObjectSpace(void) {
 	if((pp_CsoundScoreText = (char****) GiveSpace((Size) jmax *sizeof(char**))) == NULL) goto ERR;
 	if((pp_CsoundScore = (CsoundLine****) GiveSpace((Size) jmax *sizeof(CsoundLine**))) == NULL) goto ERR;
 	
-	for(j=2; j < jmax; j++) { // 2026-03-21
+	for(j = 2; j < jmax; j++) { // 2026-03-21
 		(*p_MIDIsize)[j] = (*p_CsoundSize)[j] = ZERO;
 		(*p_DefaultChannel)[j] = 0;
+		(*p_SilentObject)[j] = FALSE;
+		(*p_Tref)[j] = (*p_Dur)[j] = ZERO;
 		}
 
-	for(j=0; j < 2 ; j++) {
+	for(j = 0; j < 2 ; j++) {
 		(*p_MIDIsize)[j] = (*p_CsoundSize)[j] = ZERO;
 		(*p_Ifrom)[j] = 0; (*p_Type)[j] = 0;
 		(*p_PivPos)[j] = (*p_CyclicAfter)[j] = 0.;
@@ -1163,9 +1168,8 @@ int ResizeObjectSpace(int reset,int maxsounds,int addbol) {
 			(*p_MaxBegGap)[j] = (*p_MaxEndGap)[j] = Infpos;
 			(*p_MaxCoverBeg)[j] = (*p_MaxCoverEnd)[j] = ZERO;
 			(*p_MaxTruncBeg)[j] = (*p_MaxTruncEnd)[j] = (*p_PivPos)[j] = (*p_PreRoll)[j] = (*p_PostRoll)[j] = (*p_CyclicAfter)[j] = ZERO;
-			(*p_Tref)[j] = ZERO; // 2026-10-06
-	//		(*p_Dur)[j] = ZERO;
-			(*p_Dur)[j] = 1000L; // 2026-03-20
+			(*p_Tref)[j] = ZERO;
+			(*p_Dur)[j] = 1000L;
 			(*p_SilentObject)[j] = FALSE;
 			if(j >= (Jbol + addbol)) {
 				//	if(Jpatt <= 0 || p_Ppatt != NULL && p_Qpatt != NULL) {

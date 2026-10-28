@@ -349,15 +349,21 @@ DO_OVERFLOW:
 double Remap(double x,int ins,int i,int *p_overflow) {
 	*p_overflow = FALSE;
 	switch(i) {
-		case IPITCHBEND: return(XtoY(x,&((*p_CsInstrument)[ins].rPitchBend),p_overflow,ins));
+		case IPITCHBEND:
+			x = XtoY(x,&((*p_CsInstrument)[ins].rPitchBend),p_overflow,ins);
+			if(fabs(x) < 0.015) x = 0.;
 			break;
-		case IVOLUME: return(XtoY(x,&((*p_CsInstrument)[ins].rVolume),p_overflow,ins));
+		case IVOLUME:
+			x = XtoY(x,&((*p_CsInstrument)[ins].rVolume),p_overflow,ins);
 			break;
-		case IMODULATION: return(XtoY(x,&((*p_CsInstrument)[ins].rModulation),p_overflow,ins));
+		case IMODULATION:
+			x = XtoY(x,&((*p_CsInstrument)[ins].rModulation),p_overflow,ins);
 			break;
-		case IPRESSURE: return(XtoY(x,&((*p_CsInstrument)[ins].rPressure),p_overflow,ins));
+		case IPRESSURE:
+			x = XtoY(x,&((*p_CsInstrument)[ins].rPressure),p_overflow,ins);
 			break;
-		case IPANORAMIC: return(XtoY(x,&((*p_CsInstrument)[ins].rPanoramic),p_overflow,ins));
+		case IPANORAMIC:
+			x = XtoY(x,&((*p_CsInstrument)[ins].rPanoramic),p_overflow,ins);
 			break;
 		}
 	return(x);
@@ -365,7 +371,7 @@ double Remap(double x,int ins,int i,int *p_overflow) {
 
 
 int MakeCsoundFunctionTable(int onoffline,double **scorearg,double alpha1,double alpha2,long imax,
-	Coordinates** coords,int ins,int paramnameindex,int ip,int iarg0,int iarg1) {
+	Coordinates** coords,int ins,int paramindex,int ip,int iarg0,int iarg1) {
 	int r,result,overflow,gentype,usescorevalues;
 	long i,n,lasti,newx,sum;
 	double x,y,iscale,oldx,xmax,v0,v1;
@@ -407,11 +413,11 @@ int MakeCsoundFunctionTable(int onoffline,double **scorearg,double alpha1,double
 		iscale = ((double) n) / xmax;
 		y = (*(subtable.point))[ZERO].value;
 		oldx = 0.;
-		if(usescorevalues) y = CombineScoreValues(y,oldx,xmax,v0,v1,ins,paramnameindex,ip);
-		y = Remap(y,ins,paramnameindex,&overflow);
+		if(usescorevalues) y = CombineScoreValues(y,oldx,xmax,v0,v1,ins,paramindex,ip);
+		y = Remap(y,ins,paramindex,&overflow);
 		if(overflow) goto SORTIR;
 		FunctionTable++;
-		gentype = GetGENtype(ins,ip,paramnameindex);
+		gentype = GetGENtype(ins,ip,paramindex);
 		my_sprintf(line,"f%ld %.3f %ld -%ld %.3f",(long)FunctionTable,(*scorearg)[2],
 			(long)n,(long)gentype,y);
 		newx = sum = 0;
@@ -427,9 +433,9 @@ int MakeCsoundFunctionTable(int onoffline,double **scorearg,double alpha1,double
 			strcat(line,line2);
 			y = (*(subtable.point))[i].value;
 			if(i == lasti && trace_write_score) BPPrintMessage(0,odInfo,"y(1) = %.3f for i = %ld\n",y,(long)i);
-			if(usescorevalues) y = CombineScoreValues(y,oldx,xmax,v0,v1,ins,paramnameindex,ip);
+			if(usescorevalues) y = CombineScoreValues(y,oldx,xmax,v0,v1,ins,paramindex,ip);
 			if(i == lasti && trace_write_score) BPPrintMessage(0,odInfo,"y(2) = %.3f for i = %ld\n",y,(long)i);
-			y = Remap(y,ins,paramnameindex,&overflow);
+			y = Remap(y,ins,paramindex,&overflow);
 			if(i == lasti && trace_write_score) BPPrintMessage(0,odInfo,"y(3) = %.3f for i = %ld\n",y,(long)i);
 			if(overflow) goto SORTIR;
 			if(i == lasti && trace_write_score) BPPrintMessage(0,odInfo,"y(4) = %.3f for i = %ld\n",y,(long)i);
@@ -449,9 +455,10 @@ SORTIR:
 	return(r);
 	}
 
-int GetGENtype(int ins,int ip,int paramnameindex) {
-	if(paramnameindex <= IPANORAMIC) {
-		switch(paramnameindex) {
+int GetGENtype(int ins,int ip,int paramindex) {
+//	BPPrintMessage(0,odInfo,"@@@ GetGENtype ins = %d, ip = %d, paramindex = %d\n",ins,ip,paramindex);
+	if(paramindex <= IPANORAMIC) {
+		switch(paramindex) {
 			case IPITCHBEND:
 				return((*p_CsInstrument)[ins].pitchbendGEN);
 			case IVOLUME:
@@ -463,7 +470,7 @@ int GetGENtype(int ins,int ip,int paramnameindex) {
 			case IPANORAMIC:
 				return((*p_CsInstrument)[ins].panoramicGEN);
 			default:
-				return(7);
+				return(7); // 2026-10-16
 				break;
 			}
 		}
@@ -472,10 +479,6 @@ int GetGENtype(int ins,int ip,int paramnameindex) {
 			BPPrintMessage(0,odError,"=> Err. GetGENtype(). ins < 0 || ins >= Jinstr");
 			return(7);
 			}
-	/*	if(ip >= IPMAX) {
-			BPPrintMessage(0,odError,"=> Err. GetGENtype(). ip >= IPMAX");
-			return(7);
-			} */
 		if((*p_CsInstrument)[ins].paramlist == NULL) {
 			BPPrintMessage(0,odError,"=> Err. GetGENtype(). (*p_CsInstrument)[ins].paramlist == NULL");
 			return(7);
@@ -486,7 +489,7 @@ int GetGENtype(int ins,int ip,int paramnameindex) {
 			}
 		return((*((*p_CsInstrument)[ins].paramlist))[ip].GENtype);
 		}
-	return(7);
+	return(7);  // 2026-10-16
 	}
 
 
@@ -625,12 +628,12 @@ int GetPartOfTable(XYgraph *p_subtable,double alpha1,double alpha2,long imax,Coo
 
 
 double CombineScoreValues(double y,double x,double xmax,double v0,double v1,int ins,
-	int paramnameindex,int ip) {
+	int paramindex,int ip) {
 	int combinationtype;
 	double yinterp,ydefault,ynew;
 
-	if(paramnameindex <= IPANORAMIC) {
-		switch(paramnameindex) {
+	if(paramindex <= IPANORAMIC) {
+		switch(paramindex) {
 			case IPITCHBEND:
 				combinationtype = ADD;
 				ydefault = DEFTPITCHBEND;

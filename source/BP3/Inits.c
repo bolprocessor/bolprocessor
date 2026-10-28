@@ -104,6 +104,7 @@ int Inits(void) {
 	NextStop = getClockTime() + 1000000L; // microseconds
 
 	Oms = FALSE;
+	DoneSpecial = FALSE;
 
 	for(i=0; i < MAXMESSAGE; i++) {
 		ptr = (char**) GiveSpace((Size)(MAXLIN * sizeof(char)));

@@ -139,9 +139,7 @@ T23 x _modrate(x)  (all channels)  0 < x < 1001 (samples per second)
 
 T24 x _pressrate(x)  (all channels)  0 < x < 32768 (1001 per second)
 
-T25 x  Simple note #x  (x is the MIDI key number). This is processed as a striated
-	sound-object with default object properties, containing only NoteOn and NoteOff
-	on the default channel.
+T25 x  Simple note #x  (x is the MIDI key number). This is processed as a striated sound-object with default object properties, containing only NoteOn and NoteOff on the default channel.
 
 T26 x _transpose(x/100)  -129 < x/100 < 128 (semitones)
     x may be decimal, down to +/- 0.01

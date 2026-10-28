@@ -10,7 +10,7 @@ The most requested improvements are listed at the top of the list.
 Current location of this file:
 https://github.com/bolprocessor/bolprocessor/blob/graphics-for-BP3/BP3-To-Do.txt
 
-You can also check the history of changes:
+You can also check the shistory of changes:
 https://raw.githubusercontent.com/bolprocessor/bolprocessor/graphics-for-BP3/BP3-changes.txt
 
 If you are interested in taking part in this project, join the BP developer's list:
@@ -20,9 +20,12 @@ https://sourceforge.net/projects/bolprocessor/lists/bolprocessor-devel
 Various issues
 --------------
 
+- In the 'Event list' output format, introduce parameters and tables similar to those used in Csound.
+- Eliminate the obligation to declare instruments and all initial additional parameter values, see '-da.tryCsoundObjects' item #18.
 - Delete occurrences of ConvertMIDItoCsound as it is (probably) obsolete.
 - Design an example demonstrating properties "Allow gap" in sound-objects.
 - Pianoroll is not drawn if there are negative dates (due to pivot and preroll).
+- Check the handling of _fixed() in SetObjectFeatures.c
 - In -da.Beethoven-fugue-b-flat-major, k = 22082, note Bb5, start time = end time = 0
 - When playing -da.Beethoven-fuge-b-flat-major using PLAY safe (7 chunks) there is a time error between two chunks. Check the chunking on data.php
 - Try to make sense of 'truebracket' and 'imbedded' in Polymetric.c

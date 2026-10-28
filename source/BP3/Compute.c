@@ -525,6 +525,7 @@ TRY3:		(*p_length) = LengthOf(pp_a);	/* was changed by FindArg() */
 						my_sprintf(Message,"\n[Step #%d] Selected: ",Step++);
 					Print(wTrace,Message);
 					ShowRule(p_gram,igram,irul,wTrace,1,NULL,TRUE,FALSE,FALSE,FALSE);
+					Print(wTrace,"\n");
 					NumberCharsTrace += strlen(Message);
 					}
 				}
@@ -1833,7 +1834,7 @@ long Derive(tokenbyte ***pp_a,t_gram *p_gram,tokenbyte ***pp_b,long *p_length,in
 void ExpandBufferLimit(long requiredSize) {
 	while(requiredSize >= (BufferSize - 2L))
 		BufferSize = (BufferSize * 3L) / 2L;
-	BPPrintMessage(0,odInfo,"Buffer limit expanded to %ld tokens (%ld were required)\n",(long)BufferSize,requiredSize);
+	// BPPrintMessage(0,odInfo,"Buffer limit expanded to %ld tokens (%ld were required)\n",(long)BufferSize,requiredSize);
 	return;
 	}
 

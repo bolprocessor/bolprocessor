@@ -44,15 +44,14 @@ int trace_set_variation = 0;
 int trace_table = 0;
 int check_limits = 0;
 
-int SetObjectParams(int isobject,int level,int nseq,long k,int j,
-	CurrentParameters *p_currentparameters,ContParameters **p_contparameters,
-	Table **h_table) {
+int SetObjectParams(int part_of_score,int level,int nseq,long k,int j,CurrentParameters *p_currentparameters,ContParameters **p_contparameters,Table **h_table) {
 	ParameterSpecs **currentinstancevalues;
 	long size;
-	int i,ii,n,ip,index,chan,scale,blockkey;
+	int paramindex,ii,ins,n,ip,ipmax,index,chan,scale,blockkey;
 	short mode;
 	double v0,v1;
 	Coordinates **ptr;
+	Handle hdl;
 
 	if(k < 2) {
 		BPPrintMessage(0,odError,"=> Err. SetObjectParams(). k < 2\n");
@@ -68,28 +67,77 @@ int SetObjectParams(int isobject,int level,int nseq,long k,int j,
 		return(ABORT); // Fixed by BB 2021-02-26
 		}
 
+	if(j > 0 && j < Jbol) { 
+		if((*p_DefaultChannel)[j] > 0) {	// Object has a specific MIDI channel
+			// Here we need (*p_DefaultChannel)[1] = 0.
+			(*p_Instance)[k].channel = (*p_DefaultChannel)[j];
+			if((*p_Instance)[k].channel > MAXCHAN || (*p_Instance)[k].channel < 1) {
+				my_sprintf(Message,"'%s' has channel %ld.  Should be 1..%ld\n",
+					(*((*p_Bol)[j])),(long)(*p_DefaultChannel)[j],(long)MAXCHAN);
+				Print(wTrace,Message);
+				ShowError(32,0,0);
+				return(MISSED);
+				}
+			}
+		else {
+			if((*p_DefaultChannel)[j] == 0)
+				(*p_Instance)[k].channel = p_currentparameters->currchan;
+			else (*p_Instance)[k].channel = 0; // No change
+			}
+		if((*p_CsoundInstr)[j] > 0) {	// Object has specific instrument
+			// Here we need (*p_CsoundInstr)[1] = 0
+			(*p_Instance)[k].instrument = (*p_CsoundInstr)[j];
+			if(trace_object_features) BPPrintMessage(0,odInfo,"€€ specific instrument for j = %d, k = %d, instrument = %d\n",j,k,(*p_Instance)[k].instrument);
+			}
+		else {
+			(*p_Instance)[k].instrument = p_currentparameters->currinstr;
+			if(trace_object_features) BPPrintMessage(0,odInfo,"€€ current instrument for j = %d, k = %d, instrument = %d\n",j,k,(*p_Instance)[k].instrument);
+			}
+		}
+	else {
+		(*p_Instance)[k].channel = p_currentparameters->currchan;
+		(*p_Instance)[k].instrument = p_currentparameters->currinstr;
+			if(trace_object_features) BPPrintMessage(0,odInfo,"€€ current instrument for k = %d, instrument = %d\n",k,(*p_Instance)[k].instrument);
+	
+		}
+	(*p_Instance)[k].scale = p_currentparameters->scale;
+	if(trace_scale) BPPrintMessage(0,odInfo,"4) scale = %d\n",p_currentparameters->scale); 
+	(*p_Instance)[k].blockkey = p_currentparameters->blockkey;
+
+
 	(*p_Instance)[k].contparameters.values = NULL;
 	(*p_Instance)[k].contparameters.number = 0;
-	if(trace_set_variation) BPPrintMessage(1,odInfo,"$$$$$\n");
+	ins = InstrumentIndex((*p_Instance)[k].instrument);
+	ipmax = (*p_CsInstrument)[ins].ipmax;
+	if(trace_set_variation) BPPrintMessage(1,odInfo,"SetObjectParams() part_of_score = %d, level = %d, k = %d, j = %d, ins = %d, instrument = %d, ipmax = %d,\n",part_of_score,level,k,j,ins,(*p_Instance)[k].instrument,ipmax);
 	if(level >= 0) {
 		n = (*p_contparameters)[level].number;
-		if(n <= IPANORAMIC) n = (IPANORAMIC + 1);
-		if((currentinstancevalues=(ParameterSpecs**) GiveSpace((Size)(n) * sizeof(ParameterSpecs))) == NULL)
-			return(ABORT);
-		(*p_Instance)[k].contparameters.values = currentinstancevalues;
+	//	if(n <= IPANORAMIC) n = (IPANORAMIC + 1);
+		// BPPrintMessage(1,odInfo,"ooo n1 = %d\n",n);
+
+		n = ipmax + IPANORAMIC + 1;
+		// BPPrintMessage(1,odInfo,"ooo n2 = %d, k = %d, ins = %d, ipmax = %d, level = %d\n",n,k,ins,ipmax,level);
+		(*p_contparameters)[level].number = n;
 		(*p_Instance)[k].contparameters.number = n;
-		
-		if((*p_contparameters)[level].values == NULL) {
-			BPPrintMessage(0,odError,"=> Err. SetObjectParams(). (*p_contparameters)[level].values == NULL\n");
-			return(ABORT);
-			}
-		for(i=0; i < (*p_contparameters)[level].number; i++) {
-			chan = (*((*p_contparameters)[level].values))[i].channel;
-			scale = (*((*p_contparameters)[level].values))[i].scale;
-			blockkey = (*((*p_contparameters)[level].values))[i].blockkey;
-			if(i <= IPANORAMIC && !(*((*p_contparameters)[level].values))[i].known) {
-				if(trace_set_variation) BPPrintMessage(1,odInfo,"!(*((*p_contparameters)[level].values))[%d].known\n",i);
-				switch(i) {
+
+		if((currentinstancevalues=(ParameterSpecs**) GiveSpace((Size)(n) * sizeof(ParameterSpecs))) == NULL) return(ABORT);
+		(*p_Instance)[k].contparameters.values = currentinstancevalues;
+
+		hdl = (Handle) (*p_contparameters)[level].values;
+		MySetHandleSize((Handle*)&hdl,(Size)n*sizeof(ContParameterSpecs));
+		(*p_contparameters)[level].values = (ContParameterSpecs**) hdl;
+
+	/*	for(paramindex = (IPANORAMIC + 1); paramindex < n; paramindex++) {
+			BPPrintMessage(1,odInfo,"===--  paramindex = %d, v0 = %.2f, v1 = %.2f\n",paramindex,(*currentinstancevalues)[paramindex].v0,(*currentinstancevalues)[paramindex].v1);
+			} */
+		for(paramindex = 0; paramindex < n; paramindex++) {
+		//	BPPrintMessage(1,odInfo,"===++ paramindex = %d, v0 = %.2f\n",paramindex,(*currentinstancevalues)[paramindex].v0);
+			chan = (*((*p_contparameters)[level].values))[paramindex].channel;
+			scale = (*((*p_contparameters)[level].values))[paramindex].scale;
+			blockkey = (*((*p_contparameters)[level].values))[paramindex].blockkey;
+			if(paramindex <= IPANORAMIC && !(*((*p_contparameters)[level].values))[paramindex].known) {
+				if(trace_set_variation) BPPrintMessage(1,odInfo,"!(*((*p_contparameters)[level].values))[%d].known\n",paramindex);
+				switch(paramindex) {
 					case IMODULATION:
 						if(!ResetControllers && (*p_Oldvalue)[chan].modulation > -1)
 							v0 = (*p_Oldvalue)[chan].modulation;
@@ -121,84 +169,84 @@ int SetObjectParams(int isobject,int level,int nseq,long k,int j,
 							v0 = DeftPanoramic;
 						break;
 					}
-				(*((*p_contparameters)[level].values))[i].known = TRUE;
+				(*((*p_contparameters)[level].values))[paramindex].known = TRUE;
 				v1 = v0;
 				mode = FIXMAPMODE;
-				if(trace_set_variation) BPPrintMessage(1,odInfo,"i = %d, v0 = %ld v1 = %ld mode = %d\n",i,(long)v0,(long)v1,mode);
+				if(trace_set_variation) BPPrintMessage(1,odInfo,"paramindex1 = %d, v0 = %.2f v1 = %.2f, mode = %d\n",paramindex,(float)v0,(float)v1,mode);
 				}
 			else {
-				v0 = (*((*p_contparameters)[level].values))[i].v0;
-				v1 = (*((*p_contparameters)[level].values))[i].v1;
-				mode = (*((*p_contparameters)[level].values))[i].mode;
-				if(trace_set_variation) BPPrintMessage(1,odInfo,"i = %d, v0 = %ld v1 = %ld mode = %d\n",i,(long)v0,(long)v1,mode);
+				v0 = (*((*p_contparameters)[level].values))[paramindex].v0;
+				v1 = (*((*p_contparameters)[level].values))[paramindex].v1;
+				mode = (*((*p_contparameters)[level].values))[paramindex].mode;
+				if(trace_set_variation) BPPrintMessage(1,odInfo,"paramindex2 = %d, v0 = %.2f v1 = %.2f, mode = %d\n",paramindex,(float)v0,(float)v1,mode);
 				}
-			(*currentinstancevalues)[i].v0 = v0;
-			(*currentinstancevalues)[i].v1 = v1;
-			// BPPrintMessage(0,odInfo,"-> start value v0 = %ld, end value v1 = %ld\n",(long)v0,(long)v1);
-			(*currentinstancevalues)[i].mode = mode;
-			(*currentinstancevalues)[i].control = (*((*p_contparameters)[level].values))[i].control;
-			(*currentinstancevalues)[i].channel = chan;
-			(*currentinstancevalues)[i].scale = scale;
+			(*currentinstancevalues)[paramindex].v0 = v0;
+			(*currentinstancevalues)[paramindex].v1 = v1;
+			(*currentinstancevalues)[paramindex].mode = mode;
+			// BPPrintMessage(0,odInfo,"-> start value v0 = %.2f, end value v1 = %.2f, mode = %d, paramindex = %d\n",(float)v0,(float)v1,mode,paramindex);
+			(*currentinstancevalues)[paramindex].control = (*((*p_contparameters)[level].values))[paramindex].control;
+			(*currentinstancevalues)[paramindex].channel = chan;
+			(*currentinstancevalues)[paramindex].scale = scale;
 			if(trace_scale) 
 				BPPrintMessage(0,odInfo,"1) scale = %d\n",scale);
-			(*currentinstancevalues)[i].blockkey = blockkey;
-			(*currentinstancevalues)[i].index = (*((*p_contparameters)[level].values))[i].index;
-			(*currentinstancevalues)[i].imax = ZERO;
-			(*currentinstancevalues)[i].point = NULL;
-			if(i == IPANORAMIC && j < Jbol && !(*p_OkPan)[j]) continue;
-			if(i == IVOLUME && j < Jbol && !(*p_OkVolume)[j]) continue;
+			(*currentinstancevalues)[paramindex].blockkey = blockkey;
+			(*currentinstancevalues)[paramindex].index = (*((*p_contparameters)[level].values))[paramindex].index;
+			(*currentinstancevalues)[paramindex].imax = ZERO;
+			(*currentinstancevalues)[paramindex].point = NULL;
+			if(paramindex == IPANORAMIC && j < Jbol && !(*p_OkPan)[j]) continue;
+			if(paramindex == IVOLUME && j < Jbol && !(*p_OkVolume)[j]) continue;
 			if(h_table == NULL) {
 				BPPrintMessage(0,odError,"=> Err. SetObjectParams(). h_table == NULL\n");
 				}
 			
-			if(isobject && (*h_table)[i].point != NULL) {
-				if((*h_table)[i].offset == 0) {
-					if((ptr=(Coordinates**)
-						GiveSpace((Size)((*h_table)[i].imax) * sizeof(Coordinates))) == NULL)
+			if(part_of_score && (*h_table)[paramindex].point != NULL) {
+				if((*h_table)[paramindex].offset == 0) {
+					if((ptr=(Coordinates**) GiveSpace((Size)((*h_table)[paramindex].imax) * sizeof(Coordinates))) == NULL)
 						return(ABORT);
-					(*currentinstancevalues)[i].point = ptr;
-					(*currentinstancevalues)[i].imax = (*h_table)[i].imax;
-					for(ii=0; ii < (*h_table)[i].imax; ii++) {
-						(*((*currentinstancevalues)[i].point))[ii] = (*((*h_table)[i].point))[ii];
+					(*currentinstancevalues)[paramindex].point = ptr;
+					(*currentinstancevalues)[paramindex].imax = (*h_table)[paramindex].imax;
+					for(ii=0; ii < (*h_table)[paramindex].imax; ii++) {
+						(*((*currentinstancevalues)[paramindex].point))[ii] = (*((*h_table)[paramindex].point))[ii];
 						}
-					/* Here we set v1, at last */
-					(*currentinstancevalues)[i].v1 = (*((*h_table)[i].point))[ii-1].value;
-					if(trace_set_variation) BPPrintMessage(1,odInfo,"-> end value v1 = %ld\n",(long)(*currentinstancevalues)[i].v1);
+					// Here we set v1, at last
+					(*currentinstancevalues)[paramindex].v1 = (*((*h_table)[paramindex].point))[ii-1].value;
+					if(trace_set_variation) BPPrintMessage(1,odInfo,"-> end value v1 = %ld\n",(long)(*currentinstancevalues)[paramindex].v1);
 					}
-				((*h_table)[i].offset)--;
+				((*h_table)[paramindex].offset)--;
 				}
 			
-			// BPPrintMessage(0,odInfo,"SetObjectFeatures k = %ld mode = %ld ?\n",(long)k,(*currentinstancevalues)[i].mode);
-			if((*((*p_contparameters)[level].values))[i].v0 == (*((*p_contparameters)[level].values))[i].v1 && (*h_table)[i].point == NULL) {
-					(*currentinstancevalues)[i].mode = FIXMAPMODE;
-					if(trace_set_variation) BPPrintMessage(1,odInfo,"SetObjectFeatures k = %ld i = %d mode = FIXMAPMODE v0 = %ld v1 = %ld\n",(long)k,i,(long)(*((*p_contparameters)[level].values))[i].v0,(long)(*((*p_contparameters)[level].values))[i].v1);
+			// BPPrintMessage(0,odInfo,"SetObjectFeatures k = %ld mode = %ld ?\n",(long)k,(*currentinstancevalues)[paramindex].mode);
+			if((*((*p_contparameters)[level].values))[paramindex].v0 == (*((*p_contparameters)[level].values))[paramindex].v1 && (*h_table)[paramindex].point == NULL) {
+					(*currentinstancevalues)[paramindex].mode = FIXMAPMODE;
+					(*currentinstancevalues)[paramindex].point = NULL;
+					if(trace_set_variation) BPPrintMessage(1,odInfo,"SetObjectFeatures k = %ld paramindex = %d mode = FIXMAPMODE v0 = %ld v1 = %ld\n",(long)k,paramindex,(long)(*((*p_contparameters)[level].values))[paramindex].v0,(long)(*((*p_contparameters)[level].values))[paramindex].v1);
 					}
 				
-			if((*((*p_contparameters)[level].values))[i].channel > 0)
-				(*currentinstancevalues)[i].channel
-					= (*((*p_contparameters)[level].values))[i].channel;
+			if((*((*p_contparameters)[level].values))[paramindex].channel > 0)
+				(*currentinstancevalues)[paramindex].channel
+					= (*((*p_contparameters)[level].values))[paramindex].channel;
 			else
-				(*currentinstancevalues)[i].channel = p_currentparameters->currchan;
+				(*currentinstancevalues)[paramindex].channel = p_currentparameters->currchan;
 				
-			if((*((*p_contparameters)[level].values))[i].scale != 0) {
-				(*currentinstancevalues)[i].scale
-					= (*((*p_contparameters)[level].values))[i].scale;
-				if(trace_scale) BPPrintMessage(0,odInfo,"2) scale = %d\n",(*((*p_contparameters)[level].values))[i].scale);
+			if((*((*p_contparameters)[level].values))[paramindex].scale != 0) {
+				(*currentinstancevalues)[paramindex].scale
+					= (*((*p_contparameters)[level].values))[paramindex].scale;
+				if(trace_scale) BPPrintMessage(0,odInfo,"2) scale = %d\n",(*((*p_contparameters)[level].values))[paramindex].scale);
 				}
 			else {
-				(*currentinstancevalues)[i].scale = p_currentparameters->scale;
+				(*currentinstancevalues)[paramindex].scale = p_currentparameters->scale;
 				if(trace_scale) BPPrintMessage(0,odInfo,"3) scale = %d\n",p_currentparameters->scale);
 				}
 				
-			if((*((*p_contparameters)[level].values))[i].blockkey != DefaultBlockKey)
-				(*currentinstancevalues)[i].blockkey
-					= (*((*p_contparameters)[level].values))[i].blockkey;
+			if((*((*p_contparameters)[level].values))[paramindex].blockkey != DefaultBlockKey)
+				(*currentinstancevalues)[paramindex].blockkey
+					= (*((*p_contparameters)[level].values))[paramindex].blockkey;
 			else
-				(*currentinstancevalues)[i].blockkey = p_currentparameters->blockkey;
+				(*currentinstancevalues)[paramindex].blockkey = p_currentparameters->blockkey;
 			}
 		}
 
-	if(!isobject) (*p_Instance)[k].nseq = nseq;
+	if(!part_of_score) (*p_Instance)[k].nseq = nseq;
 	// Otherwise the nseq field has been set in Plot()
 
 	(*p_Instance)[k].velocity = p_currentparameters->currvel;
@@ -219,7 +267,6 @@ int SetObjectParams(int isobject,int level,int nseq,long k,int j,
 		(*p_Instance)[k].xpandkey = -1;
 		(*p_Instance)[k].xpandval = 0;
 		}
-
 	(*p_Instance)[k].transposition = 0;
 	(*p_Instance)[k].transposefirst = p_currentparameters->transposefirst;
 	(*p_Instance)[k].capture = p_currentparameters->capture;
@@ -242,51 +289,6 @@ int SetObjectParams(int isobject,int level,int nseq,long k,int j,
 				}
 			}
 		}
-	if(j > 0 && j < Jbol) {
-		if((*p_DefaultChannel)[j] > 0) {	// Object has a specific MIDI channel
-			// Here we need (*p_DefaultChannel)[1] = 0.
-			(*p_Instance)[k].channel = (*p_DefaultChannel)[j];
-			if((*p_Instance)[k].channel > MAXCHAN || (*p_Instance)[k].channel < 1) {
-				my_sprintf(Message,"'%s' has channel %ld.  Should be 1..%ld\n",
-					(*((*p_Bol)[j])),(long)(*p_DefaultChannel)[j],(long)MAXCHAN);
-				Print(wTrace,Message);
-				ShowError(32,0,0);
-				return(MISSED);
-				}
-			}
-		else {
-			if((*p_DefaultChannel)[j] == 0)
-				(*p_Instance)[k].channel = p_currentparameters->currchan;
-			else (*p_Instance)[k].channel = 0; // No change
-			}
-		if((*p_CsoundInstr)[j] > 0) {	// Object has specific instrument
-			// Here we need (*p_CsoundInstr)[1] = 0
-			(*p_Instance)[k].instrument = (*p_CsoundInstr)[j];
-			}
-		else {
-			(*p_Instance)[k].instrument = p_currentparameters->currinstr;
-		/*	if((*p_CsoundInstrumentMode)[j] == GLOBAL_CS)
-				(*p_Instance)[k].instrument = p_currentparameters->currinstr;
-			else (*p_Instance)[k].instrument = 0; */
-			}
-		}
-	else {
-		(*p_Instance)[k].channel = p_currentparameters->currchan;
-		(*p_Instance)[k].instrument = p_currentparameters->currinstr;
-	
-		}
-	(*p_Instance)[k].scale = p_currentparameters->scale;
-	if(trace_scale) BPPrintMessage(0,odInfo,"4) scale = %d\n",p_currentparameters->scale); 
-	(*p_Instance)[k].blockkey = p_currentparameters->blockkey;
-
-// = DeftVolume;
-
-/*	VolumeStart(k) = DEFTVOLUME;
-	PanoramicStart(k) = DEFTPANORAMIC;
-	PitchbendStart(k) = DEFTPITCHBEND;
-	PressureStart(k) = DEFTPRESSURE;
-	ModulationStart(k) = DEFTMODULATION; */
-
 	return(OK);
 	}
 
@@ -345,7 +347,7 @@ int SetVariation(tokenbyte targettoken,CurrentParameters **p_deftcurrentparamete
 int level,seq,**p_seq,**p_chan,**p_instr,**p_part,ibeats,foundtimeobject,foundsecondvalue,
 	paramvalueindex,oldpitchbendrange[MAXCHAN+1],foundconcatenation,oldm,oldp,
 	foundendconcatenation,levelmem,seqmem,foundtarget,imap,
-	paramnameindex,maketable,tableisbeingbuilt,tablemade,iobjmem,
+	paramindex,maketable,tableisbeingbuilt,tablemade,iobjmem,
 	okincrease,objectsfound,nonemptyobject,chan,instrument,part,targettokenfoundafterobject,
 	forgetmakingtable,followedwithgap,result,chanorg,instrorg,partorg,
 	blockkey,scale,scaleorg,blockkeyorg,newval,newkeyval;
@@ -356,7 +358,7 @@ Coordinates **ptr;
 double v,vv,oldv,x,orgtranspose,startvalue,tempo,speed,scaling,s;
 tokenbyte m,p;
 
-/* The following ones must be double because they may be incremented with values < 1 when sequence is too fast */
+// The following ones must be double because they may be incremented with values < 1 when the sequence is too fast
 double prodtempo,maxbeats,itargettoken,itable;
 
 Table t;
@@ -372,7 +374,7 @@ if((p_part=(int**) GiveSpace((Size) Maxlevel * sizeof(int))) == NULL) return(ABO
 if((p_notinthisfield=(char**) GiveSpace((Size) Maxlevel * sizeof(char))) == NULL)
 	return(ABORT);
 
-for(i=1; i <= MAXCHAN; i++) oldpitchbendrange[i] = PitchbendRange[i];
+for(i = 1; i <= MAXCHAN; i++) oldpitchbendrange[i] = PitchbendRange[i];
 
 level = levelmem = 0;
 seq = seqmem = (*p_seq)[level] = 0;
@@ -395,7 +397,7 @@ foundtimeobject = foundsecondvalue = maketable = tableisbeingbuilt = tablemade
 okincrease = TRUE;
 
 if(targettoken == -1) targettoken = IndexToToken(index);
-/* This will be required for FindValue() */
+// This will be required for FindValue()
 
 if(trace_set_variation) BPPrintMessage(0,odInfo,"Start SetVariation() targettoken = %ld, index = %ld, id = %ld, Prod = %.2f speed = %.2f scaling = %.2f tempo = %.2f prodtempo = %.2f\n",(long)targettoken,(long)index,(long)id,Prod,speed,scaling,tempo,prodtempo);
 
@@ -404,7 +406,7 @@ if(index > -1) {
 	startvalue = (*p_endvalue) = (*((*p_contparameters)[levelorg].values))[index].v0;
 	if((*((*p_contparameters)[levelorg].values))[index].mode == FIXMAPMODE)
 		goto RECORDVALUES;
-	if(trace_set_variation) BPPrintMessage(0,odInfo,"maketable = TRUE, startvalue = %ld\n",(long)startvalue);
+	if(trace_set_variation) BPPrintMessage(0,odInfo,"maketable = TRUE, startvalue = %ld, index = %d\n",(long)startvalue,index);
 	}
 else {
 	switch(targettoken)	{
@@ -473,7 +475,6 @@ for(i = id+2L; ; i += 2L) {
 				else tempo = prodtempo = 0.;
 				i += 4;
 				continue;
-				break;
 			case 24:	/* '**' scaling down */
 				s = GetScalingValue(p_buff,i);
 				scaling = 1. / s;
@@ -484,7 +485,6 @@ for(i = id+2L; ; i += 2L) {
 				else tempo = prodtempo = 0.;
 				i += 4;
 				continue;
-				break;
 			case 12:	/* '{' */
 			case 22:
 				if(seq == seqmem && objectsfound > 0 && !foundconcatenation) {
@@ -551,7 +551,7 @@ for(i = id+2L; ; i += 2L) {
 		}
 	
 	if(m == T3 || m == T47 || m == T25 || m == T9) {
-		/* Sound-object, silence, prolongation, simple note, time pattern */
+		// Sound-object, silence, prolongation, simple note, time pattern
 		if(foundendconcatenation && foundconcatenation
 				&& (m == T25 || ((m == T3 || m == T47) && p > 0))) {
 			foundendconcatenation = FALSE;
@@ -573,7 +573,7 @@ for(i = id+2L; ; i += 2L) {
 				}
 			}
 		else {
-			/* When level > 0 all objects are accounted as empty */
+			// When level > 0 all objects are accounted as empty
 			nonemptyobject = FALSE;
 			if(targettokenfoundafterobject > 0) followedwithgap = TRUE;
 			}
@@ -585,7 +585,7 @@ for(i = id+2L; ; i += 2L) {
 			tableisbeingbuilt = TRUE;
 			itable = 0.;
 			}
-		if(!foundtimeobject) {	/* Found first sound-object or prolongation or silence */
+		if(!foundtimeobject) {	// Found first sound-object or prolongation or silence
 			foundtimeobject = TRUE;
 			maxbeats = prodtempo;
 			if(trace_set_variation) BPPrintMessage(0,odInfo,"maxbeats = prodtempo = %ld\n",(long)prodtempo);
@@ -605,11 +605,11 @@ for(i = id+2L; ; i += 2L) {
 					// (*((*p_CsInstrument)[j].paramlist))[ip].defaultvalue
 					tableisbeingbuilt = FALSE;
 					tablemade = TRUE;
-			//		BPPrintMessage(0,odInfo,"@@ tablemade = TRUE\n");
+				//	BPPrintMessage(0,odInfo,"@@ tablemade = TRUE\n");
 					(t.imax)++;
 					}
 				else { 
-					/* No table can be built */
+					// No table can be built
 					forgetmakingtable = TRUE;
 					tableisbeingbuilt = FALSE;
 					}
@@ -639,12 +639,17 @@ ENOUGH:
 	if((level == levelmem || (foundconcatenation && !notinthisfield))
 			&& chan == chanorg
 			&& (m == targettoken || (index >= 0 && TokenToIndex(m,index) == index))) {
+		// BPPrintMessage(0,odInfo,"&& targettoken (%d,%d,%ld) = %d, index = %d\n",m,p,chan,targettoken,index);
 		if(m == T35) {  // _value() 
-			paramnameindex = p % 256;
-			if(index != FindParameterIndex(p_contparameters,levelorg,paramnameindex))
+			paramindex = p % 256;
+		//	BPPrintMessage(0,odInfo,"&&& paramindex (%d,%d,%d) = %d, index = %d\n",m,p,chan,paramindex,index);
+			if(index != FindParameterIndex(p_contparameters,levelorg,paramindex)) {
+			//	BPPrintMessage(0,odInfo,"&&+!!! FindParameterIndex = %d, index = %d\n",FindParameterIndex(p_contparameters,levelorg,paramindex),index);
 				continue;
+				}
 			}
 		v = FindValue(m,p,chan);
+		// BPPrintMessage(0,odInfo,"&&& FindValue(%d,%d,%d) = %.2F\n",m,p,chan,v);
 		if(v == Infpos) {
 			BPPrintMessage(0,odError,"=> Error in SetVariation(). v = Infpos");
 			result = ABORT;
@@ -667,9 +672,10 @@ ENOUGH:
 			}
 		foundtarget = TRUE;
 		if(objectsfound > 0) targettokenfoundafterobject++;
-		if(!foundsecondvalue) {
+		if(!foundsecondvalue) {  
 			if(maxbeats > 0.) {
 				foundsecondvalue = TRUE;
+			//	BPPrintMessage(0,odInfo,"@&@ foundsecondvalue = TRUE, maxbeats = %.2f, targettoken = %d, m = %d, p = %d, id = %ld, i = %ld\n",maxbeats,targettoken,m,p,id,i);
 				if(targettoken != T37) *p_endvalue = v;
 				else *p_mapendvalue = vmap;
 				if(!maketable) break;
@@ -678,7 +684,7 @@ ENOUGH:
 			}
 		
 		if(targettoken == T11 || targettoken == T20 || targettoken == T37) goto END;
-		/* _vel(), articulation and _keymap()  are not concerned with tables */
+		// _vel(), articulation and _keymap()  are not concerned with tables
 		
 	/*	if(index < 0) {
 			BPPrintMessage(0,odError,"=> Err. SetVariation(). index < 0");
@@ -697,7 +703,7 @@ ENOUGH:
 			}
 		(*(t.point))[t.imax].i = itable;
 		(*(t.point))[t.imax].value = v;
-		if(trace_table) BPPrintMessage(0,odInfo,"Set value for t.imax = %ld value = %.3f\n",(long)t.imax,(long)v);
+		if(trace_table) BPPrintMessage(0,odInfo,"Set value 1 for t.imax = %ld value = %.3f\n",(long)t.imax,(long)v);
 		(t.imax)++;
 		if(t.imax >= (tablesize - 1L)) {
 			if(trace_table) BPPrintMessage(0,odInfo,"Increase size of t.point: t.imax = %ld tablesize = %ld\n",(long)t.imax,(long)tablesize);
@@ -725,8 +731,12 @@ MORE:
 		continue;
 		}
 	if(m == T36) { /* _fixed() */
-		// Needs to be completed $$$
-		paramnameindex = p % 256;
+		paramindex = p % 256; // Needs completion
+	/*	index = TokenToIndex(m,index);
+		BPPrintMessage(0,odInfo,"&&& paramindex (%d,%d,%d) = %d, index = %d\n",m,p,chan,paramindex,index);
+		if(index != FindParameterIndex(p_contparameters,levelorg,paramindex)) {
+			continue;
+			} */
 		}
 	
 	if(m == T21) {		/* _pitchrange() */
@@ -781,7 +791,8 @@ if(maketable && tableisbeingbuilt && !tablemade && t.point != NULL
 		}
 	iobjmem = 0;
 	tablemade = TRUE;
-	if(trace_table) BPPrintMessage(0,odInfo,"@ tablemade = TRUE\n");
+	if(trace_table) 
+		BPPrintMessage(0,odInfo,"@ tablemade = TRUE\n");
 	}
 if(!foundsecondvalue || result != OK) {
 	maxbeats = 0.;
@@ -797,7 +808,7 @@ h = (Handle)(*h_table)[index].point;
 MyDisposeHandle(&h);
 
 (*h_table)[index].point = NULL;
-(*h_table)[index].imax = 0;
+(*h_table)[index].imax = ZERO;
 
 if(!foundtarget) goto STORECHAN;
 
@@ -828,11 +839,12 @@ if((*p_contparameters)[levelorg].values == NULL) {
 (*((*p_contparameters)[levelorg].values))[index].start
 	= (*((*p_contparameters)[levelorg].values))[index].v0 = startvalue;
 (*((*p_contparameters)[levelorg].values))[index].known = TRUE;
-/* (*((*p_contparameters)[levelorg].values))[index].instrument = instrorg; */
+// (*((*p_contparameters)[levelorg].values))[index].instrument = instrorg;
 if((maxbeats == 0.) || (*((*p_contparameters)[levelorg].values))[index].mode == FIXMAPMODE) {
-	(*((*p_contparameters)[levelorg].values))[index].maxbeats = 1;
-	(*((*p_contparameters)[levelorg].values))[index].increment = 0;
+	(*((*p_contparameters)[levelorg].values))[index].maxbeats = 1.;
+	(*((*p_contparameters)[levelorg].values))[index].increment = 0.;
 	(*((*p_contparameters)[levelorg].values))[index].v1 = startvalue;
+	(*((*p_contparameters)[levelorg].values))[index].point = NULL;
 	}
 else {
 	(*((*p_contparameters)[levelorg].values))[index].increment
@@ -1020,7 +1032,7 @@ if(nature_time == STRIATED || nseq == 0) {
 			else {		// Pclock = ZERO; non-measured smooth time
 				alpha = d;
 				}
-			if(trace_object_features && j < Jbol) BPPrintMessage(0,odInfo,"Calculate_alpha() smooth 1st line k = %ld j = %ld alpha = %.2f d = %.2f clockperiod = %ld i = %ld inext = %ld Dur = %ld Tref = %ld\n",(long)k,(long)j,(double)alpha,(long)d,(long)clockperiod,(long)i,(long)inext,(long)(*p_Dur)[j],(long)(*p_Tref)[j]);
+			if(trace_object_features && j > 0 && j < Jbol) BPPrintMessage(0,odInfo,"Calculate_alpha() smooth 1st line k = %ld j = %ld alpha = %.2f d = %.2f clockperiod = %ld i = %ld inext = %ld Dur = %ld Tref = %ld\n",(long)k,(long)j,(double)alpha,(long)d,(long)clockperiod,(long)i,(long)inext,(long)(*p_Dur)[j],(long)(*p_Tref)[j]);
 			}
 		else {					// Striated time or nseq > 0
 			if(d > 0.) {
@@ -1032,11 +1044,12 @@ if(nature_time == STRIATED || nseq == 0) {
 					if(nature_time == STRIATED) alpha = 0.; // 2025-02-05
 					else  alpha = (double) ((*p_T)[inext] - (*p_T)[i]) / (*p_Tref)[j];
 					}
-				else if((*p_Tref)[j] > EPSILON) { // Silence or triated object declared as a prototype
+				else if((*p_Tref)[j] > EPSILON) { // Silence or striated object declared as a prototype
 					alpha = ((double)(*p_T)[inext] - (*p_T)[i]) / (*p_Tref)[j];
-				//	BPPrintMessage(0,odInfo,"@@ alpha = %.2f, i = %ld, j = %d, inext = %ld\n",alpha,i,j,inext);
+					// BPPrintMessage(0,odInfo,"@@ alpha = %.2f, i = %ld, j = %d, inext = %ld\n",alpha,i,j,inext);
 					if((*p_Dur)[j] == ZERO) (*p_SilentObject)[j] = TRUE;
 					if((*p_SilentObject)[j]) {
+					//	BPPrintMessage(0,odInfo,"@@ j = %d, Dur = %ld\n",j,(*p_Dur)[j]);
 						if((*p_Dur)[j] < EPSILON) (*p_Dur)[j] = (*p_Tref)[j];
 						if((*p_Dur)[j] < EPSILON) (*p_Dur)[j] = (long) (((*p_T)[inext] - (*p_T)[i]));
 				//		alpha = (double) (inext - i) * (*p_Tref)[j] / (*p_Dur)[j];
@@ -1047,8 +1060,8 @@ if(nature_time == STRIATED || nseq == 0) {
 				else alpha = 1.;
 				}
 			else alpha = 0.;
-			if(trace_object_features)
-				if(j > 1 && j < Jbol) BPPrintMessage(0,odInfo,"Calculate_alpha striated nseq = %ld k = %ld j = %ld « %s » nseq = %d alpha = %.2f d = %.2f i = %ld inext = %ld Dur = %ld Tref = %ld T[i] = %ld, T[inext] = %ld, silent = %d\n",(long)nseq,(long)k,(long)j,*((*p_Bol)[j]),nseq,alpha,d,(long)i,(long)inext,(long)(*p_Dur)[j],(long)(*p_Tref)[j],(long)(*p_T)[i],(long)(*p_T)[inext],(*p_SilentObject)[j]);
+			if(trace_object_features && j > 0 && j < Jbol)
+				if(j > 1 && j < Jbol) BPPrintMessage(0,odInfo,"Calculate_alpha striated nseq = %ld k = %ld j = %ld « %s » nseq = %d alpha = %.2f d = %.2f i = %ld inext = %ld, Dur = %ld, Tref = %ld, T[i] = %ld, T[inext] = %ld, silent = %d\n",(long)nseq,(long)k,(long)j,*((*p_Bol)[j]),nseq,alpha,d,(long)i,(long)inext,(long)(*p_Dur)[j],(long)(*p_Tref)[j],(long)(*p_T)[i],(long)(*p_T)[inext],(*p_SilentObject)[j]);
 			}
 		
 		beta = alpha;
@@ -1082,7 +1095,7 @@ OKALPHA1:
 		if(alpha < 0.) alpha = 0.;
 		if(beta < 0.) beta = 0.;
 		(*p_Instance)[k].alpha = alpha;
-		if(trace_object_features)
+		if(trace_object_features && j > 0 && j < Jbol)
 			BPPrintMessage(0,odInfo,"Calculate_alpha() nseq = %d k = %d i = %ld j = %d inext = %ld, alpha = %.2f, beta = %.2f ncycles = %d, Dur = %ld, RescaleMode = %d, ForceRatio = %.2f\n",nseq,k,i,j,inext,alpha,beta,ncycles,(*p_Dur)[j],(*p_RescaleMode)[j],ForceRatio);
 		if(ForceRatio >= 0.) (*p_Instance)[k].alpha = beta = ForceRatio;
 		(*p_Instance)[k].beta = beta;
@@ -1478,8 +1491,7 @@ int SetLimits(int nseq,Milliseconds** p_maxcoverbeg,Milliseconds** p_maxcoverend
 int AssignValue(int index,double value,int p,int level,long* p_kmx,
 	CurrentParameters **p_deftcurrentparameters,
 	CurrentParameters *p_currentparameters,ContParameters **p_contparameters,
-	long id,tokenbyte ***pp_buff,double tempo,double scaling,
-	Table **h_table) {
+	long id,tokenbyte ***pp_buff,double tempo,double scaling,Table **h_table) {
 
 	float endval,maxbeats;
 	KeyNumberMap mapendvalue;
@@ -1489,12 +1501,14 @@ int AssignValue(int index,double value,int p,int level,long* p_kmx,
 		return(ABORT);
 		}
 	(*((*p_contparameters)[level].values))[index].v0
+		= (*((*p_contparameters)[level].values))[index].v1
 		= (*((*p_contparameters)[level].values))[index].start
 		= value;
 	(*((*p_contparameters)[level].values))[index].active = TRUE;
 	(*((*p_contparameters)[level].values))[index].known = TRUE;
 
-	if(trace_set_variation) BPPrintMessage(0,odInfo,"AssignValue() active = TRUE, value = v0 = %ld, v1 = %ld for id = %d index = %d\n",(long)value,(long)(*((*p_contparameters)[level].values))[index].v1,id,index);
+	if(trace_set_variation)
+		BPPrintMessage(0,odInfo,"AssignValue() active = TRUE, value = v0 = %ld, v1 = %ld for id = %d index = %d\n",(long)value,(long)(*((*p_contparameters)[level].values))[index].v1,id,index);
 
 	if(p < 128)
 		(*((*p_contparameters)[level].values))[index].control = -1;
@@ -1587,7 +1601,7 @@ double FindValue(tokenbyte m,tokenbyte p,int chan) {
 			BPPrintMessage(0,odInfo,"T35 paramnameindex = %d paramvalueindex = %d, x = %.3f\n",paramnameindex,paramvalueindex,x);
 		}
 	else x = (double) p;
-	if(m == T15 || paramnameindex == IPITCHBEND) {  // _pitchbend()
+	if(m == T15) {  // _pitchbend()
 		xx = x;
 		if(PitchbendRange[chan] > 0)
 			x = DEFTPITCHBEND + ((double) x * DEFTPITCHBEND / (double) PitchbendRange[chan]);
@@ -1602,7 +1616,6 @@ double FindValue(tokenbyte m,tokenbyte p,int chan) {
 			if(x < 0) x = 0;
 			if(x >= 16384) x = 16383;
 			return(x);
-//			return(Infpos);
 			}
 		}
 	return(x);

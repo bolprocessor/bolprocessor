@@ -251,7 +251,6 @@ enum {
 #define MAXCHAN 16	/* number of MIDI-BP3 channels */
 #define MAXPARTS 30	/* number of parts in a score */
 #define MAXINSTRUMENTS 512	/* number of Csound instruments refered to by tied notes */
-// #define IPMAX 20	 max number of additional parameters in Csound instrument
 #define MAXINS 20	/* number of Csound instruments used in a Csound performance */
 #define MAXDATABASEFIELDS 60 /* number of fields in database */
 #define MAXTIMESLICES 5000 /* max number of time slices by the OMS output time scheduling */
@@ -897,8 +896,8 @@ typedef enum {
 #define MAXPARAMCTRL 128	/* number of MIDI controllers + 1 */
 #define MAXWAIT 64		/* number of synchronization tags */
 #define MAXTIME 59944L	/* max computation time (milliseconds) */
-#define MAXCHARTRACE 2000000
-#define MAXCHARDATA 2000000
+#define MAXCHARTRACE 5000000
+#define MAXCHARDATA 5000000
 
 #define MAXMODE 3		/* number of derivation modes: LEFT, etc. */
 #define MODELENGTH 6

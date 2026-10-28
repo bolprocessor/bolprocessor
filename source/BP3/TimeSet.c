@@ -637,7 +637,7 @@ QUEST2:
 	if(trace_timeset) {
 		BPPrintMessage(0,odInfo,"\nimax = %ld\n",(long)imax);
 		for(i = 0; i <= imax; i++) {
-			BPPrintMessage(0,odInfo,"i = %ld, k = %ld\n",(long)i,(long)(*((*p_Seq)[nseq]))[i]);
+	//		BPPrintMessage(0,odInfo,"i = %ld, k = %ld\n",(long)i,(long)(*((*p_Seq)[nseq]))[i]);
 			}
 		}
 	if(imax >= 0) {  // 2024-05-11 fixed ">=" this condition is probably useless

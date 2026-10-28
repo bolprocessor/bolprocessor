@@ -41,691 +41,6 @@
 int trace_csound = 0;
 int trace_find_instrument = 0;
 
-#if BP_CARBON_GUI_FORGET_THIS
-
-SetCsoundInstrument(int j,int w)
-/* If w > 0 this procedure also displays instrument specs to window w */
-{
-char line[MAXFIELDCONTENT];
-int i,ip,channel;
-
-if(j < 0 || j >= Jinstr) {
-	BPPrintMessage(0,odError,"=> Err. SetCsoundInstrument(). Incorrect index");
-	return(MISSED);
-	}
-if((*p_CsInstrumentIndex)[j] > -1) {
-	my_sprintf(line,"%ld",(long)(*p_CsInstrumentIndex)[j]);
-	SetField(NULL,wCsoundResources,fCsoundInstrumentIndex,line);
-	}
-else {
-	SetField(NULL,wCsoundResources,fCsoundInstrumentIndex,"[?]");
-	SelectField(NULL,wCsoundResources,fCsoundInstrumentIndex,TRUE);
-	}
-
-if((*((*pp_CsInstrumentName)[j]))[0] != '\0')
-	MystrcpyHandleToString(MAXFIELDCONTENT,0,line,(*pp_CsInstrumentName)[j]);
-else strcpy(line,"[New instrument]");
-SetField(NULL,wCsoundResources,fCsoundInstrumentName,line);
-
-if(w > 0) {
-	if((*((*pp_CsInstrumentName)[j]))[0] == '\0') strcpy(line,"[no name]");
-	if((*p_CsInstrumentIndex)[j] > -1)
-		my_sprintf(Message,"--- Instrument #%ld = %s ---\n",(long)(*p_CsInstrumentIndex)[j],line);
-	else
-		my_sprintf(Message,"--- Instrument [no index] = %s ---\n",line);
-	Println(w,Message);
-	}
-	
-if((*pp_CsInstrumentComment)[j] != NULL && (*((*pp_CsInstrumentComment)[j]))[0] != '\0') {
-	MystrcpyHandleToString(MAXFIELDCONTENT,0,line,(*pp_CsInstrumentComment)[j]);
-	SetField(NULL,wCsoundResources,fCsoundInstrumentComment,line);
-	if(w > 0) {
-		my_sprintf(Message,"Comment: %s",line);
-		Println(w,Message);
-		}
-	}
-else SetField(NULL,wCsoundResources,fCsoundInstrumentComment,"[Comment on this instrument]");
-	
-if(CsoundOrchestraName[0] != '\0')
-	SetField(NULL,wCsoundResources,fCsoundOrchestra,CsoundOrchestraName);
-else
-	SetField(NULL,wCsoundResources,fCsoundOrchestra,"BP2test.orc");
-
-if(w > 0) {
-	if(CsoundOrchestraName[0] == '\0') my_sprintf(Message,"Csound orchestra file = [unspecified]");
-	else my_sprintf(Message,"Csound orchestra file = %s",CsoundOrchestraName);
-	Println(w,Message);
-	}
-
-for(channel=1; channel <= MAXCHAN; channel++) {
-	if(WhichCsoundInstrument[channel] == (*p_CsInstrumentIndex)[j]
-			&& WhichCsoundInstrument[channel] > 0) {
-		my_sprintf(line,"%ld",(long)channel);
-		SetField(NULL,wCsoundResources,fCsoundInstrumentChannel,line);
-		if(w > 0) {
-			my_sprintf(Message,"Assigned by default to MIDI channel %ld",(long)channel);
-			Println(w,Message);
-			}
-		goto MORE;
-		}
-	}
-SetField(NULL,wCsoundResources,fCsoundInstrumentChannel,"\0");
-
-MORE:
-if((*p_CsInstrument)[j].iargmax > -1)
-	my_sprintf(line,"%ld",(long)(*p_CsInstrument)[j].iargmax);
-else strcpy(line,"[?]");
-SetField(NULL,wCsoundResources,fNumberParameters,line);
-
-if(w > 0) {
-	PleaseWait();
-	my_sprintf(Message,"%s arguments defined for this instrument\n",line);
-	Println(w,Message);
-	}
-
-if((*p_CsDilationRatioIndex)[j] > -1) my_sprintf(line,"%ld",(long)(*p_CsDilationRatioIndex)[j]);
-else line[0] = '\0';
-SetField(NULL,wCsoundResources,fDilationRatioIndex,line);
-
-if(w > 0) {
-	if(line[0] == '\0') strcpy(line,"[unspecified]");
-	my_sprintf(Message,"Dilation ratio argument = %s",line);
-	Println(w,Message);
-	}
-
-if((*p_CsAttackVelocityIndex)[j] > -1) my_sprintf(line,"%ld",(long)(*p_CsAttackVelocityIndex)[j]);
-else line[0] = '\0';
-SetField(NULL,wCsoundResources,fAttackVelocityIndex,line);
-
-if(w > 0) {
-	if(line[0] == '\0') strcpy(line,"[unspecified]");
-	my_sprintf(Message,"Attack velocity argument = %s",line);
-	Println(w,Message);
-	}
-
-if((*p_CsReleaseVelocityIndex)[j] > -1) my_sprintf(line,"%ld",(long)(*p_CsReleaseVelocityIndex)[j]);
-else line[0] = '\0';
-SetField(NULL,wCsoundResources,fReleaseVelocityIndex,line);
-
-if(w > 0) {
-	if(line[0] == '\0') strcpy(line,"[unspecified]");
-	my_sprintf(Message,"Release velocity argument = %s\n",line);
-	Println(w,Message);
-	}
-
-if((*p_CsPitchIndex)[j] > -1) my_sprintf(line,"%ld",(long)(*p_CsPitchIndex)[j]);
-else line[0] = '\0';
-SetField(NULL,wCsoundResources,fPitchIndex,line);
-
-if(w > 0) {
-	if(line[0] == '\0') strcpy(line,"[unspecified]");
-	my_sprintf(Message,"Pitch argument = %s",line);
-	Println(w,Message);
-	}
-
-switch((*p_CsPitchFormat)[j]) {
-	case OPPC:
-		SwitchOn(NULL,wCsoundResources,bOctavePitchClass);
-		SwitchOff(NULL,wCsoundResources,bOctaveDecimal);
-		SwitchOff(NULL,wCsoundResources,bHz);
-		strcpy(line,"octave point pitch-class (OPPC)");
-		break;
-	case OPD:
-		SwitchOff(NULL,wCsoundResources,bOctavePitchClass);
-		SwitchOn(NULL,wCsoundResources,bOctaveDecimal);
-		SwitchOff(NULL,wCsoundResources,bHz);
-		strcpy(line,"octave point decimal (OPD)");
-		break;
-	case CPS:
-		SwitchOff(NULL,wCsoundResources,bOctavePitchClass);
-		SwitchOff(NULL,wCsoundResources,bOctaveDecimal);
-		SwitchOn(NULL,wCsoundResources,bHz);
-		strcpy(line,"cycles per second (CPS)");
-		break;
-	}
-	
-if(w > 0) {
-	my_sprintf(Message,"Pitch format = %s\n",line);
-	Println(w,Message);
-	}
-
-if((*p_CsPitchBendStartIndex)[j] > -1) my_sprintf(line,"%ld",(long)(*p_CsPitchBendStartIndex)[j]);
-else line[0] = '\0';
-SetField(NULL,wCsoundResources,fPitchBendIndex,line);
-
-if(w > 0) {
-	if(line[0] == '\0') strcpy(line,"[unspecified]");
-	my_sprintf(Message,"Pitchbend start argument = %s",line);
-	Println(w,Message);
-	}
-
-if((*p_CsPitchBendEndIndex)[j] > -1) my_sprintf(line,"%ld",(long)(*p_CsPitchBendEndIndex)[j]);
-else line[0] = '\0';
-SetField(NULL,wCsoundResources,fPitchBendEndIndex,line);
-
-if(w > 0) {
-	if(line[0] == '\0') strcpy(line,"[unspecified]");
-	my_sprintf(Message,"Pitchbend end argument = %s",line);
-	Println(w,Message);
-	}
-
-if((*p_CsInstrument)[j].pitchbendtable > 0) my_sprintf(line,"%ld",(long)(*p_CsInstrument)[j].pitchbendtable);
-else line[0] = '\0';
-SetField(NULL,wCsoundResources,fPitchBendTable,line);
-
-if(w > 0) {
-	if(line[0] == '\0') strcpy(line,"[unspecified]");
-	my_sprintf(Message,"Pitchbend table argument = %s",line);
-	Println(w,Message);
-	}
-
-my_sprintf(line,"0%ld",(long)(*p_CsInstrument)[j].pitchbendGEN);
-SetField(NULL,wCsoundResources,fPitchBendGEN,line);
-
-if(w > 0) {
-	my_sprintf(Message,"Pitchbend table GEN%s",line);
-	Println(w,Message);
-	}
-
-if((*p_CsInstrument)[j].pitchbendrange > -1.) {
-	if((*p_CsInstrument)[j].pitchbendrange == (double)((long)(*p_CsInstrument)[j].pitchbendrange))
-	my_sprintf(line,"%ld",(long)(*p_CsInstrument)[j].pitchbendrange);
-	else WriteFloatToLine(line,(*p_CsInstrument)[j].pitchbendrange);
-	}
-else line[0] = '\0';
-SetField(NULL,wCsoundResources,fPitchBendRange,line);
-
-if(w > 0) {
-	if(line[0] == '\0') strcpy(line,"[unspecified]");
-	my_sprintf(Message,"Pitchbend range = %s cents\n",line);
-	Println(w,Message);
-	}
-
-if((*p_CsVolumeStartIndex)[j] > -1) my_sprintf(line,"%ld",(long)(*p_CsVolumeStartIndex)[j]);
-else line[0] = '\0';
-SetField(NULL,wCsoundResources,fVolumeIndex,line);
-
-if(w > 0) {
-	if(line[0] == '\0') strcpy(line,"[unspecified]");
-	my_sprintf(Message,"Volume start argument = %s",line);
-	Println(w,Message);
-	}
-	
-if((*p_CsVolumeEndIndex)[j] > -1) my_sprintf(line,"%ld",(long)(*p_CsVolumeEndIndex)[j]);
-else line[0] = '\0';
-SetField(NULL,wCsoundResources,fVolumeEndIndex,line);
-
-if(w > 0) {
-	if(line[0] == '\0') strcpy(line,"[unspecified]");
-	my_sprintf(Message,"Volume end argument = %s",line);
-	Println(w,Message);
-	}
-
-if((*p_CsInstrument)[j].volumetable > 0) my_sprintf(line,"%ld",(long)(*p_CsInstrument)[j].volumetable);
-else line[0] = '\0';
-SetField(NULL,wCsoundResources,fVolumeTable,line);
-
-if(w > 0) {
-	if(line[0] == '\0') strcpy(line,"[unspecified]");
-	my_sprintf(Message,"Volume table argument = %s",line);
-	Println(w,Message);
-	}
-
-my_sprintf(line,"0%ld",(long)(*p_CsInstrument)[j].volumeGEN);
-SetField(NULL,wCsoundResources,fVolumeGEN,line);
-
-if(w > 0) {
-	my_sprintf(Message,"Volume table GEN%s\n",line);
-	Println(w,Message);
-	}
-
-if((*p_CsPressureStartIndex)[j] > -1) my_sprintf(line,"%ld",(long)(*p_CsPressureStartIndex)[j]);
-else line[0] = '\0';
-SetField(NULL,wCsoundResources,fPressureIndex,line);
-
-if(w > 0) {
-	if(line[0] == '\0') strcpy(line,"[unspecified]");
-	my_sprintf(Message,"Pressure start argument = %s",line);
-	Println(w,Message);
-	}
-
-if((*p_CsPressureEndIndex)[j] > -1) my_sprintf(line,"%ld",(long)(*p_CsPressureEndIndex)[j]);
-else line[0] = '\0';
-SetField(NULL,wCsoundResources,fPressureEndIndex,line);
-
-if(w > 0) {
-	if(line[0] == '\0') strcpy(line,"[unspecified]");
-	my_sprintf(Message,"Pressure end argument = %s",line);
-	Println(w,Message);
-	}
-	
-if((*p_CsInstrument)[j].pressuretable > 0) my_sprintf(line,"%ld",(long)(*p_CsInstrument)[j].pressuretable);
-else line[0] = '\0';
-SetField(NULL,wCsoundResources,fPressureTable,line);
-
-if(w > 0) {
-	if(line[0] == '\0') strcpy(line,"[unspecified]");
-	my_sprintf(Message,"Pressure table argument = %s",line);
-	Println(w,Message);
-	}
-	
-my_sprintf(line,"0%ld",(long)(*p_CsInstrument)[j].pressureGEN);
-SetField(NULL,wCsoundResources,fPressureGEN,line);
-
-if(w > 0) {
-	my_sprintf(Message,"Pressure table GEN%s\n",line);
-	Println(w,Message);
-	}
-	
-if((*p_CsModulationStartIndex)[j] > -1) my_sprintf(line,"%ld",(long)(*p_CsModulationStartIndex)[j]);
-else line[0] = '\0';
-SetField(NULL,wCsoundResources,fModulationIndex,line);
-
-if(w > 0) {
-	if(line[0] == '\0') strcpy(line,"[unspecified]");
-	my_sprintf(Message,"Modulation start argument = %s",line);
-	Println(w,Message);
-	}
-
-if((*p_CsModulationEndIndex)[j] > -1) my_sprintf(line,"%ld",(long)(*p_CsModulationEndIndex)[j]);
-else line[0] = '\0';
-SetField(NULL,wCsoundResources,fModulationEndIndex,line);
-
-if(w > 0) {
-	if(line[0] == '\0') strcpy(line,"[unspecified]");
-	my_sprintf(Message,"Modulation end argument = %s",line);
-	Println(w,Message);
-	}
-	
-if((*p_CsInstrument)[j].modulationtable > 0) my_sprintf(line,"%ld",(long)(*p_CsInstrument)[j].modulationtable);
-else line[0] = '\0';
-SetField(NULL,wCsoundResources,fModulationTable,line);
-
-if(w > 0) {
-	if(line[0] == '\0') strcpy(line,"[unspecified]");
-	my_sprintf(Message,"Modulation table argument = %s",line);
-	Println(w,Message);
-	}
-	
-my_sprintf(line,"0%ld",(long)(*p_CsInstrument)[j].modulationGEN);
-SetField(NULL,wCsoundResources,fModulationGEN,line);
-
-if(w > 0) {
-	my_sprintf(Message,"Modulation table GEN%s\n",line);
-	Println(w,Message);
-	}
-
-if((*p_CsPanoramicStartIndex)[j] > -1) my_sprintf(line,"%ld",(long)(*p_CsPanoramicStartIndex)[j]);
-else line[0] = '\0';
-SetField(NULL,wCsoundResources,fPanoramicIndex,line);
-
-if(w > 0) {
-	if(line[0] == '\0') strcpy(line,"[unspecified]");
-	my_sprintf(Message,"Panoramic start argument = %s",line);
-	Println(w,Message);
-	}
-
-if((*p_CsPanoramicEndIndex)[j] > -1) my_sprintf(line,"%ld",(long)(*p_CsPanoramicEndIndex)[j]);
-else line[0] = '\0';
-SetField(NULL,wCsoundResources,fPanoramicEndIndex,line);
-
-if(w > 0) {
-	if(line[0] == '\0') strcpy(line,"[unspecified]");
-	my_sprintf(Message,"Panoramic end argument = %s",line);
-	Println(w,Message);
-	}
-	
-if((*p_CsInstrument)[j].panoramictable > 0) my_sprintf(line,"%ld",(long)(*p_CsInstrument)[j].panoramictable);
-else line[0] = '\0';
-SetField(NULL,wCsoundResources,fPanoramicTable,line);
-
-if(w > 0) {
-	if(line[0] == '\0') strcpy(line,"[unspecified]");
-	my_sprintf(Message,"Panoramic table argument = %s",line);
-	Println(w,Message);
-	}
-	
-my_sprintf(line,"0%ld",(long)(*p_CsInstrument)[j].panoramicGEN);
-SetField(NULL,wCsoundResources,fPanoramicGEN,line);
-
-if(w > 0) {
-	my_sprintf(Message,"Panoramic table GEN%s\n",line);
-	Println(w,Message);
-	}
-
-if(w > 0) {
-	PleaseWait();
-	if((*p_CsInstrument)[j].rPitchBend.islogx && !(*p_CsInstrument)[j].rPitchBend.islogy)
-		Println(w,"Pitchbend mapping (log to lin):");
-	else {
-		if(!(*p_CsInstrument)[j].rPitchBend.islogx && (*p_CsInstrument)[j].rPitchBend.islogy)
-			Println(w,"Pitchbend mapping (lin to log):");
-		else Println(w,"Pitchbend mapping (linear):");
-		}
-	for(i=0; i < 3; i++) {
-		if((*(p_CsPitchBend[i]))[j] < Infpos)
-			WriteFloatToLine(line,(*(p_CsPitchBend[i]))[j]);
-		else strcpy(line,"[?]");
-		Print(w,line);
-		if((*(p_CsPitchBend[i+3]))[j] < Infpos)
-			WriteFloatToLine(line,(*(p_CsPitchBend[i+3]))[j]);
-		else strcpy(line,"[?]");
-		my_sprintf(Message," <-> %s",line);
-		Println(w,Message);
-		}
-	
-	if((*p_CsInstrument)[j].rVolume.islogx && !(*p_CsInstrument)[j].rVolume.islogy)
-		Println(w,"\nVolume mapping (log to lin):");
-	else {
-		if(!(*p_CsInstrument)[j].rVolume.islogx && (*p_CsInstrument)[j].rVolume.islogy)
-			Println(w,"\nVolume mapping (lin to log):");
-		else Println(w,"\nVolume mapping (linear):");
-		}
-	for(i=0; i < 3; i++) {
-		if((*(p_CsVolume[i]))[j] < Infpos)
-			WriteFloatToLine(line,(*(p_CsVolume[i]))[j]);
-		else strcpy(line,"[?]");
-		Print(w,line);
-		if((*(p_CsVolume[i+3]))[j] < Infpos)
-			WriteFloatToLine(line,(*(p_CsVolume[i+3]))[j]);
-		else strcpy(line,"[?]");
-		my_sprintf(Message," <-> %s",line);
-		Println(w,Message);
-		}
-	
-	if((*p_CsInstrument)[j].rPressure.islogx && !(*p_CsInstrument)[j].rPressure.islogy)
-		Println(w,"\nPressure mapping (log to lin):");
-	else {
-		if(!(*p_CsInstrument)[j].rPressure.islogx && (*p_CsInstrument)[j].rPressure.islogy)
-			Println(w,"\nPressure mapping (lin to log):");
-		else Println(w,"\nPressure mapping (linear):");
-		}
-	for(i=0; i < 3; i++) {
-		if((*(p_CsPressure[i]))[j] < Infpos)
-			WriteFloatToLine(line,(*(p_CsPressure[i]))[j]);
-		else strcpy(line,"[?]");
-		Print(w,line);
-		if((*(p_CsPressure[i+3]))[j] < Infpos)
-			WriteFloatToLine(line,(*(p_CsPressure[i+3]))[j]);
-		else strcpy(line,"[?]");
-		my_sprintf(Message," <-> %s",line);
-		Println(w,Message);
-		}
-	
-	if((*p_CsInstrument)[j].rModulation.islogx && !(*p_CsInstrument)[j].rModulation.islogy)
-		Println(w,"\nModulation mapping (log to lin):");
-	else {
-		if(!(*p_CsInstrument)[j].rModulation.islogx && (*p_CsInstrument)[j].rModulation.islogy)
-			Println(w,"\nModulation mapping (lin to log):");
-		else Println(w,"\nModulation mapping (linear):");
-		}
-	for(i=0; i < 3; i++) {
-		if((*(p_CsModulation[i]))[j] < Infpos)
-			WriteFloatToLine(line,(*(p_CsModulation[i]))[j]);
-		else strcpy(line,"[?]");
-		Print(w,line);
-		if((*(p_CsModulation[i+3]))[j] < Infpos)
-			WriteFloatToLine(line,(*(p_CsModulation[i+3]))[j]);
-		else strcpy(line,"[?]");
-		my_sprintf(Message," <-> %s",line);
-		Println(w,Message);
-		}
-	
-	if((*p_CsInstrument)[j].rPanoramic.islogx && !(*p_CsInstrument)[j].rPanoramic.islogy)
-		Println(w,"\nPanoramic mapping (log to lin):");
-	else {
-		if(!(*p_CsInstrument)[j].rPanoramic.islogx && (*p_CsInstrument)[j].rPanoramic.islogy)
-			Println(w,"\nPanoramic mapping (lin to log):");
-		else Println(w,"\nPanoramic mapping (linear):");
-		}
-	for(i=0; i < 3; i++) {
-		PleaseWait();
-		if((*(p_CsPanoramic[i]))[j] < Infpos)
-			WriteFloatToLine(line,(*(p_CsPanoramic[i]))[j]);
-		else strcpy(line,"[?]");
-		Print(w,line);
-		if((*(p_CsPanoramic[i+3]))[j] < Infpos)
-			WriteFloatToLine(line,(*(p_CsPanoramic[i+3]))[j]);
-		else strcpy(line,"[?]");
-		my_sprintf(Message," <-> %s",line);
-		Println(w,Message);
-		}
-	}
-else {
-	SetCsoundLogButtons(j);
-	for(i=0; i < 6; i++) {
-		if((*(p_CsPitchBend[i]))[j] < Infpos)
-			WriteFloatToLine(line,(*(p_CsPitchBend[i]))[j]);
-		else line[0] = '\0';
-		SetField(NULL,wCsoundResources,fPitchBendIndex+1+i,line);
-		
-		if((*(p_CsVolume[i]))[j] < Infpos)
-			WriteFloatToLine(line,(*(p_CsVolume[i]))[j]);
-		else line[0] = '\0';
-		SetField(NULL,wCsoundResources,fVolumeIndex+1+i,line);
-		
-		if((*(p_CsPressure[i]))[j] < Infpos)
-			WriteFloatToLine(line,(*(p_CsPressure[i]))[j]);
-		else line[0] = '\0';
-		SetField(NULL,wCsoundResources,fPressureIndex+1+i,line);
-		
-		if((*(p_CsModulation[i]))[j] < Infpos)
-			WriteFloatToLine(line,(*(p_CsModulation[i]))[j]);
-		else line[0] = '\0';
-		SetField(NULL,wCsoundResources,fModulationIndex+1+i,line);
-		
-		if((*(p_CsPanoramic[i]))[j] < Infpos)
-			WriteFloatToLine(line,(*(p_CsPanoramic[i]))[j]);
-		else line[0] = '\0';
-		SetField(NULL,wCsoundResources,fPanoramicIndex+1+i,line);
-		}
-	}
-	
-if((*p_CsInstrument)[j].ipmax > IPMAX) {
-	BPPrintMessage(0,odError,"=> Err. SetCsoundInstrument(). (*p_CsInstrument)[j].ipmax > IPMAX");
-	(*p_CsInstrument)[j].ipmax = 0;
-	}
-
-SetCsoundMoreParametersWindow(j,w);
-return(OK);
-}
-
-
-SetCsoundMoreParametersWindow(int j,int w)
-{
-int ip;
-char line[MAXFIELDCONTENT];
-
-CsoundParam **paramlist;
-
-paramlist = (*p_CsInstrument)[j].paramlist;
-
-for(ip=0; ip < IPMAX; ip++) {
-	if((*p_CsInstrument)[j].paramlist == NULL || ip >= (*p_CsInstrument)[j].ipmax) {
-		if(w <= 0) {
-			SetField(CsoundInstrMorePtr,-1,fMoreStartIndex + (7*ip),"\0");
-			SetField(CsoundInstrMorePtr,-1,fMoreEndIndex + (7*ip),"\0");
-			SetField(CsoundInstrMorePtr,-1,fMoreTable + ip,"\0");
-			SetField(CsoundInstrMorePtr,-1,fMoreName + (7*ip),"\0");
-			SetField(CsoundInstrMorePtr,-1,fMoreComment + (7*ip),"[Comment]");
-			SetField(CsoundInstrMorePtr,-1,fDefaultCsoundParameterValue + (4*ip),"0.00");
-			SetField(CsoundInstrMorePtr,-1,fCsoundParameterGenType + (4*ip),"07");
-			SwitchOn(CsoundInstrMorePtr,-1,bADDval + (2*ip));
-			SwitchOff(CsoundInstrMorePtr,-1,bMULTval + (2*ip));
-			}
-		continue;
-		}
-	MystrcpyHandleToString(MAXFIELDCONTENT,0,line,(*paramlist)[ip].name);
-	SetField(CsoundInstrMorePtr,-1,fMoreName + (7*ip),line);
-	
-	if(w > 0) {
-		PleaseWait();
-		if(line[0] != '\0') my_sprintf(Message,"\nParameter « %s »",line);
-		else continue;
-		}
-	
-	if((*paramlist)[ip].startindex > -1) {
-		my_sprintf(line,"%ld",(long)(*paramlist)[ip].startindex);
-		if(w > 0) {
-			strcat(Message," start argument ");
-			strcat(Message,line);
-			}
-		}
-	else line[0] = '\0';
-	SetField(CsoundInstrMorePtr,-1,fMoreStartIndex + (7*ip),line);
-	
-	if((*paramlist)[ip].endindex > -1) {
-		my_sprintf(line,"%ld",(long)(*paramlist)[ip].endindex);
-		if(w > 0) {
-			strcat(Message,", end argument ");
-			strcat(Message,line);
-			}
-		}
-	else line[0] = '\0';
-	SetField(CsoundInstrMorePtr,-1,fMoreEndIndex + (7*ip),line);
-	
-	if((*paramlist)[ip].table > 0) {
-		my_sprintf(line,"%ld",(long)(*paramlist)[ip].table);
-		if(w > 0) {
-			strcat(Message,", table argument ");
-			strcat(Message,line);
-			}
-		}
-	else line[0] = '\0';
-	SetField(CsoundInstrMorePtr,-1,fMoreTable + ip,line);
-		
-	my_sprintf(line,"0%ld",(long)(*paramlist)[ip].GENtype);
-	SetField(CsoundInstrMorePtr,-1,fCsoundParameterGenType + (4*ip),line);
-	if(w > 0) {
-		strcat(Message,", GEN");
-		strcat(Message,line);
-		Println(w,Message);
-		}
-	
-	my_sprintf(line,"%.3f",(*paramlist)[ip].defaultvalue);
-	SetField(CsoundInstrMorePtr,-1,fDefaultCsoundParameterValue + (4*ip),line);
-	if(w > 0) {
-		my_sprintf(Message,"Default value = %s",line);
-		Println(w,Message);
-		}
-	
-	switch((*paramlist)[ip].combinationtype) {
-		case ADD:
-			SwitchOn(CsoundInstrMorePtr,-1,bADDval + (2*ip));
-			SwitchOff(CsoundInstrMorePtr,-1,bMULTval + (2*ip));
-			if(w > 0) strcpy(line,"additive");
-			break;
-		case MULT:
-			SwitchOn(CsoundInstrMorePtr,-1,bMULTval + (2*ip));
-			SwitchOff(CsoundInstrMorePtr,-1,bADDval + (2*ip));
-			if(w > 0) strcpy(line,"multiplicative");
-			break;
-		default:
-			BPPrintMessage(0,odError,"=> Err. SetCsoundInstrument(). Incorrect (*paramlist)[ip].combinationtype");
-			break;
-		}
-	if(w > 0) {
-		my_sprintf(Message,"Combination type = %s",line);
-		Println(w,Message);
-		}
-	
-	MystrcpyHandleToString(MAXFIELDCONTENT,0,line,(*paramlist)[ip].comment);
-	SetField(CsoundInstrMorePtr,-1,fMoreComment + (7*ip),line);
-	
-	if(w > 0 && line[0] != '\0') {
-		my_sprintf(Message,"Comment: %s",line);
-		Println(w,Message);
-		}
-	}
-if(w > 0) Println(w,"\n----------------------------------");
-return(OK);
-}
-
-CopyCsoundInstrument(int i,int j)
-{
-int ip;
-CsoundParam **ptr3;
-char **ptr;
-
-if(j < 0 || j >= Jinstr || i < 0 || i >= Jinstr) {
-	BPPrintMessage(0,odError,"=> Err. CopyCsoundInstrument(). Incorrect index");
-	return(MISSED);
-	}
-(*p_CsDilationRatioIndex)[j] = (*p_CsDilationRatioIndex)[i];
-(*p_CsAttackVelocityIndex)[j] = (*p_CsAttackVelocityIndex)[i];
-(*p_CsReleaseVelocityIndex)[j] = (*p_CsReleaseVelocityIndex)[i];
-(*p_CsPitchBendStartIndex)[j] = (*p_CsPitchBendStartIndex)[i];
-(*p_CsVolumeStartIndex)[j] = (*p_CsVolumeStartIndex)[i];
-(*p_CsPressureStartIndex)[j] = (*p_CsPressureStartIndex)[i];
-(*p_CsModulationStartIndex)[j] = (*p_CsModulationStartIndex)[i];
-(*p_CsPanoramicStartIndex)[j] = (*p_CsPanoramicStartIndex)[i];
-(*p_CsPitchBendEndIndex)[j] = (*p_CsPitchBendEndIndex)[i];
-(*p_CsVolumeEndIndex)[j] = (*p_CsVolumeEndIndex)[i];
-(*p_CsPressureEndIndex)[j] = (*p_CsPressureEndIndex)[i];
-(*p_CsModulationEndIndex)[j] = (*p_CsModulationEndIndex)[i];
-(*p_CsPanoramicEndIndex)[j] = (*p_CsPanoramicEndIndex)[i];
-
-(*p_CsPitchIndex)[j] = (*p_CsPitchIndex)[i];
-(*p_CsPitchFormat)[j] = (*p_CsPitchFormat)[i];
-(*p_CsDilationRatioIndex)[j] = (*p_CsDilationRatioIndex)[i];
-(*p_CsDilationRatioIndex)[j] = (*p_CsDilationRatioIndex)[i];
-(*p_CsDilationRatioIndex)[j] = (*p_CsDilationRatioIndex)[i];
-
-for(ip=0; ip < 6; ip++) {
-	(*(p_CsPitchBend[ip]))[j] = (*(p_CsPitchBend[ip]))[i];
-	(*(p_CsVolume[ip]))[j] = (*(p_CsVolume[ip]))[i];
-	(*(p_CsPressure[ip]))[j] = (*(p_CsPressure[ip]))[i];
-	(*(p_CsModulation[ip]))[j] = (*(p_CsModulation[ip]))[i];
-	(*(p_CsPanoramic[ip]))[j] = (*(p_CsPanoramic[ip]))[i];
-	}
-
-if((*p_CsInstrument)[j].paramlist != NULL) {
-	for(ip=0; ip < (*p_CsInstrument)[j].ipmax; ip++) {
-		ptr = (*((*p_CsInstrument)[j].paramlist))[ip].name;
-		MyDisposeHandle((Handle*)&ptr);
-		ptr = (*((*p_CsInstrument)[j].paramlist))[ip].comment;
-		MyDisposeHandle((Handle*)&ptr);
-		}
-	ptr3 = (*p_CsInstrument)[j].paramlist;
-	MyDisposeHandle((Handle*)&ptr3);
-	(*p_CsInstrument)[j].paramlist = NULL;
-	}
-(*p_CsInstrument)[j].ipmax = 0;
-
-(*p_CsInstrument)[j] = (*p_CsInstrument)[i];
-
-if((*p_CsInstrument)[i].ipmax > 0) {
-	if((ptr3=(CsoundParam**) GiveSpace((Size)(IPMAX * sizeof(CsoundParam)))) == NULL)
-		return(ABORT);
-	(*p_CsInstrument)[j].paramlist = ptr3;
-	(*p_CsInstrument)[j].ipmax = IPMAX;
-	for(ip=0; ip < (*p_CsInstrument)[i].ipmax; ip++) {
-		(*((*p_CsInstrument)[j].paramlist))[ip] = (*((*p_CsInstrument)[i].paramlist))[ip];
-		if((*((*p_CsInstrument)[i].paramlist))[ip].name != NULL) {
-			if((ptr=(char**) GiveSpace(sizeof((*((*p_CsInstrument)[i].paramlist))[ip].name)))
-				== NULL) return(ABORT);
-			MystrcpyHandleToHandle(0,&ptr,(*((*p_CsInstrument)[i].paramlist))[ip].name);
-			(*((*p_CsInstrument)[j].paramlist))[ip].name = ptr;
-			}
-		
-		if((*((*p_CsInstrument)[i].paramlist))[ip].comment != NULL) {
-			if((ptr=(char**) GiveSpace(sizeof((*((*p_CsInstrument)[i].paramlist))[ip].comment)))
-				== NULL) return(ABORT);
-			MystrcpyHandleToHandle(0,&ptr,(*((*p_CsInstrument)[i].paramlist))[ip].comment);
-			(*((*p_CsInstrument)[j].paramlist))[ip].comment = ptr;
-			}
-		}
-	for(ip=(*p_CsInstrument)[i].ipmax; ip < IPMAX; ip++) {
-		// This may happen with future versions of BP3 when IPMAX gets larger
-		(*((*p_CsInstrument)[j].paramlist))[ip].name = NULL;
-		(*((*p_CsInstrument)[j].paramlist))[ip].comment = NULL;
-		if(ResetMoreParameter(j,ip) != OK) return(ABORT);
-		}
-	}
-return(OK);
-}
-
-#endif /* BP_CARBON_GUI_FORGET_THIS */
 
 /* New argument "newinstr" should be YES when the instrument space
    is newly allocated and uninitialized.  This is the case when called from 
@@ -751,9 +66,7 @@ int ResetCsoundInstrument(int j,int all, int newinstr) {
 		}
 	if(all || newinstr) {
 		(*p_CsInstrumentIndex)[j] = -1;
-	//	BPPrintMessage(0,odInfo,"@@@@@ all = %d, newinstr = %d, j = %d\n",all,newinstr,j);
 		}
-	// else BPPrintMessage(0,odInfo,"@@@@@ CsInstrumentIndex[%d] = %d\n",j,(*p_CsInstrumentIndex)[j]);
 	(*p_CsDilationRatioIndex)[j] = (*p_CsAttackVelocityIndex)[j]
 		= (*p_CsReleaseVelocityIndex)[j]
 		= (*p_CsPressureStartIndex)[j] = (*p_CsModulationStartIndex)[j]
@@ -984,7 +297,7 @@ int CompileObjectScore(int j,int *p_longerCsound) {
 		while(ipos < im && (isspace(c=(*p_line)[ipos]) || c == '\0')) ipos++;
 		i0 = ipos;
 		if(ipos >= im) break;
-		if(c == '/' && ipos < (im-1) && (*p_line)[ipos+1] == '/') {	/* Skip C-like remarks */
+		if(c == '/' && ipos < (im-1) && (*p_line)[ipos+1] == '/') {	// Skip C-like remarks
 			while(ipos < im && (*p_line)[ipos] != '\r' && (*p_line)[ipos] != '\n' && (*p_line)[ipos] != '\0')
 				ipos++;
 			continue;
@@ -993,6 +306,7 @@ int CompileObjectScore(int j,int *p_longerCsound) {
 			ipos++;
 		i1 = ipos;
 		istempo = FALSE;
+	//	BPPrintMessage(0,odInfo,"this_line = %s\n",(*p_line));
 		c = (*p_line)[i0];
 		if(c == '_') goto NEXTLINE;
 		if(c != 'i' && c != 't' && c != 'f' && c != ';' && c != 'e') {
@@ -1116,13 +430,13 @@ int CompileObjectScore(int j,int *p_longerCsound) {
 					for(i=0; i < (*p_CsInstrument)[ins].ipmax; i++) {
 						if((index=(*paramlist)[i].startindex) > 0) {
 							if(index < 4 || index >= (maxparam+4)) {
-								BPPrintMessage(0,odError,"=> Err. CompileObjectScore(). index < 4 || index >= maxparam");
+								BPPrintMessage(0,odError,"=> Err. CompileObjectScore(). index < 4 || index >= maxparam\n");
 								}
 							else (*h)[index-4] = (*paramlist)[i].defaultvalue;
 							}
 						if((index=(*paramlist)[i].endindex) > 0) {
 							if(index < 4 || index >= (maxparam+4)) {
-								BPPrintMessage(0,odError,"=> Err. CompileObjectScore(). index < 4 || index >= maxparam");
+								BPPrintMessage(0,odError,"=> Err. CompileObjectScore(). index < 4 || index >= maxparam\n");
 								}
 							else (*h)[index-4] = (*paramlist)[i].defaultvalue;
 							}
@@ -1130,7 +444,7 @@ int CompileObjectScore(int j,int *p_longerCsound) {
 					break;
 				case 2:
 					if(param < 0) {
-						BPPrintMessage(0,odError,"=> Can't compile Csound score because a negative parameter was found: %.2f\n(2nd argument)",param);
+						BPPrintMessage(0,odError,"=> Can't compile Csound score because a negative date was found: %.2f\n(2nd argument)",param);
 						result = MISSED; goto SORTIR;
 						}
 					param = (param * 60000.) / tempo;
@@ -1148,7 +462,7 @@ int CompileObjectScore(int j,int *p_longerCsound) {
 				default:
 					/* Modify param according to instrument mapping */
 					if(ins < 0 || ins >= Jinstr) {
-						BPPrintMessage(0,odError,"=> Err. CompileObjectScore(). ins < 0 || ins >= Jinstr");
+						BPPrintMessage(0,odError,"=> Err. CompileObjectScore(). ins < 0 || ins >= Jinstr\n");
 						if(CompileOn) CompileOn--;
 						return(ABORT);
 						}
@@ -1270,7 +584,7 @@ int CompileObjectScore(int j,int *p_longerCsound) {
 		(*pp_CsoundTime)[j] = (Milliseconds**) ptr;
 		
 		SortCsoundDates(ZERO,j);
-		/* This is important for the correct scheduling of events in MakeSound() */
+		// This is important for the correct scheduling of events in MakeSound()
 		}
 
 	PointCsound = TRUE;
@@ -1282,7 +596,7 @@ int CompileObjectScore(int j,int *p_longerCsound) {
 
 	if(iProto == 0 && Jbol > 2) iProto = 2;
 	(*p_CompiledCsoundScore)[j] = 1;
-	if(result == OK) BPPrintMessage(0,odError,"Csound score of object « %s » (%d) successfully compiled\n",*((*p_Bol)[j]),j);
+	if(result == OK) BPPrintMessage(0,odInfo,"Csound score of object « %s » (%d) successfully compiled\n",*((*p_Bol)[j]),j);
 	else BPPrintMessage(0,odError,"Csound score of object « %s » (%d) not compiled\n",*((*p_Bol)[j]),j);
 	return(OK);
 	}
@@ -1295,7 +609,7 @@ int k,ip,rep,ins,longerCsound,overflow,result,instrumentindex;
 double param;
 
 if(j < 2 || j >= Jbol) {
-	BPPrintMessage(0,odError,"=> Err. DeCompileObjectScore(). j < 2 || j >= Jbol");
+	BPPrintMessage(0,odError,"=> Err. DeCompileObjectScore(). j < 2 || j >= Jbol\n");
 	return(MISSED);
 	}
 result = OK;
@@ -1659,7 +973,7 @@ static const char *JsonLabel(const char *description,const char *fallback) {
 
 
 
-int SaveJsonCsoundInstrument(int instrument) {
+int ExportJsonCsoundInstrument(int instrument) {
 	int i,j,k,ipmax,chan;
 	CsoundParam **params;
 	FILE *csjson;
@@ -1691,11 +1005,21 @@ int SaveJsonCsoundInstrument(int instrument) {
 
 	/* Identification */
 	my_sprintf(label,"%s",BaseName(FileName[wCsoundResources]));
-	SaveEscapedStringAsJson(csjson,"Source","","Csound resource file",label);
+	SaveEscapedStringAsJson(csjson,"FileName","","Csound resource file containing this instrument",label);
 
 	SAVE_CS_INT(CsInstrumentIndex,"Index of this instrument");
 	SaveEscapedStringAsJson(csjson,"CsInstrumentName","","Name of this instrument",*((*pp_CsInstrumentName)[j]));
 	SaveEscapedStringAsJson(csjson,"CsInstrumentComment","","Comment on this instrument",*((*pp_CsInstrumentComment)[j]));
+	for(i = k = 0; i < MaxCsoundTables; i++) {
+		if((*p_CsoundTables)[i] == NULL || strlen((*(*p_CsoundTables)[i])) == 0) continue;
+		my_sprintf(label,"CsoundTables[%d]",k);
+		my_sprintf(label2,"Csound table line #%d",(k+1));
+		SaveEscapedStringAsJson(csjson,label,"",label2,(*(*p_CsoundTables)[i]));
+		k++;
+		}
+	if(strlen(CsoundOrchestraName) > 0)
+		SaveEscapedStringAsJson(csjson,"CsoundOrchestraName","","Csound orchestra file",CsoundOrchestraName);
+	else SaveEscapedStringAsJson(csjson,"CsoundOrchestraName","","Csound orchestra file","no file");
 	SAVE_INSTR_INT(iargmax,"","Number of arguments");
 
 	for(chan = 1; chan <= MAXCHAN; chan++) {
@@ -1793,16 +1117,6 @@ int SaveJsonCsoundInstrument(int instrument) {
 		SaveStringAsJson(csjson,label,"enum",label2,
 			((*params)[i].combinationtype == MULT) ? "MULT" : "ADD");
 		}
-	for(i = k = 0; i < MaxCsoundTables; i++) {
-		if((*p_CsoundTables)[i] == NULL || strlen((*(*p_CsoundTables)[i])) == 0) continue;
-		my_sprintf(label,"table%d",k);
-		my_sprintf(label2,"Csound table line [%d]",k);
-		SaveEscapedStringAsJson(csjson,label,"",label2,(*(*p_CsoundTables)[i]));
-		k++;
-		}
-	if(strlen(CsoundOrchestraName) > 0)
-		SaveEscapedStringAsJson(csjson,"CsoundOrchestraName","","Csound orchestra file",CsoundOrchestraName);
-	else SaveEscapedStringAsJson(csjson,"CsoundOrchestraName","","Csound orchestra file","no file");
 		
 	fprintf(csjson,"    \"End of file\": {\n      }\n  }");
 	fclose(csjson);

@@ -117,6 +117,7 @@ char ****p_GramProcedure,****p_PerformanceControl,****p_GeneralMIDIpatch,
 	****p_Diacritical,****p_HTMLdiacrList;
 long MaxProc,MaxPerformanceControl;
 int LoadedAlphabet,LoadedData;
+char DoneSpecial;
 INscripttype** p_INscript;
 OUTscripttype** p_OUTscript;
 int StopPlay,PausePlay,TraceMIDIinteraction;
