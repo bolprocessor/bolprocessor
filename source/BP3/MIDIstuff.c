@@ -363,7 +363,6 @@ int MaybeWait(unsigned long current_time) {
 	if((TimeStopped / 10000L) != (Oldtimestopped / 10000L)) {
 		if(TraceMIDIinteraction) BPPrintMessage(0,odInfo,"TimeStopped = %d ms\n",(int) TimeStopped / 1000L);
 		}
-	// if(TraceMIDIinteraction) BPPrintMessage(0,odInfo,"TimeStopped = %d ms\n",(int) TimeStopped / 1000L);
 	Oldtimestopped = TimeStopped;
 	return OK;
 	}

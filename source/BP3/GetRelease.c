@@ -163,7 +163,7 @@ int ReleasePhaseDiagram(int nmax,unsigned long*** pp_imaxseq) {
 		for(k = 0; k < (MyGetHandleSize((Handle)p_Instance) / sizeof(SoundObjectInstanceParameters)); k++) {
 			for(i = 0; i < (*p_Instance)[k].contparameters.number; i++) {
 				if((*((*p_Instance)[k].contparameters.values))[i].imax > ZERO) {
-					BPPrintMessage(0,odInfo,"@§& i = %d, k = %d\n",i,k);
+			//		BPPrintMessage(0,odInfo,"@§& i = %d, k = %d\n",i,k);
 					ptr = (Handle) (*((*p_Instance)[k].contparameters.values))[i].point;
 					MyDisposeHandle(&ptr);
 					}

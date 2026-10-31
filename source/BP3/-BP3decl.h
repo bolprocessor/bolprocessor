@@ -52,7 +52,6 @@ extern int LoadedAlphabet,LoadedData;
 extern char **p_MessageMem[MAXMESSAGE],**p_HTMLchar1,**p_HTMLchar2,**p_HTMLdiacritical;
 extern MIDIstream Stream;
 
-extern char DoneSpecial;
 extern node PrefixTree,SuffixTree;
 extern char InitToken[6];
 extern char Mode[MAXMODE][MODELENGTH];
@@ -153,6 +152,10 @@ extern char ****pp_CsInstrumentName,****pp_CsInstrumentComment,**p_CsPitchFormat
 	****p_StringConstant;
 extern double **p_CsPitchBend[6],**p_CsVolume[6],**p_CsPressure[6],**p_CsModulation[6],
 	**p_CsPanoramic[6],**p_NumberConstant;
+extern int ParamNameIndexToInstrument[MAXPARAMS];
+extern int ParamNameIndexToParameter[MAXPARAMS];
+extern int ParamIndexToIp[MAXPARAMS];
+extern int MaxParameters;
 
 
 extern int FileSaveMode,FileWriteMode,MIDIfileType,CsoundFileFormat;

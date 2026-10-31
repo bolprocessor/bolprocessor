@@ -104,7 +104,6 @@ int Inits(void) {
 	NextStop = getClockTime() + 1000000L; // microseconds
 
 	Oms = FALSE;
-	DoneSpecial = FALSE;
 
 	for(i=0; i < MAXMESSAGE; i++) {
 		ptr = (char**) GiveSpace((Size)(MAXLIN * sizeof(char)));
@@ -270,6 +269,8 @@ int Inits(void) {
 	ConvertMIDItoCsound = FALSE; // This variable is NEVER TRUE
 	MIDIfileType = 1;
 	CsoundFileFormat = MAC;
+	MaxParameters = 0;
+	for(i = 0; i < MAXPARAMS; i++) ParamNameIndexToInstrument[i] = ParamNameIndexToParameter[i] = ParamIndexToIp[i] = -1;
 
 	for(i=0; i < 6; i++) {
 		p_CsPitchBend[i] = p_CsVolume[i] = p_CsPressure[i] = p_CsModulation[i]

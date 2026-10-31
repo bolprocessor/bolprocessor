@@ -894,6 +894,7 @@ typedef enum {
 #define MAXMETA 32		/* number of metavariables in a rule */
 #define MAXMETA2 65		/* 2 * MAXMETA + 1 */
 #define MAXPARAMCTRL 128	/* number of MIDI controllers + 1 */
+#define MAXPARAMS 30	/* number of additional parameters in a set of Csound instruments */
 #define MAXWAIT 64		/* number of synchronization tags */
 #define MAXTIME 59944L	/* max computation time (milliseconds) */
 #define MAXCHARTRACE 5000000

@@ -408,7 +408,7 @@ int CompileObjectScore(int j,int *p_longerCsound) {
 						}
 					(*((*pp_CsoundScore)[j]))[ievent].nbparameters = maxparam;
 					
-					/* Set all arguments to default because the score line might be incomplete */
+					// Set all arguments to default because the score line might be incomplete
 					for(i=4; i <= (*p_CsInstrument)[ins].iargmax; i++) {
 						(*h)[i-4] = 0.;
 						if(i == (*p_CsPitchBendStartIndex)[ins] || i == (*p_CsPitchBendEndIndex)[ins]) {
@@ -427,7 +427,7 @@ int CompileObjectScore(int j,int *p_longerCsound) {
 							(*h)[i-4] = DeftPanoramic; continue;
 							}
 						}
-					for(i=0; i < (*p_CsInstrument)[ins].ipmax; i++) {
+					for(i = 0; i < (*p_CsInstrument)[ins].ipmax; i++) {
 						if((index=(*paramlist)[i].startindex) > 0) {
 							if(index < 4 || index >= (maxparam+4)) {
 								BPPrintMessage(0,odError,"=> Err. CompileObjectScore(). index < 4 || index >= maxparam\n");

@@ -370,8 +370,7 @@ double Remap(double x,int ins,int i,int *p_overflow) {
 	}
 
 
-int MakeCsoundFunctionTable(int onoffline,double **scorearg,double alpha1,double alpha2,long imax,
-	Coordinates** coords,int ins,int paramindex,int ip,int iarg0,int iarg1) {
+int MakeCsoundFunctionTable(int onoffline,double **scorearg,double alpha1,double alpha2,long imax,Coordinates** coords,int ins,int paramindex,int ip,int iarg0,int iarg1) {
 	int r,result,overflow,gentype,usescorevalues;
 	long i,n,lasti,newx,sum;
 	double x,y,iscale,oldx,xmax,v0,v1;
@@ -476,15 +475,15 @@ int GetGENtype(int ins,int ip,int paramindex) {
 		}
 	if(ip >= 0) {
 		if(ins < 0 || ins >= Jinstr) {
-			BPPrintMessage(0,odError,"=> Err. GetGENtype(). ins < 0 || ins >= Jinstr");
+			BPPrintMessage(0,odError,"=> Err. GetGENtype(). ins < 0 || ins >= Jinstr\n");
 			return(7);
 			}
 		if((*p_CsInstrument)[ins].paramlist == NULL) {
-			BPPrintMessage(0,odError,"=> Err. GetGENtype(). (*p_CsInstrument)[ins].paramlist == NULL");
+			BPPrintMessage(0,odError,"=> Err. GetGENtype(). (*p_CsInstrument)[ins].paramlist == NULL\n");
 			return(7);
 			}
 		if(ip >= (*p_CsInstrument)[ins].ipmax) {
-			BPPrintMessage(0,odError,"=> Err. GetGENtype(). ip >= (*p_CsInstrument)[ins].ipmax");
+			BPPrintMessage(0,odError,"=> Err. GetGENtype(). ip >= (*p_CsInstrument)[ins].ipmax\n");
 			return(7);
 			}
 		return((*((*p_CsInstrument)[ins].paramlist))[ip].GENtype);
@@ -659,39 +658,39 @@ double CombineScoreValues(double y,double x,double xmax,double v0,double v1,int 
 		}
 	if(ip >= 0) {
 		if(ins < 0 || ins >= Jinstr) {
-			BPPrintMessage(0,odError,"=> Err. CombineScoreValues(). ins < 0 || ins >= Jinstr");
+			BPPrintMessage(0,odError,"=> Err. CombineScoreValues(). ins < 0 || ins >= Jinstr\n");
 			return(y);
 			}
 	/*	if(ip >= IPMAX) {
-			BPPrintMessage(0,odError,"=> Err. CombineScoreValues(). ip >= IPMAX");
+			BPPrintMessage(0,odError,"=> Err. CombineScoreValues(). ip >= IPMAX\n");
 			return(y);
 			} */
 		if((*p_CsInstrument)[ins].paramlist == NULL) {
-			BPPrintMessage(0,odError,"=> Err. CombineScoreValues(). (*p_CsInstrument)[ins].paramlist == NULL");
+			BPPrintMessage(0,odError,"=> Err. CombineScoreValues(). (*p_CsInstrument)[ins].paramlist == NULL\n");
 			return(y);
 			}
 		if(ip >= (*p_CsInstrument)[ins].ipmax) {
-			BPPrintMessage(0,odError,"=> Err. CombineScoreValues(). ip >= (*p_CsInstrument)[ins].ipmax");
+			BPPrintMessage(0,odError,"=> Err. CombineScoreValues(). ip >= (*p_CsInstrument)[ins].ipmax\n");
 			return(y);
 			}
 		combinationtype = (*((*p_CsInstrument)[ins].paramlist))[ip].combinationtype;
 		ydefault = (*((*p_CsInstrument)[ins].paramlist))[ip].defaultvalue;
 		}
 	else {
-		BPPrintMessage(0,odError,"=> Err. CombineScoreValues(). ip < 0");
+		BPPrintMessage(0,odError,"=> Err. CombineScoreValues(). ip < 0\n");
 		return(y);
 		}
 		
 	FINDIT:
 	if(combinationtype != ADD && combinationtype != MULT) {
-		BPPrintMessage(0,odError,"=> Err. CombineScoreValues(). combinationtype != ADD && combinationtype != MULT");
+		BPPrintMessage(0,odError,"=> Err. CombineScoreValues(). combinationtype != ADD && combinationtype != MULT\n");
 		return(y);
 		}
 	if(x == 0.) yinterp = v0;
 	else if(x == xmax) yinterp = v1;
 	else {
 		if(xmax == 0.) {
-			BPPrintMessage(0,odError,"=> Err. CombineScoreValues(). xmax == 0");
+			BPPrintMessage(0,odError,"=> Err. CombineScoreValues(). xmax == 0\n");
 			yinterp = v0;
 			}
 		else yinterp = v0 + (x * (v1 - v0)) / xmax;
@@ -700,7 +699,7 @@ double CombineScoreValues(double y,double x,double xmax,double v0,double v1,int 
 		ynew = y + yinterp - ydefault;
 	else {
 		if(ydefault == 0.) {
-			BPPrintMessage(0,odError,"=> Err. CombineScoreValues(). ydefault == 0");
+			BPPrintMessage(0,odError,"=> Err. CombineScoreValues(). ydefault == 0\n");
 			return(y);
 			}
 		ynew = y * yinterp / ydefault;

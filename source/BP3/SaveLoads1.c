@@ -120,7 +120,7 @@ ERREUR:
 
 
 int LoadCsoundInstruments(int checkversion,int tryname) {
-	int i,iv,ip,max_ins,max_chan,chan,ins,result,length,i_table,ipmax;
+	int i,iv,ip,j,max_ins,max_chan,chan,ins,ins2,result,length,i_table,ipmax,paramindex,paramnameindex;
 	char **ptr;
 	char line[MAXLIN];
 	CsoundParam **ptr3;
@@ -194,6 +194,7 @@ int LoadCsoundInstruments(int checkversion,int tryname) {
 
 	if(trace_load_csound_instruments) BPPrintMessage(0,odInfo,"Jinstr = %d\n",Jinstr);
 
+	MaxParameters = 0;
 	for(ins = 0; ins < max_ins; ins++) {
 		ResetCsoundInstrument(ins,YES,YES);
 		if(trace_load_csound_instruments) BPPrintMessage(0,odInfo,"ins = %d\n",ins);
@@ -243,7 +244,7 @@ int LoadCsoundInstruments(int checkversion,int tryname) {
 		if(ReadFloat(csfile,&r,&pos) == MISSED) goto ERR;
 		if(r == -1.) r = (float) DeftPitchbendRange;
 		(*p_CsInstrument)[ins].pitchbendrange = r;
-		if(trace_load_csound_instruments) BPPrintMessage(0,odInfo,"pitchbendrange[%d] = %.3f\n",ins,r);
+		if(trace_load_csound_instruments) BPPrintMessage(0,odInfo,"pitchbendrange = %.3f for instrument index = %d\n",r,ins);
 		
 		if(ReadInteger(csfile,&i,&pos) == MISSED) goto ERR;
 		(*p_CsInstrument)[ins].rPitchBend.islogx = i;
@@ -319,7 +320,7 @@ int LoadCsoundInstruments(int checkversion,int tryname) {
 				= (*p_CsInstrument)[ins].panoramicGEN = 7;
 			}
 
-		for(i=0; i < 6; i++) {
+		for(i = 0; i < 6; i++) {
 			if(ReadFloat(csfile,&r,&pos) == MISSED) goto ERR;
 			(*(p_CsPitchBend[i]))[ins] = r;
 			if(ReadFloat(csfile,&r,&pos) == MISSED) goto ERR;
@@ -359,49 +360,54 @@ int LoadCsoundInstruments(int checkversion,int tryname) {
 		(*p_CsInstrument)[ins].paramlist = ptr3;
 		(*p_CsInstrument)[ins].ipmax = ipmax;
 		// BPPrintMessage(0,odInfo,"@@> ins = %d, ipmax = %d\n",ins,ipmax);
-		for(ip=0; ip < ipmax; ip++) {
+		for(ip = 0; ip < ipmax; ip++) {
 			(*((*p_CsInstrument)[ins].paramlist))[ip].name = NULL;
 			(*((*p_CsInstrument)[ins].paramlist))[ip].comment = NULL;
 			ResetMoreParameter(ins,ip);
-			}
-		
+			}	
 		for(ip = 0; ip < (*p_CsInstrument)[ins].ipmax; ip++) {
 			if(ReadOne(FALSE,TRUE,FALSE,csfile,TRUE,&p_line,&p_completeline,&pos) == MISSED) goto ERR;
 			length = MyHandleLen(p_completeline);
+			// if(strcmp(*p_completeline,"blurb2") == 0) strcpy(*p_completeline,"blurb"); test of duplicate names
 			if(trace_load_csound_instruments) 
-				BPPrintMessage(0,odInfo,"-> Name: \"%s\"\n",*p_completeline);
+				BPPrintMessage(0,odInfo,"-> Name: \"%s\", instrument index = %d\n",*p_completeline,ins);
 			if(length > 0) {
 				if((ptr=(char**) GiveSpace((Size)((1L + length) * sizeof(char)))) == NULL) goto ERR;
 				MystrcpyHandleToHandle(0,&ptr,p_completeline);
 				(*((*p_CsInstrument)[ins].paramlist))[ip].name = ptr;
-				i = FixStringConstant(*p_completeline);
-				if(i >= 0) (*((*p_CsInstrument)[ins].paramlist))[ip].nameindex = i;
+				paramnameindex = FixStringConstant(*p_completeline);
+				if(paramnameindex >= 0) {
+					for(j = 0; j < MAXPARAMS; j++) {
+						ins2 = ParamNameIndexToInstrument[j];
+					//	BPPrintMessage(0,odInfo,"@@@ paramnameindex = %d, j = %d, ins = %d, ins2 = %d\n",paramnameindex,j,ins,ins2);
+						if(ins2 < 0) continue;
+						if((paramnameindex == j) && (ins2 != ins)) {
+							BPPrintMessage(0,odError,"=> Additional parameter « %s » was used by Csound instrument « %s ». We'll now attribute it to « %s ».\n",*p_completeline,(*((*pp_CsInstrumentName)[ins2])),(*((*pp_CsInstrumentName)[ins])));
+							break;
+							}
+						}
+					(*((*p_CsInstrument)[ins].paramlist))[ip].nameindex = paramnameindex;
+					ParamNameIndexToInstrument[paramnameindex] = (*p_CsInstrumentIndex)[ins];
+					MaxParameters++;
+					paramindex = MaxParameters + IPANORAMIC;
+					ParamNameIndexToParameter[paramnameindex] = paramindex;
+					ParamIndexToIp[MaxParameters + IPANORAMIC] = ip;
+					if(trace_load_csound_instruments) BPPrintMessage(0,odInfo,"@@@ ip = %d, paramnameindex = %d, paramindex = %d, MaxParameters = %d\n",ip,paramnameindex,paramindex,MaxParameters);
+					}
+				else BPPrintMessage(0,odError,"=> Error loading Csound instruments: the name of an additional parameter « %s » could not be attributed to Csound instrument « %s »\n",*p_completeline,(*((*pp_CsInstrumentName)[ins])));
 				if(trace_load_csound_instruments) 
-					BPPrintMessage(0,odInfo,"@@@ nameindex[%d] = %d\n",ip,i);
+					BPPrintMessage(0,odInfo,"@@@ paramnameindex = %d for ip = %d\n",paramnameindex,ip);
 				}
 			else {
 				BPPrintMessage(0,odError,"=> Error loading Csound instruments: the name of an additional parameter is missing\n");
 				goto ERR;
 				}
-	/*		fseek(csfile,pos,SEEK_SET);
-			if(fgets(line,sizeof(line),csfile) != NULL) {	
-				// Necessary to read a line that might be empty
-				remove_carriage_returns(line);
-				pos = ftell(csfile);
-				}
-			else {
-				BPPrintMessage(0,odError,"=> Error reading comment of an additional parameter in LoadCsoundInstruments()\n");
-				goto ERR;
-				} */
 			if(ReadOne(FALSE,TRUE,FALSE,csfile,TRUE,&p_line,&p_completeline,&pos) == MISSED) goto ERR;
 			length = MyHandleLen(p_completeline);
 			if((ptr=(char**) GiveSpace((Size)((1L + length) * sizeof(char)))) == NULL) goto ERR;
-			// BPPrintMessage(0,odInfo,"@@@ completeline = “%s”\n",*p_completeline);
 			if(length > 0) {
 				Strip(*p_completeline);
-			//	MystrcpyStringToHandle(&ptr,line);
 				(*((*p_CsInstrument)[ins].paramlist))[ip].comment = p_completeline;
-			//	(*((*p_CsInstrument)[ins].paramlist))[ip].comment = ptr;
 				}
 			else {
 				MystrcpyStringToHandle(&ptr," ");

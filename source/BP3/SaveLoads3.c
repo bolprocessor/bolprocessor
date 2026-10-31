@@ -41,20 +41,17 @@
 // #include "ConsoleMessages.h"
 
 // FIXME: name should be const, but Match needs to take const char * instead of char**
-int FindMatchingFileNamePrefix(/*const*/ char* name)
-{
-	int	w;
-	char* pre;
-	
-	for (w = 0; w < WMAX; w++) {
-		if(FilePrefix[w][0] == '\0') continue;
-		// prefixes are case sensitive
-		pre = FilePrefix[w];
-		if(Match(TRUE, &name, &pre, strlen(pre))) return w;
-	}
-	
+int FindMatchingFileNamePrefix(/*const*/ char* name) {
+		int	w;
+		char* pre;	
+		for (w = 0; w < WMAX; w++) {
+			if(FilePrefix[w][0] == '\0') continue;
+			// prefixes are case sensitive
+			pre = FilePrefix[w];
+			if(Match(TRUE, &name, &pre, strlen(pre))) return w;
+		}	
 	return wUnknown;
-}
+	}
 
 // FIXME: name should be const, but Match needs to take const char * instead of char**
 int FindMatchingFileNameExtension(/*const*/ char* name)

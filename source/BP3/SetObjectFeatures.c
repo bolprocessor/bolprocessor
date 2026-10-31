@@ -45,9 +45,10 @@ int trace_table = 0;
 int check_limits = 0;
 
 int SetObjectParams(int part_of_score,int level,int nseq,long k,int j,CurrentParameters *p_currentparameters,ContParameters **p_contparameters,Table **h_table) {
+
 	ParameterSpecs **currentinstancevalues;
 	long size;
-	int paramindex,ii,ins,n,ip,ipmax,index,chan,scale,blockkey;
+	int paramindex,ii,ins,instrument,n,ip,ipmax,chan,scale,blockkey;
 	short mode;
 	double v0,v1;
 	Coordinates **ptr;
@@ -107,15 +108,30 @@ int SetObjectParams(int part_of_score,int level,int nseq,long k,int j,CurrentPar
 
 	(*p_Instance)[k].contparameters.values = NULL;
 	(*p_Instance)[k].contparameters.number = 0;
-	ins = InstrumentIndex((*p_Instance)[k].instrument);
-	ipmax = (*p_CsInstrument)[ins].ipmax;
-	if(trace_set_variation) BPPrintMessage(1,odInfo,"SetObjectParams() part_of_score = %d, level = %d, k = %d, j = %d, ins = %d, instrument = %d, ipmax = %d,\n",part_of_score,level,k,j,ins,(*p_Instance)[k].instrument,ipmax);
-	if(level >= 0) {
-		n = (*p_contparameters)[level].number;
-	//	if(n <= IPANORAMIC) n = (IPANORAMIC + 1);
-		// BPPrintMessage(1,odInfo,"ooo n1 = %d\n",n);
 
-		n = ipmax + IPANORAMIC + 1;
+	instrument = (*p_Instance)[k].instrument;
+	j = (*p_Instance)[k].object; // not needed as 'j' is known
+	if(j > 1 && j < Jbol) { // 2026-10-29
+		mode = (*p_CsoundInstrumentMode)[j];
+		if(mode > 0) {
+			instrument = (*p_CsoundInstr)[j];
+			(*p_Instance)[k].instrument = instrument;
+			}
+		else {
+			// Here we need to guess the instrument given the line of the Csound score
+		/* 	if(mode == LOCAL_CS) {
+				instrument = ThisInstrument(TRUE,k,iline,&ins);
+				} */
+			}
+		}
+	ins = InstrumentIndex(instrument);
+	ipmax = (*p_CsInstrument)[ins].ipmax;
+	if(trace_set_variation) BPPrintMessage(1,odInfo,"SetObjectParams() part_of_score = %d, level = %d, k = %d, j = %d, object = %d, ins = %d, instrument = %d, ipmax = %d,\n",part_of_score,level,k,j,(*p_Instance)[k].object,ins,(*p_Instance)[k].instrument,ipmax);
+	if(level >= 0) {
+		// n = (*p_contparameters)[level].number;
+		// BPPrintMessage(1,odInfo,"ooo n1 = %d\n",n);
+		// n = ipmax + IPANORAMIC + 1;
+		n = MaxParameters + IPANORAMIC + 1;
 		// BPPrintMessage(1,odInfo,"ooo n2 = %d, k = %d, ins = %d, ipmax = %d, level = %d\n",n,k,ins,ipmax,level);
 		(*p_contparameters)[level].number = n;
 		(*p_Instance)[k].contparameters.number = n;
@@ -124,7 +140,7 @@ int SetObjectParams(int part_of_score,int level,int nseq,long k,int j,CurrentPar
 		(*p_Instance)[k].contparameters.values = currentinstancevalues;
 
 		hdl = (Handle) (*p_contparameters)[level].values;
-		MySetHandleSize((Handle*)&hdl,(Size)n*sizeof(ContParameterSpecs));
+		MySetHandleSize((Handle*)&hdl,(Size) n * sizeof(ContParameterSpecs));
 		(*p_contparameters)[level].values = (ContParameterSpecs**) hdl;
 
 	/*	for(paramindex = (IPANORAMIC + 1); paramindex < n; paramindex++) {
@@ -597,8 +613,8 @@ for(i = id+2L; ; i += 2L) {
 			if(tableisbeingbuilt && t.point != NULL) {
 				if(targettokenfoundafterobject > 0 && followedwithgap) {
 					(*(t.point))[t.imax].i = itable;
-					/* The last value is not yet known */
-					(*(t.point))[t.imax].value = 0; // zero is default (fixed by BB 10 Nov 2020)
+					// The last value is not yet known
+					(*(t.point))[t.imax].value = 0.; // zero is default (fixed by BB 10 Nov 2020)
 					// Probably this fixed a bug in -gr.vina3 ending with _fixed(slide)
 					// but missing the final value of "slide"
 					// $$$ However this might be the default value of this parameter…
@@ -643,13 +659,13 @@ ENOUGH:
 		if(m == T35) {  // _value() 
 			paramindex = p % 256;
 		//	BPPrintMessage(0,odInfo,"&&& paramindex (%d,%d,%d) = %d, index = %d\n",m,p,chan,paramindex,index);
-			if(index != FindParameterIndex(p_contparameters,levelorg,paramindex)) {
-			//	BPPrintMessage(0,odInfo,"&&+!!! FindParameterIndex = %d, index = %d\n",FindParameterIndex(p_contparameters,levelorg,paramindex),index);
+			if(index != FindParameterIndexAndCreateStorage(p_contparameters,levelorg,paramindex)) {
+		//		BPPrintMessage(0,odInfo,"&&+!!! FindParameterIndex = %d, index = %d\n",FindParameterIndexAndCreateStorage(p_contparameters,levelorg,paramindex),index);
 				continue;
 				}
 			}
 		v = FindValue(m,p,chan);
-		// BPPrintMessage(0,odInfo,"&&& FindValue(%d,%d,%d) = %.2F\n",m,p,chan,v);
+	//	BPPrintMessage(0,odInfo,"&&& FindValue(%d,%d,%d) = %.2F\n",m,p,chan,v);
 		if(v == Infpos) {
 			BPPrintMessage(0,odError,"=> Error in SetVariation(). v = Infpos");
 			result = ABORT;
@@ -734,7 +750,7 @@ MORE:
 		paramindex = p % 256; // Needs completion
 	/*	index = TokenToIndex(m,index);
 		BPPrintMessage(0,odInfo,"&&& paramindex (%d,%d,%d) = %d, index = %d\n",m,p,chan,paramindex,index);
-		if(index != FindParameterIndex(p_contparameters,levelorg,paramindex)) {
+		if(index != FindParameterIndexAndCreateStorage(p_contparameters,levelorg,paramindex)) {
 			continue;
 			} */
 		}
@@ -1500,6 +1516,7 @@ int AssignValue(int index,double value,int p,int level,long* p_kmx,
 		BPPrintMessage(0,odError,"=> Err. AssignValue(). (*p_contparameters)[level].values == NULL\n");
 		return(ABORT);
 		}
+
 	(*((*p_contparameters)[level].values))[index].v0
 		= (*((*p_contparameters)[level].values))[index].v1
 		= (*((*p_contparameters)[level].values))[index].start
@@ -1507,8 +1524,10 @@ int AssignValue(int index,double value,int p,int level,long* p_kmx,
 	(*((*p_contparameters)[level].values))[index].active = TRUE;
 	(*((*p_contparameters)[level].values))[index].known = TRUE;
 
-	if(trace_set_variation)
-		BPPrintMessage(0,odInfo,"AssignValue() active = TRUE, value = v0 = %ld, v1 = %ld for id = %d index = %d\n",(long)value,(long)(*((*p_contparameters)[level].values))[index].v1,id,index);
+
+	if(trace_set_variation) {
+		BPPrintMessage(0,odInfo,"AssignValue() active = TRUE, value = v0 = %.2f v1 = %.2f for id = %d, paramindex = %d, level = %d\n",value,(long)(*((*p_contparameters)[level].values))[index].v1,id,index,level);
+		}
 
 	if(p < 128)
 		(*((*p_contparameters)[level].values))[index].control = -1;

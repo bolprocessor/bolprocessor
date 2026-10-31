@@ -47,7 +47,7 @@ int CscoreWrite(Milliseconds cut_the_end,Rect* p_graphrect,int leftoffset,int to
 	// onoffline = OFF -- terminate Csound process as a NoteOff has been encountered, and
 	//    write Csound score line
 
-	int i,jj,k,c,ins,index,paramindex,paramnameindex,iarg,ip,ipitch,iargmax,octave,changedpitch,overflow,comeback,pitchclass,result,maxparam,itable,pitch_format,i_scale,mode,cents2;
+	int i,jj,k,c,ins,index,paramindex,paramnameindex,this_instrument,iarg,ip,ipitch,iargmax,octave,changedpitch,overflow,comeback,pitchclass,result,maxparam,itable,pitch_format,i_scale,mode,cents2;
 	char line[MAXLIN],line2[MAXLIN];
 	long imax,pivloc,trbeg,starttime;
 	double time,x,xx,cents,deltakey,dur,**scorearg,alpha1,alpha2,startvalue,endvalue,ratio,oldtime_on;
@@ -171,7 +171,7 @@ int CscoreWrite(Milliseconds cut_the_end,Rect* p_graphrect,int leftoffset,int to
 				BPPrintMessage(0,odError,"Err. GiveSpace in CscoreWrite(ZERO,). maxparam = %ld\n",(long)maxparam);
 				goto SORTIR;
 				}
-		for(i=0; i < maxparam; i++) (*paramscopy)[i] = (*((*perf)->params))[i];
+		for(i = 0; i < maxparam; i++) (*paramscopy)[i] = (*((*perf)->params))[i];
 		(*perf)->startparams[key] = paramscopy;
 		result = OK;
 	//	BPPrintMessage(0,odInfo,"Start CscoreWrite(ZERO,). maxparam = %ld\n",(long)maxparam);
@@ -217,7 +217,7 @@ int CscoreWrite(Milliseconds cut_the_end,Rect* p_graphrect,int leftoffset,int to
 	if((scorearg=(double**) GiveSpace((Size)((iargmax + 1) * sizeof(double)))) == NULL)
 		goto SORTIR;
 		
-	for(iarg=0; iarg <= iargmax; iarg++) (*scorearg)[iarg] = 0.;
+	for(iarg = 0; iarg <= iargmax; iarg++) (*scorearg)[iarg] = 0.;
 
 	if(onoffline == LINE) {
 		if(trace_cs_scoremake) BPPrintMessage(0,odInfo,"@@+ iline = %d\n",iline);
@@ -234,10 +234,10 @@ int CscoreWrite(Milliseconds cut_the_end,Rect* p_graphrect,int leftoffset,int to
 	else {
 		(*scorearg)[2] = time;
 		(*scorearg)[3] = dur * ratio;
-		if(trace_cs_scoremake) BPPrintMessage(0,odInfo,"onoffline == LINE, scorearg[2] = %ld, scorearg[3] = %ld, number arguments = %d, iargmax = %d\n",(long)(*scorearg)[2],(long)(*scorearg)[3],(*((*pp_CsoundScore)[j]))[iline].nbparameters,iargmax);
+		if(trace_cs_scoremake) BPPrintMessage(0,odInfo,"onoffline == LINE, scorearg[2] = %.3f, scorearg[3] = %.3f, number arguments = %d, iargmax = %d\n",(long)(*scorearg)[2],(long)(*scorearg)[3],(*((*pp_CsoundScore)[j]))[iline].nbparameters,iargmax);
 		for(iarg=4; iarg < (4+(*((*pp_CsoundScore)[j]))[iline].nbparameters) && iarg <= iargmax; iarg++) {
-			// BPPrintMessage(0,odInfo,"iarg = %d\n",iarg);
 			(*scorearg)[iarg] = (*((*((*pp_CsoundScore)[j]))[iline].h_param))[iarg-4];
+		//	if(trace_cs_scoremake) BPPrintMessage(0,odInfo,"iarg = %d, scorearg = %.2f\n",iarg,(*scorearg)[iarg]);
 			}
 		}
 
@@ -364,9 +364,9 @@ int CscoreWrite(Milliseconds cut_the_end,Rect* p_graphrect,int leftoffset,int to
 				alpha1 = alpha2 = 0.;
 				if(trace_cs_scoremake) BPPrintMessage(0,odInfo,"(pitchbend mode is FIXMAPMODE)\n");
 				}
-			if(alpha1 <= -0.01 || alpha1 >= 1.01 || alpha2 <= -0.01 || alpha2 >= 1.01 || alpha2 < alpha1)
-				alpha1 = alpha2 = -1.;
-			if(alpha1 > -0.01 && alpha1 < 1.01) {
+		/*	if(alpha1 <= -0.01 || alpha1 >= 1.01 || alpha2 <= -0.01 || alpha2 >= 1.01 || alpha2 < alpha1)
+				alpha1 = alpha2 = -1.; */
+			if(alpha1 > -0.1 && alpha1 < 1.1) {
 				x = GetTableValue(alpha1,imax,(*params)[IPITCHBEND].point,startvalue,endvalue);
 				}
 			else x = startvalue;
@@ -390,9 +390,9 @@ int CscoreWrite(Milliseconds cut_the_end,Rect* p_graphrect,int leftoffset,int to
 		}
 		
 	iarg = (*p_CsPitchBendEndIndex)[ins];
-	if(iarg > 0) {	/* (*p_CsPitchBendStartIndex)[ins] was also > 0, therefore alpha2 is known */
+	if(iarg > 0) {	// (*p_CsPitchBendStartIndex)[ins] was also > 0, therefore alpha2 is known
 		if((*params)[IPITCHBEND].active && (*params)[IPITCHBEND].mode == CONTINUOUS) {
-			if(alpha2 > -0.01 && alpha2 < 1.01) {
+			if(alpha2 > -0.1 && alpha2 < 1.1) {
 				x = GetTableValue(alpha2,imax,(*params)[IPITCHBEND].point,startvalue,endvalue);
 				if(onoffline == LINE) x = (*scorearg)[iarg] + x - DEFTPITCHBEND;
 				x = Remap(x,ins,IPITCHBEND,&overflow);
@@ -403,6 +403,7 @@ int CscoreWrite(Milliseconds cut_the_end,Rect* p_graphrect,int leftoffset,int to
 		}
 
 	iarg = (*p_CsVolumeStartIndex)[ins];
+//	BPPrintMessage(0,odInfo,"&&& iarg = %d, ins = %d, active = %d\n",iarg,ins,(*params)[IVOLUME].active);
 	if(iarg > 0) {
 		if((*params)[IVOLUME].active) {
 			startvalue = (*params)[IVOLUME].startvalue;
@@ -415,16 +416,20 @@ int CscoreWrite(Milliseconds cut_the_end,Rect* p_graphrect,int leftoffset,int to
 					/ (*params)[IVOLUME].dur;
 				}
 			else alpha1 = alpha2 = 0.;
-			if(alpha1 <= -0.01 || alpha1 >= 1.01 || alpha2 <= -0.01 || alpha2 >= 1.01 || alpha2 < alpha1)
-				alpha1 = alpha2 = -1.;
-			if(alpha1 > -0.01 && alpha1 < 1.01)
+		/*	if(alpha1 <= -0.01 || alpha1 >= 1.01 || alpha2 <= -0.01 || alpha2 >= 1.01 || alpha2 < alpha1)
+				alpha1 = alpha2 = -1.; */
+			if(alpha1 > -0.1 && alpha1 < 1.1)
 				x = GetTableValue(alpha1,imax,(*params)[IVOLUME].point,startvalue,endvalue);
 			else x = startvalue;
+		//	BPPrintMessage(0,odInfo,"--1 x = %.2f @ %.3f, alpha1 = %.2f, alpha2 = %.2f, startvalue = %.2f, endvalue = %.2f\n",x,alpha1,alpha2,startvalue,endvalue);
 			}
 		else x = DeftVolume;
+	//	BPPrintMessage(0,odInfo,"++1 x = %.2f @ %.3f, DeftVolume = %d, alpha1 = %.2f, alpha2 = %.2f\n",x,(*scorearg)[2],DeftVolume,alpha1,alpha2);
 		if(onoffline == LINE) x = (*scorearg)[iarg] * x / DeftVolume;
 		x = Remap(x,ins,IVOLUME,&overflow);
+	//	BPPrintMessage(0,odInfo,"--- x = %.2f @ %.3f\n",x,(*scorearg)[2]);
 		if(overflow) goto SORTIR;
+		// BPPrintMessage(0,odInfo,"++2 x = %.2f @ %.3f\n",x,(*scorearg)[2]);
 		if((*params)[IVOLUME].active && imax > ZERO && (*params)[IVOLUME].mode == CONTINUOUS
 				&& (itable=(*p_CsInstrument)[ins].volumetable) > -1) {
 			// BPPrintMessage(0,odInfo,"Calling MakeCsoundFunctionTable() for IVOLUME = %ld\n");
@@ -441,7 +446,7 @@ int CscoreWrite(Milliseconds cut_the_end,Rect* p_graphrect,int leftoffset,int to
 	iarg = (*p_CsVolumeEndIndex)[ins];
 	if(iarg > 0) {
 		if((*params)[IVOLUME].active && (*params)[IVOLUME].mode == CONTINUOUS) {
-			if(alpha2 > -0.01 && alpha2 < 1.01) {
+			if(alpha2 > -0.1 && alpha2 < 1.1) {
 				x = GetTableValue(alpha2,imax,(*params)[IVOLUME].point,startvalue,endvalue);
 				if(onoffline == LINE) x = (*scorearg)[iarg] * x / DeftVolume;
 				x = Remap(x,ins,IVOLUME,&overflow);
@@ -464,9 +469,9 @@ int CscoreWrite(Milliseconds cut_the_end,Rect* p_graphrect,int leftoffset,int to
 					/ (*params)[IPRESSURE].dur;
 				}
 			else alpha1 = alpha2 = 0.;
-			if(alpha1 <= -0.01 || alpha1 >= 1.01 || alpha2 <= -0.01 || alpha2 >= 1.01 || alpha2 < alpha1)
-				alpha1 = alpha2 = -1.;
-			if(alpha1 > -0.01 && alpha1 < 1.01)
+		/*	if(alpha1 <= -0.01 || alpha1 >= 1.01 || alpha2 <= -0.01 || alpha2 >= 1.01 || alpha2 < alpha1)
+				alpha1 = alpha2 = -1.; */
+			if(alpha1 > -0.1 && alpha1 < 1.1)
 				x = GetTableValue(alpha1,imax,(*params)[IPRESSURE].point,startvalue,endvalue);
 			else x = startvalue;
 			}
@@ -478,8 +483,7 @@ int CscoreWrite(Milliseconds cut_the_end,Rect* p_graphrect,int leftoffset,int to
 				&& (itable=(*p_CsInstrument)[ins].pressuretable) > -1) {
 			// BPPrintMessage(0,odInfo,"Calling MakeCsoundFunctionTable() for IPRESSURE = %ld\n");
 			if(MakeCsoundFunctionTable(onoffline,scorearg,alpha1,alpha2,imax,
-					(*params)[IPRESSURE].point,ins,IPRESSURE,-1,(*p_CsPressureStartIndex)[ins],
-					(*p_CsPressureEndIndex)[ins]) == OK)
+					(*params)[IPRESSURE].point,ins,IPRESSURE,-1,(*p_CsPressureStartIndex)[ins],(*p_CsPressureEndIndex)[ins]) == OK)
 				(*scorearg)[itable] = FunctionTable;
 			else
 				(*scorearg)[itable] = 0;
@@ -490,7 +494,7 @@ int CscoreWrite(Milliseconds cut_the_end,Rect* p_graphrect,int leftoffset,int to
 	iarg = (*p_CsPressureEndIndex)[ins];
 	if(iarg > 0) {
 		if((*params)[IPRESSURE].active && (*params)[IPRESSURE].mode == CONTINUOUS) {
-			if(alpha2 > -0.01 && alpha2 < 1.01) {
+			if(alpha2 > -0.1 && alpha2 < 1.1) {
 				x = GetTableValue(alpha2,imax,(*params)[IPRESSURE].point,startvalue,endvalue);
 				if(onoffline == LINE) x = (*scorearg)[iarg] + x - DEFTPRESSURE;
 				x = Remap(x,ins,IPRESSURE,&overflow);
@@ -513,9 +517,9 @@ int CscoreWrite(Milliseconds cut_the_end,Rect* p_graphrect,int leftoffset,int to
 					/ (*params)[IMODULATION].dur;
 				}
 			else alpha1 = alpha2 = 0.;
-			if(alpha1 <= -0.01 || alpha1 >= 1.01 || alpha2 <= -0.01 || alpha2 >= 1.01 || alpha2 < alpha1)
-				alpha1 = alpha2 = -1.;
-			if(alpha1 > -0.01 && alpha1 < 1.01)
+		/*	if(alpha1 <= -0.01 || alpha1 >= 1.01 || alpha2 <= -0.01 || alpha2 >= 1.01 || alpha2 < alpha1)
+				alpha1 = alpha2 = -1.; */
+			if(alpha1 > -0.1 && alpha1 < 1.1)
 				x = GetTableValue(alpha1,imax,(*params)[IMODULATION].point,startvalue,endvalue);
 			else x = startvalue;
 			}
@@ -527,8 +531,7 @@ int CscoreWrite(Milliseconds cut_the_end,Rect* p_graphrect,int leftoffset,int to
 				&& (itable=(*p_CsInstrument)[ins].modulationtable) > -1) {
 			// BPPrintMessage(0,odInfo,"Calling MakeCsoundFunctionTable() for IMODULATION = %ld\n");
 			if(MakeCsoundFunctionTable(onoffline,scorearg,alpha1,alpha2,imax,
-					(*params)[IMODULATION].point,ins,IMODULATION,-1,(*p_CsModulationStartIndex)[ins],
-					(*p_CsModulationEndIndex)[ins]) == OK)
+					(*params)[IMODULATION].point,ins,IMODULATION,-1,(*p_CsModulationStartIndex)[ins],(*p_CsModulationEndIndex)[ins]) == OK)
 				(*scorearg)[itable] = FunctionTable;
 			else
 				(*scorearg)[itable] = 0;
@@ -539,7 +542,7 @@ int CscoreWrite(Milliseconds cut_the_end,Rect* p_graphrect,int leftoffset,int to
 	iarg = (*p_CsModulationEndIndex)[ins];
 	if(iarg > 0) {
 		if((*params)[IMODULATION].active && (*params)[IMODULATION].mode == CONTINUOUS) {
-			if(alpha2 > -0.01 && alpha2 < 1.01) {
+			if(alpha2 > -0.1 && alpha2 < 1.1) {
 				x = GetTableValue(alpha2,imax,(*params)[IMODULATION].point,
 					startvalue,endvalue);
 				if(onoffline == LINE) x = (*scorearg)[iarg] + x - DEFTMODULATION;
@@ -563,9 +566,9 @@ int CscoreWrite(Milliseconds cut_the_end,Rect* p_graphrect,int leftoffset,int to
 					/ (*params)[IPANORAMIC].dur;
 				}
 			else alpha1 = alpha2 = 0.;
-			if(alpha1 <= -0.01 || alpha1 >= 1.01 || alpha2 <= -0.01 || alpha2 >= 1.01 || alpha2 < alpha1)
-				alpha1 = alpha2 = -1.;
-			if(alpha1 > -0.01 && alpha1 < 1.01)
+	/*		if(alpha1 <= -0.01 || alpha1 >= 1.01 || alpha2 <= -0.01 || alpha2 >= 1.01 || alpha2 < alpha1)
+				alpha1 = alpha2 = -1.; */
+			if(alpha1 > -0.1 && alpha1 < 1.0)
 				x = GetTableValue(alpha1,imax,(*params)[IPANORAMIC].point,startvalue,endvalue);
 			else x = startvalue;
 			}
@@ -577,8 +580,7 @@ int CscoreWrite(Milliseconds cut_the_end,Rect* p_graphrect,int leftoffset,int to
 				&& (itable=(*p_CsInstrument)[ins].panoramictable) > -1) {
 			//	BPPrintMessage(0,odInfo,"Calling MakeCsoundFunctionTable() for IPANORAMIC = %ld\n");
 			if(MakeCsoundFunctionTable(onoffline,scorearg,alpha1,alpha2,imax,
-					(*params)[IPANORAMIC].point,ins,IPANORAMIC,-1,(*p_CsPanoramicStartIndex)[ins],
-					(*p_CsPanoramicEndIndex)[ins]) == OK)
+					(*params)[IPANORAMIC].point,ins,IPANORAMIC,-1,(*p_CsPanoramicStartIndex)[ins],(*p_CsPanoramicEndIndex)[ins]) == OK)
 				(*scorearg)[itable] = FunctionTable;
 			else
 				(*scorearg)[itable] = 0;
@@ -589,7 +591,7 @@ int CscoreWrite(Milliseconds cut_the_end,Rect* p_graphrect,int leftoffset,int to
 	iarg = (*p_CsPanoramicEndIndex)[ins];
 	if(iarg > 0) {
 		if((*params)[IPANORAMIC].active && (*params)[IPANORAMIC].mode == CONTINUOUS) {
-			if(alpha2 > -0.01 && alpha2 < 1.01) {
+			if(alpha2 > -0.1 && alpha2 < 1.1) {
 				x = GetTableValue(alpha2,imax,(*params)[IPANORAMIC].point,
 					startvalue,endvalue);
 				if(onoffline == LINE) x = (*scorearg)[iarg] + x - DeftPanoramic;
@@ -611,15 +613,21 @@ int CscoreWrite(Milliseconds cut_the_end,Rect* p_graphrect,int leftoffset,int to
 			BPPrintMessage(0,odError,"=> Err. CscoreWrite(ZERO,). instrparamlist == NULL");
 			goto WRITECSCORELINE;
 			}
-		for(i = 0; i < (*p_CsInstrument)[ins].ipmax; i++) {
+
+	//	for(i = 0; i < (*p_CsInstrument)[ins].ipmax; i++) {
+		for(i = 0; i < MaxParameters; i++) {
 			// Scan all additional parameters
 			paramindex = i + 1 + IPANORAMIC;
-			paramnameindex = (*instrparamlist)[i].nameindex;
-			if(paramnameindex < 0) continue;
-			iarg = (*instrparamlist)[i].startindex;
+			ip = ParamIndexToIp[paramindex];
+			paramnameindex = ParamIndexToParamNameIndex(paramindex);
+
+			this_instrument = ParamNameIndexToInstrument[paramnameindex];
+			if(InstrumentIndex(this_instrument) != ins) continue;
+			iarg = (*instrparamlist)[ip].startindex;
 			if(iarg < 0) continue;
 			if(trace_cs_scoremake)
-				BPPrintMessage(0,odInfo,"&& i = %d, paramindex = %d, ipmax = %d, iarg = %d, nseq = %d, kcurrentinstance = %d, key = %d, ins = %d,  name = “%s”, numberparams = %d, paramnameindex = %d\n",i,paramindex,(*p_CsInstrument)[ins].ipmax,iarg,nseq,kcurrentinstance,(j - 16384),ins,*((*p_StringConstant)[paramnameindex]),(*perf)->numberparams,paramnameindex);
+				BPPrintMessage(0,odInfo,"&& i = %d, paramindex = %d, ip = %d, ipmax = %d, iarg = %d, nseq = %d, kcurrentinstance = %d, key = %d, ins = %d,  name = “%s”, numberparams = %d, paramnameindex = %d\n",i,paramindex,ip,(*p_CsInstrument)[ins].ipmax,iarg,nseq,kcurrentinstance,(j - 16384),ins,*((*p_StringConstant)[paramnameindex]),(*perf)->numberparams,paramnameindex);
+			//	BPPrintMessage(0,odInfo,"&& i = %d, paramindex = %d, ip = %d, ipmax = %d, iarg = %d, nseq = %d, kcurrentinstance = %d, key = %d, ins = %d, numberparams = %d\n",i,paramindex,ip,(*p_CsInstrument)[ins].ipmax,iarg,nseq,kcurrentinstance,(j - 16384),ins,(*perf)->numberparams);
 			// BPPrintMessage(0,odInfo,"paramindex = %d, (*perf)->numberparams = %d\n",paramindex,(*perf)->numberparams);
 			if(paramindex >= (*perf)->numberparams) continue;
 		//	BPPrintMessage(0,odInfo,"@ (*params)[%d].active = %d\n",paramindex,(int)(*params)[paramindex].active);
@@ -634,25 +642,25 @@ int CscoreWrite(Milliseconds cut_the_end,Rect* p_graphrect,int leftoffset,int to
 						- (*params)[paramindex].starttime) / (*params)[paramindex].dur;
 					}
 				else alpha1 = alpha2 = 0.;
-				if(alpha1 <= -0.01 || alpha1 >= 1.01 || alpha2 <= -0.01 || alpha2 >= 1.01 || alpha2 < alpha1)
-					alpha1 = alpha2 = -1.;
-				if(alpha1 > -0.01 && alpha1 < 1.01)
+		/*		if(alpha1 <= -0.01 || alpha1 >= 1.01 || alpha2 <= -0.01 || alpha2 >= 1.01 || alpha2 < alpha1)
+					alpha1 = alpha2 = -1.; */
+				if(alpha1 > -0.1 && alpha1 < 1.1)
 					x = GetTableValue(alpha1,imax,(*params)[paramindex].point,startvalue,
 						endvalue);
 				else x = startvalue;
 				if(trace_cs_scoremake) 
-					BPPrintMessage(0,odInfo,"startvalue = %.2f, endvalue = %.2f, imax = %ld, mode = %d, alpha1 = %.2f, alpha2 = %.2f, x = %.2f\n",(*params)[paramindex].startvalue,(*params)[paramindex].endvalue,imax,(*params)[paramindex].mode,alpha1,alpha2,x);
+					BPPrintMessage(0,odInfo,"startvalue = %.2f, endvalue = %.2f, imax = %ld, mode = %d, alpha1 = %.2f, alpha2 = %.2f, x = %.2f, ins = %d\n",(*params)[paramindex].startvalue,(*params)[paramindex].endvalue,imax,(*params)[paramindex].mode,alpha1,alpha2,x,ins);
 				}
-			else x = (*instrparamlist)[i].defaultvalue;
+			else x = (*instrparamlist)[ip].defaultvalue;
 			if(onoffline == LINE) {
-				switch((*instrparamlist)[i].combinationtype) {
+				switch((*instrparamlist)[ip].combinationtype) {
 					case MULT:
-						if(trace_cs_scoremake) BPPrintMessage(0,odInfo,"MULT iarg = %ld, x = %.3f, (*scorearg)[iarg] = %.3f, (*instrparamlist)[i].defaultvalue = %.3f\n",(long)iarg,x,(*scorearg)[iarg],(*instrparamlist)[i].defaultvalue);
-						x = (*scorearg)[iarg] * x / (*instrparamlist)[i].defaultvalue;
+						if(trace_cs_scoremake) BPPrintMessage(0,odInfo,"MULT iarg = %d, x = %.3f, (*scorearg)[iarg] = %.3f, (*instrparamlist)[ip].defaultvalue = %.3f\n",iarg,x,(*scorearg)[iarg],(*instrparamlist)[ip].defaultvalue);
+						x = x * (*scorearg)[iarg] / (*instrparamlist)[ip].defaultvalue;
 						break;
 					case ADD:
-						if(trace_cs_scoremake) BPPrintMessage(0,odInfo,"ADD i = %d, iarg = %ld, x = %.3f, (*scorearg)[iarg] = %.3f, (*instrparamlist)[i].defaultvalue = %.3f\n",i,(long)iarg,x,(*scorearg)[iarg],(*instrparamlist)[i].defaultvalue);
-						x = (*scorearg)[iarg] + x + (*instrparamlist)[i].defaultvalue;
+						if(trace_cs_scoremake) BPPrintMessage(0,odInfo,"ADD paramindex = %d, iarg = %d, x = %.3f, (*scorearg)[iarg] = %.3f, (*instrparamlist)[ip].defaultvalue = %.3f\n",paramindex,iarg,x,(*scorearg)[iarg],(*instrparamlist)[ip].defaultvalue);
+						x = x + (*scorearg)[iarg] - (*instrparamlist)[ip].defaultvalue;
 						break;
 					default:
 						break;
@@ -660,41 +668,40 @@ int CscoreWrite(Milliseconds cut_the_end,Rect* p_graphrect,int leftoffset,int to
 				}
 			if((*params)[paramindex].active && imax > ZERO
 					&& (*params)[paramindex].mode == CONTINUOUS
-					&& (itable=(*instrparamlist)[i].table) > -1) {
-			//	BPPrintMessage(0,odInfo,"Calling MakeCsoundFunctionTable() for paramindex = %ld\n",(long)paramindex);
+					&& (itable=(*instrparamlist)[ip].table) > -1) {
+			//	BPPrintMessage(0,odInfo,"@@@ Calling MakeCsoundFunctionTable() for paramindex = %d, ip =  %d\n",paramindex,ip);
 				if(MakeCsoundFunctionTable(onoffline,scorearg,alpha1,alpha2,imax,
-						(*params)[paramindex].point,ins,paramindex,i,
-						(*instrparamlist)[i].startindex,(*instrparamlist)[i].endindex) == OK)
+						(*params)[paramindex].point,ins,paramindex,ip,(*instrparamlist)[ip].startindex,(*instrparamlist)[ip].endindex) == OK)
 					(*scorearg)[itable] = FunctionTable;
 				else
 					(*scorearg)[itable] = 0;
 				}
 			(*scorearg)[iarg] = x;
 			
-			iarg = (*instrparamlist)[i].endindex;
+			iarg = (*instrparamlist)[ip].endindex;
 			if(iarg < 0) continue;
 
 			if((*params)[paramindex].active) {
-				if(alpha2 > -0.01 && alpha2 < 1.01)
+				if(alpha2 > -0.1 && alpha2 < 1.1)
 					x = GetTableValue(alpha2,imax,(*params)[paramindex].point,startvalue,
 						endvalue);
 				else x = endvalue;
 				if(onoffline == LINE) {
-					switch((*instrparamlist)[i].combinationtype) {
+					switch((*instrparamlist)[ip].combinationtype) {
 						case MULT:
-							if(trace_cs_scoremake) BPPrintMessage(0,odInfo,"MULT iarg = %ld, x = %.3f, (*scorearg)[iarg] = %.3f, (*instrparamlist)[i].defaultvalue = %.3f\n",(long)iarg,x,(*scorearg)[iarg],(*instrparamlist)[i].defaultvalue);
-							x = (*scorearg)[iarg] * x / (*instrparamlist)[i].defaultvalue;
+							if(trace_cs_scoremake) BPPrintMessage(0,odInfo,"MULT iarg = %ld, x = %.3f, (*scorearg)[iarg] = %.3f, (*instrparamlist)[ip].defaultvalue = %.3f\n",(long)iarg,x,(*scorearg)[iarg],(*instrparamlist)[ip].defaultvalue);
+							x = x * (*scorearg)[iarg] / (*instrparamlist)[ip].defaultvalue;
 							break;
 						case ADD:
-							if(trace_cs_scoremake) BPPrintMessage(0,odInfo,"ADD i = %d, iarg = %ld, x = %.3f, (*scorearg)[iarg] = %.3f, (*instrparamlist)[i].defaultvalue = %.3f\n",i,(long)iarg,x,(*scorearg)[iarg],(*instrparamlist)[i].defaultvalue);
-							x = (*scorearg)[iarg] + x + (*instrparamlist)[i].defaultvalue;
+							if(trace_cs_scoremake) BPPrintMessage(0,odInfo,"ADD paramindex = %d, iarg = %ld, x = %.3f, (*scorearg)[iarg] = %.3f, (*instrparamlist)[ip].defaultvalue = %.3f\n",paramindex,(long)iarg,x,(*scorearg)[iarg],(*instrparamlist)[ip].defaultvalue);
+							x = x + (*scorearg)[iarg] - (*instrparamlist)[ip].defaultvalue;
 							break;
 						default:
 							break;
 						}
 					}
 				}
-			else x = (*instrparamlist)[i].defaultvalue;
+			else x = (*instrparamlist)[ip].defaultvalue;
 			(*scorearg)[iarg] = x;
 			}
 		}
@@ -745,11 +752,10 @@ WRITECSCORELINE:
 			my_sprintf(line,"%.2f ",(*scorearg)[iarg]);
 		if(!ConvertMIDItoCsound) NoReturnWriteToFile(line,CsRefNum);
 		strcat(Message,line);
-		
+	
 		my_sprintf(line2,"iarg = %ld -> %s\n",(long)iarg,line);
 		if(trace_cs_scoremake) BPPrintMessage(0,odInfo,line2);
 		}
-
 	if(pitchclass >= 0) {
 		strcpy(line,"; ");
 		PrintThisNote(i_scale,key,0,-1,LineBuff);
@@ -763,16 +769,11 @@ WRITECSCORELINE:
 		strcat(Message,line);
 		}
 	else line[0] = '\0';
-
 	if(ConvertMIDItoCsound) Println(wPrototype7,Message);
 	else WriteToFile(NO,CsoundFileFormat,line,CsRefNum);
 	result = OK;
-
 	if(trace_cs_scoremake) BPPrintMessage(0,odInfo,"line = %s\n",line);
-
 	strcpy(Message,"");
-
-
 SORTIR:
 	MyDisposeHandle((Handle*)&scorearg);
 	if(result == OK && onoffline == OFF) {
@@ -786,5 +787,12 @@ SORTIR:
 	return(result);
 	}
 
-
+int ParamIndexToParamNameIndex(int paramindex) {
+	int paramnameindex,maxparam;
+	maxparam = (MyGetHandleSize((Handle)p_StringConstant) / sizeof(char**));
+	for(paramnameindex = 0; paramnameindex < maxparam; paramnameindex++) {
+		if(paramindex == ParamNameIndexToParameter[paramnameindex]) return paramnameindex;
+		}
+	return(-1);
+	}
 

@@ -21,7 +21,6 @@ Various issues
 --------------
 
 - In the 'Event list' output format, introduce parameters and tables similar to those used in Csound.
-- Eliminate the obligation to declare instruments and all initial additional parameter values, see '-da.tryCsoundObjects' item #18.
 - Delete occurrences of ConvertMIDItoCsound as it is (probably) obsolete.
 - Design an example demonstrating properties "Allow gap" in sound-objects.
 - Pianoroll is not drawn if there are negative dates (due to pivot and preroll).

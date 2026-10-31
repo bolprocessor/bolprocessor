@@ -117,7 +117,6 @@ char ****p_GramProcedure,****p_PerformanceControl,****p_GeneralMIDIpatch,
 	****p_Diacritical,****p_HTMLdiacrList;
 long MaxProc,MaxPerformanceControl;
 int LoadedAlphabet,LoadedData;
-char DoneSpecial;
 INscripttype** p_INscript;
 OUTscripttype** p_OUTscript;
 int StopPlay,PausePlay,TraceMIDIinteraction;
@@ -222,6 +221,10 @@ int **p_CsInstrumentIndex,**p_CsDilationRatioIndex,**p_CsAttackVelocityIndex,
 char ****pp_CsInstrumentName,****pp_CsInstrumentComment,**p_CsPitchFormat,****p_StringConstant;
 double **p_CsPitchBend[6],**p_CsVolume[6],**p_CsPressure[6],**p_CsModulation[6],
 	**p_CsPanoramic[6],**p_NumberConstant;
+int ParamNameIndexToInstrument[MAXPARAMS];
+int ParamNameIndexToParameter[MAXPARAMS];
+int ParamIndexToIp[MAXPARAMS];
+int MaxParameters;
 
 
 int FileSaveMode,FileWriteMode,MIDIfileType,CsoundFileFormat;

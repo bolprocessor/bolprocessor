@@ -689,7 +689,7 @@ for(k=2; k <= (*p_kmx); k++) {
 	if(j > 0) outtimeevents = FALSE;
 	if((nature_time == STRIATED) && (*p_Instance)[k].starttime > max_end_time) {
 		// This can happen with an out-time object at the beginning of an item
-		if(0 && TraceMIDIinteraction) {  // Reactivate this to check -gr.koto3
+		if(FALSE && TraceMIDIinteraction) {  // Reactivate this to check -gr.koto3
 			BPPrintMessage(0,odError,"=> Incorrect start/end values for object #%d (j = %d) in chunk #%d\n",k,(*p_Instance)[k].object,Chunk_number);
 			BPPrintMessage(0,odError,"starttime = %ld endtime = %ld ms, max_end_time = %ld ms, kmx = %ld\n",(long)(*p_Instance)[k].starttime,(long)(*p_Instance)[k].endtime,(long)max_end_time,(long)*p_kmx);
 			}

@@ -202,7 +202,7 @@ int MakeSound(long *p_kmax,unsigned long imaxstreak,int maxnsequences,long tmin,
 				== NULL) return(ABORT);
 		}
 
-	for(nseq=0; nseq < maxconc; nseq++) {
+	for(nseq = 0; nseq < maxconc; nseq++) {
 		if((ptrperf=(PerfParameters**) GiveSpace(sizeof(PerfParameters)))
 				== NULL) return(ABORT);
 		(*pp_currentparams)[nseq] = ptrperf;
@@ -620,7 +620,7 @@ int MakeSound(long *p_kmax,unsigned long imaxstreak,int maxnsequences,long tmin,
 	mustwait = FALSE;
 	rs = 0;
 
-	for(nseq=0; nseq < maxconc; nseq++) {
+	for(nseq = 0; nseq < maxconc; nseq++) {
 		ptrperf = (*pp_currentparams)[nseq];
 		for(key = 0; key < MAXKEY; key++) {
 			(*ptrperf)->level[key] = 0;
@@ -633,10 +633,10 @@ int MakeSound(long *p_kmax,unsigned long imaxstreak,int maxnsequences,long tmin,
 	//	BPPrintMessage(0,odInfo,"active = FALSE (3) with maxparam = %d\n",maxparam);
 		for(i=0; i < maxparam; i++) (*((*ptrperf)->params))[i].active = FALSE;
 		if(maxparam <= IPANORAMIC) {
-			BPPrintMessage(0,odInfo,"=> Err. MakeSound(). maxparam <= IPANORAMIC\n");
+			BPPrintMessage(0,odInfo,"=> Err. MakeSound(). maxparam (%d) <= IPANORAMIC\n",maxparam);
 			goto OVER;
 			}
-		for(i=0; i < (*p_control)[nseq].number; i++) {
+		for(i = 0; i < (*p_control)[nseq].number; i++) {
 			(*((*p_control)[nseq].param))[i].ibm = -1L;
 			}
 		}
@@ -1111,7 +1111,7 @@ int MakeSound(long *p_kmax,unsigned long imaxstreak,int maxnsequences,long tmin,
 				// Pass on parameters to pp_currentparams
 			//	BPPrintMessage(0,odInfo,"k = %ld, contparameters.number = %d\n",(long)kcurrentinstance, (*p_Instance)[kcurrentinstance].contparameters.number);
 
-				params = (*((*pp_currentparams)[nseq]))->params; // $$$$
+				params = (*((*pp_currentparams)[nseq]))->params; 
 
 				if((kcurrentinstance > 1) && (*p_Instance)[kcurrentinstance].contparameters.number > 0) {
 					if(trace_makesound)
@@ -1122,11 +1122,12 @@ int MakeSound(long *p_kmax,unsigned long imaxstreak,int maxnsequences,long tmin,
 						}
 					if((*((*pp_currentparams)[nseq]))->params == NULL) {
 						BPPrintMessage(0,odError,"=> Err. MakeSound(). (*((*pp_currentparams)[nseq]))->params == NULL\n");
-						maxparam = 20;
+					//	maxparam = 20;
+						maxparam = MaxParameters + IPANORAMIC + 1;
 						if((ptrs=(ParameterStatus**) GiveSpace((Size)maxparam * sizeof(ParameterStatus))) == NULL)
 							return(ABORT);
 						(*((*pp_currentparams)[nseq]))->params = ptrs;
-				//		BPPrintMessage(0,odInfo,"active = FALSE (1) with maxparam = %d\n",maxparam);
+						BPPrintMessage(0,odInfo,"active = FALSE (1) with maxparam = %d\n",maxparam);
 						for(index=0; index < maxparam; index++) {
 							(*params)[index].active = FALSE;
 							}
@@ -1135,7 +1136,8 @@ int MakeSound(long *p_kmax,unsigned long imaxstreak,int maxnsequences,long tmin,
 					int currparamnr = MyGetHandleSize((Handle)(*((*pp_currentparams)[nseq]))->params) / sizeof(ParameterStatus);
 					params = (*((*pp_currentparams)[nseq]))->params;
 					instrument = ThisInstrument(cswrite,kcurrentinstance,ievent,&instr_index);
-					maxparam = (*p_CsInstrument)[instr_index].ipmax + IPANORAMIC + 1;
+				//	maxparam = (*p_CsInstrument)[instr_index].ipmax + IPANORAMIC + 1;
+					maxparam = MaxParameters + IPANORAMIC + 1;
 					// BPPrintMessage(0,odInfo,"@@ Found currparamnr = %d, instrument = %d,instr_index = %d, ipmax = %d, maxparam = %d, k = %d\n",currparamnr,instrument,instr_index,(*p_CsInstrument)[instr_index].ipmax,maxparam,kcurrentinstance);
 					if(maxparam > currparamnr) {
 					//	BPPrintMessage(0,odInfo,"Resizing (1) maxparam = %ld, kcurrentinstance = %d\n",(long)maxparam,(int)kcurrentinstance);
@@ -1175,7 +1177,7 @@ int MakeSound(long *p_kmax,unsigned long imaxstreak,int maxnsequences,long tmin,
 							(*params)[index].active = FALSE;
 						else
 							(*params)[index].active = TRUE;
-						// BPPrintMessage(0,odInfo,"• index = %d, maxparam = %d, imax = %d, active = %d, startvalue = %.2f, endvalue = %.2f, dur = %ld, mode = %d\n",index,maxparam,(*params)[index].imax,(*params)[index].active,(*params)[index].startvalue,(*params)[index].endvalue,(*params)[index].dur,(*params)[index].mode);
+					//	BPPrintMessage(0,odInfo,"• index = %d, maxparam = %d, imax = %d, j = %d, active = %d, startvalue = %.2f, endvalue = %.2f, dur = %ld, mode = %d\n",index,maxparam,(*params)[index].imax,j,(*params)[index].active,(*params)[index].startvalue,(*params)[index].endvalue,(*params)[index].dur,(*params)[index].mode);
 						}
 					}
 	FORGETIT:
@@ -1252,7 +1254,7 @@ int MakeSound(long *p_kmax,unsigned long imaxstreak,int maxnsequences,long tmin,
 							(*stream)[index].ibm = Findibm(index,(*stream)[index].duration,ch);
 							(*stream)[index].ib = 0;
 							(*stream)[index].imax = (*currentinstancevalues)[index].imax;
-							BPPrintMessage(0,odInfo,"## stream[%d].imax = %d\n",index,(*stream)[index].imax);
+							// BPPrintMessage(0,odInfo,"## stream[%d].imax = %d\n",index,(*stream)[index].imax);
 							if((*stream)[index].imax > ZERO) {
 								(*stream)[index].point = (*currentinstancevalues)[index].point;
 								}

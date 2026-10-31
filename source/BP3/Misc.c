@@ -998,9 +998,7 @@ int FixStringConstant(char* line) {
 		}
 	if(found) return(j);
 	if(j >= MAXSTRINGCONSTANTS) {
-		my_sprintf(Message,
-				"Too many identifiers found (max %ld)\nCan't store '%s'\n",
-					(long)MAXSTRINGCONSTANTS,line);
+		my_sprintf(Message,"Too many identifiers found (max %ld)\nCan't store '%s'\n",(long)MAXSTRINGCONSTANTS,line);
 		BPPrintMessage(0,odError,"%s",Message);
 		return(ABORT);
 		}
@@ -1016,8 +1014,8 @@ int FixStringConstant(char* line) {
 	MystrcpyStringToTable(p_StringConstant,j,line);
 	if(trace_scale) BPPrintMessage(0,odInfo, "FixStringConstant() j = %d, line = %s\n",j,line);
 	return(j);
-	ERR:
-	BPPrintMessage(0,odError,"Missing parameter name");
+ERR:
+	BPPrintMessage(0,odError,"Missing parameter name\n");
 	return(ABORT);
 	}
 
