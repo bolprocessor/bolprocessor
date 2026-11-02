@@ -47,7 +47,7 @@ int CscoreWrite(Milliseconds cut_the_end,Rect* p_graphrect,int leftoffset,int to
 	// onoffline = OFF -- terminate Csound process as a NoteOff has been encountered, and
 	//    write Csound score line
 
-	int i,jj,k,c,ins,index,paramindex,paramnameindex,this_instrument,iarg,ip,ipitch,iargmax,octave,changedpitch,overflow,comeback,pitchclass,result,maxparam,itable,pitch_format,i_scale,mode,cents2;
+	int i,jj,k,c,ins,index,paramindex,paramnameindex,this_instrument,iarg,ip,ipitch,iargmax,octave,changedpitch,overflow,comeback,pitchclass,result,maxparam,argtable,pitch_format,i_scale,mode,cents2;
 	char line[MAXLIN],line2[MAXLIN];
 	long imax,pivloc,trbeg,starttime;
 	double time,x,xx,cents,deltakey,dur,**scorearg,alpha1,alpha2,startvalue,endvalue,ratio,oldtime_on;
@@ -71,7 +71,7 @@ int CscoreWrite(Milliseconds cut_the_end,Rect* p_graphrect,int leftoffset,int to
 	perf = (*pp_currentparams)[nseq]; 
 
 	if(trace_cs_scoremake)
-		BPPrintMessage(0,odInfo,"@@@ instrument = %d, chan = %d\n",instrument,chan);
+		BPPrintMessage(0,odInfo,"instrument = %d, chan = %d\n",instrument,chan);
 
 	mode = -1;
 	if(iline >= 0 && j > 0 && j < Jbol) {
@@ -85,7 +85,7 @@ int CscoreWrite(Milliseconds cut_the_end,Rect* p_graphrect,int leftoffset,int to
 		}
 
 	if(trace_cs_scoremake)
-		BPPrintMessage(0,odInfo,"\nRunning CscoreWrite for iline = %d channel = %d instrument = %d k = %d, j = %d, onoffline = %d, mode = %d\n",iline,chan,instrument,kcurrentinstance,j,onoffline,mode);
+		BPPrintMessage(0,odInfo,"\n@@@ Running CscoreWrite for iline = %d channel = %d instrument = %d k = %d, j = %d, onoffline = %d, mode = %d\n",iline,chan,instrument,kcurrentinstance,j,onoffline,mode);
 
 	if(onoffline == LINE) {
 		if(j >= Jbol) {
@@ -377,14 +377,14 @@ int CscoreWrite(Milliseconds cut_the_end,Rect* p_graphrect,int leftoffset,int to
 		if(overflow) goto SORTIR;
 		
 		if((*params)[IPITCHBEND].active && imax > ZERO && (*params)[IPITCHBEND].mode == CONTINUOUS
-				&& (itable=(*p_CsInstrument)[ins].pitchbendtable) > -1) {
-			// BPPrintMessage(0,odInfo,"Calling MakeCsoundFunctionTable() for IPITCHBEND = %ld\n");
+				&& (argtable=(*p_CsInstrument)[ins].pitchbendtable) > -1) {
+			if(trace_cs_scoremake) BPPrintMessage(0,odInfo,"@@@ Calling MakeCsoundFunctionTable() for IPITCHBEND, ins = %d, CsPitchBendStartIndex = %d, CsPitchBendEndIndex = %d\n",ins,(*p_CsPitchBendStartIndex)[ins],(*p_CsPitchBendEndIndex)[ins]);
 			if(MakeCsoundFunctionTable(onoffline,scorearg,alpha1,alpha2,imax,
 					(*params)[IPITCHBEND].point,ins,IPITCHBEND,-1,
 					(*p_CsPitchBendStartIndex)[ins],(*p_CsPitchBendEndIndex)[ins]) == OK)
-				(*scorearg)[itable] = FunctionTable;
+				(*scorearg)[argtable] = FunctionTable;
 			else
-				(*scorearg)[itable] = 0;
+				(*scorearg)[argtable] = 0;
 			}
 		(*scorearg)[iarg] = x;
 		}
@@ -431,14 +431,16 @@ int CscoreWrite(Milliseconds cut_the_end,Rect* p_graphrect,int leftoffset,int to
 		if(overflow) goto SORTIR;
 		// BPPrintMessage(0,odInfo,"++2 x = %.2f @ %.3f\n",x,(*scorearg)[2]);
 		if((*params)[IVOLUME].active && imax > ZERO && (*params)[IVOLUME].mode == CONTINUOUS
-				&& (itable=(*p_CsInstrument)[ins].volumetable) > -1) {
-			// BPPrintMessage(0,odInfo,"Calling MakeCsoundFunctionTable() for IVOLUME = %ld\n");
+				&& (argtable=(*p_CsInstrument)[ins].volumetable) > -1) {
+		//	BPPrintMessage(0,odInfo,"@@@ Calling MakeCsoundFunctionTable() for IVOLUME\n");
 			if(MakeCsoundFunctionTable(onoffline,scorearg,alpha1,alpha2,imax,
 					(*params)[IVOLUME].point,ins,IVOLUME,-1,(*p_CsVolumeStartIndex)[ins],
-					(*p_CsVolumeEndIndex)[ins]) == OK)
-				(*scorearg)[itable] = FunctionTable;
+					(*p_CsVolumeEndIndex)[ins]) == OK) {
+			//	BPPrintMessage(0,odInfo,"@@@ End calling, argtable = %d\n",argtable);
+				(*scorearg)[argtable] = FunctionTable;
+				}
 			else
-				(*scorearg)[itable] = 0;
+				(*scorearg)[argtable] = 0;
 			}
 		(*scorearg)[iarg] = x;
 		}
@@ -480,13 +482,13 @@ int CscoreWrite(Milliseconds cut_the_end,Rect* p_graphrect,int leftoffset,int to
 		x = Remap(x,ins,IPRESSURE,&overflow);
 		if(overflow) goto SORTIR;
 		if((*params)[IPRESSURE].active && imax > ZERO && (*params)[IPRESSURE].mode == CONTINUOUS
-				&& (itable=(*p_CsInstrument)[ins].pressuretable) > -1) {
-			// BPPrintMessage(0,odInfo,"Calling MakeCsoundFunctionTable() for IPRESSURE = %ld\n");
+				&& (argtable=(*p_CsInstrument)[ins].pressuretable) > -1) {
+			// BPPrintMessage(0,odInfo,"@@@ Calling MakeCsoundFunctionTable() for IPRESSURE\n");
 			if(MakeCsoundFunctionTable(onoffline,scorearg,alpha1,alpha2,imax,
 					(*params)[IPRESSURE].point,ins,IPRESSURE,-1,(*p_CsPressureStartIndex)[ins],(*p_CsPressureEndIndex)[ins]) == OK)
-				(*scorearg)[itable] = FunctionTable;
+				(*scorearg)[argtable] = FunctionTable;
 			else
-				(*scorearg)[itable] = 0;
+				(*scorearg)[argtable] = 0;
 			}
 		(*scorearg)[iarg] = x;
 		}
@@ -528,13 +530,13 @@ int CscoreWrite(Milliseconds cut_the_end,Rect* p_graphrect,int leftoffset,int to
 		x = Remap(x,ins,IMODULATION,&overflow);
 		if(overflow) goto SORTIR;
 		if((*params)[IMODULATION].active && imax > ZERO && (*params)[IMODULATION].mode == CONTINUOUS
-				&& (itable=(*p_CsInstrument)[ins].modulationtable) > -1) {
-			// BPPrintMessage(0,odInfo,"Calling MakeCsoundFunctionTable() for IMODULATION = %ld\n");
+				&& (argtable=(*p_CsInstrument)[ins].modulationtable) > -1) {
+			// BPPrintMessage(0,odInfo,"@@@ Calling MakeCsoundFunctionTable() for IMODULATION\n");
 			if(MakeCsoundFunctionTable(onoffline,scorearg,alpha1,alpha2,imax,
 					(*params)[IMODULATION].point,ins,IMODULATION,-1,(*p_CsModulationStartIndex)[ins],(*p_CsModulationEndIndex)[ins]) == OK)
-				(*scorearg)[itable] = FunctionTable;
+				(*scorearg)[argtable] = FunctionTable;
 			else
-				(*scorearg)[itable] = 0;
+				(*scorearg)[argtable] = 0;
 			}
 		(*scorearg)[iarg] = x;
 		}
@@ -577,13 +579,13 @@ int CscoreWrite(Milliseconds cut_the_end,Rect* p_graphrect,int leftoffset,int to
 		x = Remap(x,ins,IPANORAMIC,&overflow);
 		if(overflow) goto SORTIR;
 		if((*params)[IPANORAMIC].active && imax > ZERO && (*params)[IPANORAMIC].mode == CONTINUOUS
-				&& (itable=(*p_CsInstrument)[ins].panoramictable) > -1) {
-			//	BPPrintMessage(0,odInfo,"Calling MakeCsoundFunctionTable() for IPANORAMIC = %ld\n");
+				&& (argtable=(*p_CsInstrument)[ins].panoramictable) > -1) {
+			//	BPPrintMessage(0,odInfo,"@@@ Calling MakeCsoundFunctionTable() for IPANORAMIC\n");
 			if(MakeCsoundFunctionTable(onoffline,scorearg,alpha1,alpha2,imax,
 					(*params)[IPANORAMIC].point,ins,IPANORAMIC,-1,(*p_CsPanoramicStartIndex)[ins],(*p_CsPanoramicEndIndex)[ins]) == OK)
-				(*scorearg)[itable] = FunctionTable;
+				(*scorearg)[argtable] = FunctionTable;
 			else
-				(*scorearg)[itable] = 0;
+				(*scorearg)[argtable] = 0;
 			}
 		(*scorearg)[iarg] = x;
 		}
@@ -668,13 +670,13 @@ int CscoreWrite(Milliseconds cut_the_end,Rect* p_graphrect,int leftoffset,int to
 				}
 			if((*params)[paramindex].active && imax > ZERO
 					&& (*params)[paramindex].mode == CONTINUOUS
-					&& (itable=(*instrparamlist)[ip].table) > -1) {
-			//	BPPrintMessage(0,odInfo,"@@@ Calling MakeCsoundFunctionTable() for paramindex = %d, ip =  %d\n",paramindex,ip);
+					&& (argtable=(*instrparamlist)[ip].table) > -1) {
+			//	BPPrintMessage(0,odInfo,"@@@ @@@ Calling MakeCsoundFunctionTable() for paramindex = %d, ip =  %d\n",paramindex,ip);
 				if(MakeCsoundFunctionTable(onoffline,scorearg,alpha1,alpha2,imax,
 						(*params)[paramindex].point,ins,paramindex,ip,(*instrparamlist)[ip].startindex,(*instrparamlist)[ip].endindex) == OK)
-					(*scorearg)[itable] = FunctionTable;
+					(*scorearg)[argtable] = FunctionTable;
 				else
-					(*scorearg)[itable] = 0;
+					(*scorearg)[argtable] = 0;
 				}
 			(*scorearg)[iarg] = x;
 			

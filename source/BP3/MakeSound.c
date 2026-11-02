@@ -939,8 +939,8 @@ int MakeSound(long *p_kmax,unsigned long imaxstreak,int maxnsequences,long tmin,
 			if(trace_makesound) BPPrintMessage(0,odError,"@kcurrentinstance = %d, objectstarttime = %ld, endtime = %ld, trucbeg = %ld\n",kcurrentinstance,objectstarttime,(*p_Instance)[kcurrentinstance].endtime,(*p_Instance)[kcurrentinstance].truncbeg);
 			if(objectduration < 0 || objectduration > 500000) { // Revised 2024-06-21
 				jj = (*p_Instance)[kcurrentinstance].object;
-				BPPrintMessage(0,odError,"=> Incorrect object duration for object #%d (jj = %d) in chunk #%d, starting %ld ms ending %ld ms\n",kcurrentinstance,(*p_Instance)[kcurrentinstance].object,Chunk_number,objectstarttime,(long)t3);
-				BPPrintMessage(0,odError,"=> startime = %ld, endtime = %ld\n",objectstarttime,(*p_Instance)[kcurrentinstance].endtime);
+				BPPrintMessage(0,odError,"=> Incorrect object duration for object #%d (j = %d) in chunk #%d, starting %ld ms ending %ld ms\n",kcurrentinstance,(*p_Instance)[kcurrentinstance].object,Chunk_number,objectstarttime,(long)t3);
+			//	BPPrintMessage(0,odError,"=> startime = %ld, endtime = %ld\n",objectstarttime,(*p_Instance)[kcurrentinstance].endtime);
 				t3 = (*p_Instance)[kcurrentinstance].endtime = objectstarttime;
 				objectduration = ZERO;
 				}

@@ -293,7 +293,7 @@ int FillPhaseDiagram(tokenbyte ***pp_buff,long* p_numberobjects,unsigned long *p
 	(*p_seq)[0] = level = 0;
 
 
-	for(i=0; i <= MAXCHAN; i++) {
+	for(i = 0; i <= MAXCHAN; i++) {
 		PitchbendRange[i] = DeftPitchbendRange;
 		VolumeControl[i] = VolumeController;
 		PressRate[i] = PitchbendRate[i] = ModulationRate[i] = VolumeRate[i] = PanoramicRate[i]
@@ -382,7 +382,7 @@ int FillPhaseDiagram(tokenbyte ***pp_buff,long* p_numberobjects,unsigned long *p
 		if(m == TEND && p == TEND) break;
 		if((result=stop(0,"FillPhaseDiagram")) != OK) return(result);
 		if(trace_diagram)
-			BPPrintMessage(1,odInfo,"\n1) FillPhaseDiagram() m = %d p = %d level = %ld nseq = %ld id = %ld\n",m,p,(long)level,(long)nseq,(long)id);
+			BPPrintMessage(1,odInfo,"\n@@@ FillPhaseDiagram() m = %d p = %d level = %ld nseq = %ld id = %ld\n",m,p,(long)level,(long)nseq,(long)id);
 		if((m != T3 && m != T47) || p != 0) part_of_ip = Kpress; // Added by BB 2021-03-25
 
 		if(m == T33 || m == T34) {	/* _step() or _cont() */
@@ -704,10 +704,11 @@ int FillPhaseDiagram(tokenbyte ***pp_buff,long* p_numberobjects,unsigned long *p
 								break;
 								}
 							}
-						// BPPrintMessage(0,odInfo,"§@§ GetSymbolicDuration() m = %d, p = %d, speed = %.2f, scale = %.2f, level = %d, foundendconcatenation = %d\n",m,p,speed,scale,level,foundendconcatenation);
+						// BPPrintMessage(0,odInfo,"§@§ GetSymbolicDuration() m = %d, p = %d, speed = %.2f, scale = %.2f, level = %d, foundendconcatenation = %d, id = %ld\n",m,p,speed,scale,level,foundendconcatenation,id);
 						objectduration = GetSymbolicDuration(TRUE,*pp_buff,m,p,id,speed,scale,channel,instrument,part,foundendconcatenation,level); // 2028-08-30
 						if(iscontinuous) {
-							if(trace_toofast) BPPrintMessage(1,odInfo,"iscontinuous -> objectduration = %ld\n",(long)objectduration);
+							if(trace_toofast) 
+								BPPrintMessage(1,odInfo,"iscontinuous -> objectduration = %ld\n",(long)objectduration);
 							// BPPrintMessage(0,odInfo,"§@§ (*p_contparameters)[%d].number = %d, objectduration = %.2f\n",level,(*p_contparameters)[level].number,objectduration);
 							for(i = 0; i < (*p_contparameters)[level].number; i++) {
 								// BPPrintMessage(0,odInfo,"§@§ UpdateParameter(%i), level = %d\n",i,level);
@@ -757,7 +758,6 @@ int FillPhaseDiagram(tokenbyte ***pp_buff,long* p_numberobjects,unsigned long *p
 						(*p_Instance)[kobj].object = p;
 					//	BPPrintMessage(0,odInfo,"§§§ kobj = %d, j = %d\n",kobj,p);
 						}
-						
 					currentparameters.currvel = startvel + (velincrement * ibeatsvel
 						/ maxbeatsvel);
 					currentparameters.currarticul = startarticul
@@ -2251,7 +2251,7 @@ int UpdateParameter(int i,ContParameters **p_contparameters,int level,long durat
 		ibeats = (long)(*((*p_contparameters)[level].values))[i].ibeats;
 		maxbeats = (long)(*((*p_contparameters)[level].values))[i].maxbeats;
 		if(trace_parameters)
-			BPPrintMessage(1,odInfo,"UpdateParameter(%d) ibeats = %ld maxbeats = %ld duration = %ld\n",i,ibeats,maxbeats,(long)duration);
+			BPPrintMessage(1,odInfo,"UpdateParameter(%d) start = %.2f, ibeats = %ld maxbeats = %ld duration = %ld, increment = %.2f\n",i,start,ibeats,maxbeats,duration,(((*((*p_contparameters)[level].values))[i].increment)));
 		if((*((*p_contparameters)[level].values))[i].point != NULL
 				&& (ibeats + duration) > maxbeats) {
 			BPPrintMessage(0,odError,"=> Err. UpdateParameter(). ibeats(%ld) + duration(%ld) > maxbeats(%ld), i = %d\n",ibeats,duration,maxbeats,i);
@@ -2261,8 +2261,7 @@ int UpdateParameter(int i,ContParameters **p_contparameters,int level,long durat
 		(*((*p_contparameters)[level].values))[i].v0
 			= start + (((*((*p_contparameters)[level].values))[i].increment * ibeats) / maxbeats);
 		(*((*p_contparameters)[level].values))[i].v1
-			= start
-			+ (((*((*p_contparameters)[level].values))[i].increment * (ibeats + duration)) / maxbeats);
+			= start + (((*((*p_contparameters)[level].values))[i].increment * (ibeats + duration)) / maxbeats);
 		//  If the variation is tabulated, this v1 may be wrong when (ibeats + duration) > maxbeats, but it will later be set properly by SetObjectParam() using the last value in the table...
 		if(trace_parameters) BPPrintMessage(1,odInfo,"-> v0 = %.2f, v1 = %.2f\n",(*((*p_contparameters)[level].values))[i].v0,(*((*p_contparameters)[level].values))[i].v1);
 		}

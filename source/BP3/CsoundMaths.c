@@ -346,9 +346,10 @@ DO_OVERFLOW:
 	}
 
 
-double Remap(double x,int ins,int i,int *p_overflow) {
+double Remap(double x,int ins,int paramindex,int *p_overflow) {
 	*p_overflow = FALSE;
-	switch(i) {
+	if(trace_write_score) BPPrintMessage(0,odInfo,"# y before Remap() = %.2f\n",x);
+	switch(paramindex) {
 		case IPITCHBEND:
 			x = XtoY(x,&((*p_CsInstrument)[ins].rPitchBend),p_overflow,ins);
 			if(fabs(x) < 0.015) x = 0.;
@@ -366,6 +367,7 @@ double Remap(double x,int ins,int i,int *p_overflow) {
 			x = XtoY(x,&((*p_CsInstrument)[ins].rPanoramic),p_overflow,ins);
 			break;
 		}
+	if(trace_write_score) BPPrintMessage(0,odInfo,"# y after Remap() = %.2f\n",x);
 	return(x);
 	}
 
@@ -382,6 +384,7 @@ int MakeCsoundFunctionTable(int onoffline,double **scorearg,double alpha1,double
 		BPPrintMessage(0,odError,"=> Err. MakeCsoundFunctionTable(). scorearg == NULL");
 		return(MISSED);
 		}
+	if(trace_write_score) BPPrintMessage(0,odInfo,"onoffline = %d, alpha1 = %.2f, alpha2 = %.2f, imax = %ld\n",onoffline,alpha1,alpha2,imax);
 	if(alpha1 < 0. || alpha2 > 1. || (alpha1 >= alpha2)) return(MISSED);
 
 	r = ABORT;
@@ -421,7 +424,7 @@ int MakeCsoundFunctionTable(int onoffline,double **scorearg,double alpha1,double
 			(long)n,(long)gentype,y);
 		newx = sum = 0;
 		oldx = 0.;
-		for(i=1L; i <= lasti; i++) {
+		for(i = 1L; i <= lasti; i++) {
 			if(i == lasti)
 				newx = n - sum;	/* This compensates rounding errors */
 			else 
@@ -431,18 +434,18 @@ int MakeCsoundFunctionTable(int onoffline,double **scorearg,double alpha1,double
 			my_sprintf(line2," %ld",(long)newx);
 			strcat(line,line2);
 			y = (*(subtable.point))[i].value;
-			if(i == lasti && trace_write_score) BPPrintMessage(0,odInfo,"y(1) = %.3f for i = %ld\n",y,(long)i);
+			if(trace_write_score) BPPrintMessage(0,odInfo,"y(1) = %.3f for i = %ld\n",y,(long)i);
 			if(usescorevalues) y = CombineScoreValues(y,oldx,xmax,v0,v1,ins,paramindex,ip);
-			if(i == lasti && trace_write_score) BPPrintMessage(0,odInfo,"y(2) = %.3f for i = %ld\n",y,(long)i);
+			if(trace_write_score) BPPrintMessage(0,odInfo,"y(2) = %.3f for i = %ld\n",y,(long)i);
 			y = Remap(y,ins,paramindex,&overflow);
-			if(i == lasti && trace_write_score) BPPrintMessage(0,odInfo,"y(3) = %.3f for i = %ld\n",y,(long)i);
+			if(trace_write_score) BPPrintMessage(0,odInfo,"y(3) = %.3f for i = %ld\n",y,(long)i);
 			if(overflow) goto SORTIR;
-			if(i == lasti && trace_write_score) BPPrintMessage(0,odInfo,"y(4) = %.3f for i = %ld\n",y,(long)i);
+			if(trace_write_score) BPPrintMessage(0,odInfo,"y(4) = %.3f for i = %ld\n",y,(long)i);
 			my_sprintf(line2," %.3f",y);
 			strcat(line,line2);
 			}
 		if(CsoundTrace) ShowMessage(TRUE,wMessage,line);
-		if(trace_write_score) BPPrintMessage(0,odInfo,"%s\n",line);
+		if(trace_write_score) BPPrintMessage(0,odInfo,"table line = %s\n",line);
 		if(ConvertMIDItoCsound) Println(wPrototype7,line);
 		else WriteToFile(NO,CsoundFileFormat,line,CsRefNum);
 		}
@@ -523,8 +526,8 @@ int GetPartOfTable(XYgraph *p_subtable,double alpha1,double alpha2,long imax,Coo
 	p_subtable->point = NULL;
 	p_subtable->imax = ZERO;
 
-	if(imax <= ZERO) {
-		BPPrintMessage(0,odError,"=> Err. GetPartOfTable(). imax <= ZERO");
+	if(imax < 1L) {
+		BPPrintMessage(0,odError,"=> Err. GetPartOfTable(). imax < 1");
 		return(MISSED);
 		}
 	if(coords == NULL) {
@@ -553,11 +556,11 @@ int GetPartOfTable(XYgraph *p_subtable,double alpha1,double alpha2,long imax,Coo
 			return(MISSED);
 			}
 		startvalue = y1 + (y2 - y1) * (ix1 - x1) / (x2 - x1);
-		if(trace_write_score) BPPrintMessage(0,odInfo,"i1 = %ld, x1 = %.3f, y1 = %.3f, x2 = %.3f, y2 = %.3f, ix1 = %.3f, startvalue = %.3f\n",i1,x1,y1,x2,y2,ix1,startvalue);
+		if(trace_write_score) BPPrintMessage(0,odInfo,"i1 = %ld, x1 = %ld, x2 = %ld, y1 = %.3f, y2 = %.3f, ix1 = %.3f, startvalue = %.3f\n",i1,x1,x2,y1,y2,ix1,startvalue);
 		}
 	else {
 		startvalue = (*(coords))[ZERO].value;
-		if(trace_write_score) BPPrintMessage(0,odInfo,"i1 = ZERO startvalue = %.3f\n",startvalue);
+		if(trace_write_score) BPPrintMessage(0,odInfo,"i1 = ZERO -> startvalue = %.3f\n",startvalue);
 		}
 
 	ix2 = alpha2 * (double) xmax;
@@ -567,17 +570,17 @@ int GetPartOfTable(XYgraph *p_subtable,double alpha1,double alpha2,long imax,Coo
 	if(trace_write_score) BPPrintMessage(0,odInfo,"i2 = %ld\n",i2);
 
 	if(i2 > ZERO) {
-		x2 = (*(coords))[i2].i;
 		x1 = (*(coords))[i2-1L].i; 
-		y2 = (*(coords))[i2].value;
-		if(y2 < Infneg || y2 > Infpos) {
-			y2 = 0.; // Dirty fix by BB, 10 Nov. 2020 after seeing rare problem occurring in -gr.vina3
-			BPPrintMessage(0,odError,"=> Error in GetPartOfTable(). y2 = %.3f, x1 = %.3f, x2 = .%3f; i2 = %ld (fixed)\n",y2,x1,x2,(long)i2);
-			}
+		x2 = (*(coords))[i2].i;
 		y1 = (*(coords))[i2-1L].value;
 		if(y1 < Infneg || y1 > Infpos) {
 			y1 = 0.; // Dirty fix by BB, 10 Nov. 2020 after seeing rare problem occurring in -gr.vina3
 			BPPrintMessage(0,odError,"=> Error in GetPartOfTable(). y1 = %.3f, x1 = %.3f, x2 = .%3f; i2 = %ld (fixed)\n",y1,x1,x2,(long)i2);
+			}
+		y2 = (*(coords))[i2].value;
+		if(y2 < Infneg || y2 > Infpos) {
+			y2 = 0.; // Dirty fix by BB, 10 Nov. 2020 after seeing rare problem occurring in -gr.vina3
+			BPPrintMessage(0,odError,"=> Error in GetPartOfTable(). y2 = %.3f, x1 = %.3f, x2 = .%3f; i2 = %ld (fixed)\n",y2,x1,x2,(long)i2);
 			}
 		if(x1 >= x2) {
 			BPPrintMessage(0,odError,"=> Err. GetPartOfTable(). x1 >= x2");
@@ -585,16 +588,15 @@ int GetPartOfTable(XYgraph *p_subtable,double alpha1,double alpha2,long imax,Coo
 			return(MISSED);
 			}
 		endvalue = y1 + (y2 - y1) * (ix2 - x1) / (x2 - x1);
-		if(trace_write_score) BPPrintMessage(0,odInfo,"i2 = %ld, x1 = %.3f, y1 = %.3f, x2 = %.3f, y2 = %.3f, ix2 = %.3f, endvalue = %.3f\n",i2,x1,y1,x2,y2,ix2,endvalue);
+		if(trace_write_score) BPPrintMessage(0,odInfo,"i2 = %ld, x1 = %ld, x2 = %ld, y1 = %.3f, y2 = %.3f, ix2 = %.3f, endvalue = %.3f\n",i2,x1,x2,y1,y2,ix2,endvalue);
 		}
 	else {
 		endvalue = (*(coords))[ZERO].value;
 		if(trace_write_score) BPPrintMessage(0,odInfo,"i2 = ZERO endvalue = %.3f\n",endvalue);
 		}
 	p_subtable->imax = i2 - i1 + 3L;
-	if(trace_write_score) BPPrintMessage(0,odInfo,"p_subtable i1 = %ld i2 = %ld imax = %ld\n",(long)i1,(long)i2,(long)imax);
-	if((p_subtable->point = (XYCoordinates**) GiveSpace((Size)((imax + 1) * sizeof(XYCoordinates)))) == NULL)
-		return(ABORT);
+	if(trace_write_score) BPPrintMessage(0,odInfo,"p_subtable i1 = %ld, i2 = %ld, imax = %ld\n",(long)i1,(long)i2,(long)imax);
+	if((p_subtable->point = (XYCoordinates**) GiveSpace((Size)((imax + 1) * sizeof(XYCoordinates)))) == NULL) return(ABORT);
 
 	j = ZERO;
 	(*(p_subtable->point))[j].value = startvalue;
@@ -611,17 +613,14 @@ int GetPartOfTable(XYgraph *p_subtable,double alpha1,double alpha2,long imax,Coo
 		}
 
 	(*(p_subtable->point))[j-1].value = endvalue;
-	// BPPrintMessage(0,odInfo,"(*(p_subtable->point))[j-1].value = %.3f\n",endvalue);
-	(*(p_subtable->point))[j-1].x = ix2;	/* May not be integer value */
+	(*(p_subtable->point))[j-1].x = ix2;	// May not be integer value
 
-	// if(trace_write_score) BPPrintMessage(0,odInfo,"startvalue = %.3f endvalue = %.3f\n",startvalue,endvalue);
+	if(trace_write_score) BPPrintMessage(0,odInfo,"startvalue = %.3f endvalue = %.3f\n",startvalue,endvalue);
 
 	if(j < 3L) return(MISSED);
 
-	for(i=1L; i < j; i++) (*(p_subtable->point))[i].x -= ix1;
-
+	for(i = 1L; i < j; i++) (*(p_subtable->point))[i].x -= ix1;
 	p_subtable->imax = j;
-
 	return(OK);
 	}
 
