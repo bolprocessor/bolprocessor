@@ -245,20 +245,24 @@ int CscoreWrite(Milliseconds cut_the_end,Rect* p_graphrect,int leftoffset,int to
 	pitchclass = -1;
 
 	if(iarg > 0) {
+		pitch_format = (*p_CsPitchFormat)[ins];
+//		if((pitch_format == OPPC || pitch_format == OPD) && (A4freq != 440. || C4key != 60) pitch_format = CPS;
 		if(onoffline == LINE) {
 			x = (*scorearg)[iarg];
-			switch((*p_CsPitchFormat)[ins]) {
+			switch(pitch_format) {
 				case OPPC:
 					octave = MyInt(x);
 					pitchclass = MyInt(100. * (x - octave));
 					deltakey = C4key - 60 + 12. * (octave - 3.) + pitchclass;
+					if(trace_cs_scoremake) BPPrintMessage(0,odInfo,"### OPPC x = %.2f, deltakey = %.2f, pitchclass = %d\n",x,deltakey,pitchclass);
 					break;
 				case OPD:
 					deltakey = C4key - 60 + (x - 3.) * 12.;
+					if(trace_cs_scoremake) BPPrintMessage(0,odInfo,"### OPD x = %.2f, deltakey = %.2f\n",x,deltakey);
 					break;
 				case CPS:
 					deltakey = (C4key + 9.) + 12. * (log(x/A4freq) / log(2.));
-				//	BPPrintMessage(0,odInfo,"### deltakey = %.2f, x = %.2f\n",deltakey,x);
+					if(trace_cs_scoremake) BPPrintMessage(0,odInfo,"### deltakey = %.2f, x = %.2f\n",deltakey,x);
 					break;
 				}
 		//	key = MyInt(deltakey);
@@ -304,12 +308,9 @@ int CscoreWrite(Milliseconds cut_the_end,Rect* p_graphrect,int leftoffset,int to
 				x = GetTableValue(alpha1,imax,(*params)[IPITCHBEND].point,startvalue,endvalue);
 			else x = startvalue;
 			cents = (x - DEFTPITCHBEND) * (*p_CsInstrument)[ins].pitchbendrange / DEFTPITCHBEND;
+			if(trace_cs_scoremake) BPPrintMessage(0,odInfo,"cents = %.2f, cents2 = %d, alpha1 = %.2f\n",cents,cents2,alpha1);
 			}
 		else cents = 0.;
-		pitch_format = (*p_CsPitchFormat)[ins];
-		// BPPrintMessage(0,odInfo,"The A4freq = %.3f\n",A4freq);
-		if((pitch_format == OPPC || pitch_format == OPD) && (A4freq != 440. || C4key != 60))
-			pitch_format = CPS;
 		if(scale <= 0) i_scale = 0;
 		if(NumberScales > 0 && scale >= 0) {
 			// BPPrintMessage(0,odInfo,"The scale = %d\n",scale);
@@ -335,8 +336,11 @@ int CscoreWrite(Milliseconds cut_the_end,Rect* p_graphrect,int leftoffset,int to
 				x = ((double)key + deltakey) / 12. + 3.;
 				break;
 			case CPS:
+				if(trace_cs_scoremake) BPPrintMessage(0,odInfo,"&&& cents = %.2f\n",cents);
 				x = A4freq * exp((((double)key + deltakey) - ((double)C4key + 9.)) / 12. * log(2.));
-				x = x * exp((cents / 1200.) * log(2.));
+				if((*p_CsPitchBendStartIndex)[ins] < 0) {
+					x = x * exp((cents / 1200.) * log(2.));
+					}
 				break;
 			case IGNORER: break;
 			}
@@ -364,16 +368,18 @@ int CscoreWrite(Milliseconds cut_the_end,Rect* p_graphrect,int leftoffset,int to
 				alpha1 = alpha2 = 0.;
 				if(trace_cs_scoremake) BPPrintMessage(0,odInfo,"(pitchbend mode is FIXMAPMODE)\n");
 				}
-		/*	if(alpha1 <= -0.01 || alpha1 >= 1.01 || alpha2 <= -0.01 || alpha2 >= 1.01 || alpha2 < alpha1)
-				alpha1 = alpha2 = -1.; */
 			if(alpha1 > -0.1 && alpha1 < 1.1) {
 				x = GetTableValue(alpha1,imax,(*params)[IPITCHBEND].point,startvalue,endvalue);
 				}
 			else x = startvalue;
 			}
 		else x = DEFTPITCHBEND;
-		if(onoffline == LINE) x = (*scorearg)[iarg] + x - DEFTPITCHBEND;
-		x = Remap(x,ins,IPITCHBEND,&overflow);
+		if(trace_cs_scoremake) BPPrintMessage(0,odInfo,"&&& iarg = %d, (*scorearg)[iarg] = %.2f, x = %.2f, startvalue = %.2f\n",iarg,(*scorearg)[iarg],x,startvalue);
+		if(pitch_format == CPS) x = exp((cents / 1200.) * log(2.));
+		else { 
+			if(onoffline == LINE) x = (*scorearg)[iarg] + x - DEFTPITCHBEND;
+			x = Remap(x,ins,IPITCHBEND,&overflow);
+			}
 		if(overflow) goto SORTIR;
 		
 		if((*params)[IPITCHBEND].active && imax > ZERO && (*params)[IPITCHBEND].mode == CONTINUOUS
@@ -416,16 +422,14 @@ int CscoreWrite(Milliseconds cut_the_end,Rect* p_graphrect,int leftoffset,int to
 					/ (*params)[IVOLUME].dur;
 				}
 			else alpha1 = alpha2 = 0.;
-		/*	if(alpha1 <= -0.01 || alpha1 >= 1.01 || alpha2 <= -0.01 || alpha2 >= 1.01 || alpha2 < alpha1)
-				alpha1 = alpha2 = -1.; */
 			if(alpha1 > -0.1 && alpha1 < 1.1)
 				x = GetTableValue(alpha1,imax,(*params)[IVOLUME].point,startvalue,endvalue);
 			else x = startvalue;
-		//	BPPrintMessage(0,odInfo,"--1 x = %.2f @ %.3f, alpha1 = %.2f, alpha2 = %.2f, startvalue = %.2f, endvalue = %.2f\n",x,alpha1,alpha2,startvalue,endvalue);
+		//	BPPrintMessage(0,odInfo,"--1 x = %.2f, alpha1 = %.2f, alpha2 = %.2f, startvalue = %.2f, endvalue = %.2f, DeftVolume = %d\n",x,alpha1,alpha2,startvalue,endvalue,DeftVolume);
 			}
 		else x = DeftVolume;
-	//	BPPrintMessage(0,odInfo,"++1 x = %.2f @ %.3f, DeftVolume = %d, alpha1 = %.2f, alpha2 = %.2f\n",x,(*scorearg)[2],DeftVolume,alpha1,alpha2);
-		if(onoffline == LINE) x = (*scorearg)[iarg] * x / DeftVolume;
+	//	BPPrintMessage(0,odInfo,"++1 x = %.2f (*scorearg)[2] %.3f, DeftVolume = %d, alpha1 = %.2f, alpha2 = %.2f\n",x,(*scorearg)[2],DeftVolume,alpha1,alpha2);
+		if(onoffline == LINE) x = (*scorearg)[iarg] + x - DeftVolume;
 		x = Remap(x,ins,IVOLUME,&overflow);
 	//	BPPrintMessage(0,odInfo,"--- x = %.2f @ %.3f\n",x,(*scorearg)[2]);
 		if(overflow) goto SORTIR;
@@ -450,7 +454,7 @@ int CscoreWrite(Milliseconds cut_the_end,Rect* p_graphrect,int leftoffset,int to
 		if((*params)[IVOLUME].active && (*params)[IVOLUME].mode == CONTINUOUS) {
 			if(alpha2 > -0.1 && alpha2 < 1.1) {
 				x = GetTableValue(alpha2,imax,(*params)[IVOLUME].point,startvalue,endvalue);
-				if(onoffline == LINE) x = (*scorearg)[iarg] * x / DeftVolume;
+				if(onoffline == LINE) x = (*scorearg)[iarg] + x - DeftVolume;
 				x = Remap(x,ins,IVOLUME,&overflow);
 				if(overflow) goto SORTIR;
 				}
@@ -762,7 +766,7 @@ WRITECSCORELINE:
 		strcpy(line,"; ");
 		PrintThisNote(i_scale,key,0,-1,LineBuff);
 		strcat(line,LineBuff);
-		int cent_value = ((int) cents) + cents2;
+		int cent_value = round(cents + cents2);
 		if(cent_value != 0) {
 			if(cent_value > 0) my_sprintf(LineBuff," + %d cents",cent_value);
 			if(cent_value < 0) my_sprintf(LineBuff," %d cents",cent_value);

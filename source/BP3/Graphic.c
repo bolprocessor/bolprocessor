@@ -101,7 +101,7 @@ int DrawItem(int w,SoundObjectInstanceParameters **p_object,Milliseconds **p_t1,
 		return(ABORT);
 		
 	hrect = 13;
-	htext = 12;
+	htext = 13;
 	leftoffset = hrect - (tmin * GraphicScaleP) / GraphicScaleQ / 10;
 	// BPPrintMessage(0,odInfo,"hrect = %d, tmin = %ld, leftoffset = %d\n",hrect,(long)tmin,leftoffset);
 	if(leftoffset < 20) {
@@ -293,7 +293,7 @@ int DrawItem(int w,SoundObjectInstanceParameters **p_object,Milliseconds **p_t1,
 				}
 			else moved_up = FALSE;
 			if(linenum > 0) {
-				(*p_top)[linenum] = (*p_top)[linenum-1] + hrect + htext * (1 + (*p_morespace)[linenum-1]); // Fixed by BB 2021-01-30
+				(*p_top)[linenum] = (*p_top)[linenum-1] + hrect + htext * (2 + (*p_morespace)[linenum-1]); // Fixed by BB 2021-01-30
 			//	if(!moved_up) (*p_morespace)[linenum] = (*p_morespace)[linenum-1];  // Fixed by BB 2021-01-31
 			//	if(!moved_up) (*p_morespace)[linenum] = 0;  // Fixed by BB 2021-01-31
 				}

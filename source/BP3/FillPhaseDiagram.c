@@ -514,6 +514,7 @@ int FillPhaseDiagram(tokenbyte ***pp_buff,long* p_numberobjects,unsigned long *p
 					(*((*p_contparameters)[level].values))[paramindex].increment = 0;
 					(*((*p_contparameters)[level].values))[paramindex].mode = FIXMAPMODE;
 					(*((*p_contparameters)[level].values))[paramindex].point = NULL;
+					(*((*p_contparameters)[level].values))[paramindex].active = FALSE;
 					break;
 				case 14: /* _pitchfixed */
 					paramindex = IPITCHBEND;
@@ -523,6 +524,7 @@ int FillPhaseDiagram(tokenbyte ***pp_buff,long* p_numberobjects,unsigned long *p
 					(*((*p_contparameters)[level].values))[paramindex].increment = 0;
 					(*((*p_contparameters)[level].values))[paramindex].mode = FIXMAPMODE;
 					(*((*p_contparameters)[level].values))[paramindex].point = NULL;
+					(*((*p_contparameters)[level].values))[paramindex].active = FALSE; // 2026-11-03
 					break;
 				case 15: /* _pressfixed */
 					paramindex = IPRESSURE;
@@ -532,6 +534,7 @@ int FillPhaseDiagram(tokenbyte ***pp_buff,long* p_numberobjects,unsigned long *p
 					(*((*p_contparameters)[level].values))[paramindex].increment = 0;
 					(*((*p_contparameters)[level].values))[paramindex].mode = FIXMAPMODE;
 					(*((*p_contparameters)[level].values))[paramindex].point = NULL;
+					(*((*p_contparameters)[level].values))[paramindex].active = FALSE;
 					break;
 				case 16: /* _volumefixed */
 					paramindex = IVOLUME;
@@ -541,6 +544,7 @@ int FillPhaseDiagram(tokenbyte ***pp_buff,long* p_numberobjects,unsigned long *p
 					(*((*p_contparameters)[level].values))[paramindex].increment = 0;
 					(*((*p_contparameters)[level].values))[paramindex].mode = FIXMAPMODE;
 					(*((*p_contparameters)[level].values))[paramindex].point = NULL;
+					(*((*p_contparameters)[level].values))[paramindex].active = FALSE;
 					break;
 				case 17: /* _articulfixed */
 					currentparameters.articulmode = FIXMAPMODE;
@@ -556,6 +560,7 @@ int FillPhaseDiagram(tokenbyte ***pp_buff,long* p_numberobjects,unsigned long *p
 					(*((*p_contparameters)[level].values))[paramindex].increment = 0;
 					(*((*p_contparameters)[level].values))[paramindex].mode = FIXMAPMODE;
 					(*((*p_contparameters)[level].values))[paramindex].point = NULL;
+					(*((*p_contparameters)[level].values))[paramindex].active = FALSE;
 					break;
 				case 19: /* _panstep */
 				case 20: /* _pancont */
