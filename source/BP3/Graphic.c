@@ -293,13 +293,13 @@ int DrawItem(int w,SoundObjectInstanceParameters **p_object,Milliseconds **p_t1,
 				}
 			else moved_up = FALSE;
 			if(linenum > 0) {
-				(*p_top)[linenum] = (*p_top)[linenum-1] + hrect + htext * (2 + (*p_morespace)[linenum-1]); // Fixed by BB 2021-01-30
+				(*p_top)[linenum] = (*p_top)[linenum-1] + hrect + htext * (2 + (*p_morespace)[linenum-1]); // 2026-11-04  (2 +
 			//	if(!moved_up) (*p_morespace)[linenum] = (*p_morespace)[linenum-1];  // Fixed by BB 2021-01-31
 			//	if(!moved_up) (*p_morespace)[linenum] = 0;  // Fixed by BB 2021-01-31
 				}
 			morespace = (*p_morespace)[linenum];
 			preroll = postroll = ZERO;
-			if(j < 16384) {
+			if(j > 1 && j < Jbol) {
 				if((*p_PreRollMode)[j] == FIXVALUE) preroll = (*p_PreRoll)[j];
 				else preroll = (*p_Instance)[k].beta * (*p_PreRoll)[j];
 				if((*p_Instance)[k].beta == 0.) preroll = 0.;
@@ -499,7 +499,7 @@ int DrawObject(int j, char *label, int moved_up, double beta, int top, int hrect
 		}
 
 	// Draw pivot
-	if(try_pivots || (j < Jbol)) {
+	if(try_pivots || (j > 0 && j < Jbol)) {
 		x_startpivot = r.left + (int) pivloc;
 		
 		// Erase background above pivot

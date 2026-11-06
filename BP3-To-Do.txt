@@ -26,7 +26,6 @@ Various issues
 - Design an example demonstrating properties "Allow gap" in sound-objects.
 - Pianoroll is not drawn if there are negative dates (due to pivot and preroll).
 - Check the handling of _fixed() in SetObjectFeatures.c
-- In -da.Beethoven-fugue-b-flat-major, k = 22082, note Bb5, start time = end time = 0
 - When playing -da.Beethoven-fuge-b-flat-major using PLAY safe (7 chunks) there is a time error between two chunks. Check the chunking on data.php
 - Try to make sense of 'truebracket' and 'imbedded' in Polymetric.c
 - Templates can't be created with rules containing integers as silences. This can be solved in MakeTemplate().

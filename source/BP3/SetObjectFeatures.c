@@ -213,8 +213,8 @@ int SetObjectParams(int part_of_score,int level,int nseq,long k,int j,CurrentPar
 			(*currentinstancevalues)[paramindex].index = (*((*p_contparameters)[level].values))[paramindex].index;
 			(*currentinstancevalues)[paramindex].imax = ZERO;
 			(*currentinstancevalues)[paramindex].point = NULL;
-			if(paramindex == IPANORAMIC && j < Jbol && !(*p_OkPan)[j]) continue;
-			if(paramindex == IVOLUME && j < Jbol && !(*p_OkVolume)[j]) continue;
+			if(paramindex == IPANORAMIC && j >= 0 && j < Jbol && !(*p_OkPan)[j]) continue;
+			if(paramindex == IVOLUME && j >= 0 && j < Jbol && !(*p_OkVolume)[j]) continue;
 			if(h_table == NULL) {
 				BPPrintMessage(0,odError,"=> Err. SetObjectParams(). h_table == NULL\n");
 				}
@@ -1068,11 +1068,11 @@ if(nature_time == STRIATED || nseq == 0) {
 					alpha = (double) d  * clockperiod / (*p_Tref)[j];
 				else if((*p_Tref)[j] > EPSILON) // Striated object
 					alpha = (double) d * clockperiod / (*p_Tref)[j];
-					if((*p_Dur)[j] == ZERO) (*p_SilentObject)[j] = TRUE;
-					if((*p_SilentObject)[j]) {
-						(*p_Dur)[j] = (*p_Tref)[j];
-						alpha = (double) (*p_Tref)[j] / 1000.;
-						}
+				if((*p_Dur)[j] == ZERO) (*p_SilentObject)[j] = TRUE;
+				if((*p_SilentObject)[j]) {
+					(*p_Dur)[j] = (*p_Tref)[j];
+					alpha = (double) (*p_Tref)[j] / 1000.;
+					}
 				else if((*p_Dur)[j] > EPSILON) // Smooth object
 					alpha = (double) d * clockperiod / (*p_Dur)[j];
 				else alpha = d;
@@ -1475,8 +1475,7 @@ int SetLimits(int nseq,Milliseconds** p_maxcoverbeg,Milliseconds** p_maxcoverend
 				}
 			else maxcover2 = ZERO;
 			} 
-		
-		if((maxcover1 + maxcover2) >= dur && maxcover1 != Infpos && maxcover2 != Infpos)
+		if(maxcover1 != Infpos && maxcover2 != Infpos && (maxcover1 + maxcover2) >= dur)
 			(*p_maxcoverbeg)[i] = (*p_maxcoverend)[i] = Infpos;
 		else {
 			(*p_maxcoverbeg)[i] = maxcover1;

@@ -121,7 +121,7 @@ int CreateMicrotonalScale(char* line, char* name, char* note_names, char* key_nu
 	// "line" contains the scale as defined in Csound GEN51 format
 	char c, curr_arg[MAXLIN], label[MAXLIN], this_note[MAXLIN], this_fraction_arg[MAXLIN], note_name[20],key_number_string[20];
 	char** ptr;
-	int i,n,i_note,j_note,temp_note,key,this_key,octave,temp_octave,numnotes,note_key_class,keyclass,keyclass_near,j,k,pos,n_args,space,numgrades,baseoctave,basekey,numerator,delta_key,pitchclass,num[100],den[100];
+	int i,i_note,j_note,temp_note,key,this_key,octave,temp_octave,numnotes,note_key_class,keyclass,keyclass_near,j,k,pos,n_args,space,numgrades,baseoctave,basekey,numerator,delta_key,pitchclass,num[100],den[100];
 	double blockkey_temp_freq, frequency, temp_pitch, pitch_ratio, interval;
 	
 	if(strlen(line) == 0 || line[0] != 'f') return(OK);
@@ -237,8 +237,8 @@ int CreateMicrotonalScale(char* line, char* name, char* note_names, char* key_nu
 									num[i_note] = atoi(this_fraction_arg);
 								else {
 									den[i_note] = atoi(this_fraction_arg);
-								if(trace_each_scale) 
-									BPPrintMessage(0,odInfo,"Creating position = %d ratio %d/%d\n",i_note,num[i_note],den[i_note]);
+									if(trace_each_scale) 
+										BPPrintMessage(0,odInfo,"Creating position = %d ratio %d/%d\n",i_note,num[i_note],den[i_note]);
 									i_note++;
 									}
 								numerator = 1 - numerator;
@@ -332,7 +332,7 @@ int CreateMicrotonalScale(char* line, char* name, char* note_names, char* key_nu
 		keyclass_near = round(12. * log2(pitch_ratio));
 	//	frequency_near = (*Scale)[i_scale].basefreq  * pow(2,((double) keyclass_near / 12)) * pow(interval,(octave - baseoctave));
 		(*(*Scale)[i_scale].blockkey_shift)[key] = (short) 1200. * log2(pow(2,((double) keyclass_near / 12)) / pitch_ratio);
-		if(check_corrections) BPPrintMessage(0,odInfo,"temp_pitch = %.3f, frequency = %.3f, pitch_ratio = %.3f, n = %.3f\n",temp_pitch,frequency,pitch_ratio,n);
+		if(check_corrections) BPPrintMessage(0,odInfo,"temp_pitch = %.3f, frequency = %.3f, pitch_ratio = %.3f\n",temp_pitch,frequency,pitch_ratio);
 		(*(*Scale)[i_scale].deviation)[key] = (short) (1200. * log2(frequency/temp_pitch));
 		if(TraceMicrotonality) {
 			BPPrintMessage(0,odInfo,"key #%d \"%s\" deviation %d c, [oct %d] %.3f Hz -> [oct %d] %.3f Hz, blockkey shift %d c\n",key,name,(*(*Scale)[i_scale].deviation)[key],temp_octave,temp_pitch,octave,frequency,(*(*Scale)[i_scale].blockkey_shift)[key]);
@@ -414,7 +414,7 @@ double GetPitchWithScale(int i_scale, int kcurrentinstance, int key, double cent
 		if(pitchbend_master != 0) BPPrintMessage(0,odInfo,"--> with additional pitchbend value of %d\n",pitchbend_master);
 		}
 
-	if(check_getpitch) BPPrintMessage(0,odInfo,"• key = %d, C4key = %d, basekey = %d, basekeyclass = %d, basefreq = %.3f baseoctave = %d, numgrades = %d interval = %.3f, keyclass = %d, diapason_correction = %.4f blockkey = %d, correction = %d, octave = %d, cents = %.1f, tuningratio[basekeyclass] = %.3f frequency = %.3f Hz\n",key,C4key,(*Scale)[i_scale].basekey,basekeyclass,basefreq,baseoctave,numgrades,interval,keyclass,diapason_correction,blockkey,correction,octave,cents,(*((*Scale)[i_scale].tuningratio))[basekeyclass],frequency);
+	if(check_getpitch) BPPrintMessage(0,odInfo,"• key = %d, C4key = %d, basekey = %d, basefreq = %.3f baseoctave = %d, numgrades = %d interval = %.3f, keyclass = %d, diapason_correction = %.4f blockkey = %d, correction = %d, octave = %d, cents = %.1f, frequency = %.3f Hz\n",key,C4key,(*Scale)[i_scale].basekey,basefreq,baseoctave,numgrades,interval,keyclass,diapason_correction,blockkey,correction,octave,cents,frequency);
 
 	return frequency;
 	}

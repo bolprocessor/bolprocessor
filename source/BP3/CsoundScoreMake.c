@@ -38,7 +38,7 @@
 
 #include "-BP3decl.h"
  
-int trace_cs_scoremake = 0;
+int trace_cs_scoremake = 1;
 
 int CscoreWrite(Milliseconds cut_the_end,Rect* p_graphrect,int leftoffset,int topoffset,int hrect,int minkey,int maxkey,int strikeagain,int onoffline,double beta,Milliseconds time_ms,int iline,int key,int velocity,int chan,int instrument,int j,int nseq,int kcurrentinstance,PerfParameters ****pp_currentparams,int scale,int blockkey) {
 	// j is the sound-object prototype
@@ -47,10 +47,10 @@ int CscoreWrite(Milliseconds cut_the_end,Rect* p_graphrect,int leftoffset,int to
 	// onoffline = OFF -- terminate Csound process as a NoteOff has been encountered, and
 	//    write Csound score line
 
-	int i,jj,k,c,ins,index,paramindex,paramnameindex,this_instrument,iarg,ip,ipitch,iargmax,octave,changedpitch,overflow,comeback,pitchclass,result,maxparam,argtable,pitch_format,i_scale,mode,cents2;
+	int i,jj,k,c,ins,index,paramindex,paramnameindex,this_instrument,iarg,ip,ipitch,iargmax,octave,changedpitch,overflow,comeback,pitchclass,result,maxparam,argtable,pitch_format,i_scale,mode;
 	char line[MAXLIN],line2[MAXLIN];
 	long imax,pivloc,trbeg,starttime;
-	double time,x,xx,cents,deltakey,dur,**scorearg,alpha1,alpha2,startvalue,endvalue,ratio,oldtime_on;
+	double time,x,xx,cents_base,cents_add1,cents_add2,deltakey,dur,**scorearg,alpha1,alpha2,startvalue,endvalue,ratio,oldtime_on;
 	PerfParameters **perf;
 	ParameterStatus **params,**paramscopy;
 	Handle h;
@@ -61,7 +61,7 @@ int CscoreWrite(Milliseconds cut_the_end,Rect* p_graphrect,int leftoffset,int to
 	params = NULL;
 	
 	result = ABORT; 
-	cents2 = 0;
+	cents_base = cents_add1 = cents_add2 = 0.;
 
 	if(chan < 0 || chan >= MAXCHAN) {
 		BPPrintMessage(0,odError,"=> Err. CscoreWrite(ZERO,). chan < 0 || chan >= MAXCHAN");
@@ -268,7 +268,7 @@ int CscoreWrite(Milliseconds cut_the_end,Rect* p_graphrect,int leftoffset,int to
 		//	key = MyInt(deltakey);
 			key = (int)lround(deltakey);
 			deltakey -= key;
-			cents2 = (int) (100. * deltakey);
+			cents_base = 100. * deltakey;
 			if(j < Jbol) {
 				if((*p_OkTransp)[j] && (*perf)->transposefirst)
 					TransposeKey(&key,(*perf)->transpose);
@@ -307,10 +307,10 @@ int CscoreWrite(Milliseconds cut_the_end,Rect* p_graphrect,int leftoffset,int to
 			if(alpha1 > -0.01 && alpha1 < 1.01)
 				x = GetTableValue(alpha1,imax,(*params)[IPITCHBEND].point,startvalue,endvalue);
 			else x = startvalue;
-			cents = (x - DEFTPITCHBEND) * (*p_CsInstrument)[ins].pitchbendrange / DEFTPITCHBEND;
-			if(trace_cs_scoremake) BPPrintMessage(0,odInfo,"cents = %.2f, cents2 = %d, alpha1 = %.2f\n",cents,cents2,alpha1);
+			cents_add1 = (x - DEFTPITCHBEND) * (*p_CsInstrument)[ins].pitchbendrange / DEFTPITCHBEND;
+			if(trace_cs_scoremake) BPPrintMessage(0,odInfo,"cents_add1 = %.2f, cents_base = %.2f, alpha1 = %.2f\n",cents_add1,cents_base,alpha1);
 			}
-		else cents = 0.;
+		else cents_add1 = 0.;
 		if(scale <= 0) i_scale = 0;
 		if(NumberScales > 0 && scale >= 0) {
 			// BPPrintMessage(0,odInfo,"The scale = %d\n",scale);
@@ -323,7 +323,7 @@ int CscoreWrite(Milliseconds cut_the_end,Rect* p_graphrect,int leftoffset,int to
 				}
 			if(i_scale > 0 && i_scale <= NumberScales) { 
 			//	BPPrintMessage(0,odInfo,"blockkey = %d\n",blockkey);
-				x = GetPitchWithScale(i_scale,kcurrentinstance,key,cents,blockkey);
+				x = GetPitchWithScale(i_scale,kcurrentinstance,key,cents_add1,blockkey);
 				if(x == Infpos) return(ABORT);
 				pitch_format = IGNORER;
 				}
@@ -336,10 +336,10 @@ int CscoreWrite(Milliseconds cut_the_end,Rect* p_graphrect,int leftoffset,int to
 				x = ((double)key + deltakey) / 12. + 3.;
 				break;
 			case CPS:
-				if(trace_cs_scoremake) BPPrintMessage(0,odInfo,"&&& cents = %.2f\n",cents);
+				if(trace_cs_scoremake) BPPrintMessage(0,odInfo,"&&& cents_add1 = %.2f\n",cents_add1);
 				x = A4freq * exp((((double)key + deltakey) - ((double)C4key + 9.)) / 12. * log(2.));
 				if((*p_CsPitchBendStartIndex)[ins] < 0) {
-					x = x * exp((cents / 1200.) * log(2.));
+					x = x * exp((cents_add1 / 1200.) * log(2.));
 					}
 				break;
 			case IGNORER: break;
@@ -374,12 +374,13 @@ int CscoreWrite(Milliseconds cut_the_end,Rect* p_graphrect,int leftoffset,int to
 			else x = startvalue;
 			}
 		else x = DEFTPITCHBEND;
-		if(trace_cs_scoremake) BPPrintMessage(0,odInfo,"&&& iarg = %d, (*scorearg)[iarg] = %.2f, x = %.2f, startvalue = %.2f\n",iarg,(*scorearg)[iarg],x,startvalue);
-		if(pitch_format == CPS) x = exp((cents / 1200.) * log(2.));
-		else { 
-			if(onoffline == LINE) x = (*scorearg)[iarg] + x - DEFTPITCHBEND;
-			x = Remap(x,ins,IPITCHBEND,&overflow);
+		if(trace_cs_scoremake) BPPrintMessage(0,odInfo,"&&& PITCHBEND start iarg = %d, (*scorearg)[iarg] = %.2f, x = %.2f, startvalue = %.2f\n",iarg,(*scorearg)[iarg],x,startvalue);
+		if(onoffline == LINE) {
+			if((*p_CsInstrument)[ins].rPitchBend.islogx)
+				x = (*scorearg)[iarg] + x - DEFTPITCHBEND;
+			else x = (*scorearg)[iarg] * x;
 			}
+		x = Remap(x,ins,IPITCHBEND,&overflow);
 		if(overflow) goto SORTIR;
 		
 		if((*params)[IPITCHBEND].active && imax > ZERO && (*params)[IPITCHBEND].mode == CONTINUOUS
@@ -406,7 +407,10 @@ int CscoreWrite(Milliseconds cut_the_end,Rect* p_graphrect,int leftoffset,int to
 				}
 			}
 		(*scorearg)[iarg] = x;
+		cents_add2 = x;
+	//	cents_add2 = (x - DEFTPITCHBEND) * (*p_CsInstrument)[ins].pitchbendrange / DEFTPITCHBEND;
 		}
+	else cents_add2 = 0.;
 
 	iarg = (*p_CsVolumeStartIndex)[ins];
 //	BPPrintMessage(0,odInfo,"&&& iarg = %d, ins = %d, active = %d\n",iarg,ins,(*params)[IVOLUME].active);
@@ -750,8 +754,7 @@ WRITECSCORELINE:
 	if(trace_cs_scoremake) BPPrintMessage(0,odInfo,"- %s",line2);
 
 	for(iarg=2; iarg <= iargmax; iarg++) {
-		if(iarg != ipitch || pitch_format == IGNORER || pitch_format == CPS) {
-			if(fabs((*scorearg)[iarg]) < 0.0001) (*scorearg)[iarg] = 0.;
+		if(iarg != ipitch || pitch_format == IGNORER || pitch_format == CPS || pitch_format == OPD) {
 			my_sprintf(line,"%.3f ",(*scorearg)[iarg]);
 			}
 		else
@@ -766,12 +769,19 @@ WRITECSCORELINE:
 		strcpy(line,"; ");
 		PrintThisNote(i_scale,key,0,-1,LineBuff);
 		strcat(line,LineBuff);
-		int cent_value = round(cents + cents2);
-		if(cent_value != 0) {
-			if(cent_value > 0) my_sprintf(LineBuff," + %d cents",cent_value);
-			if(cent_value < 0) my_sprintf(LineBuff," %d cents",cent_value);
-			strcat(line,LineBuff);
-			}
+		strcpy(LineBuff,"");
+		if(cents_base > 0.) my_sprintf(LineBuff," + %d",(int)cents_base);
+		if(cents_base < 0.) my_sprintf(LineBuff," %d",(int)cents_base);
+		strcat(line,LineBuff);
+		strcpy(LineBuff,"");
+		if(cents_add1 > 0.) my_sprintf(LineBuff," -> + %d",(int)cents_add1);
+		if(cents_add1 < 0.) my_sprintf(LineBuff," -> %d",(int)cents_add1);
+		strcat(line,LineBuff);
+		strcpy(LineBuff,"");
+		if(cents_add2 > 0.) my_sprintf(LineBuff," to + %d",(int)cents_add2);
+		if(cents_add2 < 0.) my_sprintf(LineBuff," to %d",(int)cents_add2);
+		strcat(LineBuff," cents");
+		if(cents_base != 0. || cents_add1 != 0.) strcat(line,LineBuff);
 		strcat(Message,line);
 		}
 	else line[0] = '\0';

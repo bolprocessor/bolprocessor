@@ -1629,7 +1629,7 @@ int SaveFloatAsJson(FILE *sojson,const char *key,const char *unit,const char *na
 	return(OK);
 	}
 
-static void WriteJsonString(FILE *f, const char *text) {
+void WriteJsonString(FILE *f, const char *text) {
     const unsigned char *p = (const unsigned char *)text;
     fputc('"', f);
     while (*p != '\0') {

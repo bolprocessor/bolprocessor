@@ -347,29 +347,8 @@ int ReadFloat(FILE* fin,double* p_i,long* p_pos) {
 	}
 
 
-int NewWriteToFile(char* line,FILE* fout) {
-// We should use this procedure in replacement of WriteToFile()
-// Writes the line and a return to the file
-
-	int res;
-	OSErr io;
-	size_t written, numbytes;
-	char* line2;
-
-	numbytes = strlen(line);
-	my_sprintf(line2,"%s\n",line);
-	written = fwrite(line2, (size_t)1, (size_t) numbytes, fout);
-	if(written < numbytes)	{
-		BPPrintMessage(0,odError, "=> Error while writing to file.\n");
-		return ABORT;
-		}
-	return(OK);
-	}
-
-
 int WriteToFile(int careforhtml,int format,char* line,short refnum)
 // Writes the line and a return to the file
-// Obsolete because of using FSWrite, should be replaced with NewWriteToFile() as fwrite() is already used for writing MIDI files. The only problem is to use a file pointer instead of refnum.
 {
 int res;
 long count;
@@ -381,45 +360,12 @@ if(refnum == -1) {
 	return(MISSED);
 	}
 p_line = NULL;
-if((res = MystrcpyStringToHandle(&p_line, line)) != OK) return res;
+if((res = MystrcpyStringToHandle(&p_line,line)) != OK) return res;
 
-#if BP_CARBON_GUI_FORGET_THIS
-count = (long) MyHandleLen(p_line);
-MyLock(FALSE,(Handle)p_line);
-io = FSWrite(refnum,&count,*p_line);
-MyUnlock((Handle)p_line);
+BP_NOT_USED(format);	// need to rethink whether this option sd be used
+
+BPPrintMessage(0,(int)refnum, "%s\n", *p_line);
 MyDisposeHandle((Handle*)&p_line);
-
-count = 1L;
-if(io == noErr) {
-	switch(format) {
-		case MAC:
-			io = FSWrite(refnum,&count,"\r");
-			break;
-		case DOS:
-			count = 2L;
-			io = FSWrite(refnum,&count,"\r\n");
-			break;
-		case UNIX:
-			io = FSWrite(refnum,&count,"\n");
-			break;
-		}
-	}
-if(io != noErr) {
-	TellError(80,io);
-	return(ABORT);
-	}
-#else
-	// A temporary console version of file output until I decide how to rewrite
-	// the interface to support both Mac and ANSI file refs. - akozar 20130903
-	// 'refnum' is (ab)used to specify the output destination (see ConsoleMessages.h)
-
-	BP_NOT_USED(format);	// need to rethink whether this option sd be used
-
-	// I think '\n' will always print as the native line ending using fprintf
-	BPPrintMessage(0,(int)refnum, "%s\n", *p_line);
-	MyDisposeHandle((Handle*)&p_line);
-#endif /* BP_CARBON_GUI_FORGET_THIS */
 
 return(OK);
 }
@@ -428,91 +374,15 @@ return(OK);
 int NoReturnWriteToFile(char* line,short refnum)
 // Writes the line and no return to the file
 {
-long count;
-OSErr io;
 
 if(refnum == -1) {
 	BPPrintMessage(0,odError,"=> Err. NoReturnWriteToFile(). refnum == -1");
 	return(MISSED);
 	}
-
-#if BP_CARBON_GUI_FORGET_THIS
-count = (long) strlen(line);
-io = FSWrite(refnum,&count,line);
-if(io != noErr) {
-	TellError(81,io);
-	 return(ABORT);
-	}
-#else
-	// A temporary console version of file output until I decide how to rewrite
-	// the interface to support both Mac and ANSI file refs. - akozar 20130903
-	// 'refnum' is (ab)used to specify the output destination (see ConsoleMessages.h)
-	BPPrintMessage(0,(int)refnum, line);
-#endif /* BP_CARBON_GUI_FORGET_THIS */
-
+BPPrintMessage(0,(int)refnum,line);
 return(OK);
 }
 
-#if BP_CARBON_GUI_FORGET_THIS
-
-/* FIXME ? CheckTextSize() is generally called after TextInsert() to see if the
-   TextEdit buffer was overrun.  Should modify this (if we want to keep TE) so 
-   that the check can occur before the TextInsert(). - akozar 20130903 */
-int CheckTextSize(int w)
-{
-long n;
-
-if(WASTE_FORGET_THIS || w < 0 || w >= WMAX || !Editable[w]) return(OK);
-n = GetTextLength(w);
-if(n > (TEXTEDIT_MAXCHARS - 100)) {
-	if(WindowFullAlertLevel[w] < 1) {	// this test cannot be in the previous 'if'
-		if(FileName[w][0] != '\0')
-			my_sprintf(Message,"Window '%s' is almost full",FileName[w]);
-		else
-			my_sprintf(Message,"Window '%s' is almost full",WindowName[w]);
-		BPPrintMessage(0,odError,"%s",Message);
-		WindowFullAlertLevel[w] = 1;	// 1 means we've warned about being almost full
-		}
-	}
-else if(n < 0) {
-	my_sprintf(Message, "Text has overflowed the '%s' window! Save your work and quit...", WindowName[w]);
-	BPPrintMessage(0,odError,"%s",Message);
-	EmergencyExit = TRUE;
-	WindowFullAlertLevel[w] = 3;	// 3 means overflowed
-	return(MISSED);
-	}
-else WindowFullAlertLevel[w] = 0;	// reset if in normal bounds
-
-return(OK);
-}
-
-
-OSErr MyOpen(FSSpec *p_spec,char perm,short *p_refnum)
-// Open a file via its chain of aliases if necessary
-{
-OSErr io;
-int targetIsFolder,wasAliased;
-
-(*p_refnum) = -1;	// initialize fRefNum
-
-io = ResolveAliasFile(p_spec,TRUE,&targetIsFolder,&wasAliased);
-if(io != noErr) return (io);
-
-if(targetIsFolder)
-	io = paramErr;	// cannot open a folder
-else
-	if(io == noErr)	io = FSpOpenDF(p_spec,perm,p_refnum);
-if(io == opWrErr)
-	/* Oops! The file is already opened in write mode. Just reposition to the beginning */
-	io = SetFPos(*p_refnum,fsFromStart,ZERO);
-if(io == noErr) {
-	LastVref = p_spec->vRefNum;
-	LastDir = p_spec->parID;
-	}
-return(io);
-}
-
-#endif /* BP_CARBON_GUI_FORGET_THIS */
 
 int CleanLF(char** p_buffer,long* p_count,int* p_dos) {
 // Remove line feeds from buffer and transcode high ASCII so that

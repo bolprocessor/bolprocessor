@@ -1387,7 +1387,7 @@ struct s_ControlStream {
 	};
 typedef struct s_ControlStream ControlStream;
 
-
+ 
 struct s_ParameterStream {
 	double startvalue,endvalue;
 	Milliseconds starttime,duration;

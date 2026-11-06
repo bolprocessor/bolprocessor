@@ -1593,7 +1593,7 @@ int SendToDriver(int kcurrentinstance, int scale, int blockkey, Milliseconds tim
 	byte midibyte;
 	MIDI_Event pb_event;
 	double frequency;
-    unsigned int pitchBendValue;
+    int pitchBendValue;
     unsigned char pitchBendLSB, pitchBendMSB;
 	char this_key[100];
 

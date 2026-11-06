@@ -2,8 +2,15 @@
 SRCDIR  = source/BP3
 CC      = gcc
 LIBS    = -lm
-CFLAGS  = -O2 -fno-common
+CFLAGS  = -O2 -fno-common -MMD -MP
 EXE     = bp
+
+# make            : optimised build (-O2), with debug symbols (-g does not slow the program)
+# make ASAN=1     : AddressSanitizer build (-O0), slow, for hunting memory errors
+# make WARN=1     : optimised build that also prints compiler warnings (diagnostics only)
+#   Always "make clean" when switching between these modes.
+ASAN ?= 0
+WARN ?= 0
 
 # Avoid wrong libraries inherited from PHP/Apache/XAMPP
 unexport LD_LIBRARY_PATH
@@ -20,6 +27,17 @@ ifeq ($(OS),Windows_NT)
 
 else
     UNAME_S := $(shell uname -s)
+
+# Debug flags shared by macOS and Linux
+    ifeq ($(ASAN),1)
+        CFLAGS = -fsanitize=address -fsanitize-recover=address -g -O0 -fno-common -MMD -MP
+    else
+        CFLAGS += -g -fno-omit-frame-pointer
+    endif
+
+    ifeq ($(WARN),1)
+        CFLAGS += -Wall -Wno-unused-variable -Wno-unused-but-set-variable -Wno-unused-label
+    endif
 
     ifeq ($(UNAME_S),Darwin)
         FRAMEWORKS = -framework CoreMIDI -framework CoreFoundation
@@ -44,6 +62,7 @@ endif
 # === Source and Object Files ===
 SRCS = $(wildcard $(SRCDIR)/*.c)
 OBJS = $(SRCS:.c=.o)
+DEPS = $(OBJS:.o=.d)
 
 # === Output OS Info ===
 $(info Operating System: $(UNAME_S))
@@ -59,17 +78,19 @@ $(EXE): $(OBJS)
 %.o : %.c
 	$(CC) $(CFLAGS) -c -I$(SRCDIR) $< -o $@
 
-depend:
-	makedepend -I$(SRCDIR) $(SRCS)
+# Header dependencies written by -MMD (one .d file per .o).
+# The "-" means: no error on the first build, when they don't exist yet.
+-include $(DEPS)
 
 clean:
 ifeq ($(UNAME_S),Darwin)
 	-rm -f $(EXE)
-	-rm -f $(SRCDIR)/*.o
+	-rm -f $(SRCDIR)/*.o $(SRCDIR)/*.d
 else ifeq ($(UNAME_S),Linux)
 	-rm -f $(EXE)
-	-rm -f $(SRCDIR)/*.o
+	-rm -f $(SRCDIR)/*.o $(SRCDIR)/*.d
 else ifeq ($(OS),Windows_NT)
 	@if exist $(EXE) (echo Deleting $(EXE) & del /Q $(EXE))
 	@if exist $(subst /,\,$(SRCDIR))\*.o (echo Deleting object files & del /Q $(subst /,\,$(SRCDIR))\*.o)
+	@if exist $(subst /,\,$(SRCDIR))\*.d (del /Q $(subst /,\,$(SRCDIR))\*.d)
 endif

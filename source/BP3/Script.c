@@ -453,6 +453,7 @@ int InterruptScript(void)
 {
 int r;
 
+r = OK;
 Interrupted = TRUE;
 ResumeStopOn = TRUE;
 /* ShowWindow(GetDialogWindow(ResumeStopPtr));

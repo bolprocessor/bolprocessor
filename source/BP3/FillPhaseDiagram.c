@@ -393,7 +393,7 @@ int FillPhaseDiagram(tokenbyte ***pp_buff,long* p_numberobjects,unsigned long *p
 			paramindex = FindParameterIndexAndCreateStorage(p_contparameters,level,paramnameindex);
 			if(paramindex >= 0) {
 			//	BPPrintMessage(0,odInfo,"#&## paramnameindex = %d, instrument = %d, kobj = %d\n",paramnameindex,instrument,kobj);
-				if(instrument >= 0) currentparameters.currinstr = instrument; // 2026-10-29
+				if(instrument >= 0) currentparameters.currinstr = instrument;
 			//	(*p_Instance)[kobj].instrument = instrument;
 				UpdateParameter(paramindex,p_contparameters,level,ZERO);
 				if(m == T33) (*((*p_contparameters)[level].values))[paramindex].mode = STEPWISE;
@@ -410,7 +410,7 @@ int FillPhaseDiagram(tokenbyte ***pp_buff,long* p_numberobjects,unsigned long *p
 			paramindex = FindParameterIndexAndCreateStorage(p_contparameters,level,paramnameindex);
 			if(paramindex >= 0) {
 			//	BPPrintMessage(0,odInfo,"#&## paramnameindex = %d, instrument = %d, kobj = %d\n",paramnameindex,instrument,kobj);
-				if(instrument >= 0) currentparameters.currinstr = instrument; // 2026-10-29
+				if(instrument >= 0) currentparameters.currinstr = instrument;
 				UpdateParameter(paramindex,p_contparameters,level,ZERO);
 				(*((*p_contparameters)[level].values))[paramindex].ibeats = 0.;
 				(*((*p_contparameters)[level].values))[paramindex].maxbeats = 1.;
@@ -671,7 +671,7 @@ int FillPhaseDiagram(tokenbyte ***pp_buff,long* p_numberobjects,unsigned long *p
 				if(trace_diagram || trace_toofast)
 					BPPrintMessage(1,odInfo,"Tie_note? m = %d p = %d channel = %d tie =  %d\n",m,p,channel,tie);
 				}
-			else if((m == T3 || m == T47)) {
+			else if(instrument >= 0 && instrument < MAXINSTRUMENTS && (m == T3 || m == T47)) {
 				tie = (*(p_Tie_event[instrument]))[p]; 
 				}
 			else tie = FALSE;
@@ -680,7 +680,7 @@ int FillPhaseDiagram(tokenbyte ***pp_buff,long* p_numberobjects,unsigned long *p
 				if(trace_diagram || trace_toofast)
 					BPPrintMessage(1,odInfo,"With foundendconcatenation <%d|%d> last object = %d\n",m,p,(int)kobj);
 				if(m == T25) (*(p_Tie_note[channel]))[p] = FALSE;
-				else if(m == T3 || m == T47) (*(p_Tie_event[instrument]))[p] = FALSE;		
+				else if(instrument >= 0 && (m == T3 || m == T47)) (*(p_Tie_event[instrument]))[p] = FALSE;		
 				if(Plot(INTIME,&nseqplot,&iplot,&overstrike,FALSE,p_nmax,p_maxcol,p_im,p_Seq,
 					&nseq,maxseqapprox,ip,1) != OK) goto ENDDIAGRAM;
 				oldm = m; oldp = p;
@@ -1325,7 +1325,8 @@ int FillPhaseDiagram(tokenbyte ***pp_buff,long* p_numberobjects,unsigned long *p
 							(*(p_Tie_note[channel]))[oldp] = TRUE; // Added by BB 2021-02-07 
 							if(trace_toofast) BPPrintMessage(1,odInfo,"Found tied note p = %d\n",(int)oldp);
 							}
-						else if((oldm == T3 || oldm == T47)) (*(p_Tie_event[instrument]))[oldp] = TRUE; // Added by BB 2021-02-07
+						else if(instrument >= 0 && instrument < MAXINSTRUMENTS && (oldm == T3 || oldm == T47))
+							(*(p_Tie_event[instrument]))[oldp] = TRUE;
 					
 						while((++nseq) <= (*p_nmax) && (*p_maxcol)[nseq] > classofinext);
 						if(nseq >= Minconc) {
@@ -1457,7 +1458,7 @@ int FillPhaseDiagram(tokenbyte ***pp_buff,long* p_numberobjects,unsigned long *p
 				paramindex = FindParameterIndexAndCreateStorage(p_contparameters,level,paramnameindex);
 				if(paramindex >= 0) {
 			//		BPPrintMessage(0,odInfo,"#&# paramnameindex = %d, paramindex = %d, instrument = %d, kobj = %d\n",paramnameindex,paramindex,instrument,kobj);
-					if(instrument >= 0) currentparameters.currinstr = instrument; // 2026-10-29
+					if(instrument >= 0) currentparameters.currinstr = instrument;
 				//	(*p_Instance)[kobj].instrument = instrument;
 					if(paramvalueindex >= (MyGetHandleSize((Handle)p_NumberConstant)
 						/ sizeof(double))) {

@@ -1974,6 +1974,16 @@ static const char *skip_index_prefix(const char *s) {
     return s;
 	}
 
+static void ReattachProdItemsFile(const char *filename) {
+	// 2026-11-06 outPtr was closed. Reopen it and update every copy of the
+	// old FILE* (output options and display destination), otherwise they point
+	// to a freed stream: writing to it crashes and the final close frees it twice.
+	outPtr = fopen(filename, "a");
+	gOptions.outputFiles[ofiProdItems].fout = outPtr;
+	gOptions.outputFiles[ofiProdItems].isOpen = (outPtr != NULL);
+	SetOutputDestinations(odDisplay, outPtr);
+	}
+
 int check_and_remove_duplicate_last_line(const char *filename) {
     int result = TRUE;
 	int out_ptr_ok;
@@ -1989,6 +1999,7 @@ int check_and_remove_duplicate_last_line(const char *filename) {
     FILE *file = my_fopen(1, filename,"r");
     if (file == NULL) {
 		BPPrintMessage(1,odError,"=> Error opening %s\n",filename);
+		if(out_ptr_ok) ReattachProdItemsFile(filename);
 		return FALSE;
 		}
     char *lines[1000];
@@ -1998,11 +2009,13 @@ int check_and_remove_duplicate_last_line(const char *filename) {
     	remove_trailing_newline(buffer);
         if (line_count >= 1000) {
             fclose(file);
+			if(out_ptr_ok) ReattachProdItemsFile(filename);
             return FALSE;
         	}
         lines[line_count] = strdup(buffer);
         if (lines[line_count] == NULL) {
             fclose(file);
+			if(out_ptr_ok) ReattachProdItemsFile(filename);
             return FALSE;
         	}
         line_count++;
@@ -2029,13 +2042,17 @@ int check_and_remove_duplicate_last_line(const char *filename) {
         result = FALSE;
     	}
     file = my_fopen(1, filename, "wb");
-    if (file == NULL) return FALSE;
+	    if (file == NULL) {
+        if(out_ptr_ok) ReattachProdItemsFile(filename);
+        return FALSE;
+        }
     for (int i = 0; i < line_count; i++) {
         fprintf(file, "%s\n", lines[i]);
         free(lines[i]);
     	}
     fclose(file);
-    if(out_ptr_ok) outPtr = fopen(filename, "a");
+//    if(out_ptr_ok) outPtr = fopen(filename, "a"); 2026-11-06
+	if(out_ptr_ok) ReattachProdItemsFile(filename);
     return result;
 	}
 
