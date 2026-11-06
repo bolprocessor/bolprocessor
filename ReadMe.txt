@@ -2,7 +2,7 @@ BOL PROCESSOR SOURCE CODE READ ME
 =================================
 
 Bol Processor 3 (BP3) is a program for music composition and improvisation
-with real-time MIDI, MIDI file, and Csound output.  It produces music from a
+with real-time MIDI, MIDI file, Csound, and event list output.  It produces music from a
 set of rules (a compositional grammar) or from text scores typed or captured
 from a MIDI instrument.
 
@@ -18,12 +18,10 @@ BP development is now hosted by GitHub at
 https://github.com/bolprocessor/bolprocessor
 
 If you would like to help with any stage of this process, please get in
-contact with us either privately (contact@bolprocessor.org) or via the mailing lists:
+contact with us either privately (contact@bolprocessor.org).
 
-BP open discussion forum: https://sourceforge.net/p/bolprocessor/discussion/555616
-BP developers list: https://sourceforge.net/projects/bolprocessor/lists/bolprocessor-devel
-
-Note that the latest version of the C code is in the “graphics-for-BP3” branch. Download:
+Note that the latest version of the C code is in the “graphics-for-BP3” branch.
+Download:
 https://github.com/bolprocessor/bolprocessor/archive/graphics-for-BP3.zip
 
 Don't forget to download the PHP interface:
@@ -33,15 +31,10 @@ and the set of examples:
 https://github.com/bolprocessor/bp3-ctests/archive/main.zip
 
 If you want to get started understanding the source code, look in the
-"docs-developer" directory; particularly the files "BP2-info.txt" and
+"docs-developer" directory; particularly the files "BP3-info.txt" and
 "BP2-history.txt".
 
-If you need to create your own project file for a different version of
-Xcode, CodeWarrior, or a different IDE, just add all of the files in
-source/BP3 to an appropriate project template. The other directories are
-not needed.
-
-Please also feel free to contact us if you have problems with compiling the
+Please feel free to contact us if you have problems with compiling the
 code or if you have any other questions.
 
 Thanks for checking out Bol Processor!

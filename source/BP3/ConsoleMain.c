@@ -490,7 +490,7 @@ int stop(int now,char* where) {
 	if(Panic || EmergencyExit) return ABORT;
     if((r = ListenToEvents()) != OK) return r;
 	unsigned long current_time = getClockTime(); // microseconds
-	if(rtMIDI && !now && (current_time < NextStop)) return(OK); // We only check _stop and _panic every 500 ms
+	if(!now && (current_time < NextStop)) return(OK); // We only check _stop and _panic every 500 ms, in all modes: opening these files at each call slows down production considerably
 	NextStop = current_time + 500000L; // microseconds
     if(strlen(StopfileName) == 0) return OK;
 	ptr = my_fopen(0,StopfileName,"r");

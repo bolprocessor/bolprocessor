@@ -2038,7 +2038,9 @@ long Insert(int grtype,tokenbyte ***pp_origin,tokenbyte ***pp_dest,t_rule rule,l
 						
 	if(grtype != SUBtype) {
 		(*p_lengthorigin) += dif;
-		Cormark(pp_dest,pos1+length+dif,inmark);
+		// CLAUDE 2026-11-06: his position may be past the end of the work string, where Cormark() would miss TEND and read out of bounds
+		if(pos1 + length + dif <= LengthOf(pp_dest))
+			Cormark(pp_dest,pos1+length+dif,inmark);
 		}
 	else {
 		(**pp_dest)[j++] = TEND;

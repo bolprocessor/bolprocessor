@@ -16,6 +16,7 @@ https://bolprocessor.org/silent-sound-objects/
 When the 'Event list' output option is selected, JSON descriptions of Csound instruments are exported, if used in the production. These will be made more explicit in the next version. Read:
 https://bolprocessor.org/event-lists/
 Bug fixed: an expression such as "C4 {D4 E4} _ F4" (that is syntactically incorrect) is now automatically corrected to "C4 {D4 E4} - F4"
+Many 'small' bugs have been fixed with the help of Claude AI.
 Don't forget to update the PHP interface:
 https://github.com/bolprocessor/php-frontend/
 
