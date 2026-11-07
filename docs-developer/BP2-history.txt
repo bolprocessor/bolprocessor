@@ -8,9 +8,9 @@
 unless specified 'RND'.
 When displaying tokenized grammar, all variables are displayed between
 bars, i.e. Splitvar is forced to TRUE.
-Corrected a bug in “Save”: now if you cancel the first “save” you are
+Corrected a bug in ‚ÄúSave‚Äù: now if you cancel the first ‚Äúsave‚Äù you are
 prompted again for a name.
-You can load any file in the “Trace” window.
+You can load any file in the ‚ÄúTrace‚Äù window.
 Corrected memory overflow in PolyMake().
 
 8/6/92
@@ -27,7 +27,7 @@ Button 'Interactive (use input)'
 Button 'Compute while playing'
 
 20/6/92
-Created ‘-se.’ files
+Created ‚Äò-se.‚Äô files
 Possible to save items (as time-stamped MIDI) once they are played
 
 1/7/92
@@ -39,8 +39,8 @@ Using ratio Pclock / Qclock to measure tempo precisely.
 No more limitation in number of flags.
 Corrected bug in flag calculation.
 (These are edited in the TimeBase dialog)
-Using ‘%’ in GCD calculation (on long integers).
-Replaced ‘atof’ with ‘Myatof’ since atof("0.04") returns 0.4 !!!
+Using ‚Äò%‚Äô in GCD calculation (on long integers).
+Replaced ‚Äòatof‚Äô with ‚ÄòMyatof‚Äô since atof("0.04") returns 0.4 !!!
 Tried to ompensate bug in WriteFile() and SetEOF():
 	GetFPos(refnum,&count);
 	WriteFile(refnum,(**TEH[wAlphabet]).hText,
@@ -121,7 +121,7 @@ MyDisposeHandle() will know that they are not allocated.
 
 26/2/93
 Corrected LIN production.  Now looking for candidate(s) in real leftmost
-derivation.  For this we use “leftoffset” in each rule, which represents the
+derivation.  For this we use ‚Äúleftoffset‚Äù in each rule, which represents the
 length of the longest prefix that is not changed in the derivation.
 
 7/3/93
@@ -135,17 +135,17 @@ Fixed bugs in Analgram(): (1) When infinite weight position was not determined;
 HERE IS V 2.4 March 1993 RELEASE DISTRIBUTED ON E-MAIL.
 
 25/8/93
-Introduced fast random procedure (see file ‘random problem’) and determined
+Introduced fast random procedure (see file ‚Äòrandom problem‚Äô) and determined
 that maxtry = N / 2 is a good value making it 25% shorter.
 
 29/8/93
 Introduced analysis.  Corrected (already known and compensated) bug in
 encoding homomorphism on terminal strings.  Now the reference bracket is
 transformed by homomorphisms and then compared with the potential slave.
-Try ‘-gr.chekhomo2’.
+Try ‚Äò-gr.chekhomo2‚Äô.
 
 4/9/93
-Implemented keyboard tokenization and ‘-kb.’ files.
+Implemented keyboard tokenization and ‚Äò-kb.‚Äô files.
 
 12/9/93
 Implemented learn weights.
@@ -161,7 +161,7 @@ These may also be in left argument (print "before" or "after" applying rule)
 Renumbers grammars and rules at compilation time.  Arguments of _goto and _failed
 are updated accordingly.
 Procedures _stop,_print,_printOn,_printOff,_stepOn,_stepOff,_traceOn,_traceOff
-	and _destru may also be subgrammar procedures.  ‘_destru’ replaces DESTRU.
+	and _destru may also be subgrammar procedures.  ‚Äò_destru‚Äô replaces DESTRU.
 Problem: if first rule starts with procedure then a compilation error may occur
 	because the compiler thinks it is a subgrammar procedure.  Solution: insert a
 	remark or number between square brackets before rume procedure.
@@ -193,11 +193,11 @@ Now, if not DisplayItems and MIDImode and not Improvize, item is only played.
 Introduced InitToken[] = "INIT:".  Initialisation item is stored in token format
 	in (*p_Initbuff)[].  Process is quite complex because it must be erased after
 	the item (or the work string) has been played once.  Problem appears with
-	‘SUB’ subgrammars when playing all substitutions: there are two buffers
+	‚ÄòSUB‚Äô subgrammars when playing all substitutions: there are two buffers
 	containing the workstring, so the init item must be removed from both.
 Fixed bug in SelectionToBuffer() that would force window ResumeStop to appear
 	when selection is void.
-Now you can have ‘nil’ anywhere in an argument.
+Now you can have ‚Äònil‚Äô anywhere in an argument.
 
 26/6/94
 Introduced text colors and color picker.  Colors are stored in the settings file.
@@ -215,7 +215,7 @@ Corrected a bug in DoEvent() so that tokens are trapped correctly.
 Graphics in color.
 
 6/8/94
-Now can use Printer as the MIDI port.  Bug was that ‘32’ should be added to
+Now can use Printer as the MIDI port.  Bug was that ‚Äò32‚Äô should be added to
 event type in that case.  (See Joe Chung's doc.)
 Revised script syntax to enable multiple arguments.
 
@@ -236,7 +236,7 @@ sent.
 
 22/8/93
 Added SystemTask() in ListenMidi().
-Dates are now displayed with ‘Get info’.
+Dates are now displayed with ‚ÄòGet info‚Äô.
 You can play an item without displaying it.  Possibility of repeating and displaying.
 Fixed a bug in PolyExpand(): tempo numbers would grow very large (although correct).
 	See: *p_s = (*p_r)[a0] * ss;
@@ -258,13 +258,13 @@ In PolyExpand(), a structure A containing one single field is still kept as
 	assignments.  ==> {} May be used to separate units sharing the same channel
 	or volume.
 Showing remaining duration while playing
-In printArg(), copying to array B: put ‘/’ and first tempo marker when nocode,
+In printArg(), copying to array B: put ‚Äò/‚Äô and first tempo marker when nocode,
 	first byte is now 0, not 1.
 Script: Play <<a>> b c
 Fixed problem in MakeSound(): now when the MIDI buffer contains maxbytes
 	we wait until it contains only half of that.
 Fixed bug in Timeset(): now using long instead of unsigned for (*p_imaxseq)[] because
-	it may be negative when using ‘&’ concatenation.  Probably created
+	it may be negative when using ‚Äò&‚Äô concatenation.  Probably created
 	problem on previous version.
 	Later we should go back to unsigned and use a separate table for that.
 Fixed another bug in Calculate_alpha for smooth time.  Now streaks are
@@ -285,7 +285,7 @@ Using 68881 coprocessor
 Also generating 68020 code.  No longer compatible with 68000.
 
 1/9/94
-Now each event has a handle that may point to an ‘objectspecs’ record.  For the
+Now each event has a handle that may point to an ‚Äòobjectspecs‚Äô record.  For the
 time being only sync tag lists and scriptline lists are stored in those records.
 Implemented _velcont, _velstep and _script()
 
@@ -300,7 +300,7 @@ Revised DisplayMode()
 Checked PolyExpand in weird cases.  Se: -da.checkPoly
 Put long integers as indexes in Compute() etc. so that buffers may grow
 larger than 32767 bytes.
-Suppressed “BP2 / TEXT” when replacing an existing file.
+Suppressed ‚ÄúBP2 / TEXT‚Äù when replacing an existing file.
 
 15/9/94
 Fixed a bug with MaxVar.  It is reset to 0 when opening project.
@@ -308,7 +308,7 @@ Fixed bugs in TimeSet():
 	When plotting out-time objects, never use nseq = 0 because this should be
 	reserved to time-patterns
 	Condition for finding new nseq was incorrect, resulting in bus error.
-If ‘&’ is not found for concatenation then no error message: only ignored.
+If ‚Äò&‚Äô is not found for concatenation then no error message: only ignored.
 
 17/9/94
 Fixed a bug in calculation of maxseq
@@ -318,7 +318,7 @@ End of table should be verified...
 cmd-I (Info) shows date on editable windows.
 
 19/9/94
-Now, object prototype 1 (silence ‘-’) had Dur = Tref = 1000ms.
+Now, object prototype 1 (silence ‚Äò-‚Äô) had Dur = Tref = 1000ms.
 	This allows taking silences into acount properly in Calculate_Alpha().
 
 20/10/94
@@ -366,7 +366,7 @@ Lines starting with "//" are ignored.
 In parse mode, lines read in windows are not limited to MAXLIN.
 	(All this is valid for grammars, alphabet and scripts.)
 Fixed interface problem: refreshing windows, notably graphic.
-Now, ‘-in’ can appear only in grammar or data window/file, not in alphabet.
+Now, ‚Äò-in‚Äô can appear only in grammar or data window/file, not in alphabet.
 Tried to implement bulk MIDI transfer, but it doesn't work with D-50.  (I used
 SoundObjectEditor for this purpose, with an input/output buffer of 120000 bytes.)
 I tried to increase the size of the MIDI buffer:
@@ -441,7 +441,7 @@ When they are loaded, all prototypes will create the corresponding terminal
 	prototypes appearing in the alphabet.
 
 17/3/95
-Now you can use '¬'  in grammars and scripts
+Now you can use '¬¨'  in grammars and scripts
 "--" remarks
 p_CHAN,p_AlphaCtrl,p_AlphaCtrlNr,p_AlphaCtrlChan have become char**
 I found that this compiler doesn't handle 'switch' properly:
@@ -542,7 +542,7 @@ BP2 checks system version and processor.
 
 21/5/95
 Now, _pitchrange(0) is used to take actual MIDI values in _pitchbend(x)
-Now, in Datamode, PrintArg() puts tabs and '¬' to indicate beats
+Now, in Datamode, PrintArg() puts tabs and '¬¨' to indicate beats
 
 31/5/95
 Fixed problems with template matching and analysis.
@@ -631,8 +631,8 @@ Revised Eucl(): a = bq + r
 	r = a % b;
 	q = (a+r) / b;
 Fixed MAXVERSION in GetVersion()
-Modified the syntax of script command “IN Min...” in order to reduce
-	the width of the ‘Script’ menu.
+Modified the syntax of script command ‚ÄúIN Min...‚Äù in order to reduce
+	the width of the ‚ÄòScript‚Äô menu.
 Using '-' in templates instead of '.'
 	'.' and '!' have no rhythmic value and don't appear in templates.
 	'.' is a beat separator
@@ -748,7 +748,7 @@ Now, non-integer values can be entered in time base
 Developed time base cycles with independent speeds and tick durations
 Prints time patterns when displaying tokenized grammar
 (*p_Ppatt)[],(*p_Qpatt)[],(*p_Tref)[] are long
-Replaced "…" with "_rest". Both are equivalent
+Replaced "‚Ä¶" with "_rest". Both are equivalent
 Revised LCM() and GCD() using unsigned longs
 
 18/5/96
@@ -980,8 +980,8 @@ MIDI file format is still incorrect.  Kumar and I are working on it.
 Checked and fixed continuous parameters with -da.checkControls.
 InterruptDraw() was bombing BP2 because it should have aborted the picture before
    calling MainEvent().
-Created script instructions "Set output Csound file «filename»" and
-    "Set output MIDI file «filename»".
+Created script instructions "Set output Csound file ¬´filename¬ª" and
+    "Set output MIDI file ¬´filename¬ª".
     
 26/2/97
 Finished the Csound implementation.
@@ -1150,8 +1150,8 @@ Introduced TWO_BYTE_EVENT in "Midi1.h" to pack events properly notably with OMS
     failing to which we get MIDI communication errors
 Changed "Midi1.h" to introduce TWO_BYTE_EVENT.
 Created interactive commands (only in OMS):
-     IN Mute ON «note» channel «1..16»
-     IN Mute OFF «note» channel «1..16»
+     IN Mute ON ¬´note¬ª channel ¬´1..16¬ª
+     IN Mute OFF ¬´note¬ª channel ¬´1..16¬ª
 Created MUTE button (only in OMS)
 Unlocking and disposing handles created at startup: ClearLockedSpace()
 Checked problems with interactivity: quitting when SynchronizeStart
@@ -1251,7 +1251,7 @@ Upgrading OMS will perhaps solve these problems.
 24/11/97
 Introduced CorrectionFactor to compensate duration errors cause by overflow on
     the calculation of Prod.  This is used notably in -gr.transpose2
-Accepts '•' instead of '.' in period notation
+Accepts '‚Ä¢' instead of '.' in period notation
 Fixed a bug: weight was not changing when using _repeat for a rule.
 	I added:
     rule = (*(subgram.p_rule))[irul];	/* Added after TRY3 */
@@ -1306,13 +1306,13 @@ Some problems remain with the merging of MIDI streams on different channels: che
 
 14/2/98
 I worked out an assistant for setting up the default MIDI input device (under OMS).
-• If a default input device was saved in ‘-se.startup’ and connection to it could not be opened,
-    BP2 will help you to select a device, modify ‘-se.startup’ and restart;
-• If no default input device was saved in ‘-se.startup’, BP2 attempts to connect to an existing
-    input MIDI device. This makes it possible to change the device (see ‘OMS input-output’ in the
-    “Devices” menu) without restarting BP2;
-• When modifying ‘-se.startup’ (“File” menu), if an input MIDI device is selected, you will still
-    be given the option of setting ‘no input device’ as the default.
+‚Ä¢ If a default input device was saved in ‚Äò-se.startup‚Äô and connection to it could not be opened,
+    BP2 will help you to select a device, modify ‚Äò-se.startup‚Äô and restart;
+‚Ä¢ If no default input device was saved in ‚Äò-se.startup‚Äô, BP2 attempts to connect to an existing
+    input MIDI device. This makes it possible to change the device (see ‚ÄòOMS input-output‚Äô in the
+    ‚ÄúDevices‚Äù menu) without restarting BP2;
+‚Ä¢ When modifying ‚Äò-se.startup‚Äô (‚ÄúFile‚Äù menu), if an input MIDI device is selected, you will still
+    be given the option of setting ‚Äòno input device‚Äô as the default.
 
 Fixed important bug in ActivateWindow():
     Instead of 
@@ -1340,7 +1340,7 @@ Fixed two bugs due to using true quantization (see 24/11/97):
     This is obtained by the following code in FillPhaseDiagram():
     if(prodtempo == ZERO) {		/* Sequence is too fast, we'll store proper duration nevertheless */
 		icurr = (*p_im)[nseq];
-		/* We'll get the symbolic duration excluding ‘&’ concatenation */
+		/* We'll get the symbolic duration excluding ‚Äò&‚Äô concatenation */
 		numberzeros = GetSymbolicDuration(YES,YES,*pp_buff,m,p,id,tempo,level);
 		if(PutZeros(p_im,p_imaxseq,nseq,*p_maxseq,numberzeros,p_nmax) != OK) goto ENDDIAGRAM;
 		skipzeros = TRUE;
@@ -1532,7 +1532,7 @@ cmd-space turns MUTE on and off.
 Implemented _tempo()
 Fixed problem with selecting word for Help.
 Improved RAM and quantization evaluations.
-Supports several ‘…’ in a field.
+Supports several ‚Äò‚Ä¶‚Äô in a field.
 Fixed problems in PolyExpand() and FillPhaseDiagram() to deal with expressions like:
     C4 C5 35542/24783 D5 E5
     Since Kpress = 6, the silences are stored with toofast == TRUE.
@@ -1732,7 +1732,7 @@ _repeat() does not work fine when producing all items. Check AllFollowingItems()
 
 Design a print procedure for '-cs' and '-mi' data with the option of either printing the
    currently displayed data, or the entire file.  The easiest would be to export the data to a
-   text file displayed in the ‘Trace’ window.  The same file should be usable as an
+   text file displayed in the ‚ÄòTrace‚Äô window.  The same file should be usable as an
    export/import format.
 
 Produce all items should also work with _rndseq
@@ -1773,7 +1773,7 @@ When printing pictures these get resized automatically.  Print pictures at origi
    scale.  Don't use DrawPicture() for this, redraw what we need only.
    Or save the actual dimensions of the picture.
    
-Page setup is ignored (with a StyleWriter 2500).  It always prints portrait…
+Page setup is ignored (with a StyleWriter 2500).  It always prints portrait‚Ä¶
 
 MacOS 8.0 seems to send more Update events than previous versions.  This forces the
     redrawing of graphics during the countdown while playing an item.
@@ -1891,7 +1891,7 @@ In the time base, allow the sending of arbitrary streams of MIDI messages
     
 Install programmable filter for (micro)tonal intervals based on various scale models.
 
-Design a kind of Bézier curve fitting for entering controller movements.
+Design a kind of B√©zier curve fitting for entering controller movements.
 
 Display simple notes as line segments on twelve-tone background (piano roll),
     show pitchbend and volume varitions on graphics.
@@ -1909,10 +1909,10 @@ Open any number of data files?
     Could be a problem with the current interface.
 
 Implement new script syntax:
-    if «expression» then
-        «script»
+    if ¬´expression¬ª then
+        ¬´script¬ª
     else
-        «script»
+        ¬´script¬ª
     endif
     
 Find out about Pitch Bend Sensitivity in GeneralMIDI (registered parameter 0]

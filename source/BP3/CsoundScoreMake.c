@@ -38,7 +38,7 @@
 
 #include "-BP3decl.h"
  
-int trace_cs_scoremake = 1;
+int trace_cs_scoremake = 0;
 
 int CscoreWrite(Milliseconds cut_the_end,Rect* p_graphrect,int leftoffset,int topoffset,int hrect,int minkey,int maxkey,int strikeagain,int onoffline,double beta,Milliseconds time_ms,int iline,int key,int velocity,int chan,int instrument,int j,int nseq,int kcurrentinstance,PerfParameters ****pp_currentparams,int scale,int blockkey) {
 	// j is the sound-object prototype
@@ -612,7 +612,7 @@ int CscoreWrite(Milliseconds cut_the_end,Rect* p_graphrect,int leftoffset,int to
 		(*scorearg)[iarg] = x;
 		}
 
-	if(trace_cs_scoremake) BPPrintMessage(0,odInfo,"@@ ipmax = %d, numberparams = %d\n",(*p_CsInstrument)[ins].ipmax,(*perf)->numberparams);
+	if(trace_cs_scoremake) BPPrintMessage(0,odInfo,"@@ ins = %d, ipmax = %d, numberparams = %d\n",ins,(*p_CsInstrument)[ins].ipmax,(*perf)->numberparams);
 
 	if((*p_CsInstrument)[ins].ipmax > 0 && (*perf)->numberparams > 0) {
 		if((*perf)->params == NULL) {
@@ -629,8 +629,11 @@ int CscoreWrite(Milliseconds cut_the_end,Rect* p_graphrect,int leftoffset,int to
 			// Scan all additional parameters
 			paramindex = i + 1 + IPANORAMIC;
 			ip = ParamIndexToIp[paramindex];
+			if(ip < 0) continue;
 			paramnameindex = ParamIndexToParamNameIndex(paramindex);
-
+			if(trace_cs_scoremake)
+				BPPrintMessage(0,odInfo,"& i = %d, paramindex = %d, paramnameindex = %d\n",i,paramindex,paramnameindex);
+			if(paramnameindex < 0) continue;
 			this_instrument = ParamNameIndexToInstrument[paramnameindex];
 			if(InstrumentIndex(this_instrument) != ins) continue;
 			iarg = (*instrparamlist)[ip].startindex;

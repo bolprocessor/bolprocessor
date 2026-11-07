@@ -45,7 +45,7 @@ if(IsEmergencyMemory() && (h_EmergencyMemory != GZSaveHnd())) {
 	EmptyHandle(h_EmergencyMemory);
 	g = EMERGENCYMEMORYSIZE;
 	ShowMessage(wMessage,
-			"Low on memory, but will try to complete this task…");
+			"Low on memory, but will try to complete this task‚Ä¶");
 	}
 else g = ZERO;
 SetA5(theA5);
@@ -59,7 +59,7 @@ Size size;
 int **p;
 
 if(!IsMemoryAvailable((long)size)) {
-	MyAlert("Running short of memory…");
+	MyAlert("Running short of memory‚Ä¶");
 	return(NULL);
 	}
 SetGrowZone(NULL);
@@ -105,7 +105,7 @@ return(OK);
 #define EMERGENCYMEMORYSIZE 50000L  /* Enough size for save operations */
 // In this scheme, hoewever, EMERGENCYMEMORYSIZE may be smaller
 // becauseMyGrowZone() may also release memory
-// used by data that doesn't need to be saved…
+// used by data that doesn't need to be saved‚Ä¶
 
 
 long MyGrowZone(long);
@@ -146,7 +146,7 @@ theA5 = SetCurrentA5();
 if(IsEmergencyMemory() && (h_EmergencyMemory != GZSaveHnd())) {
 	EmptyHandle(h_EmergencyMemory);
 	g = EMERGENCYMEMORYSIZE;
-	MyAlert("Low on memory.  Save your work and quit…");
+	MyAlert("Low on memory.  Save your work and quit‚Ä¶");
 	EmergencyExit = TRUE;
 	}
 else g = ZERO;
@@ -161,12 +161,12 @@ Size size;
 int **p;
 
 if(EmergencyExit) {
-	MyAlert("Out of memory! Can't complete task…");
+	MyAlert("Out of memory! Can't complete task‚Ä¶");
 	return(NULL);
 	}
 p = (int**) NewHandle(size);
-if(p == NULL) MyAlert("Out of memory…");	/* Normally this shouldn't… */
-/* …happen if MyGrowZone() has properly been called. */
+if(p == NULL) MyAlert("Out of memory‚Ä¶");	/* Normally this shouldn't‚Ä¶ */
+/* ‚Ä¶happen if MyGrowZone() has properly been called. */
 return(p);
 }
 

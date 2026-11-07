@@ -5,7 +5,7 @@ the machine figure out a tabla composition that matches it.  Roh's idea was to s
 a large number of individual pieces covering all possible patterns.  My idea is to
 replace the set of pieces with grammar(s).
 
-To this effect, I have reserved character Ô!Õ for claps, accentuations, or any type
+To this effect, I have reserved character â€˜!â€™ for claps, accentuations, or any type
 of non-metric markers. ("Pattern marker" may be a good generic term.)
 Inserting these markers in a BP grammar makes no difficulty.  Different types of
 pattern markers may be notated "!", "!!", "!!!", or even "!1", "!2", "!sam", etc. when

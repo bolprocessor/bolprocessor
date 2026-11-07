@@ -77,6 +77,7 @@ Capture (in progress)
 Csound orchestra
 ----------------
 
+- Check whether it is worth upgrading from 6?.18 to 7.0. (Claude will take care of this!)
 - New instruments are needed in the styles of:
  + pipe organ
  + flute
@@ -89,7 +90,7 @@ Csound orchestra
  + drums
 - Study how BP could produce score instructions modifying parameters in some instruments.
 - Find an instrument that would create a switched bandpass filter with either a sound file or another instrument as input. The idea is to reproduce the effect of sympathetic strings and use it to add partials to other instruments (much like the Indian tanpura). These devices had been successfully wired as "switch filters" in the Shruti Harmonium.
-- Modify "new-vina" to produce lower frequencies, minimum "C2".
+- Modify "new-vina.orc" to produce lower frequencies, minimum "C2".
 
 
 MIDI input

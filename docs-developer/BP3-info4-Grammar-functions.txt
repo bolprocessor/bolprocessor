@@ -71,7 +71,7 @@ int AddBolsInGrammar(void)
 
 	'\334' (220 or 0xDC) is a left single angle quote mark or "guillemet" (in Mac OS Roman)
 	'\335' (221 or 0xDD) is a right single angle quote mark
-	The "French" double angle quotation marks Ç È are 199 and 200 (0xC7 and 0xC8) 
+	The "French" double angle quotation marks Ç È are 199 and 200 (0xC7 and 0xC8) in Mac Roman 
 	
 	
 int CompileGrammar(int mode)
@@ -386,7 +386,7 @@ int BindSlaves(tokenbyte ***pp_buff,long *orgmaster,long *endmaster,int *p_nbmas
 		changes 2nd tokenbyte of T2 1 in to the result of Reference() (which is?)
 		remembers the length of tokens in the master
 	
-	Then copies p_a back to pp_buff.  (**Investigate: why is the copy needed ?)
+	Then copies p_a back to pp_buff.
 	
 	Iterates over pp_buff 3 more times (?) to "erase content of slaves" even when there
 	are none ?  
