@@ -423,7 +423,8 @@ int PolyMake(tokenbyte ***pp_a,double *p_maxseq,int notrailing) {
 					}
 				}
 			}
-		if(m == T3 || m == T9 || m == T25) {	/* sound-object, time pattern, simple note */
+		if(m == T3 || m == T9 || m == T25 || m == T4) {	/* sound-object, time pattern, simple note, variable */
+			/* 2026-11-08 A variable (T4) is later converted to a silent sound-object by MakeEmptyTokensSilent(), so it takes a column in the phase diagram - fixed by Claude */
 			if(toofast) {
 				numbertoofast++;
 				}
@@ -435,7 +436,7 @@ int PolyMake(tokenbyte ***pp_a,double *p_maxseq,int notrailing) {
 					}
 				}
 			fmaxseq += prodtempo;
-			if(p >= 1 || m == T9 || m == T25) {	/* Even silence may become an event if preceded... */
+			if(p >= 1 || m == T9 || m == T25 || m == T4) {	/* Even silence may become an event if preceded... */
 									/* ... by _pitchbend() for instance. */
 				MaxObjects++;
 				if(toofast) nsymb += prodtempo;
@@ -853,7 +854,10 @@ int PolyExpand(tokenbyte **p_b,tokenbyte ***pp_a,unsigned long idorg,unsigned lo
 		unsigned long i, j, jmax, gcd, g, h, lastbyte, oldpos, ic, id, useless, ptempo, qtempo;
 		} _PolyFrame;
 
-	static _PolyFrame *_poly_stack = NULL;
+	/* 2026-11-08 Each frame is allocated separately and never moves: the child's output pointers
+	   (pp_a, p_pos, p_P...) point into its parent's frame. With a single array of frames, the
+	   realloc() at 17 or 33 nested levels left them dangling - fixed by Claude */
+	static _PolyFrame **_poly_stack = NULL;
 	static int _poly_stack_depth = 0;
 	static int _poly_stack_cap = 0;
 
@@ -1361,12 +1365,17 @@ int PolyExpand(tokenbyte **p_b,tokenbyte ***pp_a,unsigned long idorg,unsigned lo
 			{
 			if(_poly_stack_depth >= _poly_stack_cap) {
 				int newcap = _poly_stack_cap ? _poly_stack_cap * 2 : 16;
-				_PolyFrame *newstack = (_PolyFrame *)realloc(_poly_stack, newcap * sizeof(_PolyFrame));
+				_PolyFrame **newstack = (_PolyFrame **)realloc(_poly_stack, newcap * sizeof(_PolyFrame*));
 				if(!newstack) { result = ABORT; goto SORTIR; }
+				for(int _f = _poly_stack_cap; _f < newcap; _f++) newstack[_f] = NULL;
 				_poly_stack = newstack;
 				_poly_stack_cap = newcap;
 				}
-			_PolyFrame *_sf = &_poly_stack[_poly_stack_depth++];
+			if(_poly_stack[_poly_stack_depth] == NULL
+					&& (_poly_stack[_poly_stack_depth] = (_PolyFrame *)malloc(sizeof(_PolyFrame))) == NULL) {
+				result = ABORT; goto SORTIR;
+				}
+			_PolyFrame *_sf = _poly_stack[_poly_stack_depth++];
 			/* Save all heap handles */
 			_sf->pp_c = pp_c; _sf->p_e = p_e; _sf->ptr = ptr; _sf->p_maxic = p_maxic;
 			_sf->ptr_fixtempo = ptr_fixtempo; _sf->p_firstistempo = p_firstistempo;
@@ -2095,7 +2104,7 @@ int PolyExpand(tokenbyte **p_b,tokenbyte ***pp_a,unsigned long idorg,unsigned lo
 	/* --- POP or true return --- */
 	if(_poly_stack_depth > 0) {
 		int _child_result = result;
-		_PolyFrame *_sf = &_poly_stack[--_poly_stack_depth];
+		_PolyFrame *_sf = _poly_stack[--_poly_stack_depth];
 		/* Restore all heap handles */
 		pp_c = _sf->pp_c; p_e = _sf->p_e; ptr = _sf->ptr; p_maxic = _sf->p_maxic;
 		ptr_fixtempo = _sf->ptr_fixtempo; p_firstistempo = _sf->p_firstistempo;
@@ -2144,7 +2153,10 @@ int PolyExpand(tokenbyte **p_b,tokenbyte ***pp_a,unsigned long idorg,unsigned lo
 		}
 	else {
 		/* True return — free stack if allocated */
-		if(_poly_stack) { free(_poly_stack); _poly_stack = NULL; _poly_stack_depth = 0; _poly_stack_cap = 0; }
+		if(_poly_stack) {
+			for(int _f = 0; _f < _poly_stack_cap; _f++) free(_poly_stack[_f]);
+			free(_poly_stack); _poly_stack = NULL; _poly_stack_depth = 0; _poly_stack_cap = 0;
+			}
 		return(result);
 		}
 }		

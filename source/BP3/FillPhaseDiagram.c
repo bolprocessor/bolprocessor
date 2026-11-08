@@ -1912,7 +1912,10 @@ int FillPhaseDiagram(tokenbyte ***pp_buff,long* p_numberobjects,unsigned long *p
 		}
 	MyDisposeHandle((Handle*)&p_contparameters);
 
-	if(failed) return(result);
+	if(failed) { // 2026-11-08 'result' may still be OK after an error, and the caller would then use an undefined maxseq and an undersized p_T - fixed by Claude
+		if(result == OK) result = MISSED;
+		return(result);
+		}
 
 	(*p_maxseq)++; /* Now we got the exact value. */
 	MaxObjects = (*p_numberobjects) + 1; 	/* Now we got the exact value. */
@@ -2151,6 +2154,11 @@ int FindParameterIndexAndCreateStorage(ContParameters **p_param,int level,int pa
 		if(trace_FindParameterIndex) BPPrintMessage(0,odInfo,"@&@ paramnameindex = %d\n",paramnameindex);
 		return(-1);
 		}
+	// 2026-11-08 The names "pitchbend", "volume", "modulation", "pressure" and "panoramic" are string constants
+	// IPITCHBEND..IPANORAMIC (see FixStringConstant()), stored at the same index. ParamNameIndexToParameter[] is only set
+	// for additional parameters of Csound instruments, so it returned -1 for them, and e.g. _cont(volume) or
+	// _cont(pitchbend) were ignored - fixed by Claude
+	if(paramnameindex <= IPANORAMIC) return(paramnameindex);
 	i = ParamNameIndexToParameter[paramnameindex];
 	return(i);
 
@@ -2515,6 +2523,7 @@ int MakeEmptyTokensSilent(tokenbyte ***pp_buff,double *p_maxseqapprox) {
 			p = CreateBol(TRUE,FALSE,(char**)(*p_Var)[p],FALSE,FALSE,BOL);
 			if(Jbol > oldJbol) {
 				ResizeObjectSpace(FALSE,Jbol,0);
+				SetDefaultObjectProperties(p); // 2026-11-08 Otherwise uninitialised - fixed by Claude
 				if(trace_diagram)
 					BPPrintMessage(0,odInfo,"Incremented Jbol = %ld\n",(long)Jbol);
 				}
@@ -2525,6 +2534,10 @@ int MakeEmptyTokensSilent(tokenbyte ***pp_buff,double *p_maxseqapprox) {
 			MySetHandleSize((Handle*)&p_Instance,(Size)MaxObjects * sizeof(SoundObjectInstanceParameters));
 			MySetHandleSize((Handle*)&p_ObjectSpecs,(Size)MaxObjects * sizeof(objectspecs**));
 			MySetHandleSize((Handle*)&p_Articul,(Size)MaxObjects * sizeof(short));
+			// 2026-11-08 The new instance was left uninitialised, including the pointer contparameters.values - fixed by Claude
+			memset(&(*p_Instance)[MaxObjects-1],0,sizeof(SoundObjectInstanceParameters));
+			(*p_ObjectSpecs)[MaxObjects-1] = NULL;
+			(*p_Articul)[MaxObjects-1] = 0;
 			(*p_Tref)[p] = ZERO; (*p_Dur)[p] = 1000L;
 			if(trace_make_silent) BPPrintMessage(0,odInfo,"@@@ Creating silent sound-object from variable, m = %d, p = %d\n",m,p);
 			CreateSilentSoundObject(p);

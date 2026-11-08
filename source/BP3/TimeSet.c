@@ -193,11 +193,11 @@ int SetTimeObjects(int bigitem,unsigned long **p_imaxseq,unsigned long maxseq,in
 		jj= Class(in);
 		if(jj > maxseq) break;
 		if(jj > jn || in == 1.) {
-			jn = jj;		/* Write only once */
+			jn = jj;		// Write only once
 			if(nature_time == STRIATED) {
 				(*p_T)[jn] = (Milliseconds) ((period * (in - 1.)) / Ratio);
 				// BPPrintMessage(0,odInfo,"jn = %ld (*p_T)[jn] = %ld in = %ld period = %.0f Ratio = %.0f\n",(long)jn,(long)(*p_T)[jn],(long)in,(double)period,(double)Ratio);
-				if(Kpress > 2) { // Compensates roundings // Added by BB 2021-03-21
+				if(Kpress > 2) { // Compensates roundings
 					if(jn > 0) (*p_T)[jn-1] = (*p_T)[jn];
 					if((jn + 1) <= maxseq) (*p_T)[jn+1] = (*p_T)[jn];
 					}

@@ -114,6 +114,9 @@ int PlaySelection(int w, int all) {
 //	while((originmem = origin) < end) {
 	while(origin < end) {
 		if((r=stop(0,"PlaySelection")) != OK) return ABORT;
+		// 2026-11-08 Skip the remaining linefeed of CRLF, and empty lines - fixed by Claude
+		while(origin < end && ((c = GetTextChar(w,origin)) == '\r' || c == '\n')) origin++;
+		if(origin >= end) break;
 		next_origin = origin;
 		time(&ProductionStartTime);
 		while(TRUE) {
@@ -124,6 +127,12 @@ int PlaySelection(int w, int all) {
 				BPPrintMessage(0,odError,"=> Error searching for linefeed\n");
 				SelectOn = FALSE; return(MISSED);
 				}
+			}
+		if(OnlyCommentsInLine(w,origin,next_origin)) {
+			// 2026-11-08 A line containing only [comments], such as a title above the item, is not a chunk to be played - fixed by Claude
+			if((next_origin + 1) >= end) break;
+			origin = next_origin + 1;
+			continue;
 			}
 	//	BPPrintMessage(1,odInfo,"@ origin = %ld next_origin = %ld end = %ld\n",(long)origin,(long)next_origin,(long)end);
 		if(next_origin < (origin + 1)) break;
@@ -199,6 +208,21 @@ int PlaySelection(int w, int all) {
 
 	ResetMIDIfile();
 	return(r);
+	}
+
+
+int OnlyCommentsInLine(int w,long start,long finish) {
+	// Returns TRUE if text from 'start' to 'finish' (excluded) contains only spaces and [...] comments
+	char c;
+	long i;
+	for(i = start; i < finish; i++) {
+		c = GetTextChar(w,i);
+		if(c == ' ' || c == '\t') continue;
+		if(c != '[') return(FALSE);
+		while(i < finish && GetTextChar(w,i) != ']') i++;
+		if(i >= finish) return(FALSE); // Unclosed bracket: let the encoder report it
+		}
+	return(TRUE);
 	}
 
 

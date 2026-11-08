@@ -175,7 +175,6 @@ Images
 Cleaning up the code
 -------------------
 
-- The console code contains many obsolete parts (marked as such and not compiled). These are mostly remnants of BP2's built-in interface, at the time we wanted to maintain a MacOS standalone version of BP2 using conditional compilation. These will be removed unless they turn out to be useful for further development.
 - Delete all code tagged as BP_CARBON_GUI_FORGET_THIS (in progress)
 - Finish deleting the code for ticks
 - Obsolete code files have been moved to a "not_used" folder in the "source" folder. These can be deleted later.

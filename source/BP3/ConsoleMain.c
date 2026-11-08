@@ -205,10 +205,9 @@ int main (int argc, char* args[]) {
 				AllItems = TRUE;
 				time(&ProductionStartTime);
 				result = ProduceItems(wStartString,FALSE,FALSE,NULL);
-		//		if(result != OK)  BPPrintMessage(0,odError, "=> ProduceItems() returned errors\n");
 				break;
 			case play:
-				BPPrintMessage(0,odInfo,"Playing single item...\n");
+				BPPrintMessage(0,odInfo,"Playing a single item...\n");
 				PlaySelectionOn = TRUE;
 				Improvize = FALSE;
                 TextOffset start = 0;

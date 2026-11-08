@@ -717,6 +717,7 @@ tokenbyte **Encode(t_gram* p_gram,int sequence,int notargument, int igram, int i
 				}
 			if(Jbol > oldJbol) {
 				ResizeObjectSpace(FALSE,Jbol,0);
+				SetDefaultObjectProperties(jj); // 2026-11-08 Otherwise uninitialised - fixed by Claude
 				CreateSilentSoundObject(jj);
 				BPPrintMessage(1,odInfo,"Incremented Jbol = %ld to include <<%s>>\n",(long)Jbol,(*p_x));
 				}

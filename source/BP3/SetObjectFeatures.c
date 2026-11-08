@@ -128,9 +128,6 @@ int SetObjectParams(int part_of_score,int level,int nseq,long k,int j,CurrentPar
 	ipmax = (*p_CsInstrument)[ins].ipmax;
 	if(trace_set_variation) BPPrintMessage(1,odInfo,"SetObjectParams() part_of_score = %d, level = %d, k = %d, j = %d, object = %d, ins = %d, instrument = %d, ipmax = %d,\n",part_of_score,level,k,j,(*p_Instance)[k].object,ins,(*p_Instance)[k].instrument,ipmax);
 	if(level >= 0) {
-		// n = (*p_contparameters)[level].number;
-		// BPPrintMessage(1,odInfo,"ooo n1 = %d\n",n);
-		// n = ipmax + IPANORAMIC + 1;
 		n = MaxParameters + IPANORAMIC + 1;
 		// BPPrintMessage(1,odInfo,"ooo n2 = %d, k = %d, ins = %d, ipmax = %d, level = %d\n",n,k,ins,ipmax,level);
 		(*p_contparameters)[level].number = n;
@@ -368,7 +365,7 @@ int SetVariation(tokenbyte targettoken,CurrentParameters **p_deftcurrentparamete
 		paramvalueindex,oldpitchbendrange[MAXCHAN+1],foundconcatenation,oldm,oldp,
 		foundendconcatenation,levelmem,seqmem,foundtarget,imap,
 		paramindex,maketable,tableisbeingbuilt,tablemade,iobjmem,
-		okincrease,objectsfound,nonemptyobject,chan,instrument,part,targettokenfoundafterobject,
+		okincrease,objectsfound,nonemptyfound,nonemptyobject,chan,instrument,part,targettokenfoundafterobject,
 		forgetmakingtable,followedwithgap,result,chanorg,instrorg,partorg,
 		blockkey,scale,scaleorg,blockkeyorg,newval,newkeyval;
 	KeyNumberMap vmap;
@@ -409,7 +406,7 @@ int SetVariation(tokenbyte targettoken,CurrentParameters **p_deftcurrentparamete
 	else tempo = prodtempo = 0.;
 
 	ibeats = itable = maxbeats = 0.;
-	objectsfound = targettokenfoundafterobject = 0;
+	objectsfound = nonemptyfound = targettokenfoundafterobject = 0;
 	foundtimeobject = foundsecondvalue = maketable = tableisbeingbuilt = tablemade
 		= forgetmakingtable
 		= followedwithgap = foundconcatenation = foundendconcatenation = foundtarget
@@ -589,6 +586,7 @@ int SetVariation(tokenbyte targettoken,CurrentParameters **p_deftcurrentparamete
 			if((m == T25 || m == T9 || ((m == T3 || m == T47) && p >= 1)) && level <= 0) {
 				nonemptyobject = TRUE;
 				objectsfound++;
+				nonemptyfound++;
 				if(trace_set_variation) BPPrintMessage(0,odInfo,"nonemptyobject, m = %d, p = %d -> objectsfound = %d\n",m,p,objectsfound);
 				if(!foundconcatenation && objectsfound == 1) {
 					oldm = m; oldp = p;
@@ -620,7 +618,10 @@ int SetVariation(tokenbyte targettoken,CurrentParameters **p_deftcurrentparamete
 				if(trace_set_variation) BPPrintMessage(0,odInfo,"foundtimeobject, maxbeats = prodtempo = %.2f\n",prodtempo);
 				goto ENOUGH;
 				}
-			if(nonemptyobject && !tablemade && !forgetmakingtable && (objectsfound > 1)) {
+			// 2026-11-08 Since 2026-10-31, objectsfound also counts prolongations, so that the first sound-object after
+			// "_pitchbend(20) _ _" was taken as a following one, and t.offset attached its table to the next object
+			// (item #19 of -da.checkAllCsound). Only non-empty objects are counted here - fixed by Claude
+			if(nonemptyobject && !tablemade && !forgetmakingtable && (nonemptyfound > 1)) {
 				// Found following sound-object or silence
 				okincrease = FALSE;
 				if(trace_set_variation) BPPrintMessage(0,odInfo,"found following object, okincrease = FALSE, tableisbeingbuilt = %d\n",tableisbeingbuilt);
@@ -672,11 +673,15 @@ int SetVariation(tokenbyte targettoken,CurrentParameters **p_deftcurrentparamete
 		
 	/*	if((level == levelmem || (foundconcatenation && !notinthisfield))
 				&& chan == chanorg
-				&& (m == targettoken || (paramindex_org >= 0 && TokenToIndex(m,paramindex_org) == paramindex_org))) { 2026-11-01 */
-		
+				&& (m == targettoken || (paramindex_org >= 0 && TokenToIndex(m,p) == paramindex_org))) { 2026-11-01 */
+
+		// 2026-11-08 Back to TokenToIndex(m,paramindex_org): for _value() (T35), TokenToIndex(m,p) returned 'p', which is not the storage index
+		// 'paramindex_org', so that _value() tokens were never found and continuous arbitrary parameters, such as
+		// _cont(volume) _value(volume,...), got no variation. The parameter of a _value() token is checked below
+		// with FindParameterIndexAndCreateStorage() - fixed by Claude
 		if((level == levelmem || (foundconcatenation && !notinthisfield))
 				&& chan == chanorg
-				&& (m == targettoken || (paramindex_org >= 0 && TokenToIndex(m,p) == paramindex_org))) {
+				&& (m == targettoken || (paramindex_org >= 0 && TokenToIndex(m,paramindex_org) == paramindex_org))) {
 			if(trace_set_variation) BPPrintMessage(0,odInfo,"Found targettoken m = %d, p = %d, chan = %d, targettoken = %d, paramindex_org = %d\n",m,p,chan,targettoken,paramindex_org);
 			if(m == T35) {  // _value() 
 				paramindex = p % 256;
@@ -897,6 +902,8 @@ int SetVariation(tokenbyte targettoken,CurrentParameters **p_deftcurrentparamete
 		(*((*p_contparameters)[levelorg].values))[paramindex_org].increment
 			= (*p_endvalue) - startvalue;
 		(*((*p_contparameters)[levelorg].values))[paramindex_org].v1 = (*p_endvalue);
+		(*((*p_contparameters)[levelorg].values))[paramindex_org].active = TRUE;
+		// 2026-11-08 Needed when e.g. '_volumecont' follows objects played with a fixed value: IncrementParameter() had set 'active' to FALSE, and the variation was ignored
 		if(trace_set_variation) BPPrintMessage(0,odInfo,"&& startvalue = %.2f, endvalue = %.2f, maxbeats = %.2f, increment = %.2f\n",startvalue,(*p_endvalue),maxbeats,(*((*p_contparameters)[levelorg].values))[paramindex_org].increment);
 		// Normally this is useless as the v1 value will be calculated again later
 		}
@@ -1651,7 +1658,9 @@ double FindValue(tokenbyte m,tokenbyte p,int chan) {
 			BPPrintMessage(0,odInfo,"T35 paramnameindex = %d paramvalueindex = %d, x = %.3f\n",paramnameindex,paramvalueindex,x);
 		}
 	else x = (double) p;
-	if(m == T15) {  // _pitchbend()
+	// 2026-11-08 _value(pitchbend,x) is converted like _pitchbend(x), so that it is in cents when _pitchrange() is set.
+	// It was taken as a raw MIDI value, and e.g. _value(pitchbend,-160) gave a negative pitchbend - fixed by Claude
+	if(m == T15 || (m == T35 && paramnameindex == IPITCHBEND)) {  // _pitchbend() or _value(pitchbend,...)
 		xx = x;
 		if(PitchbendRange[chan] > 0)
 			x = DEFTPITCHBEND + ((double) x * DEFTPITCHBEND / (double) PitchbendRange[chan]);
