@@ -59,7 +59,7 @@ int MakeEventListFile(OutFileInfo* finfo) {
 
 int CloseEventListFile(void) {
 	if(EventListPtr == NULL) return(OK);
-    fflush(EventListPtr);
+	fflush(EventListPtr);
 	if(gOptions.outputFiles[ofiEventListfile].isOpen) {
 		fflush(gOptions.outputFiles[ofiEventListfile].fout);
 		CloseOutputFile(&(gOptions.outputFiles[ofiEventListfile]));
@@ -71,15 +71,15 @@ int CloseEventListFile(void) {
 	}
 
 int WriteToEventListFile(const char *line) {
-    if (EventListPtr == NULL || line == NULL) {
-        return MISSED;
-    	}
-    if (fputs(line, EventListPtr) == EOF || fputs("\r\n", EventListPtr) == EOF) {
-        BPPrintMessage(0,odError,"=> Could not write to event list file\n");
-        return MISSED;
-    	}
-    fflush(EventListPtr);
-    return OK;
+	if(EventListPtr == NULL || line == NULL) {
+		return MISSED;
+		}
+	if(fputs(line, EventListPtr) == EOF || fputs("\r\n", EventListPtr) == EOF) {
+		BPPrintMessage(0,odError,"=> Could not write to event list file\n");
+		return MISSED;
+		}
+	fflush(EventListPtr);
+	return OK;
 	}
 
 int AddEventToList(int k) {
@@ -91,10 +91,10 @@ int AddEventToList(int k) {
 	int transposefirst,forceintegercycles,i_scale;
 	int localchan,instrument;
 
-    if(EventListPtr == NULL) {
-        BPPrintMessage(0,odError,"=> Could not add event to list\n");
-        return MISSED;
-    	}
+	if(EventListPtr == NULL) {
+		BPPrintMessage(0,odError,"=> Could not add event to list\n");
+		return MISSED;
+		}
 	j = (*p_Instance)[k].object;
 	// BPPrintMessage(0,odInfo,"k = %d, j = %d\n",k,j);
 	if(j == -1) return(OK); // End of item

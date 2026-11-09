@@ -98,42 +98,42 @@ int CopyStringToTextHandle(TEHandle th, const char* str) {
 
 int CopyHandleToTextHandle(TEHandle handle_copy,char** handle_source) {
 	 // Validate pointers
-    if(handle_copy == NULL || *handle_copy == NULL) {
-        BPPrintMessage(0,odError,"=> CopyHandleToTextHandle error: Source handle is NULL\n");
-        return MISSED; 
-    	}
-    if(handle_source == NULL) {
-        BPPrintMessage(0,odError,"=> CopyHandleToTextHandle error: Destination handle is NULL\n");
-        return MISSED;
-    	}
+	if(handle_copy == NULL || *handle_copy == NULL) {
+		BPPrintMessage(0,odError,"=> CopyHandleToTextHandle error: Source handle is NULL\n");
+		return MISSED; 
+		}
+	if(handle_source == NULL) {
+		BPPrintMessage(0,odError,"=> CopyHandleToTextHandle error: Destination handle is NULL\n");
+		return MISSED;
+		}
 
-    TERec *rec = *handle_copy;
+	TERec *rec = *handle_copy;
 
-    // Check if the text handle is already allocated or not
-    if(*handle_source != NULL) {
-        BPPrintMessage(0,odError,"=> CopyHandleToTextHandle error: *handle_source != NULL\n");
-        free(*handle_source); // Prevent memory leaks by freeing existing memory
+	// Check if the text handle is already allocated or not
+	if(*handle_source != NULL) {
+		BPPrintMessage(0,odError,"=> CopyHandleToTextHandle error: *handle_source != NULL\n");
+		free(*handle_source); // Prevent memory leaks by freeing existing memory
    		}
 
-    // Allocate memory for the text in the destination handle
-    *handle_source = malloc((rec->length + 1) * sizeof(char)); // +1 for null terminator
-    if(*handle_source == NULL) {
-        BPPrintMessage(0,odError,"=> CopyHandleToTextHandle error: Memory allocation failed\n");
-        return MISSED;
-    	}
+	// Allocate memory for the text in the destination handle
+	*handle_source = malloc((rec->length + 1) * sizeof(char)); // +1 for null terminator
+	if(*handle_source == NULL) {
+		BPPrintMessage(0,odError,"=> CopyHandleToTextHandle error: Memory allocation failed\n");
+		return MISSED;
+		}
 
-    // Check if the text buffer in TEHandle is valid
-    if(rec->hText == NULL || *(rec->hText) == NULL) {
-        free(*handle_source);
-        *handle_source = NULL;
-        BPPrintMessage(0,odError,"=> CopyHandleToTextHandle error: Text buffer in source handle is NULL\n");
-        return MISSED;
-    	}
+	// Check if the text buffer in TEHandle is valid
+	if(rec->hText == NULL || *(rec->hText) == NULL) {
+		free(*handle_source);
+		*handle_source = NULL;
+		BPPrintMessage(0,odError,"=> CopyHandleToTextHandle error: Text buffer in source handle is NULL\n");
+		return MISSED;
+		}
 
-    // Copy the text from the source to the destination
+	// Copy the text from the source to the destination
 	strcpy(*handle_source, (const char *)*(rec->hText));
 
-    return OK; // Success	
+	return OK; // Success	
 	}
 
 
@@ -145,19 +145,17 @@ int CopyHandleToTextHandle(TEHandle handle_copy,char** handle_source) {
    windows" can be removed in the future! -- akozar, 20130826
  */
 
-int TextIsSelectionEmpty(TextHandle th)
-{
+int TextIsSelectionEmpty(TextHandle th) {
 	return (((*th)->selEnd - (*th)->selStart) == ZERO);
-}
+	}
 
-int TextGetSelection(TextOffset* start,TextOffset* end, TextHandle th)
-{
+int TextGetSelection(TextOffset* start,TextOffset* end, TextHandle th) {
 	if(th == NULL)  return (MISSED);
 	
 	*start = (*th)->selStart;
 	*end   = (*th)->selEnd;
 	return OK;
-}
+	}
 
 int SetSelect(TextOffset start,TextOffset end, TextHandle th) {
 	long maxoffset;
@@ -167,42 +165,40 @@ int SetSelect(TextOffset start,TextOffset end, TextHandle th) {
 	if(start < ZERO) {
 		BPPrintMessage(0,odError,"=> Err. SetSelect(). start < ZERO\n");
 		start = ZERO;
-	}
+		}
 	else if(start > maxoffset) {
 		BPPrintMessage(0,odError,"=> Err. SetSelect(). start > maxoffset, start = %ld\n",(long)start);
 		start = maxoffset;
-	}
+		}
 	if(end < ZERO) {
 		BPPrintMessage(0,odError,"=> Err. SetSelect(). end < ZERO\n");
 		end = ZERO;
-	}
+		}
 	else if(end > maxoffset) {
 		BPPrintMessage(0,odError,"=> Err. SetSelect(). end > maxoffset, end = %ld, maxoffset = %ld\n",(long)end,maxoffset);
 		end = maxoffset;
-	}
+		}
 
 	(*th)->selStart = start;
 	(*th)->selEnd = end;
 	return OK;
 	}
 
-long GetTextLength(int w)
-{
+long GetTextLength(int w) {
 	if(w < 0 || w >= WMAX || !Editable[w]) {
 		BPPrintMessage(0,odError,"=> Err. GetTextLength(). Incorrect w");
 		return(ZERO);
-	}
+		}
 	return GetTextHandleLength(TEH[w]);
-}
+	}
 
-long GetTextHandleLength(TextHandle th)
-{
+long GetTextHandleLength(TextHandle th) {
 	if(th == NULL) {
 		BPPrintMessage(0,odError,"=> Err. GetTextHandleLength(). NULL handle");
 		return(ZERO);
-	}
+		}
 	return((*th)->length);
-}
+	}
 
 char GetTextChar(int w,long pos) {
 	if(w < 0 || w >= WMAX || !Editable[w]) {
@@ -221,28 +217,24 @@ char GetTextChar(int w,long pos) {
 	}
 
 // Returns handle of the actual text buffer in a TextHandle
-char** WindowTextHandle(TextHandle th)
-{
+char** WindowTextHandle(TextHandle th) {
 	return (char**)((*th)->hText);
-}
+	}
 
-int Activate(TextHandle th)
-{
+int Activate(TextHandle th) {
 	BP_NOT_USED(th);
 	return OK;
-}
+	}
 
-int Deactivate(TextHandle th)
-{
+int Deactivate(TextHandle th) {
 	BP_NOT_USED(th);
 	return OK;
-}
+	}
 
-int TextDelete(int w)
-{
+int TextDelete(int w) {
 	fprintf(stderr, "Ignoring TextDelete() in %s\n", WindowName[w]);
 	return OK;
-}
+	}
 
 int TextInsert(char *s,long length,TextHandle th) {
 	int w, od;

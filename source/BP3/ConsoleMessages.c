@@ -50,7 +50,7 @@ typedef enum {
 	odiError	= 6,	// error messages
 	odiUserInt	= 7,	// interactive messages to which a response is expected
 	odiWeights	= 8,	// interactive messages to which a response is expected
-}	outdestidx_t;
+	}	outdestidx_t;
 
 #define	MAXOUTDEST	15
 
@@ -63,20 +63,20 @@ static bp_message_callback_t	gMessageCallback = NULL;
 
 void ConsoleMessagesInit() {
 #ifdef __BP3_WASM__
-    FILE* dest = NULL;
+	FILE* dest = NULL;
 #else
-    FILE* dest = stdout;
+	FILE* dest = stdout;
 #endif
-    gOutDestinations[odiDisplay] = dest;
-    gOutDestinations[odiMidiDump] = dest;
-    gOutDestinations[odiCsScore] = dest;
-    gOutDestinations[odiTrace] = dest;
-    gOutDestinations[odiInfo] = dest;
-    gOutDestinations[odiWarning] = dest;
-    gOutDestinations[odiError] = dest;
-    gOutDestinations[odiUserInt] = dest;
-    gOutDestinations[odiWeights] = dest;
-    }
+	gOutDestinations[odiDisplay] = dest;
+	gOutDestinations[odiMidiDump] = dest;
+	gOutDestinations[odiCsScore] = dest;
+	gOutDestinations[odiTrace] = dest;
+	gOutDestinations[odiInfo] = dest;
+	gOutDestinations[odiWarning] = dest;
+	gOutDestinations[odiError] = dest;
+	gOutDestinations[odiUserInt] = dest;
+	gOutDestinations[odiWeights] = dest;
+	}
 
 void SetOutputDestinations(int dest, FILE* file) {
 	// set each destination in 'dest' to 'file'
@@ -89,133 +89,128 @@ void SetOutputDestinations(int dest, FILE* file) {
 	if(dest & odError)		gOutDestinations[odiError] = file;
 	if(dest & odWarning)	gOutDestinations[odiWarning] = file;
 	if(dest & odInfo)		gOutDestinations[odiInfo] = file;
-    }
+	}
 
 
 // Functions for displaying messages and writing output in the console build
 
 int BPPrintMessage(int force,int dest, const char *format, ...) {
 	va_list	args;
-    int result;
+	int result;
 
    if((MAXMESSAGES > 0) && (NumberMessages == MAXMESSAGES)) {
-        NumberMessages++;
-        BPPrintMessage(1,odInfo,"👉 End of displaying messages (max %d)\n",MAXMESSAGES);
-        return OK;
-        }
-    if((MAXMESSAGES > 0) && (NumberMessages > (MAXMESSAGES + 1))) return OK; // 2026-03-24
+	   NumberMessages++;
+	   BPPrintMessage(1,odInfo,"👉 End of displaying messages (max %d)\n",MAXMESSAGES);
+	   return OK;
+	   }
+	if((MAXMESSAGES > 0) && (NumberMessages > (MAXMESSAGES + 1))) return OK; // 2026-03-24
 
-    // Handle callback if set
+	// Handle callback if set
    if(gMessageCallback != NULL) {
-        va_start(args, format);
-        gMessageCallback(NULL, dest, format, args);
-        va_end(args);
-        }
+	   va_start(args, format);
+	   gMessageCallback(NULL, dest, format, args);
+	   va_end(args);
+	   }
 
-    // Handle standard destinations
-    if(dest & odDisplay) {
-        va_start(args, format);
-        vfprintf(gOutDestinations[odiDisplay], format, args);
-        va_end(args);
-        }
-    if(dest & odMidiDump) {
-        va_start(args, format);
-        vfprintf(gOutDestinations[odiMidiDump], format, args);
-        va_end(args);
-        }
-    if(dest & odCsScore) {
-        va_start(args, format);
-        vfprintf(gOutDestinations[odiCsScore], format, args);
-        va_end(args);
-        }
-    if(dest & odTrace) {
-        va_start(args, format);
-        vfprintf(gOutDestinations[odiTrace], format, args);
-        va_end(args);
-        }
-    if(dest & odWeights) {
-        va_start(args, format);
-        vfprintf(gOutDestinations[odiWeights], format, args);
-        va_end(args);
-        }
-    if(dest & odUserInt) {
-        va_start(args, format);
-        vfprintf(gOutDestinations[odiUserInt], format, args);
-        va_end(args);
-        }
-    if(dest & odError) {
-        va_start(args, format);
-    //    vfprintf(gOutDestinations[odiError], format, args);
+	// Handle standard destinations
+	if(dest & odDisplay) {
+		va_start(args, format);
+		vfprintf(gOutDestinations[odiDisplay], format, args);
+		va_end(args);
+		}
+	if(dest & odMidiDump) {
+		va_start(args, format);
+		vfprintf(gOutDestinations[odiMidiDump], format, args);
+		va_end(args);
+		}
+	if(dest & odCsScore) {
+		va_start(args, format);
+		vfprintf(gOutDestinations[odiCsScore], format, args);
+		va_end(args);
+		}
+	if(dest & odTrace) {
+		va_start(args, format);
+		vfprintf(gOutDestinations[odiTrace], format, args);
+		va_end(args);
+		}
+	if(dest & odWeights) {
+		va_start(args, format);
+		vfprintf(gOutDestinations[odiWeights], format, args);
+		va_end(args);
+		}
+	if(dest & odUserInt) {
+		va_start(args, format);
+		vfprintf(gOutDestinations[odiUserInt], format, args);
+		va_end(args);
+		}
+	if(dest & odError) {
+		va_start(args, format);
+	//    vfprintf(gOutDestinations[odiError], format, args);
 #ifndef __BP3_WASM__
-        vfprintf(stdout, format, args);
+		vfprintf(stdout, format, args);
 #endif
-        va_end(args);
-        }
-    if((dest & odWarning) && !PlayAllChunks && (!Improvize || ItemNumber < 1)) {
-        va_start(args, format);
-        vfprintf(gOutDestinations[odiWarning], format, args);
-        va_end(args);
-        }
-    if((dest & odInfo) && (((!Improvize || ItemNumber < 1) && !HideMessages && !PlayAllChunks) || force)) {
-        va_start(args, format);
+		va_end(args);
+		}
+	if((dest & odWarning) && !PlayAllChunks && (!Improvize || ItemNumber < 1)) {
+		va_start(args, format);
+		vfprintf(gOutDestinations[odiWarning], format, args);
+		va_end(args);
+		}
+	if((dest & odInfo) && (((!Improvize || ItemNumber < 1) && !HideMessages && !PlayAllChunks) || force)) {
+		va_start(args, format);
    //     fprintf(stderr, "ok %s\n",format);
    //     vfprintf(gOutDestinations[odiInfo], format, args);
 #ifndef __BP3_WASM__
-        NumberMessages++; // 2026-03-24
-        result = vfprintf(stdout, format, args);
-        if(result < 0) fprintf(stderr, "Error occurred during writing to stdout.\n");
+		NumberMessages++; // 2026-03-24
+		result = vfprintf(stdout, format, args);
+		if(result < 0) fprintf(stderr, "Error occurred during writing to stdout.\n");
 #endif
-        va_end(args);
-        }
+		va_end(args);
+		}
 	return OK;
-    }
+	}
 
 // The following are obsolete in BP3
 
-int BPSetMessageCallback(bp_message_callback_t func)
-{
+int BPSetMessageCallback(bp_message_callback_t func) {
 	gMessageCallback = func;
 	return OK;
-}
+	}
 
 int ShowMessage(int store, int w, char *message) {
-    // This is obsolete. Generally replaced by BPPrint()
-    if(w < 0 || w >= WMAX || !Editable[w]) {
-        BPPrintMessage(0,odError,"=> Err. ShowMessage()");
-        return(OK);
-        }
-    // Save message for recall (currently not used)
-    if(store) {
-        Jmessage++;
-        if(Jmessage >= MAXMESSAGE) Jmessage = 0;
-        MystrcpyStringToHandle(&(p_MessageMem[Jmessage]), message);
-        }
+	// This is obsolete. Generally replaced by BPPrint()
+	if(w < 0 || w >= WMAX || !Editable[w]) {
+		BPPrintMessage(0,odError,"=> Err. ShowMessage()");
+		return(OK);
+		}
+	// Save message for recall (currently not used)
+	if(store) {
+		Jmessage++;
+		if(Jmessage >= MAXMESSAGE) Jmessage = 0;
+		MystrcpyStringToHandle(&(p_MessageMem[Jmessage]), message);
+		}
     
-    BPPrintMessage(0,odInfo, "%s\n", message);
-    return OK;
-    }
-
-int ClearMessage(void)
-{
+	BPPrintMessage(0,odInfo, "%s\n", message);
 	return OK;
-}
+	}
 
-int FlashInfo(char* message)
-{
+int ClearMessage(void) {
+	return OK;
+	}
+
+int FlashInfo(char* message) {
 	BPPrintMessage(0,odInfo,"%s\n",message);
 	return OK;
-}
+	}
 
-int Alert1(char message[])
-{
+int Alert1(char message[]) {
 	// Alerts could be warnings or errors ...
 	BPPrintMessage(0,odError, "=> %s\n", message);
 	return OK;
-}
+	}
 
 // Ask a question with a yes/no response
-int Answer(char *what, char c)
-{
+int Answer(char *what, char c) {
 	int reply;
 	char line[MAXLIN];
 		
@@ -228,20 +223,19 @@ int Answer(char *what, char c)
 		else fprintf(stderr, "=> Err. Answer(): 'what' is too long: %s\n", what);
 		if(ScriptExecOn) {
 			if(wTrace != OutputWindow) PrintBehind(wTrace,line);
-		}
+			}
 		else ShowMessage(TRUE,wMessage,line);
 		return reply;
-	}
+		}
 	// else get answer from user or host application callback
-}
+	}
 
 // Ask a question with a text response
 // Answer is returned in value[], which must be able to hold 256 chars
-int AnswerWith(char message[], char defaultvalue[], char value[])
-{
+int AnswerWith(char message[], char defaultvalue[], char value[]) {
 	// for now, always return the default answer 
 	strncpy(value, defaultvalue, 255);
 	value[255] = '\0';
 	BPPrintMessage(0,odUserInt,"%s ? %s\n", message, value);
 	return OK;
-}
+	}

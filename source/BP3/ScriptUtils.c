@@ -915,7 +915,7 @@ int DoScript(int i_script,char*** p_keyon,int wind,int check,int instr,long* p_p
 					Print(wTrace,Message);
 					r = ABORT;
 					break;
-				}
+					}
 				TextGetSelection(&selbegin, &selend, TEH[ScriptW]);
 				if(selbegin <= j)
 					SelectBehind(selbegin,(long)j,TEH[ScriptW]);
@@ -2014,20 +2014,19 @@ int DoScript(int i_script,char*** p_keyon,int wind,int check,int instr,long* p_p
 	}
 
 
-int BPGetWindowIndex(char* arg,int pos)
-{
-char *p,*q,line[MAXLIN];
-int w,j;
+int BPGetWindowIndex(char* arg,int pos) {
+	char *p,*q,line[MAXLIN];
+	int w,j;
 
-strcpy(line,arg);
-for(w=0; w < WMAX; w++) {
-	p = &(line[pos]);
-	q = &(WindowName[w][0]);
-	j = strlen(WindowName[w]);
-	if(Match(NO,&p,&q,j)) return(w);
+	strcpy(line,arg);
+	for(w=0; w < WMAX; w++) {
+		p = &(line[pos]);
+		q = &(WindowName[w][0]);
+		j = strlen(WindowName[w]);
+		if(Match(NO,&p,&q,j)) return(w);
+		}
+	return(ABORT);
 	}
-return(ABORT);
-}
 
 
 /* RecordVrefInScript(FSSpec *p_spec)
@@ -2055,265 +2054,264 @@ return(OK);
 } */
 
 
-int GetScriptArguments(int k,char** p_args,int istart)
-{
-int i,imax,ii,j,n,r,nospace,bar,quote;
-char c,*p,*q,line[MAXLIN],type[5];
-Handle h;
-unsigned long x;
+int GetScriptArguments(int k,char** p_args,int istart) {
+	int i,imax,ii,j,n,r,nospace,bar,quote;
+	char c,*p,*q,line[MAXLIN],type[5];
+	Handle h;
+	unsigned long x;
 
-i = istart;
-r = MISSED;
-(*((*(ScriptLine.arg))[0]))[0] = '\0';
-for(j=0; j < ScriptNrArg(k); j++) {
-	if(i >= MyHandleLen(p_args)) {
-		Print(wTrace,"\n=> Incorrect number of arguments\n");
-		goto QUIT;
-		}
-	imax = MyGetHandleSize((Handle)(*(ScriptLine.arg))[j]);
-	imax = (imax / sizeof(char)) - 1;
-	while(MySpace((*p_args)[i])) i++;
-	MystrcpyHandleToString(MAXLIN,0,line,p_ScriptLabelPart(k,j));
-	p = &((*p_args)[i]); q = &(line[0]);
-	n = strlen(line);
-	if(!Match(FALSE,&p,&q,n)) {
-		BPPrintMessage(0,odError,"=> Mismatch of script argument\n");
-		goto QUIT;
-		}
-	i += n; while(MySpace((*p_args)[i])) i++;
-	MystrcpyHandleToString(MAXLIN,0,line,p_ScriptArgPart(k,j));
-//	BPPrintMessage(0,odError,"line = %s\n",line);
-	if(strcmp(line,"int") == 0) {
-		if(((*(ScriptLine.intarg))[j] = n = GetInteger(YES,(*p_args),&i)) == INT_MAX)
-			goto QUIT;
-		continue;
-		}
-	if(strcmp(line,"0..127") == 0) {
-		if(((*(ScriptLine.intarg))[j] = n = GetInteger(YES,(*p_args),&i)) == INT_MAX)
-			goto QUIT;
-		if(n < 0 || n > 127) {
-			Print(wTrace,"\nNumber out of range [0..127]\n");
+	i = istart;
+	r = MISSED;
+	(*((*(ScriptLine.arg))[0]))[0] = '\0';
+	for(j=0; j < ScriptNrArg(k); j++) {
+		if(i >= MyHandleLen(p_args)) {
+			Print(wTrace,"\n=> Incorrect number of arguments\n");
 			goto QUIT;
 			}
-		continue;
-		}
-	if(strcmp(line,"1..128") == 0) {
-		if(((*(ScriptLine.intarg))[j] = n = GetInteger(YES,(*p_args),&i)) == INT_MAX)
-			goto QUIT;
-		if(n < 1 || n > 128) {
-			Print(wTrace,"\nNumber out of range [1..128]\n");
-			goto QUIT;
-			}
-		continue;
-		}
-	if(strcmp(line,"64..69") == 0) {
-		if(((*(ScriptLine.intarg))[j] = n = GetInteger(YES,(*p_args),&i)) == INT_MAX)
-			goto QUIT;
-		if(n < 64 || n > 69) {
-			Print(wTrace,"\nNumber out of range [64..69]\n");
-			goto QUIT;
-			}
-		continue;
-		}
-	if(strcmp(line,"1..16") == 0) {
-		if(((*(ScriptLine.intarg))[j] = n = GetInteger(YES,(*p_args),&i)) == INT_MAX)
-			goto QUIT;
-		if(n < 1 || n > 16) {
-			Print(wTrace,"\nNumber out of range [1..16]\n");
-			goto QUIT;
-			}
-		continue;
-		}
-	if(strcmp(line,"0..16") == 0) {
-		if(((*(ScriptLine.intarg))[j] = n = GetInteger(YES,(*p_args),&i)) == INT_MAX)
-			goto QUIT;
-		if(n < 0 || n > 16) {
-			Print(wTrace,"\nNumber out of range [0..16]\n");
-			goto QUIT;
-			}
-		continue;
-		}
-	if(strcmp(line,"long") == 0) {
-		if(((*(ScriptLine.intarg))[j] = GetLong((*p_args),&i)) == Infpos)
-			goto QUIT;
-		if((*(ScriptLine.intarg))[j] < ZERO) {
-			Print(wTrace,"\nNumber should be positive\n");
-			goto QUIT;
-			}
-		continue;
-		}
-	if(strcmp(line,"unsigned") == 0) {
-		if(((*(ScriptLine.intarg))[j] = (long) GetUnsigned((*p_args),&i)) == UINT16_MAX)
-			goto QUIT;
-		continue;
-		}
-	if(strcmp(line,"float") == 0 || strcmp(line,"double") == 0) {
-		if(((*(ScriptLine.floatarg))[j] = GetDouble((*p_args),&i)) == -1.)
-			goto QUIT;
-		continue;
-		}
-	if(strcmp(line,"note") == 0) {
-		if(GetThisNote(&((*p_args)[i]),&n,&ii,TRUE) != OK) {
-			my_sprintf(Message,"\n=> Incorrect note. (May be wrong note convention)\n");
-			Print(wTrace,Message);
-			goto QUIT;
-			}
-		(*(ScriptLine.intarg))[j] = n;
-		while(!MySpace((*p_args)[i])) i++;
+		imax = MyGetHandleSize((Handle)(*(ScriptLine.arg))[j]);
+		imax = (imax / sizeof(char)) - 1;
 		while(MySpace((*p_args)[i])) i++;
-		if(isdigit((*p_args)[i])) while(isdigit((*p_args)[i])) i++;
-		else i--;
-		continue;
-		}
-	if(strcmp(line,"Kx") == 0) {
-		if((c=(*p_args)[i]) != 'K') {
-			Expect('K',*(p_ScriptLabelPart(105,0)),c);
+		MystrcpyHandleToString(MAXLIN,0,line,p_ScriptLabelPart(k,j));
+		p = &((*p_args)[i]); q = &(line[0]);
+		n = strlen(line);
+		if(!Match(FALSE,&p,&q,n)) {
+			BPPrintMessage(0,odError,"=> Mismatch of script argument\n");
 			goto QUIT;
 			}
-		i++;
-		if(((*(ScriptLine.intarg))[j] = n = GetInteger(YES,(*p_args),&i)) == INT_MAX)
+		i += n; while(MySpace((*p_args)[i])) i++;
+		MystrcpyHandleToString(MAXLIN,0,line,p_ScriptArgPart(k,j));
+	//	BPPrintMessage(0,odError,"line = %s\n",line);
+		if(strcmp(line,"int") == 0) {
+			if(((*(ScriptLine.intarg))[j] = n = GetInteger(YES,(*p_args),&i)) == INT_MAX)
+				goto QUIT;
+			continue;
+			}
+		if(strcmp(line,"0..127") == 0) {
+			if(((*(ScriptLine.intarg))[j] = n = GetInteger(YES,(*p_args),&i)) == INT_MAX)
+				goto QUIT;
+			if(n < 0 || n > 127) {
+				Print(wTrace,"\nNumber out of range [0..127]\n");
+				goto QUIT;
+				}
+			continue;
+			}
+		if(strcmp(line,"1..128") == 0) {
+			if(((*(ScriptLine.intarg))[j] = n = GetInteger(YES,(*p_args),&i)) == INT_MAX)
+				goto QUIT;
+			if(n < 1 || n > 128) {
+				Print(wTrace,"\nNumber out of range [1..128]\n");
+				goto QUIT;
+				}
+			continue;
+			}
+		if(strcmp(line,"64..69") == 0) {
+			if(((*(ScriptLine.intarg))[j] = n = GetInteger(YES,(*p_args),&i)) == INT_MAX)
+				goto QUIT;
+			if(n < 64 || n > 69) {
+				Print(wTrace,"\nNumber out of range [64..69]\n");
+				goto QUIT;
+				}
+			continue;
+			}
+		if(strcmp(line,"1..16") == 0) {
+			if(((*(ScriptLine.intarg))[j] = n = GetInteger(YES,(*p_args),&i)) == INT_MAX)
+				goto QUIT;
+			if(n < 1 || n > 16) {
+				Print(wTrace,"\nNumber out of range [1..16]\n");
+				goto QUIT;
+				}
+			continue;
+			}
+		if(strcmp(line,"0..16") == 0) {
+			if(((*(ScriptLine.intarg))[j] = n = GetInteger(YES,(*p_args),&i)) == INT_MAX)
+				goto QUIT;
+			if(n < 0 || n > 16) {
+				Print(wTrace,"\nNumber out of range [0..16]\n");
+				goto QUIT;
+				}
+			continue;
+			}
+		if(strcmp(line,"long") == 0) {
+			if(((*(ScriptLine.intarg))[j] = GetLong((*p_args),&i)) == Infpos)
+				goto QUIT;
+			if((*(ScriptLine.intarg))[j] < ZERO) {
+				Print(wTrace,"\nNumber should be positive\n");
+				goto QUIT;
+				}
+			continue;
+			}
+		if(strcmp(line,"unsigned") == 0) {
+			if(((*(ScriptLine.intarg))[j] = (long) GetUnsigned((*p_args),&i)) == UINT16_MAX)
+				goto QUIT;
+			continue;
+			}
+		if(strcmp(line,"float") == 0 || strcmp(line,"double") == 0) {
+			if(((*(ScriptLine.floatarg))[j] = GetDouble((*p_args),&i)) == -1.)
+				goto QUIT;
+			continue;
+			}
+		if(strcmp(line,"note") == 0) {
+			if(GetThisNote(&((*p_args)[i]),&n,&ii,TRUE) != OK) {
+				my_sprintf(Message,"\n=> Incorrect note. (May be wrong note convention)\n");
+				Print(wTrace,Message);
+				goto QUIT;
+				}
+			(*(ScriptLine.intarg))[j] = n;
+			while(!MySpace((*p_args)[i])) i++;
+			while(MySpace((*p_args)[i])) i++;
+			if(isdigit((*p_args)[i])) while(isdigit((*p_args)[i])) i++;
+			else i--;
+			continue;
+			}
+		if(strcmp(line,"Kx") == 0) {
+			if((c=(*p_args)[i]) != 'K') {
+				Expect('K',*(p_ScriptLabelPart(105,0)),c);
+				goto QUIT;
+				}
+			i++;
+			if(((*(ScriptLine.intarg))[j] = n = GetInteger(YES,(*p_args),&i)) == INT_MAX)
+				goto QUIT;
+			if(n < 1 || n >= MAXPARAMCTRL) {
+				my_sprintf(Message,"\nController 'Kx' out of range: 0 < x < %ld\n",(long)MAXPARAMCTRL);
+				Print(wTrace,Message);
+				goto QUIT;
+				}
+			continue;
+			}
+		if(strcmp(line,"Wx") == 0) {
+			if((c=(*p_args)[i]) != 'W') {
+				Expect('W',*(p_ScriptLabelPart(104,0)),c);
+				goto QUIT;
+				}
+			i++;
+			if(((*(ScriptLine.intarg))[j] = n = GetInteger(YES,(*p_args),&i)) == INT_MAX)
+				goto QUIT;
+			if(n < 1 || n > MAXWAIT) {
+				my_sprintf(Message,"\nSynchro tag 'Wx' out of range: 0 < x < %ld\n",(long)MAXWAIT+1);
+				Print(wTrace,Message);
+				goto QUIT;
+				}
+			continue;
+			}
+		if(strcmp(line,"variable") == 0) {
+			if(!isupper(c=(*p_args)[i]) && c != '|') goto BADVAR;
+			if(c == '|') bar = TRUE; else bar = FALSE;
+			i++; while(!MySpace(c=(*p_args)[i])) {
+				if(!(bar && c == '|') && !OkChar(c)) goto BADVAR;
+				i++;
+				}
+			if(bar && (*p_args)[i-1] != '|') goto BADVAR;
+			continue;
+BADVAR:
+			Print(wTrace,"\n=> Incorrect variable\n");
 			goto QUIT;
-		if(n < 1 || n >= MAXPARAMCTRL) {
-			my_sprintf(Message,"\nController 'Kx' out of range: 0 < x < %ld\n",(long)MAXPARAMCTRL);
+			}
+	/*	if(strcmp(line,"AEclass") == 0) {
+			x = ZERO;
+			for(ii=i; ii < i+4; ii++) {
+				type[ii-i] = (*p_args)[ii];
+				x = (256 * x) + (unsigned)(*p_args)[ii];
+				}
+			type[ii-i] = '\0';
+			i = ii;
+			if((*p_args)[i] != '\'') goto BADCLASS;
+			ii = 0;
+			(*(ScriptLine.ularg))[j] = x;
+			MystrcpyStringToTable(ScriptLine.arg,j,type);
+			continue;
+		BADCLASS:
+			my_sprintf(Message,"\n=> Incorrect Apple Event class '%s'\n",type);
 			Print(wTrace,Message);
 			goto QUIT;
 			}
-		continue;
-		}
-	if(strcmp(line,"Wx") == 0) {
-		if((c=(*p_args)[i]) != 'W') {
-			Expect('W',*(p_ScriptLabelPart(104,0)),c);
-			goto QUIT;
-			}
-		i++;
-		if(((*(ScriptLine.intarg))[j] = n = GetInteger(YES,(*p_args),&i)) == INT_MAX)
-			goto QUIT;
-		if(n < 1 || n > MAXWAIT) {
-			my_sprintf(Message,"\nSynchro tag 'Wx' out of range: 0 < x < %ld\n",(long)MAXWAIT+1);
+		if(strcmp(line,"AEID") == 0) {
+			x = ZERO;
+			for(ii=i; ii < i+4; ii++) {
+				type[ii-i] = (*p_args)[ii];
+				x = (256 * x) + (unsigned)(*p_args)[ii];
+				}
+			type[ii-i] = '\0';
+			i = ii;
+			if((*p_args)[i] != '\'') goto BADID;
+			ii = 0;
+			(*(ScriptLine.ularg))[j] = x;
+			MystrcpyStringToTable(ScriptLine.arg,j,type);
+			continue;
+BADID:
+			my_sprintf(Message,"\n=> Incorrect Apple Event ID '%s'\n",type);
 			Print(wTrace,Message);
 			goto QUIT;
 			}
-		continue;
-		}
-	if(strcmp(line,"variable") == 0) {
-		if(!isupper(c=(*p_args)[i]) && c != '|') goto BADVAR;
-		if(c == '|') bar = TRUE; else bar = FALSE;
-		i++; while(!MySpace(c=(*p_args)[i])) {
-			if(!(bar && c == '|') && !OkChar(c)) goto BADVAR;
+		if(strcmp(line,"signature") == 0) {
+			x = ZERO;
+			for(ii=i; ii < i+4; ii++) {
+				type[ii-i] = (*p_args)[ii];
+				x = (256 * x) + (unsigned)(*p_args)[ii];
+				}
+			type[ii-i] = '\0';
+			i = ii;
+			if((*p_args)[i] != '\'') goto BADCREATOR;
+			ii = 0;
+			(*(ScriptLine.ularg))[j] = x;
+			MystrcpyStringToTable(ScriptLine.arg,j,type);
+			continue;
+BADCREATOR:
+			my_sprintf(Message,"\n=> Incorrect application creator '%s'\n",type);
+			Print(wTrace,Message);
+			goto QUIT;
+			} */
+		if(strcmp(line,"script instruction") == 0) {
+		//	continue; // 2024-05-24
+			if(p_Script == NULL && GetScriptSpace() != OK) {
+				r = ABORT; goto QUIT;
+				}
+			n = CreateEventScript(&(*p_args)[i],FALSE);
+			if(n < 0) {
+				r = n; goto QUIT;
+				}
+			(*(ScriptLine.intarg))[j] = n;
+			while(!MySpace((*p_args)[i])) i++;
+			while(MySpace((*p_args)[i])) i++;
+			continue;
+			}
+		ii = 0;
+		nospace = TRUE;
+		switch(k) {
+			case 14:
+			case 16:
+			case 83:
+			case 84:
+			case 85:
+				nospace = FALSE; break;
+			}
+		if((*p_args)[i] == '"') {
+			i++; quote = TRUE;
+			}
+		else quote = FALSE;
+		while((!MySpace((c=(*p_args)[i])) || !nospace) && c != '\0') {
+			if(c == '"') quote = 1 - quote;
+			else (*((*(ScriptLine.arg))[j]))[ii++] = c;
+			if(ii >= imax) {
+				h = (Handle) (*(ScriptLine.arg))[j];
+				imax = MyGetHandleSize((Handle)p_args);
+				MySetHandleSize((Handle*)&h,(Size)imax);
+				/* It will be resized down after use */
+				(*(ScriptLine.arg))[j] = h;
+				imax = (imax / sizeof(char)) - 1;
+				}
 			i++;
 			}
-		if(bar && (*p_args)[i-1] != '|') goto BADVAR;
-		continue;
-BADVAR:
-		Print(wTrace,"\n=> Incorrect variable\n");
-		goto QUIT;
-		}
-/*	if(strcmp(line,"AEclass") == 0) {
-		x = ZERO;
-		for(ii=i; ii < i+4; ii++) {
-			type[ii-i] = (*p_args)[ii];
-			x = (256 * x) + (unsigned)(*p_args)[ii];
+		(*((*(ScriptLine.arg))[j]))[ii] = '\0';
+		if(quote) {
+			Print(wTrace,"\nMissing terminating quote\n");
+			goto QUIT;
 			}
-		type[ii-i] = '\0';
-		i = ii;
-		if((*p_args)[i] != '\'') goto BADCLASS;
-		ii = 0;
-		(*(ScriptLine.ularg))[j] = x;
-		MystrcpyStringToTable(ScriptLine.arg,j,type);
-		continue;
-	BADCLASS:
-		my_sprintf(Message,"\n=> Incorrect Apple Event class '%s'\n",type);
-		Print(wTrace,Message);
-		goto QUIT;
 		}
-	if(strcmp(line,"AEID") == 0) {
-		x = ZERO;
-		for(ii=i; ii < i+4; ii++) {
-			type[ii-i] = (*p_args)[ii];
-			x = (256 * x) + (unsigned)(*p_args)[ii];
-			}
-		type[ii-i] = '\0';
-		i = ii;
-		if((*p_args)[i] != '\'') goto BADID;
-		ii = 0;
-		(*(ScriptLine.ularg))[j] = x;
-		MystrcpyStringToTable(ScriptLine.arg,j,type);
-		continue;
-BADID:
-		my_sprintf(Message,"\n=> Incorrect Apple Event ID '%s'\n",type);
-		Print(wTrace,Message);
-		goto QUIT;
-		}
-	if(strcmp(line,"signature") == 0) {
-		x = ZERO;
-		for(ii=i; ii < i+4; ii++) {
-			type[ii-i] = (*p_args)[ii];
-			x = (256 * x) + (unsigned)(*p_args)[ii];
-			}
-		type[ii-i] = '\0';
-		i = ii;
-		if((*p_args)[i] != '\'') goto BADCREATOR;
-		ii = 0;
-		(*(ScriptLine.ularg))[j] = x;
-		MystrcpyStringToTable(ScriptLine.arg,j,type);
-		continue;
-BADCREATOR:
-		my_sprintf(Message,"\n=> Incorrect application creator '%s'\n",type);
-		Print(wTrace,Message);
-		goto QUIT;
-		} */
-	if(strcmp(line,"script instruction") == 0) {
-	//	continue; // 2024-05-24
-		if(p_Script == NULL && GetScriptSpace() != OK) {
-			r = ABORT; goto QUIT;
-			}
-		n = CreateEventScript(&(*p_args)[i],FALSE);
-		if(n < 0) {
-			r = n; goto QUIT;
-			}
-		(*(ScriptLine.intarg))[j] = n;
-		while(!MySpace((*p_args)[i])) i++;
-		while(MySpace((*p_args)[i])) i++;
-		continue;
-		}
-	ii = 0;
-	nospace = TRUE;
-	switch(k) {
-		case 14:
-		case 16:
-		case 83:
-		case 84:
-		case 85:
-			nospace = FALSE; break;
-		}
-	if((*p_args)[i] == '"') {
-		i++; quote = TRUE;
-		}
-	else quote = FALSE;
-	while((!MySpace((c=(*p_args)[i])) || !nospace) && c != '\0') {
-		if(c == '"') quote = 1 - quote;
-		else (*((*(ScriptLine.arg))[j]))[ii++] = c;
-		if(ii >= imax) {
-			h = (Handle) (*(ScriptLine.arg))[j];
-			imax = MyGetHandleSize((Handle)p_args);
-			MySetHandleSize((Handle*)&h,(Size)imax);
-			/* It will be resized down after use */
-			(*(ScriptLine.arg))[j] = h;
-			imax = (imax / sizeof(char)) - 1;
-			}
-		i++;
-		}
-	(*((*(ScriptLine.arg))[j]))[ii] = '\0';
-	if(quote) {
-		Print(wTrace,"\nMissing terminating quote\n");
-		goto QUIT;
-		}
-	}
-r = OK;
+	r = OK;
 
 QUIT:
-return(r);
-}
+	return(r);
+	}
 
 
 /* ChangeDirInfo(long dir,short vref,long *p_posdir)
@@ -2424,27 +2422,26 @@ return(OK);
 } */
 
 
-int CheckUsedKey(char*** p_keyon,int i1,int i2)
-{
-int key,k,chan,ch;
+int CheckUsedKey(char*** p_keyon,int i1,int i2) {
+	int key,k,chan,ch;
 
-key = (*(ScriptLine.intarg))[i1];
-chan = (*(ScriptLine.intarg))[i2];
-if(p_keyon == NULL) { // 2024-06-18
-	return OK;
-/*	for(ch=0; ch < MAXCHAN; ch++) {
-		if((p_keyon[ch] = (char**) GiveSpace((Size)(MAXKEY+1)*sizeof(char))) == NULL) return(ABORT);
-		for(k=0; k < MAXKEY; k++) (*p_keyon[ch])[k] = 0;
+	key = (*(ScriptLine.intarg))[i1];
+	chan = (*(ScriptLine.intarg))[i2];
+	if(p_keyon == NULL) { // 2024-06-18
+		return OK;
+	/*	for(ch=0; ch < MAXCHAN; ch++) {
+			if((p_keyon[ch] = (char**) GiveSpace((Size)(MAXKEY+1)*sizeof(char))) == NULL) return(ABORT);
+			for(k=0; k < MAXKEY; k++) (*p_keyon[ch])[k] = 0;
+			}
+		return OK; */
 		}
-	return OK; */
+	// BPPrintMessage(0,odInfo,"Script key = %d chan = %d, on = %d\n",key,chan,(int)(*p_keyon[chan])[key]);
+	if((*p_keyon[chan])[key]) {
+		Print(wTrace,"Key '");
+		PrintThisNote(-1,key,chan,wTrace,Message);
+		Print(wTrace,"' is already used.\n");
+		return(MISSED);
+		}
+	else (*p_keyon[chan])[key] = TRUE;
+	return(OK);
 	}
-// BPPrintMessage(0,odInfo,"Script key = %d chan = %d, on = %d\n",key,chan,(int)(*p_keyon[chan])[key]);
-if((*p_keyon[chan])[key]) {
-	Print(wTrace,"Key '");
-	PrintThisNote(-1,key,chan,wTrace,Message);
-	Print(wTrace,"' is already used.\n");
-	return(MISSED);
-	}
-else (*p_keyon[chan])[key] = TRUE;
-return(OK);
-}

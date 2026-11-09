@@ -132,23 +132,22 @@ int MakeMIDIFile(OutFileInfo* finfo) {
 
 void change_midifile_name(char *tail) {
 	const char *base = PathToMidiFile;
-    size_t base_len = strlen(base);
-    int need_slash = (base_len > 0 && base[base_len - 1] == '/') ? 0 : 1;
-    size_t total = base_len + (need_slash ? 1 : 0) + strlen(tail) + 1;
-    char *combined = (char *)malloc(total);
-    char *p = combined;
-    memcpy(p, base, base_len); p += base_len;
-    if (need_slash) *p++ = '/';
-    memcpy(p, tail, strlen(tail) + 1); // includes '\0'
+	size_t base_len = strlen(base);
+	int need_slash = (base_len > 0 && base[base_len - 1] == '/') ? 0 : 1;
+	size_t total = base_len + (need_slash ? 1 : 0) + strlen(tail) + 1;
+	char *combined = (char *)malloc(total);
+	char *p = combined;
+	memcpy(p, base, base_len); p += base_len;
+	if(need_slash) *p++ = '/';
+	memcpy(p, tail, strlen(tail) + 1); // includes '\0'
 	// BPPrintMessage(1,odInfo,"\ncombined = %s\n",combined);
-    // If you previously malloc'd the old value, free it here.
-    // Otherwise skip the free (e.g., if it pointed at a literal).
-    // free(gOptions.outputFiles[ofiMidiFile].name);
-    gOptions.outputFiles[ofiMidiFile].name = combined;
+	// If you previously malloc'd the old value, free it here.
+	// Otherwise skip the free (e.g., if it pointed at a literal).
+	// free(gOptions.outputFiles[ofiMidiFile].name);
+	gOptions.outputFiles[ofiMidiFile].name = combined;
 	}
 
-static int WriteMIDIFileHeader(FILE* fout)
-{
+static int WriteMIDIFileHeader(FILE* fout) {
 	int result;
 	byte byteval,b0,b1;
 	unsigned long deltatimesinquarternote;
@@ -184,7 +183,7 @@ static int WriteMIDIFileHeader(FILE* fout)
 	if(result != OK)  return ABORT;
 
 	return OK;
-}
+	}
 
 
 /*	WriteBeginningOfTrack()
@@ -268,8 +267,7 @@ static int WriteBeginningOfTrack(FILE* fout, int inclMetaEvts, int isTempoOnlyTr
 	}
 
 
-static int WriteEndOfTrack(FILE* fout)
-{
+static int WriteEndOfTrack(FILE* fout) {
 	int result;
 	long pos;
 	
@@ -285,7 +283,7 @@ static int WriteEndOfTrack(FILE* fout)
 		MIDIbytestate = 0;
 		Midi_msg = ZERO;
 		MIDIfileTrackEmpty = FALSE;
-	}
+		}
 	
 	/* Finish off the track tail */
 	result = WriteRawBytes(fout, end_of_track, sizeof(end_of_track));
@@ -298,7 +296,7 @@ static int WriteEndOfTrack(FILE* fout)
 	if(pos < 0) {
 		BPPrintMessage(0,odError, "=> Error in WriteEndOfTrack(): ftell() returned %ld.\n", pos);
 		return ABORT;
-	}
+		}
 	
 	/* Write the track length at the right place. */
 	result = fseek(fout, MidiLen_pos, SEEK_SET);
@@ -311,7 +309,7 @@ static int WriteEndOfTrack(FILE* fout)
 	if(result != 0) return ABORT;
 	
 	return OK;
-}
+	}
 
 static int WriteRawBytes(FILE* fout, byte* data, size_t numbytes) {
 	size_t written;
@@ -372,24 +370,23 @@ int WriteMIDIbyte(Milliseconds time,byte midi_byte) {
 	}
 
 
-int NewTrack(void)
-{
-int result;
+int NewTrack(void) {
+	int result;
 
-if(!MIDIfileOpened) return(OK);
+	if(!MIDIfileOpened) return(OK);
 
-if(MIDIfileType != 2) {
-	BPPrintMessage(0,odError,"=> Err.NewTrack(). This is not a type-2 file");
+	if(MIDIfileType != 2) {
+		BPPrintMessage(0,odError,"=> Err.NewTrack(). This is not a type-2 file");
+		}
+
+	// finish the current track
+	result = WriteEndOfTrack(OpenMIDIfilePtr);
+	if(result != OK)  return result;
+
+	// make a new track
+	result = WriteBeginningOfTrack(OpenMIDIfilePtr, TRUE, FALSE);
+	return result;
 	}
-
-// finish the current track
-result = WriteEndOfTrack(OpenMIDIfilePtr);
-if(result != OK)  return result;
-
-// make a new track
-result = WriteBeginningOfTrack(OpenMIDIfilePtr, TRUE, FALSE);
-return result;
-}
 
 /* Finishes writing the track and MIDI header, then calls CloseMIDIFile2() */
 int CloseMIDIFile(void) {
@@ -435,44 +432,42 @@ static int CloseMIDIFile2(void) {
 	}
 
 
-int WriteReverse(FILE* fout, dword x)
-// Write a dword high byteval first
-{
-byte byteval;
-int result;
+int WriteReverse(FILE* fout, dword x) {
+	// Write a dword high byteval first
+	byte byteval;
+	int result;
 
-byteval = (byte)((x >> 24) & 0xff);
-result = WriteRawBytes(fout, &byteval, 1L);
-if(result != OK)  return ABORT;
-byteval = (byte)((x >> 16) & 0xff);
-result = WriteRawBytes(fout, &byteval, 1L);
-if(result != OK)  return ABORT;
-byteval = (byte)((x >> 8) & 0xff);
-result = WriteRawBytes(fout, &byteval, 1L);
-if(result != OK)  return ABORT;
-byteval = (byte)(x & 0xff);
-result = WriteRawBytes(fout, &byteval, 1L);
-if(result != OK)  return ABORT;
-
-return(OK);
-}
-
-
-int Writedword(FILE* fout, dword x, int n)
-//  Writes n bytes of the dword x to the MIDI file, high byteval last
-{
-byte byteval;
-int result;
-
-while(n > 0) {
+	byteval = (byte)((x >> 24) & 0xff);
+	result = WriteRawBytes(fout, &byteval, 1L);
+	if(result != OK)  return ABORT;
+	byteval = (byte)((x >> 16) & 0xff);
+	result = WriteRawBytes(fout, &byteval, 1L);
+	if(result != OK)  return ABORT;
+	byteval = (byte)((x >> 8) & 0xff);
+	result = WriteRawBytes(fout, &byteval, 1L);
+	if(result != OK)  return ABORT;
 	byteval = (byte)(x & 0xff);
 	result = WriteRawBytes(fout, &byteval, 1L);
 	if(result != OK)  return ABORT;
-	x >>= 8;
-	n--;
+
+	return(OK);
 	}
-return(OK);
-}
+
+
+int Writedword(FILE* fout, dword x, int n) {
+	//  Writes n bytes of the dword x to the MIDI file, high byteval last
+	byte byteval;
+	int result;
+
+	while(n > 0) {
+		byteval = (byte)(x & 0xff);
+		result = WriteRawBytes(fout, &byteval, 1L);
+		if(result != OK)  return ABORT;
+		x >>= 8;
+		n--;
+		}
+	return(OK);
+	}
 
 
 /*  "Variable Length Quantities" are used in Midi files to represent
@@ -498,18 +493,16 @@ return(OK);
 		10000001 11010101 11001111 01100000
 		which is 0x81 D5 CF 60 in hexadecimal.
  */
-static int WriteVarLenQuantity(FILE* fout, dword value, dword *tracklen)
-{
+static int WriteVarLenQuantity(FILE* fout, dword value, dword *tracklen) {
 	int  result;
 	byte varlen[4];
 	long numbytes = 1;
 	
-	if(value > 268435455)	{
-			{
-			BPPrintMessage(0,odError, "=> Err. WriteVarLenQuantity(): value %u is out of range in chunk #%d\n",value,Chunk_number);
+	if(value > 268435455)	{ {
+		BPPrintMessage(0,odError, "=> Err. WriteVarLenQuantity(): value %u is out of range in chunk #%d\n",value,Chunk_number);
 		}
-		return ABORT; // Fixed by BB 2021-02-25
-	}
+	return ABORT; // Fixed by BB 2021-02-25
+		}
 	
 	// split value into 7-bit chunks
 	varlen[3] = (byte)(value & BITS0_6);
@@ -523,22 +516,22 @@ static int WriteVarLenQuantity(FILE* fout, dword value, dword *tracklen)
 		varlen[1] |= 0x80;
 		varlen[2] |= 0x80;
 		numbytes = 4;
-	}
+		}
 	else if(varlen[1]) {
 		varlen[1] |= 0x80;
 		varlen[2] |= 0x80;
 		numbytes = 3;
-	}
+		}
 	else if(varlen[2]) {
 		varlen[2] |= 0x80;
 		numbytes = 2;
-	}
+		}
 	
 	// write only the significant bytes
 	result = WriteRawBytes(fout, &(varlen[4-numbytes]), numbytes);
 	*tracklen += numbytes;
 	return result;
-}
+	}
 
 int PrepareMIDIFile(void) {
 	int rep;
@@ -556,90 +549,84 @@ int PrepareMIDIFile(void) {
 	}
 
 
-int ResetMIDIfile(void)
-{
-if(MIDIfileOpened) {
-	if(FileSaveMode == NEWFILE) CloseMIDIFile();
-	else if(MIDIfileType == 2) {
-		NewTrack();
-		if(!SoundOn) Nbytes = ZERO; 	/* Added 14/11/98 - avoids waiting on ResetMIDI() */
-		}
-	}
-return(OK);
-}
-
-int WriteMIDIorchestra(void)
-{
-int i,w,rs;
-MIDI_Event e;
-
-if(!NewOrchestra) return(OK);
-if(!MIDIfileOn || !MIDIfileOpened) return(OK);
-
-for(i=1; i <= MAXCHAN; i++) {
-	w = CurrentMIDIprogram[i];
-	if(w > 0 && w <= 128) {
-		NewOrchestra = FALSE;
-		e.time = Tcurr;
-		e.type = TWO_BYTE_EVENT;
-		e.status = ProgramChange + i - 1;
-		e.data2 = w - 1;
-		rs = 0;
-		SendToDriver(0,0,0,Tcurr * Time_res,0,&rs,&e);
-		}
-	}
-return(OK);
-}
-
-
-int FadeOut(void)
-{
-int i_event,i_event_max,rs,chan,value,value2,this_volume,rep;
-Milliseconds time,timeorigin,time_end,current_volume[MAXCHAN+1];
-MIDI_Event e;
-float ratio;
-unsigned char this_char;
-
-#if BP_CARBON_GUI_FORGET_THIS
-GetFileSavePreferences();
-#endif /* BP_CARBON_GUI_FORGET_THIS */
-
-if(EndFadeOut > 0.) {
-	rs = 0;
-	timeorigin = LastTime;
-	time_end = timeorigin + (1000 * EndFadeOut);
-	i_event_max = (int)(EndFadeOut * SamplingRate);
-	my_sprintf(Message,"Fading out MIDI stream %.3f sec as requested by the settings (or by default)\n",(float)EndFadeOut);
-	BPPrintMessage(0,odInfo,Message);
-	for(chan=1; chan <= MAXCHAN; chan++)
-		current_volume[chan] = CurrentVolume[chan];
-	for(i_event = 1; i_event <= i_event_max; i_event++) {
-		time = timeorigin + ((1000 * i_event) / SamplingRate);
-	//	if(time > time_end) break;
-		ratio = ((float)(i_event_max - i_event)) / i_event_max;
-		for(chan=1; chan <= MAXCHAN; chan++) {
-			this_volume = current_volume[chan];
-			if(this_volume < 1) continue;
-			value2 = (float)this_volume * ratio;
-			this_char = (unsigned char)(time / Time_res);
-			e.time = this_char;
-			e.type = NORMAL_EVENT;
-			this_char = (unsigned char)(ControlChange + chan - 1);
-			e.status = this_char;
-			this_char = (unsigned char)VolumeControl[chan];
-			e.data1 = this_char;
-			this_char = (unsigned char)value2;
-			e.data2 = this_char;
-			if((rep=SendToDriver(0,0,0,time,0,&rs,&e)) != OK) {
-				BPPrintMessage(0,odInfo,"SendToDriver aborted! rep = %ld\n",(long)rep);
-				goto SORTIR;
-				}
-			my_sprintf(Message,"%d/%d ratio = %.3f  channel %d: time = %ld ms, current_volume = %ld, e.data1 = %d, e.data2 = %d\n",i_event,i_event_max,ratio,chan,(long)time,(long)this_volume,e.data1,e.data2);
-			if(check_fade_out) BPPrintMessage(0,odInfo,Message);
+int ResetMIDIfile(void) {
+	if(MIDIfileOpened) {
+		if(FileSaveMode == NEWFILE) CloseMIDIFile();
+		else if(MIDIfileType == 2) {
+			NewTrack();
+			if(!SoundOn) Nbytes = ZERO; 	/* Added 14/11/98 - avoids waiting on ResetMIDI() */
 			}
 		}
-SORTIR:
-	for(chan=1; chan <= MAXCHAN; chan++) CurrentVolume[chan] = -1;
+	return(OK);
 	}
-return(OK);
-}
+
+int WriteMIDIorchestra(void) {
+	int i,w,rs;
+	MIDI_Event e;
+
+	if(!NewOrchestra) return(OK);
+	if(!MIDIfileOn || !MIDIfileOpened) return(OK);
+
+	for(i=1; i <= MAXCHAN; i++) {
+		w = CurrentMIDIprogram[i];
+		if(w > 0 && w <= 128) {
+			NewOrchestra = FALSE;
+			e.time = Tcurr;
+			e.type = TWO_BYTE_EVENT;
+			e.status = ProgramChange + i - 1;
+			e.data2 = w - 1;
+			rs = 0;
+			SendToDriver(0,0,0,Tcurr * Time_res,0,&rs,&e);
+			}
+		}
+	return(OK);
+	}
+
+
+int FadeOut(void) {
+	int i_event,i_event_max,rs,chan,value,value2,this_volume,rep;
+	Milliseconds time,timeorigin,time_end,current_volume[MAXCHAN+1];
+	MIDI_Event e;
+	float ratio;
+	unsigned char this_char;
+
+
+	if(EndFadeOut > 0.) {
+		rs = 0;
+		timeorigin = LastTime;
+		time_end = timeorigin + (1000 * EndFadeOut);
+		i_event_max = (int)(EndFadeOut * SamplingRate);
+		my_sprintf(Message,"Fading out MIDI stream %.3f sec as requested by the settings (or by default)\n",(float)EndFadeOut);
+		BPPrintMessage(0,odInfo,Message);
+		for(chan=1; chan <= MAXCHAN; chan++)
+			current_volume[chan] = CurrentVolume[chan];
+		for(i_event = 1; i_event <= i_event_max; i_event++) {
+			time = timeorigin + ((1000 * i_event) / SamplingRate);
+		//	if(time > time_end) break;
+			ratio = ((float)(i_event_max - i_event)) / i_event_max;
+			for(chan=1; chan <= MAXCHAN; chan++) {
+				this_volume = current_volume[chan];
+				if(this_volume < 1) continue;
+				value2 = (float)this_volume * ratio;
+				this_char = (unsigned char)(time / Time_res);
+				e.time = this_char;
+				e.type = NORMAL_EVENT;
+				this_char = (unsigned char)(ControlChange + chan - 1);
+				e.status = this_char;
+				this_char = (unsigned char)VolumeControl[chan];
+				e.data1 = this_char;
+				this_char = (unsigned char)value2;
+				e.data2 = this_char;
+				if((rep=SendToDriver(0,0,0,time,0,&rs,&e)) != OK) {
+					BPPrintMessage(0,odInfo,"SendToDriver aborted! rep = %ld\n",(long)rep);
+					goto SORTIR;
+					}
+				my_sprintf(Message,"%d/%d ratio = %.3f  channel %d: time = %ld ms, current_volume = %ld, e.data1 = %d, e.data2 = %d\n",i_event,i_event_max,ratio,chan,(long)time,(long)this_volume,e.data1,e.data2);
+				if(check_fade_out) BPPrintMessage(0,odInfo,Message);
+				}
+			}
+SORTIR:
+		for(chan=1; chan <= MAXCHAN; chan++) CurrentVolume[chan] = -1;
+		}
+	return(OK);
+	}

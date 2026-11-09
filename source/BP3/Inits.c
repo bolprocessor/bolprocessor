@@ -300,7 +300,7 @@ int Inits(void) {
 	Infpos = - Veryneg;
 	Infpos1 = Infpos + 1.;
 	// BPPrintMessage(0,odError,"Infneg = %ld\n",Infneg);
-	InsertGramRuleNumbers = InsertGramCorrections = InsertNewBols = (BP_CARBON_GUI_FORGET_THIS ? TRUE : FALSE);
+	InsertGramRuleNumbers = InsertGramCorrections = InsertNewBols = FALSE;
 	SplitTimeObjects = TRUE;	/* Terminal symbols separated by spaces */
 	SplitVariables = FALSE;	/* SplitVariables <=> variables displayed between '||' */
 	Token = SpaceOn = FALSE;	/* Typing text, not tokens */
@@ -578,71 +578,38 @@ int Ctrlinit(void) {
 	}
 
 
-int MakeWindows(void)
-{
-int i,id,im,ibot,itemtype,j,k,km,w,top,left,bottom,right,leftoffset,
-	widmax,type,proc,bad,x0,y0, oldheight;
-Handle h_res;
-Rect r, rw;
-Str255 title;
-long rc;
-GrafPtr saveport;
-OSErr err;
+int MakeWindows(void) {
+	int i,id,im,ibot,itemtype,j,k,km,w,top,left,bottom,right,leftoffset,
+		widmax,type,proc,bad,x0,y0, oldheight;
+	Handle h_res;
+	Rect r, rw;
+	Str255 title;
+	long rc;
+	GrafPtr saveport;
+	OSErr err;
 
 
-/* This initialization needs to occur even in non-GUI builds ?? */
-ResumeStopOn = FALSE;
-Jbutt = 0;
-for(w=0; w < WMAX; w++) {
-	IsHTML[w] = FALSE;
-	WindowFullAlertLevel[w] = 0;
-	Weird[w] = FALSE;
-	SetUpWindow(w);		// this is to create text buffers
-	}
-IsHTML[wCsoundTables] = TRUE;
-
-#if BP_CARBON_GUI_FORGET_THIS
-for(w=0; w < MAXWIND; w++) {
-	PleaseWait();
-	if((Window[w] = GetNewCWindow(WindowIDoffset+w, NULL, 0L)) == NULL) {
-		my_sprintf(Message,"Can't load resource window ID#%ld",
-			(long)WindowIDoffset+w);
-		EmergencyExit = TRUE;
-		ParamText(in_place_c2pstr(Message),"\p","\p","\p");
-		NoteAlert(OKAlert,0L);
-		bad = TRUE;
+	/* This initialization needs to occur even in non-GUI builds ?? */
+	ResumeStopOn = FALSE;
+	Jbutt = 0;
+	for(w=0; w < WMAX; w++) {
+		IsHTML[w] = FALSE;
+		WindowFullAlertLevel[w] = 0;
+		Weird[w] = FALSE;
+		SetUpWindow(w);		// this is to create text buffers
 		}
-	// gpDialogs[w] = Window[w];  /* should probably not duplicate WindowPtrs as DialogPtrs, but may be neccessary for now -- 010907 akozar */
-	/* By removing the above line, we invalidate any use of gpDialogs[w] where w < MAXWIND.
-	   I am not sure if this will cause problems (even crashes), but it would also be an error
-	   to try GetDialogFromWindow() on a non-Dialog WindowPtr.  011307 akozar */
-	gpDialogs[w] = NULL; // FIXME ??
-	if(!bad) SetUpWindow(w);
-	GetWindowPortBounds(Window[w], &r);
-	Weird[w] = FALSE;
-	err = InvalWindowRect(Window[w], &r);
-	if(err != noErr) BPPrintMessage(0,odError,"=> Err MakeWindows().  InvalWindowRect returned non-zero.");
+	IsHTML[wCsoundTables] = TRUE;
+
+
+	FlashInfo("Bol Processor console app");
+
+	my_sprintf(Message,"%s",IDSTRING);
+	ShowMessage(TRUE,wMessage,Message);
+
+	Jbutt = 28;  // number of buttons must not be less than that found within settings files
+
+	return(OK);
 	}
-
-GetWindowPortBounds(Window[wMessage], &r);
-AdjustWindow(FALSE,wMessage,r.top,r.left,r.bottom,r.right);
-GetWindowPortBounds(Window[wInfo], &r);
-AdjustWindow(FALSE,wInfo,r.top,r.left,r.bottom,r.right);
-#endif /* BP_CARBON_GUI_FORGET_THIS */
-
-#if BP_CARBON_GUI_FORGET_THIS
-FlashInfo("Bol Processor Mac OS X (Carbon) GUI");
-#else
-FlashInfo("Bol Processor console app");
-#endif
-
-my_sprintf(Message,"%s",IDSTRING);
-ShowMessage(TRUE,wMessage,Message);
-
-Jbutt = 28;  // number of buttons must not be less than that found within settings files
-
-return(OK);
-}
 
 /* Non-Carbon version just creates TextHandles to use */
 int SetUpWindow(int w) {	
@@ -753,10 +720,10 @@ int LoadStringResource(char***** pp_str,int ***pp_ndx,int ***pp_narg,int id,long
 int ReadJason(int* p_im, char* key, char the_array[][MAX_STRINGLISTS_LEN]) {
 	int i = 0;
 	char *json_data = read_file(StringsJason);
-    if(!json_data) {
+	if(!json_data) {
 		char path[256];
-    	snprintf(path, sizeof(path), "php/%s", StringsJason);
-    	json_data = read_file(path);
+		snprintf(path, sizeof(path), "php/%s", StringsJason);
+		json_data = read_file(path);
 		if(!json_data) {
 			BPPrintMessage(0,odError,"=> Could not find file “%s”\n",StringsJason);
 			Panic = TRUE;
@@ -764,35 +731,35 @@ int ReadJason(int* p_im, char* key, char the_array[][MAX_STRINGLISTS_LEN]) {
 			}
 		}
 	cJSON *json = cJSON_Parse(json_data);
-    if(!json) {
-        BPPrintMessage(0,odError,"=> Could not parse “%s”: %s\n",StringsJason,cJSON_GetErrorPtr());
+	if(!json) {
+		BPPrintMessage(0,odError,"=> Could not parse “%s”: %s\n",StringsJason,cJSON_GetErrorPtr());
 		free(json_data);
 		Panic = TRUE;
-        return ABORT;
-    	}
+		return ABORT;
+		}
 	cJSON *scriptCommandArray = cJSON_GetObjectItem(json,key);
 	if(!cJSON_IsArray(scriptCommandArray)) {
-        BPPrintMessage(0,odError,"=> “%s” was not found in “%s”\n",key,StringsJason);
+		BPPrintMessage(0,odError,"=> “%s” was not found in “%s”\n",key,StringsJason);
 		cJSON_Delete(json);
 		free(json_data);
 		Panic = TRUE;
 		return ABORT;
 		}
-    cJSON *item;
-    cJSON_ArrayForEach(item,scriptCommandArray) {
-        if(i >= MAX_STRINGLISTS_NUMBER) {
+	cJSON *item;
+	cJSON_ArrayForEach(item,scriptCommandArray) {
+		if(i >= MAX_STRINGLISTS_NUMBER) {
 			BPPrintMessage(0,odError,"=> Too many “%s” in “%s”\n",key,StringsJason);
-            break;
-        	}
-        if(cJSON_IsString(item)) {
-            strncpy(the_array[i],item->valuestring,MAX_STRINGLISTS_LEN - 1);
-            the_array[i][MAX_STRINGLISTS_LEN -1] = '\0';
-            i++;
+			break;
+			}
+		if(cJSON_IsString(item)) {
+			strncpy(the_array[i],item->valuestring,MAX_STRINGLISTS_LEN - 1);
+			the_array[i][MAX_STRINGLISTS_LEN -1] = '\0';
+			i++;
 			}
 		}
 	*p_im = i;
-    cJSON_Delete(json);
-    free(json_data);
+	cJSON_Delete(json);
+	free(json_data);
 	return OK;
 	}
 

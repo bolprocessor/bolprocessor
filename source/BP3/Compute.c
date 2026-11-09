@@ -82,7 +82,7 @@ int Compute(tokenbyte ***pp_a,int fromigram,int toigram,long *p_length,int *p_re
 	REDO:
 	if(TraceProduce && !TraceDetail && Improvize) {
 		string = NULL;
-		if (GetTextHandle(&string, wStartString) == OK && string != NULL) {
+		if(GetTextHandle(&string, wStartString) == OK && string != NULL) {
 			Print(wTrace, "\nStarting with “%s”\n\n", *string);
 			}
 		}
@@ -959,86 +959,85 @@ QUIT:
 	}
 
 
-int Undo(tokenbyte ***pp_a, int repeat)
-{
-long endofselection;
-unsigned long datemem;
-int r;
-tokenbyte **p_x;
+int Undo(tokenbyte ***pp_a, int repeat) {
+	long endofselection;
+	unsigned long datemem;
+	int r;
+	tokenbyte **p_x;
 
-if((*pp_a) == NULL) {
-	BPPrintMessage(0,odError,"No item has been produced...");
-	return(MISSED);
-	}
-if(ProduceStackDepth <= 0) {
-	BPPrintMessage(0,odError,"Can't undo. Decisions not available");
-	return(MISSED);
-	}
-if(DisplayProduce && DisplayStackIndex < 2) {
-	BPPrintMessage(0,odError,"Can't undo");
-	return(MISSED);
-	}
-DisplayStackIndex--;
-ProduceStackIndex = (*p_LastStackIndex)[DisplayStackIndex-1];
-if(!repeat) {
-	ProduceStackDepth = ProduceStackIndex;
-	}
-if(p_ItemStart == NULL
-		|| DisplayStackIndex >= MyGetHandleSize((Handle)p_ItemStart) / sizeof(long)) {
-	BPPrintMessage(0,odError,"=> Err. Undo(). p_ItemStart = NULL");
-	return(ABORT);
-	}
-SetSelect((*p_ItemStart)[DisplayStackIndex-1],(*p_ItemEnd)[DisplayStackIndex-1],
-	TEH[wTrace]);
-p_x = NULL;
-if(SelectionToBuffer(FALSE,FALSE,wTrace,&p_x,&endofselection,PROD) != OK) {
-	MyDisposeHandle((Handle*)&p_x);
-	SetSelect(GetTextLength(wTrace),GetTextLength(wTrace),TEH[wTrace]);
-	BPPrintMessage(0,odError,"Can't find previous work string");
-	return(MISSED);
-	}
-if(CopyBuf(&p_x,pp_a) == ABORT) return(ABORT);
-MyDisposeHandle((Handle*)&p_x);
-SetSelect(endofselection,GetTextLength(wTrace),TEH[wTrace]);
-TextDelete(wTrace);
-if(DisplayStackIndex > 1) {
-	UndoFlag = TRUE;
-	datemem = CompileDate;
-	ShowMessage(TRUE, wMessage, "FIXME: Choosing to RESUME in function Undo().");
-	r = RESUME;
-	UndoFlag = FALSE;
-	if((datemem != CompileDate) || !CompiledGr || !CompiledPt) {
-		BPPrintMessage(0,odError,"Grammar changed or recompiled.  Must abort...");
+	if((*pp_a) == NULL) {
+		BPPrintMessage(0,odError,"No item has been produced...");
+		return(MISSED);
+		}
+	if(ProduceStackDepth <= 0) {
+		BPPrintMessage(0,odError,"Can't undo. Decisions not available");
+		return(MISSED);
+		}
+	if(DisplayProduce && DisplayStackIndex < 2) {
+		BPPrintMessage(0,odError,"Can't undo");
+		return(MISSED);
+		}
+	DisplayStackIndex--;
+	ProduceStackIndex = (*p_LastStackIndex)[DisplayStackIndex-1];
+	if(!repeat) {
+		ProduceStackDepth = ProduceStackIndex;
+		}
+	if(p_ItemStart == NULL
+			|| DisplayStackIndex >= MyGetHandleSize((Handle)p_ItemStart) / sizeof(long)) {
+		BPPrintMessage(0,odError,"=> Err. Undo(). p_ItemStart = NULL");
 		return(ABORT);
 		}
-	if(r == STOP) {
-		if(repeat) {
-			StepProduce = DisplayProduce = PlanProduce = TraceProduce = FALSE;
-			r = OK;	/* Computation should be completed. */
-			}
-		else {
-			r = ABORT;
-			}
+	SetSelect((*p_ItemStart)[DisplayStackIndex-1],(*p_ItemEnd)[DisplayStackIndex-1],
+		TEH[wTrace]);
+	p_x = NULL;
+	if(SelectionToBuffer(FALSE,FALSE,wTrace,&p_x,&endofselection,PROD) != OK) {
+		MyDisposeHandle((Handle*)&p_x);
+		SetSelect(GetTextLength(wTrace),GetTextLength(wTrace),TEH[wTrace]);
+		BPPrintMessage(0,odError,"Can't find previous work string");
+		return(MISSED);
 		}
-	if(r == RESUME) {
-		r = OK; EventState = NO;
-		}
-	if(r == UNDO) {
-		if(repeat) {
-			if((r = Answer("Forget further choices",'N')) == YES) {
-				repeat = FALSE;
-				if(!PlanProduce && (r = Answer("Choose computations",'Y'))
-						== YES) PlanProduce = TraceProduce = TRUE;
+	if(CopyBuf(&p_x,pp_a) == ABORT) return(ABORT);
+	MyDisposeHandle((Handle*)&p_x);
+	SetSelect(endofselection,GetTextLength(wTrace),TEH[wTrace]);
+	TextDelete(wTrace);
+	if(DisplayStackIndex > 1) {
+		UndoFlag = TRUE;
+		datemem = CompileDate;
+		ShowMessage(TRUE, wMessage, "FIXME: Choosing to RESUME in function Undo().");
+		r = RESUME;
+		UndoFlag = FALSE;
+		if((datemem != CompileDate) || !CompiledGr || !CompiledPt) {
+			BPPrintMessage(0,odError,"Grammar changed or recompiled.  Must abort...");
+			return(ABORT);
+			}
+		if(r == STOP) {
+			if(repeat) {
+				StepProduce = DisplayProduce = PlanProduce = TraceProduce = FALSE;
+				r = OK;	/* Computation should be completed. */
 				}
-			if(r == ABORT) return(r);
+			else {
+				r = ABORT;
+				}
 			}
-		return(Undo(pp_a,repeat));
+		if(r == RESUME) {
+			r = OK; EventState = NO;
+			}
+		if(r == UNDO) {
+			if(repeat) {
+				if((r = Answer("Forget further choices",'N')) == YES) {
+					repeat = FALSE;
+					if(!PlanProduce && (r = Answer("Choose computations",'Y'))
+							== YES) PlanProduce = TraceProduce = TRUE;
+					}
+				if(r == ABORT) return(r);
+				}
+			return(Undo(pp_a,repeat));
+			}
+		if(r != OK) return(r);
 		}
-	if(r != OK) return(r);
+	if((r=CompileCheck()) != OK) return(r);
+	return(OK);
 	}
-if((r=CompileCheck()) != OK) return(r);
-return(OK);
-}
 
 
 int Destroy(tokenbyte ***pp_a) {
@@ -1896,7 +1895,7 @@ long Insert(int grtype,tokenbyte ***pp_origin,tokenbyte ***pp_dest,t_rule rule,l
 	if(CheckEmergency() != OK) return(ABORT);
 
 	switch(imode) {
-	case 0:	{						/* RND rule */
+		case 0:	{						/* RND rule */
 			UsedRandom = TRUE;
 			do {
 				randomnumber = bp3_rand();
@@ -1915,7 +1914,7 @@ long Insert(int grtype,tokenbyte ***pp_origin,tokenbyte ***pp_dest,t_rule rule,l
 				!OkContext(pp_origin,grtype,rule,pos1,length,meta,instan,PROD,time_end_compute));
 			break;
 			}
-	case 1:	{ 			/* ANAL or LEFT rule or LIN or ORD or SUB1 or POSLONG grammar */
+		case 1:	{ 			/* ANAL or LEFT rule or LIN or ORD or SUB1 or POSLONG grammar */
 			if(!Found(-1,pp_origin,grtype,p_arg1,offset,rule.leftnegcontext,&lenc1,pos1,1,
 				instan,meta,meta1,&istart,&jstart,&length,rule.ismeta,time_end_compute)) {
 				BPPrintMessage(0,odError,"=> Err Insert().  Not found");
@@ -1928,21 +1927,21 @@ long Insert(int grtype,tokenbyte ***pp_origin,tokenbyte ***pp_dest,t_rule rule,l
 			/* this was necessary for loading instan[] and meta[] */
 			break;
 			}
-	case 2:	{								/* RIGHT rule */
+		case 2:	{								/* RIGHT rule */
 			pos1 = (*p_lengthorigin) - 2;
 			while(!Found(-1,pp_origin,grtype,p_arg1,offset,rule.leftnegcontext,&lenc1,pos1,
 				1,instan,meta,meta1,&istart,&jstart,&length,rule.ismeta,time_end_compute)
 				|| !OkContext(pp_origin,grtype,rule,pos1,length,meta,instan,
 					PROD,time_end_compute)) {
-					pos1 -= 2;
-					if(pos1 < 0) {
-						BPPrintMessage(0,odError,"=> Err. Insert(). pos1 < 0");
-						return(ABORT);
-						}
+				pos1 -= 2;
+				if(pos1 < 0) {
+					BPPrintMessage(0,odError,"=> Err. Insert(). pos1 < 0");
+					return(ABORT);
 					}
+				}
 			break;
 			}
-	case 3:	{								/* SUB grammar */
+		case 3:	{								/* SUB grammar */
 			if(!Found(-1,pp_origin,grtype,p_arg1,offset,rule.leftnegcontext,&lenc1,pos1,1,
 				instan,meta,meta1,&istart,&jstart,&length,rule.ismeta,time_end_compute)) {
 				BPPrintMessage(0,odError,"=> Err Insert().  Not found");

@@ -619,133 +619,133 @@ int PolyMake(tokenbyte ***pp_a,double *p_maxseq,int notrailing) {
 	thelimit = (double) ULONG_MAX - 10.;
 
 	if(imax >= thelimit) {
-	TOOBIG:
-		if(Pclock < 1.) {
-			BPActivateWindow(SLOW,wTimeAccuracy);
-			BPActivateWindow(SLOW,wMetronom);
-			if(!ScriptExecOn) BPPrintMessage(0,odError,"Quantization is required but you must set a metronom value");
-			else {
-				Pclock = Qclock = 1.;
-				goto SETMETRONOM;
-				}
-			
-	ENTERMETRONOM:
-			rep = AnswerWith("Set metronome to...","60",Message);
-			if(rep == ABORT) {
-				rep = Answer("Do you really want to abort this job",'N');
-				if(rep == YES) {
-					r = ABORT;
-					goto QUIT;
-					}
-				goto ENTERMETRONOM;
-				}
-			if(Myatof(Message,&a,&b) < 0.) {
-				BPPrintMessage(0,odError,"=> Incorrect value");
-				goto ENTERMETRONOM;
-				}
-			if(Simplify((double)INT_MAX,(double)a,(double)60L*b,&Qclock,&Pclock) != OK)
-				Simplify((double)INT_MAX,floor((double)a/60L),(double)b,&Qclock,&Pclock);
-
-	SETMETRONOM:
-			SetTempo();
-			SetGrammarTempo();
-			}
-		if(!Quantize) {
-			BPActivateWindow(SLOW,wTimeAccuracy);
-			rep = Answer("Set 'Quantize' to true (no other way!)",'Y');
-			if(rep != YES && Answer("Do you really want to abort this job",'Y') == YES) {
-				r = ABORT;
-				goto QUIT;
-				}
-			newquantize = Quantization;
-			Quantize = TRUE;
-			goto SETQUANTIZE;
-			}
-		else if(Pclock > 0.) {
-			x = (((double)Quantization) * (imax + 100L) / thelimit);
-			x = 10L * (long) ceil(((double) x) / 10.);
-			if(x < Quantization) {
-				BPPrintMessage(1,odError,"=> Polymetric expansion encountered an unpredicted overflow. Sorry, can't proceed further\n");
-				r = ABORT;
-				goto QUIT;
-				}
-			if(x > 2000.) {
-				if(FALSE && (Quantization > 100L)) {
-					rep = Answer("This item would require a large quantization (greater than 2000 ms). Use temporary memory instead",
-						'Y');
-					if(rep == YES) {
-						FixedMaxQuantization = TRUE;
-					//	AskedTempMemory = TRUE;
-						goto FORGETIT;
-						}
-					else {
-						if(x < 32767.) newquantize = (long) x;
-						else newquantize = 2000L;
-						goto CHANGEQUANTIZE;
-						}
-					}
+		TOOBIG:
+			if(Pclock < 1.) {
+				BPActivateWindow(SLOW,wTimeAccuracy);
+				BPActivateWindow(SLOW,wMetronom);
+				if(!ScriptExecOn) BPPrintMessage(0,odError,"Quantization is required but you must set a metronom value");
 				else {
-					BPPrintMessage(0,odError,"=> Increasing quantization may not be sufficient to reduce memory requirement.\n");
-					rep = CANCEL; // Fixed by BB 2021-01-30
-				//	rep = Answer("Increasing quantization may not be sufficient to reduce memory requirement. Try it anyway",'Y');
-					newquantize = 2000L;
-					if(rep == YES) {
-						goto CHANGEQUANTIZE;
-						}
-				//	if(rep == CANCEL) goto WANTABORT;
-				//	AskedTempMemory = TRUE;
-					FixedMaxQuantization = TRUE;
-					goto FORGETIT;
+					Pclock = Qclock = 1.;
+					goto SETMETRONOM;
 					}
-				}
-			newquantize = (long) x;
-		//	BPActivateWindow(SLOW,wTimeAccuracy);
-			if(!ScriptExecOn && !alreadychangedquantize) BPPrintMessage(0,odError,"Quantization of %ld ms will be increased to reduce memory requirement (%ld ms might work)\n",
-				(long) Quantization,(long) newquantize);
-			else goto SETQUANTIZE;
 			
-	CHANGEQUANTIZE:
-		//	my_sprintf(Message,"%ld",(long)newquantize);
-		//	rep = AnswerWith("Setting quantization to...",Message,Message);
-		//	BPPrintMessage(0,odError,"Setting quantization to %ld ms\n",(long) newquantize);
-			
-	/*		if(rep == ABORT) { // Fixed by BB 2021-02-25
-
-	WANTABORT:
-				rep = Answer("Do you want to abort this job (answer 'no' to get another option)",'Y');
-				if(rep == YES) {
-					r = ABORT;
-					goto QUIT;
-					}
-				else {
-					rep = Answer("Allow BP3 to use additional memory",'Y');
+		ENTERMETRONOM:
+				rep = AnswerWith("Set metronome to...","60",Message);
+				if(rep == ABORT) {
+					rep = Answer("Do you really want to abort this job",'N');
 					if(rep == YES) {
-						AskedTempMemory = TRUE;
-						goto FORGETIT;
-						}
-					if(rep == CANCEL) {
 						r = ABORT;
 						goto QUIT;
 						}
-					goto CHANGEQUANTIZE;
+					goto ENTERMETRONOM;
 					}
+				if(Myatof(Message,&a,&b) < 0.) {
+					BPPrintMessage(0,odError,"=> Incorrect value");
+					goto ENTERMETRONOM;
+					}
+				if(Simplify((double)INT_MAX,(double)a,(double)60L*b,&Qclock,&Pclock) != OK)
+					Simplify((double)INT_MAX,floor((double)a/60L),(double)b,&Qclock,&Pclock);
+
+		SETMETRONOM:
+				SetTempo();
+				SetGrammarTempo();
 				}
-			newquantize2 = atol(Message);
-			if(newquantize2 <= Quantization) {
-				rep = Answer("Are you sure you don't want to increase the current quantization",'N');
-				if(rep != YES) goto CHANGEQUANTIZE;
+			if(!Quantize) {
+				BPActivateWindow(SLOW,wTimeAccuracy);
+				rep = Answer("Set 'Quantize' to true (no other way!)",'Y');
+				if(rep != YES && Answer("Do you really want to abort this job",'Y') == YES) {
+					r = ABORT;
+					goto QUIT;
+					}
+				newquantize = Quantization;
+				Quantize = TRUE;
+				goto SETQUANTIZE;
 				}
-			if(newquantize2 < newquantize) FixedMaxQuantization = TRUE;
+			else if(Pclock > 0.) {
+				x = (((double)Quantization) * (imax + 100L) / thelimit);
+				x = 10L * (long) ceil(((double) x) / 10.);
+				if(x < Quantization) {
+					BPPrintMessage(1,odError,"=> Polymetric expansion encountered an unpredicted overflow. Sorry, can't proceed further\n");
+					r = ABORT;
+					goto QUIT;
+					}
+				if(x > 2000.) {
+					if(FALSE && (Quantization > 100L)) {
+						rep = Answer("This item would require a large quantization (greater than 2000 ms). Use temporary memory instead",
+							'Y');
+						if(rep == YES) {
+							FixedMaxQuantization = TRUE;
+						//	AskedTempMemory = TRUE;
+							goto FORGETIT;
+							}
+						else {
+							if(x < 32767.) newquantize = (long) x;
+							else newquantize = 2000L;
+							goto CHANGEQUANTIZE;
+							}
+						}
+					else {
+						BPPrintMessage(0,odError,"=> Increasing quantization may not be sufficient to reduce memory requirement.\n");
+						rep = CANCEL; // Fixed by BB 2021-01-30
+					//	rep = Answer("Increasing quantization may not be sufficient to reduce memory requirement. Try it anyway",'Y');
+						newquantize = 2000L;
+						if(rep == YES) {
+							goto CHANGEQUANTIZE;
+							}
+					//	if(rep == CANCEL) goto WANTABORT;
+					//	AskedTempMemory = TRUE;
+						FixedMaxQuantization = TRUE;
+						goto FORGETIT;
+						}
+					}
+				newquantize = (long) x;
+			//	BPActivateWindow(SLOW,wTimeAccuracy);
+				if(!ScriptExecOn && !alreadychangedquantize) BPPrintMessage(0,odError,"Quantization of %ld ms will be increased to reduce memory requirement (%ld ms might work)\n",
+					(long) Quantization,(long) newquantize);
+				else goto SETQUANTIZE;
 			
-			newquantize = newquantize2; */
-			alreadychangedquantize = TRUE;
+		CHANGEQUANTIZE:
+			//	my_sprintf(Message,"%ld",(long)newquantize);
+			//	rep = AnswerWith("Setting quantization to...",Message,Message);
+			//	BPPrintMessage(0,odError,"Setting quantization to %ld ms\n",(long) newquantize);
 			
-	SETQUANTIZE:
-			Quantization = newquantize;
-			MyDisposeHandle((Handle*)&p_nseq);
-			MyDisposeHandle((Handle*)&p_nseqmax);
-			goto FINDCOMPRESSION;
-			}
+		/*		if(rep == ABORT) { // Fixed by BB 2021-02-25
+
+		WANTABORT:
+					rep = Answer("Do you want to abort this job (answer 'no' to get another option)",'Y');
+					if(rep == YES) {
+						r = ABORT;
+						goto QUIT;
+						}
+					else {
+						rep = Answer("Allow BP3 to use additional memory",'Y');
+						if(rep == YES) {
+							AskedTempMemory = TRUE;
+							goto FORGETIT;
+							}
+						if(rep == CANCEL) {
+							r = ABORT;
+							goto QUIT;
+							}
+						goto CHANGEQUANTIZE;
+						}
+					}
+				newquantize2 = atol(Message);
+				if(newquantize2 <= Quantization) {
+					rep = Answer("Are you sure you don't want to increase the current quantization",'N');
+					if(rep != YES) goto CHANGEQUANTIZE;
+					}
+				if(newquantize2 < newquantize) FixedMaxQuantization = TRUE;
+			
+				newquantize = newquantize2; */
+				alreadychangedquantize = TRUE;
+			
+		SETQUANTIZE:
+				Quantization = newquantize;
+				MyDisposeHandle((Handle*)&p_nseq);
+				MyDisposeHandle((Handle*)&p_nseqmax);
+				goto FINDCOMPRESSION;
+				}
 		}
 	// BPPrintMessage(0,odError,"@ morelines = %ld Minconc = %ld\n",(long)morelines,(long)Minconc);
 	Minconc += morelines;
@@ -1183,12 +1183,11 @@ int PolyExpand(tokenbyte **p_b,tokenbyte ***pp_a,unsigned long idorg,unsigned lo
 			if(singlegap) {
 				singlegap = FALSE;
 				isequal = Equal(0.005,scaling,speed,scalebeforegap,speedbeforegap,&overflow);
-				if(isequal == ABORT) {
-					{
-						BPPrintMessage(0,odError,"=> Err. PolyExpand(). isequal == ABORT\n");
-						result = ABORT; goto SORTIR;
-						}
-					isequal = FALSE;
+				if(isequal == ABORT) { {
+					BPPrintMessage(0,odError,"=> Err. PolyExpand(). isequal == ABORT\n");
+					result = ABORT; goto SORTIR;
+					}
+				isequal = FALSE;
 					}
 				if(isequal == FALSE) {
 					scaling = scalebeforegap;
@@ -1275,12 +1274,11 @@ int PolyExpand(tokenbyte **p_b,tokenbyte ***pp_a,unsigned long idorg,unsigned lo
 			scaling = xq;
 			
 			isequal = Equal(0.005,scaling,speed,prevscale,prevspeed,&overflow);
-			if(isequal == ABORT) {
-				{
-					BPPrintMessage(0,odError,"=> Err. PolyExpand(). isequal == ABORT");
-					result = ABORT; goto SORTIR;
-					}
-				isequal = FALSE;
+			if(isequal == ABORT) { {
+				BPPrintMessage(0,odError,"=> Err. PolyExpand(). isequal == ABORT");
+				result = ABORT; goto SORTIR;
+				}
+			isequal = FALSE;
 				}
 			if(isequal == FALSE) {
 				prevscale = scaling;
@@ -1357,80 +1355,79 @@ int PolyExpand(tokenbyte **p_b,tokenbyte ***pp_a,unsigned long idorg,unsigned lo
 			xp = (*p_p)[a];
 			xq = (*p_q)[a];
 			xf = (*ptr_fixtempo)[a];
-			useful = (*p_useful)[a];
+			useful = (*p_useful)[a]; {
 			
-			//// PUSH — iterative replacement of recursive call ///////////////////
-			{
-			if(_poly_stack_depth >= _poly_stack_cap) {
-				int newcap = _poly_stack_cap ? _poly_stack_cap * 2 : 16;
-				_PolyFrame **newstack = (_PolyFrame **)realloc(_poly_stack, newcap * sizeof(_PolyFrame*));
-				if(!newstack) { result = ABORT; goto SORTIR; }
-				for(int _f = _poly_stack_cap; _f < newcap; _f++) newstack[_f] = NULL;
-				_poly_stack = newstack;
-				_poly_stack_cap = newcap;
+				//// PUSH — iterative replacement of recursive call ///////////////////
+				if(_poly_stack_depth >= _poly_stack_cap) {
+					int newcap = _poly_stack_cap ? _poly_stack_cap * 2 : 16;
+					_PolyFrame **newstack = (_PolyFrame **)realloc(_poly_stack, newcap * sizeof(_PolyFrame*));
+					if(!newstack) { result = ABORT; goto SORTIR; }
+					for(int _f = _poly_stack_cap; _f < newcap; _f++) newstack[_f] = NULL;
+					_poly_stack = newstack;
+					_poly_stack_cap = newcap;
+					}
+				if(_poly_stack[_poly_stack_depth] == NULL
+						&& (_poly_stack[_poly_stack_depth] = (_PolyFrame *)malloc(sizeof(_PolyFrame))) == NULL) {
+					result = ABORT; goto SORTIR;
+					}
+				_PolyFrame *_sf = _poly_stack[_poly_stack_depth++];
+				/* Save all heap handles */
+				_sf->pp_c = pp_c; _sf->p_e = p_e; _sf->ptr = ptr; _sf->p_maxic = p_maxic;
+				_sf->ptr_fixtempo = ptr_fixtempo; _sf->p_firstistempo = p_firstistempo;
+				_sf->p_empty = p_empty; _sf->p_useful = p_useful; _sf->p_vargap = p_vargap;
+				_sf->p_p = p_p; _sf->p_q = p_q; _sf->p_pp = p_pp; _sf->p_r = p_r;
+				_sf->p_pgap = p_pgap; _sf->p_qgap = p_qgap;
+				/* Save caller's output context (parameters) */
+				_sf->pp_a = pp_a; _sf->p_maxid = p_maxid; _sf->idorg = idorg;
+				_sf->p_P = p_P; _sf->p_Q = p_Q;
+				_sf->p_fixtempo = p_fixtempo; _sf->p_onefielduseful = p_onefielduseful;
+				_sf->p_pos = p_pos;
+				_sf->oldspeed = oldspeed; _sf->oldscaling = oldscaling;
+				_sf->notrailing = notrailing;
+				/* Save all scalar locals */
+				_sf->m_save = m; _sf->p_save = p;
+				_sf->xf = xf; _sf->useful = useful; _sf->foundtokens = foundtokens;
+				_sf->toobigitem = toobigitem;
+				_sf->space = space; _sf->forceshowtempo = forceshowtempo;
+				_sf->gr = gr; _sf->k = k; _sf->kk = kk; _sf->kmax = kmax;
+				_sf->a = a; _sf->a0 = a0; _sf->a1 = a1;
+				_sf->result = result; _sf->r = r;
+				_sf->tempomark = tempomark; _sf->fixlength = fixlength;
+				_sf->dirtymem = dirtymem; _sf->sign = sign; _sf->isequal = isequal;
+				_sf->singlegap = singlegap; _sf->newg = newg; _sf->newh = newh;
+				_sf->just_fill_gap = just_fill_gap; _sf->restart = restart;
+				_sf->comma = comma; _sf->period = period; _sf->overflow = overflow;
+				_sf->imbedded = imbedded; _sf->compiledmem = compiledmem;
+				_sf->firstistempo = firstistempo;
+				_sf->L = L; _sf->M = M; _sf->lcm = lcm; _sf->Q = Q;
+				_sf->pmax = pmax; _sf->qmax = qmax; _sf->xp = xp; _sf->xq = xq;
+				_sf->ss = ss; _sf->x = x; _sf->y = y; _sf->t = t;
+				_sf->speed = speed; _sf->speedbeforegap = speedbeforegap;
+				_sf->scalebeforegap = scalebeforegap; _sf->s = s; _sf->mm = mm;
+				_sf->scalegap = scalegap; _sf->scaleup = scaleup; _sf->scaledown = scaledown;
+				_sf->rescale = rescale; _sf->mgap = mgap; _sf->approxduration = approxduration;
+				_sf->rescalesubstructure = rescalesubstructure; _sf->scaling = scaling;
+				_sf->prevscale = prevscale; _sf->prevspeed = prevspeed;
+				_sf->level = level;
+				_sf->i = i; _sf->j = j; _sf->jmax = jmax; _sf->gcd = gcd;
+				_sf->g = g; _sf->h = h; _sf->lastbyte = lastbyte; _sf->oldpos = oldpos;
+				_sf->ic = ic; _sf->id = id; _sf->useless = useless;
+				_sf->ptempo = ptempo; _sf->qtempo = qtempo;
+				/* Set up parameters for child invocation */
+				/* pp_a -> parent's p_e (stored in stack frame) */
+				pp_a = (tokenbyte ***)&(_sf->p_e);
+				p_maxid = &(_sf->jmax);
+				idorg = ZERO;
+				p_pos = &(_sf->i);
+				p_P = &(_sf->xp);
+				p_Q = &(_sf->xq);
+				p_fixtempo = &(_sf->xf);
+				p_onefielduseful = &(_sf->useful);
+				oldspeed = speed;
+				oldscaling = scaling;
+				/* notrailing stays the same */
+				goto _POLY_ENTRY;
 				}
-			if(_poly_stack[_poly_stack_depth] == NULL
-					&& (_poly_stack[_poly_stack_depth] = (_PolyFrame *)malloc(sizeof(_PolyFrame))) == NULL) {
-				result = ABORT; goto SORTIR;
-				}
-			_PolyFrame *_sf = _poly_stack[_poly_stack_depth++];
-			/* Save all heap handles */
-			_sf->pp_c = pp_c; _sf->p_e = p_e; _sf->ptr = ptr; _sf->p_maxic = p_maxic;
-			_sf->ptr_fixtempo = ptr_fixtempo; _sf->p_firstistempo = p_firstistempo;
-			_sf->p_empty = p_empty; _sf->p_useful = p_useful; _sf->p_vargap = p_vargap;
-			_sf->p_p = p_p; _sf->p_q = p_q; _sf->p_pp = p_pp; _sf->p_r = p_r;
-			_sf->p_pgap = p_pgap; _sf->p_qgap = p_qgap;
-			/* Save caller's output context (parameters) */
-			_sf->pp_a = pp_a; _sf->p_maxid = p_maxid; _sf->idorg = idorg;
-			_sf->p_P = p_P; _sf->p_Q = p_Q;
-			_sf->p_fixtempo = p_fixtempo; _sf->p_onefielduseful = p_onefielduseful;
-			_sf->p_pos = p_pos;
-			_sf->oldspeed = oldspeed; _sf->oldscaling = oldscaling;
-			_sf->notrailing = notrailing;
-			/* Save all scalar locals */
-			_sf->m_save = m; _sf->p_save = p;
-			_sf->xf = xf; _sf->useful = useful; _sf->foundtokens = foundtokens;
-			_sf->toobigitem = toobigitem;
-			_sf->space = space; _sf->forceshowtempo = forceshowtempo;
-			_sf->gr = gr; _sf->k = k; _sf->kk = kk; _sf->kmax = kmax;
-			_sf->a = a; _sf->a0 = a0; _sf->a1 = a1;
-			_sf->result = result; _sf->r = r;
-			_sf->tempomark = tempomark; _sf->fixlength = fixlength;
-			_sf->dirtymem = dirtymem; _sf->sign = sign; _sf->isequal = isequal;
-			_sf->singlegap = singlegap; _sf->newg = newg; _sf->newh = newh;
-			_sf->just_fill_gap = just_fill_gap; _sf->restart = restart;
-			_sf->comma = comma; _sf->period = period; _sf->overflow = overflow;
-			_sf->imbedded = imbedded; _sf->compiledmem = compiledmem;
-			_sf->firstistempo = firstistempo;
-			_sf->L = L; _sf->M = M; _sf->lcm = lcm; _sf->Q = Q;
-			_sf->pmax = pmax; _sf->qmax = qmax; _sf->xp = xp; _sf->xq = xq;
-			_sf->ss = ss; _sf->x = x; _sf->y = y; _sf->t = t;
-			_sf->speed = speed; _sf->speedbeforegap = speedbeforegap;
-			_sf->scalebeforegap = scalebeforegap; _sf->s = s; _sf->mm = mm;
-			_sf->scalegap = scalegap; _sf->scaleup = scaleup; _sf->scaledown = scaledown;
-			_sf->rescale = rescale; _sf->mgap = mgap; _sf->approxduration = approxduration;
-			_sf->rescalesubstructure = rescalesubstructure; _sf->scaling = scaling;
-			_sf->prevscale = prevscale; _sf->prevspeed = prevspeed;
-			_sf->level = level;
-			_sf->i = i; _sf->j = j; _sf->jmax = jmax; _sf->gcd = gcd;
-			_sf->g = g; _sf->h = h; _sf->lastbyte = lastbyte; _sf->oldpos = oldpos;
-			_sf->ic = ic; _sf->id = id; _sf->useless = useless;
-			_sf->ptempo = ptempo; _sf->qtempo = qtempo;
-			/* Set up parameters for child invocation */
-			/* pp_a -> parent's p_e (stored in stack frame) */
-			pp_a = (tokenbyte ***)&(_sf->p_e);
-			p_maxid = &(_sf->jmax);
-			idorg = ZERO;
-			p_pos = &(_sf->i);
-			p_P = &(_sf->xp);
-			p_Q = &(_sf->xq);
-			p_fixtempo = &(_sf->xf);
-			p_onefielduseful = &(_sf->useful);
-			oldspeed = speed;
-			oldscaling = scaling;
-			/* notrailing stays the same */
-			goto _POLY_ENTRY;
-			}
 			_POLY_AFTER_CHILD:
 			///////////////////////////////////////////////////////////////////
 			
@@ -2007,12 +2004,11 @@ int PolyExpand(tokenbyte **p_b,tokenbyte ***pp_a,unsigned long idorg,unsigned lo
 						else Simplify(MaxTempo,xq,xp,&xq,&xp);
 						if(xq < InvMaxTempo) xq = 0.;
 						isequal = Equal(0.005,xq,xp,prevscale,prevspeed,&overflow);
-						if(isequal == ABORT) {
-							{
-								BPPrintMessage(0,odError,"=> Err. PolyExpand(). isequal == ABORT");
-								result = ABORT; goto SORTIR;
-								}
-							isequal = FALSE;
+						if(isequal == ABORT) { {
+							BPPrintMessage(0,odError,"=> Err. PolyExpand(). isequal == ABORT");
+							result = ABORT; goto SORTIR;
+							}
+						isequal = FALSE;
 							}
 						if(isequal == FALSE || forceshowtempo) {
 							forceshowtempo = FALSE;
@@ -2062,10 +2058,10 @@ int PolyExpand(tokenbyte **p_b,tokenbyte ***pp_a,unsigned long idorg,unsigned lo
 					}
 				}
 			else {
-	COPYIT:
-				(**pp_a)[id++] = (tokenbyte) m;
-				(**pp_a)[id++] = (tokenbyte) p;
-				if((result=CheckSize(id,p_maxid,pp_a)) != OK) goto SORTIR;
+				COPYIT:
+							(**pp_a)[id++] = (tokenbyte) m;
+							(**pp_a)[id++] = (tokenbyte) p;
+							if((result=CheckSize(id,p_maxid,pp_a)) != OK) goto SORTIR;
 				}
 			}
 		kmax++;
@@ -2160,48 +2156,45 @@ int PolyExpand(tokenbyte **p_b,tokenbyte ***pp_a,unsigned long idorg,unsigned lo
 			}
 		return(result);
 		}
-}		
+	}		
 
 
-int Check_ic(unsigned long ic,unsigned long **p_maxic,int a,tokenbyte ****pp_c)
-{
-tokenbyte **ptr;
-unsigned long size;
+int Check_ic(unsigned long ic,unsigned long **p_maxic,int a,tokenbyte ****pp_c) {
+	tokenbyte **ptr;
+	unsigned long size;
 
-if(ic > (*p_maxic)[a]) {
-	size = (*p_maxic)[a];
-	(*p_maxic)[a] = (size * 3L) / 2L;
-	ptr = (*pp_c)[a];
-	if((ptr=(tokenbyte**) IncreaseSpace((Handle)ptr)) == NULL) {
-		return(ABORT);
+	if(ic > (*p_maxic)[a]) {
+		size = (*p_maxic)[a];
+		(*p_maxic)[a] = (size * 3L) / 2L;
+		ptr = (*pp_c)[a];
+		if((ptr=(tokenbyte**) IncreaseSpace((Handle)ptr)) == NULL) {
+			return(ABORT);
+			}
+		(*pp_c)[a] = ptr;
 		}
-	(*pp_c)[a] = ptr;
+	return(OK);
 	}
-return(OK);
-}
 
 
-int TellComplex(void)
-{
-if(!SaidTooComplex) {
-	SaidTooComplex = TRUE;
-	BPPrintMessage(0,odInfo,"Formula is complex. Roundings are performed\n");
-	}
-return(OK);
-}
-
-
-int CheckSize(unsigned long i,unsigned long *p_maxi,tokenbyte ***pp_a)
-{
-tokenbyte **ptr;
-
-if(i > (*p_maxi)) {
-	ptr = (*pp_a);
-	if((ptr=(tokenbyte**) IncreaseSpace((Handle)ptr)) == NULL) {
-		return(ABORT);
+int TellComplex(void) {
+	if(!SaidTooComplex) {
+		SaidTooComplex = TRUE;
+		BPPrintMessage(0,odInfo,"Formula is complex. Roundings are performed\n");
 		}
-	(*pp_a) = ptr;
-	(*p_maxi) = ((*p_maxi) * 3L) / 2L;
+	return(OK);
 	}
-return(OK);
-}
+
+
+int CheckSize(unsigned long i,unsigned long *p_maxi,tokenbyte ***pp_a) {
+	tokenbyte **ptr;
+
+	if(i > (*p_maxi)) {
+		ptr = (*pp_a);
+		if((ptr=(tokenbyte**) IncreaseSpace((Handle)ptr)) == NULL) {
+			return(ABORT);
+			}
+		(*pp_a) = ptr;
+		(*p_maxi) = ((*p_maxi) * 3L) / 2L;
+		}
+	return(OK);
+	}

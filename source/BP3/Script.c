@@ -250,32 +250,30 @@ return(OK);
 } */
 
 
-int StartCount(void)
-{
-if(CountOn) return(OK);
-WaitStartDate = clock();
-CountOn = TRUE; LapWait = ZERO;
-return(OK);
-}
-
-
-int StopCount(int i)
-{
-if(!CountOn) {
-	if(TypeScript && i != 16 && ScriptRecOn) {
-		TypeScript = FALSE;
-		PrintBehind(wScript,"\n");
-		}
+int StartCount(void) {
+	if(CountOn) return(OK);
+	WaitStartDate = clock();
+	CountOn = TRUE; LapWait = ZERO;
 	return(OK);
 	}
-/* my_sprintf(Message,"%ld",(long) clock() - WaitStartDate - LapWait);
-MystrcpyStringToTable(ScriptLine.arg,0,Message); */
-my_sprintf(Message,"%ld",(long)ItemNumber-1L);
-MystrcpyStringToTable(ScriptLine.arg,0,Message);
-CountOn = FALSE;
-/* AppendScript(18); */
-return(OK);
-}
+
+
+int StopCount(int i) {
+	if(!CountOn) {
+		if(TypeScript && i != 16 && ScriptRecOn) {
+			TypeScript = FALSE;
+			PrintBehind(wScript,"\n");
+			}
+		return(OK);
+		}
+	/* my_sprintf(Message,"%ld",(long) clock() - WaitStartDate - LapWait);
+	MystrcpyStringToTable(ScriptLine.arg,0,Message); */
+	my_sprintf(Message,"%ld",(long)ItemNumber-1L);
+	MystrcpyStringToTable(ScriptLine.arg,0,Message);
+	CountOn = FALSE;
+	/* AppendScript(18); */
+	return(OK);
+	}
 
 
 /* StartScript(void)
@@ -291,22 +289,20 @@ return(OK);
 } */
 
 
-int InitWait(long maxticks)
-{
-if(!ScriptExecOn || CountOn) return(OK);
-StartCount(); LapWait = ZERO;
-WaitEndDate = WaitStartDate + maxticks;
-return(OK);
-}
+int InitWait(long maxticks) {
+	if(!ScriptExecOn || CountOn) return(OK);
+	StartCount(); LapWait = ZERO;
+	WaitEndDate = WaitStartDate + maxticks;
+	return(OK);
+	}
 
 
-int CheckEndOfWait(void)
-{
-if(!ScriptExecOn || !CountOn) return(OK);
-if(WaitEndDate > ZERO && clock() > WaitEndDate) return(ABORT);
-/* clock() is the same as TickCount() */
-return(OK);
-}
+int CheckEndOfWait(void) {
+	if(!ScriptExecOn || !CountOn) return(OK);
+	if(WaitEndDate > ZERO && clock() > WaitEndDate) return(ABORT);
+	/* clock() is the same as TickCount() */
+	return(OK);
+	}
 
 
 /* int WaitForSyncScript(void)
@@ -449,18 +445,17 @@ int ExecScriptLine(char*** p_keyon,int w,int check,int nocomment,char **p_line,l
 	}
 
 
-int InterruptScript(void)
-{
-int r;
+int InterruptScript(void) {
+	int r;
 
-r = OK;
-Interrupted = TRUE;
-ResumeStopOn = TRUE;
-/* ShowWindow(GetDialogWindow(ResumeStopPtr));
-BringToFront(GetDialogWindow(ResumeStopPtr)); */
-// while((r = MainEvent()) != RESUME && r != STOP && r != ABORT && r != EXIT);
-if(r == RESUME) {
-	r = OK; EventState = NO;
+	r = OK;
+	Interrupted = TRUE;
+	ResumeStopOn = TRUE;
+	/* ShowWindow(GetDialogWindow(ResumeStopPtr));
+	BringToFront(GetDialogWindow(ResumeStopPtr)); */
+	// while((r = MainEvent()) != RESUME && r != STOP && r != ABORT && r != EXIT);
+	if(r == RESUME) {
+		r = OK; EventState = NO;
+		}
+	return(r);
 	}
-return(r);
-}

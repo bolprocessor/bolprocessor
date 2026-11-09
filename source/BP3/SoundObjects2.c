@@ -39,359 +39,350 @@
 #include "-BP3decl.h"
 
 
-int CheckPrototypeSize(int j)
-{
-if((*p_MIDIsize)[j] > ZERO || (*p_CsoundSize)[j] > ZERO) return(OK);
-else return(MISSED);
-}
-
-
-int CheckDuration(int j)
-{
-if(j >= Jbol) {
-	BPPrintMessage(0,odError,"=> Err. CheckDuration()");
-	return(MISSED);
+int CheckPrototypeSize(int j) {
+	if((*p_MIDIsize)[j] > ZERO || (*p_CsoundSize)[j] > ZERO) return(OK);
+	else return(MISSED);
 	}
-if(j < 2 || (*p_Dur)[j] < EPSILON) {
-	BPPrintMessage(0,odError,"Invalid option because the duration of this object is null");
-	return(MISSED);
-	}
-else return(OK);
-}
 
-int AdjustVelocities(int j,int vmin,int vmax)
-{
-double a,b;
-int c,c0,v,vmin0,vmax0,allsame;
-long i;
 
-if(CheckNonEmptyMIDI(j) != OK) return(MISSED);
-if(vmin == vmax) {
-	allsame = TRUE;
+int CheckDuration(int j) {
+	if(j >= Jbol) {
+		BPPrintMessage(0,odError,"=> Err. CheckDuration()");
+		return(MISSED);
+		}
+	if(j < 2 || (*p_Dur)[j] < EPSILON) {
+		BPPrintMessage(0,odError,"Invalid option because the duration of this object is null");
+		return(MISSED);
+		}
+	else return(OK);
 	}
-else {
-	allsame = FALSE;
-	vmin0 = 127; vmax0 = 0;
+
+int AdjustVelocities(int j,int vmin,int vmax) {
+	double a,b;
+	int c,c0,v,vmin0,vmax0,allsame;
+	long i;
+
+	if(CheckNonEmptyMIDI(j) != OK) return(MISSED);
+	if(vmin == vmax) {
+		allsame = TRUE;
+		}
+	else {
+		allsame = FALSE;
+		vmin0 = 127; vmax0 = 0;
+		for(i=0; i < (*p_MIDIsize)[j]-2; i++) {
+			c = (*((*pp_MIDIcode)[j]))[i].byte;
+			c0 = c - (c % 16);
+			v = (*((*pp_MIDIcode)[j]))[i+2].byte;
+			if(c0 == NoteOn && v > 0) {
+				if(v < vmin0) vmin0 = v;
+				if(v > vmax0) vmax0 = v;
+				}
+			}
+		if(vmin0 == 127 || vmax0 == 0) {
+			BPPrintMessage(0,odError,"Velocity range is not significant in this object");
+			return(OK);
+			}
+		if(vmax0 == vmin0) a = 0.;
+		else a = ((double)(vmax - vmin)) / (vmax0 - vmin0);
+		}
+	if(Answer("Adjusting velocities can't be undone. Proceed anyway",'N') != YES)
+		return(MISSED);
 	for(i=0; i < (*p_MIDIsize)[j]-2; i++) {
 		c = (*((*pp_MIDIcode)[j]))[i].byte;
-		c0 = c - (c % 16);
 		v = (*((*pp_MIDIcode)[j]))[i+2].byte;
+		c0 = c - (c % 16);
 		if(c0 == NoteOn && v > 0) {
-			if(v < vmin0) vmin0 = v;
-			if(v > vmax0) vmax0 = v;
+			if(!allsame) (*((*pp_MIDIcode)[j]))[i+2].byte = a * (v - vmin0) + vmin;
+			else (*((*pp_MIDIcode)[j]))[i+2].byte = vmin;
 			}
 		}
-	if(vmin0 == 127 || vmax0 == 0) {
-		BPPrintMessage(0,odError,"Velocity range is not significant in this object");
-		return(OK);
-		}
-	if(vmax0 == vmin0) a = 0.;
-	else a = ((double)(vmax - vmin)) / (vmax0 - vmin0);
+	ChangedProtoType(j);
+	return(OK);
 	}
-if(Answer("Adjusting velocities can't be undone. Proceed anyway",'N') != YES)
-	return(MISSED);
-for(i=0; i < (*p_MIDIsize)[j]-2; i++) {
-	c = (*((*pp_MIDIcode)[j]))[i].byte;
-	v = (*((*pp_MIDIcode)[j]))[i+2].byte;
-	c0 = c - (c % 16);
-	if(c0 == NoteOn && v > 0) {
-		if(!allsame) (*((*pp_MIDIcode)[j]))[i+2].byte = a * (v - vmin0) + vmin;
-		else (*((*pp_MIDIcode)[j]))[i+2].byte = vmin;
-		}
-	}
-ChangedProtoType(j);
-return(OK);
-}
 
 
 
-int MakeMonodic(int j)
-{
-char on[MAXCHAN+1];
-int lastkey[MAXCHAN+1];
-int c,c0,ch;
-MIDIcode **p_MIDI,**ptr;
-long i,ii;
-Size size;
-Milliseconds t;
+int MakeMonodic(int j) {
+	char on[MAXCHAN+1];
+	int lastkey[MAXCHAN+1];
+	int c,c0,ch;
+	MIDIcode **p_MIDI,**ptr;
+	long i,ii;
+	Size size;
+	Milliseconds t;
 
-if(CheckNonEmptyMIDI(j) != OK) return(MISSED);
-if(Answer("Make monodic can't be undone. Proceed anyway",'N') != YES)
-	return(MISSED);
-for(ch=0; ch <= MAXCHAN; ch++) on[ch] = 0;
-
-if(DurationToPoint(pp_MIDIcode,NULL,p_MIDIsize,j) != OK) return(ABORT);
-
-size = MyGetHandleSize((Handle) (*pp_MIDIcode)[j]);
-if((p_MIDI = (MIDIcode**) GiveSpace((Size) size+size)) == NULL) return(ABORT);
-for(i=ii=0; i < (*p_MIDIsize)[j]; i++) {
-	c = (*((*pp_MIDIcode)[j]))[i].byte;
-	t = (*((*pp_MIDIcode)[j]))[i].time;
-	ch = c % 16;
-	c0 = c - ch;
-	if(c0 == NoteOn && (*((*pp_MIDIcode)[j]))[i+2].byte == 0) c0 = NoteOff;
-	if(c0 == NoteOn) {
-		if(++(on[ch]) > 1) {
-			(*p_MIDI)[ii].byte = NoteOn + ch;
-			(*p_MIDI)[ii].sequence = 0;
-			(*p_MIDI)[ii++].time = t;
-			(*p_MIDI)[ii].byte = lastkey[ch];
-			(*p_MIDI)[ii].sequence = 0;
-			(*p_MIDI)[ii++].time = t;
-			(*p_MIDI)[ii].byte = 0;
-			(*p_MIDI)[ii].sequence = 0;
-			(*p_MIDI)[ii++].time = t;
-			}
-		(*p_MIDI)[ii].byte = c;
-		(*p_MIDI)[ii].sequence = 0;
-		(*p_MIDI)[ii++].time = t;
-		(*p_MIDI)[ii].byte = lastkey[ch] = (*((*pp_MIDIcode)[j]))[i+1].byte;
-		(*p_MIDI)[ii].sequence = (*((*pp_MIDIcode)[j]))[i+1].sequence;
-		(*p_MIDI)[ii++].time = t;
-		(*p_MIDI)[ii].byte = (*((*pp_MIDIcode)[j]))[i+2].byte;
-		(*p_MIDI)[ii].sequence = (*((*pp_MIDIcode)[j]))[i+2].sequence;
-		(*p_MIDI)[ii++].time = t;
-		i += 2; continue;
-		}
-	if(c0 != NoteOff) {
-		(*p_MIDI)[ii].byte = c;
-		(*p_MIDI)[ii].sequence = 0;
-		(*p_MIDI)[ii++].time = t;
-		continue;
-		}
-	if(--(on[ch]) == 0) {
-		(*p_MIDI)[ii].byte = c;
-		(*p_MIDI)[ii].sequence = 0;
-		(*p_MIDI)[ii++].time = t;
-		(*p_MIDI)[ii].byte = (*((*pp_MIDIcode)[j]))[i+1].byte;
-		(*p_MIDI)[ii].sequence = (*((*pp_MIDIcode)[j]))[i+1].sequence;
-		(*p_MIDI)[ii++].time = t;
-		(*p_MIDI)[ii].byte = (*((*pp_MIDIcode)[j]))[i+2].byte;
-		(*p_MIDI)[ii].sequence = (*((*pp_MIDIcode)[j]))[i+2].sequence;
-		(*p_MIDI)[ii++].time = t;
-		}
-	i += 2;
-	}
-size = (*p_MIDIsize)[j] = ii;
-ptr = (*pp_MIDIcode)[j];
-MySetHandleSize((Handle*)&ptr,(Size) size * sizeof(MIDIcode));
-(*pp_MIDIcode)[j] = ptr;
-for(i=0; i < ii; i++) {
-	(*((*pp_MIDIcode)[j]))[i] = (*p_MIDI)[i];
-	}
-if(MyDisposeHandle((Handle*)&p_MIDI) != OK) return(ABORT);
-
-if(PointToDuration(pp_MIDIcode,NULL,p_MIDIsize,j) != OK) return(ABORT);
-
-ChangedProtoType(j);
-return(OK);
-}
-
-
-int AppendAllNotesOff(int j)
-{
-MIDIcode **ptr;
-long size;
-
-if(CheckNonEmptyMIDI(j) != OK) return(MISSED);
-
-(*p_MIDIsize)[j] += 3L;
-size = (*p_MIDIsize)[j];
-ptr = (*pp_MIDIcode)[j];
-MySetHandleSize((Handle*)&ptr,(Size) size * sizeof(MIDIcode));
-(*pp_MIDIcode)[j] = ptr;
-
-(*((*pp_MIDIcode)[j]))[size-3].byte = ControlChange;
-(*((*pp_MIDIcode)[j]))[size-2].byte = 123;
-(*((*pp_MIDIcode)[j]))[size-1].byte = 0;
-(*((*pp_MIDIcode)[j]))[size-3].sequence = 0;
-(*((*pp_MIDIcode)[j]))[size-2].sequence = 0;
-(*((*pp_MIDIcode)[j]))[size-1].sequence = 0;
-(*((*pp_MIDIcode)[j]))[size-3].time = (*((*pp_MIDIcode)[j]))[size-2].time
-	= (*((*pp_MIDIcode)[j]))[size-1].time = 0;
-ChangedProtoType(j);
-return(OK);
-}
-
-int DurationToPoint(MIDIcode ****pp_midicode,Milliseconds ****pp_csoundtime,long **p_size,int j)
-// Change time information in prototype j from durations (the usual format)
-// to dates
-{
-long i;
-Milliseconds time;
-
-if(pp_csoundtime != NULL && PointCsound) {
-	if((*p_size)[j] == ZERO) return(OK);
- 	else {
- 		BPPrintMessage(0,odError,"=> Err. DurationToPoint(). Point mode in Csound");
+	if(CheckNonEmptyMIDI(j) != OK) return(MISSED);
+	if(Answer("Make monodic can't be undone. Proceed anyway",'N') != YES)
 		return(MISSED);
-		}
-	}
-if(pp_midicode != NULL && PointMIDI) {
-	if((*p_size)[j] == ZERO) return(OK);
- 	else {
- 		BPPrintMessage(0,odError,"=> Err. DurationToPoint(). Point mode in MIDI");
-		return(MISSED);
-		}
-	}
-	
-if(pp_csoundtime != NULL) {
-	for(i=0,time = ZERO; i < (*p_size)[j]; i++) {
-		time += (*((*pp_csoundtime)[j]))[i];
-		(*((*pp_csoundtime)[j]))[i] = time;
-		}
-	PointCsound = TRUE;
-	}
-if(pp_midicode != NULL) {
-	for(i=0,time = ZERO; i < (*p_size)[j]; i++) {
-		time += (*((*pp_midicode)[j]))[i].time;
-		(*((*pp_midicode)[j]))[i].time = time;
-		}
-	PointMIDI = TRUE;
-	}
-return(OK);
-}
+	for(ch=0; ch <= MAXCHAN; ch++) on[ch] = 0;
 
-	
-int PointToDuration(MIDIcode ****pp_midicode,Milliseconds ****pp_csoundtime,long **p_size,int j)
-// Change time information in prototype j from dates to durations (the usual format)
-{
-long i;
-Milliseconds time;
+	if(DurationToPoint(pp_MIDIcode,NULL,p_MIDIsize,j) != OK) return(ABORT);
 
-if(pp_csoundtime != NULL && !PointCsound) {
-	if((*p_size)[j] == ZERO) {
-		return(OK);
-		}
- 	else {
- 		BPPrintMessage(0,odError,"=> Err. PointToDuration(). Not point mode in Csound");
-		return(MISSED);
-		}
-	}
-if(pp_midicode != NULL && !PointMIDI) {
-	if((*p_size)[j] == ZERO) return(OK);
- 	else {
- 		BPPrintMessage(0,odError,"=> Err. PointToDuration(). Not point mode in MIDI");
-		return(MISSED);
-		}
-	}
-
-if(pp_csoundtime != NULL) {
-	for(i=(*p_size)[j] - 1; i > 0; i--) {
-		(*((*pp_csoundtime)[j]))[i]
-			= (*((*pp_csoundtime)[j]))[i] - (*((*pp_csoundtime)[j]))[i-1];
-		// BPPrintMessage(0,odInfo,"#@§ csoundtime[%d][%d] = %ld\n",j,i,(*((*pp_csoundtime)[j]))[i]);
-		}
-	PointCsound = FALSE;
-	}
-if(pp_midicode != NULL) {
-	for(i=(*p_size)[j] - 1; i > 0; i--) {
-		(*((*pp_midicode)[j]))[i].time
-			= (*((*pp_midicode)[j]))[i].time - (*((*pp_midicode)[j]))[i-1].time;
-		}
-	PointMIDI = FALSE;
-	}
-return(OK);
-}
-
-
-int SortMIDIdates(long i0, int j)
-// Sort MIDI stream on dates in prototype j
-// (*pp_MIDIcode)[j].time is points, not durations
-// misdated events are 3-bytes
-{
-int c0,c1,c2,r;
-long i;
-Milliseconds t,t0,t1;
-
-if(j < 2 || j >= Jbol) {
-	BPPrintMessage(0,odError,"=> Err. SortMIDIdates(). j < 2 || j >= Jbol");
-	return(MISSED);
-	}
-t = (*((*pp_MIDIcode)[j]))[i0].time;
-for(i=i0+1; i < (*p_MIDIsize)[j]; i++) {
-	if((*((*pp_MIDIcode)[j]))[i].time < t) {
-		if((r=SortMIDIdates(i,j)) != OK) return(r);
-		i -= 3;
-		c0 = (*((*pp_MIDIcode)[j]))[i].byte;
-		t0 = (*((*pp_MIDIcode)[j]))[i].time;
-		c1 = (*((*pp_MIDIcode)[j]))[i+1].byte;
-		c2 = (*((*pp_MIDIcode)[j]))[i+2].byte;
-		for(i=i+3; i < (*p_MIDIsize)[j]; i++) {
-			if((t1=(*((*pp_MIDIcode)[j]))[i].time) > t0) {
-				(*((*pp_MIDIcode)[j]))[i-3].byte = c0;
-				(*((*pp_MIDIcode)[j]))[i-3].sequence = 0;
-				(*((*pp_MIDIcode)[j]))[i-3].time = t0;
-				(*((*pp_MIDIcode)[j]))[i-2].byte = c1;
-				(*((*pp_MIDIcode)[j]))[i-2].sequence = 0;
-				(*((*pp_MIDIcode)[j]))[i-2].time = t0;
-				(*((*pp_MIDIcode)[j]))[i-1].byte = c2;
-				(*((*pp_MIDIcode)[j]))[i-1].sequence = 0;
-				t = (*((*pp_MIDIcode)[j]))[i-1].time = t0;
-				return(OK);
-				}
-			else {
-				(*((*pp_MIDIcode)[j]))[i-3] = (*((*pp_MIDIcode)[j]))[i];
-				}
-			}
-		(*((*pp_MIDIcode)[j]))[i-3].byte = c0; /* Added 5/3/97 */
-		(*((*pp_MIDIcode)[j]))[i-3].sequence = 0; /* Added 5/3/97 */
-		(*((*pp_MIDIcode)[j]))[i-3].time = t0; /* Added 5/3/97 */
-		(*((*pp_MIDIcode)[j]))[i-2].byte = c1; /* Added 5/3/97 */
-		(*((*pp_MIDIcode)[j]))[i-2].sequence = 0; /* Added 5/3/97 */
-		(*((*pp_MIDIcode)[j]))[i-2].time = t0; /* Added 5/3/97 */
-		(*((*pp_MIDIcode)[j]))[i-1].byte = c2; /* Added 5/3/97 */
-		(*((*pp_MIDIcode)[j]))[i-1].sequence = 0; /* Added 5/3/97 */
-		(*((*pp_MIDIcode)[j]))[i-1].time = t0; /* Added 5/3/97 */
-		}
-	else {
+	size = MyGetHandleSize((Handle) (*pp_MIDIcode)[j]);
+	if((p_MIDI = (MIDIcode**) GiveSpace((Size) size+size)) == NULL) return(ABORT);
+	for(i=ii=0; i < (*p_MIDIsize)[j]; i++) {
+		c = (*((*pp_MIDIcode)[j]))[i].byte;
 		t = (*((*pp_MIDIcode)[j]))[i].time;
-		}
-	}
-return(OK);
-}
-
-
-int SortCsoundDates(long i0, int j)
-// Sort Csound score on dates in prototype j
-// (*((*pp_CsoundTime)[j]))[i] is points, not durations
-{
-long i;
-Milliseconds t,t0,t1;
-CsoundLine s0;
-int r;
-
-if(j < 2 || j >= Jbol) {
-	BPPrintMessage(0,odError,"=> Err. SortCsoundDates(). j < 2 || j >= Jbol");
-	return(MISSED);
-	}
-t = (*((*pp_CsoundTime)[j]))[i0];
-for(i=i0+1; i < (*p_CsoundSize)[j]; i++) {
-	if((*((*pp_CsoundTime)[j]))[i] < t) {
-		if((r=SortCsoundDates(i,j)) != OK) return(r);
-		i--;
-		s0 = (*((*pp_CsoundScore)[j]))[i];
-		t0 = (*((*pp_CsoundTime)[j]))[i];
-		for(i=i+1; i < (*p_CsoundSize)[j]; i++) {
-			if((t1=(*((*pp_CsoundTime)[j]))[i]) > t0) {
-				(*((*pp_CsoundScore)[j]))[i-1] = s0;
-				t = (*((*pp_CsoundTime)[j]))[i-1] = t0;
-				return(OK);
+		ch = c % 16;
+		c0 = c - ch;
+		if(c0 == NoteOn && (*((*pp_MIDIcode)[j]))[i+2].byte == 0) c0 = NoteOff;
+		if(c0 == NoteOn) {
+			if(++(on[ch]) > 1) {
+				(*p_MIDI)[ii].byte = NoteOn + ch;
+				(*p_MIDI)[ii].sequence = 0;
+				(*p_MIDI)[ii++].time = t;
+				(*p_MIDI)[ii].byte = lastkey[ch];
+				(*p_MIDI)[ii].sequence = 0;
+				(*p_MIDI)[ii++].time = t;
+				(*p_MIDI)[ii].byte = 0;
+				(*p_MIDI)[ii].sequence = 0;
+				(*p_MIDI)[ii++].time = t;
 				}
-			else {
-				(*((*pp_CsoundScore)[j]))[i-1] = (*((*pp_CsoundScore)[j]))[i];
-				(*((*pp_CsoundTime)[j]))[i-1] = (*((*pp_CsoundTime)[j]))[i];
-				}
+			(*p_MIDI)[ii].byte = c;
+			(*p_MIDI)[ii].sequence = 0;
+			(*p_MIDI)[ii++].time = t;
+			(*p_MIDI)[ii].byte = lastkey[ch] = (*((*pp_MIDIcode)[j]))[i+1].byte;
+			(*p_MIDI)[ii].sequence = (*((*pp_MIDIcode)[j]))[i+1].sequence;
+			(*p_MIDI)[ii++].time = t;
+			(*p_MIDI)[ii].byte = (*((*pp_MIDIcode)[j]))[i+2].byte;
+			(*p_MIDI)[ii].sequence = (*((*pp_MIDIcode)[j]))[i+2].sequence;
+			(*p_MIDI)[ii++].time = t;
+			i += 2; continue;
 			}
-		(*((*pp_CsoundScore)[j]))[i-1] = s0;
-		(*((*pp_CsoundTime)[j]))[i-1] = t0;
+		if(c0 != NoteOff) {
+			(*p_MIDI)[ii].byte = c;
+			(*p_MIDI)[ii].sequence = 0;
+			(*p_MIDI)[ii++].time = t;
+			continue;
+			}
+		if(--(on[ch]) == 0) {
+			(*p_MIDI)[ii].byte = c;
+			(*p_MIDI)[ii].sequence = 0;
+			(*p_MIDI)[ii++].time = t;
+			(*p_MIDI)[ii].byte = (*((*pp_MIDIcode)[j]))[i+1].byte;
+			(*p_MIDI)[ii].sequence = (*((*pp_MIDIcode)[j]))[i+1].sequence;
+			(*p_MIDI)[ii++].time = t;
+			(*p_MIDI)[ii].byte = (*((*pp_MIDIcode)[j]))[i+2].byte;
+			(*p_MIDI)[ii].sequence = (*((*pp_MIDIcode)[j]))[i+2].sequence;
+			(*p_MIDI)[ii++].time = t;
+			}
+		i += 2;
 		}
-	else {
-		t = (*((*pp_CsoundTime)[j]))[i];
+	size = (*p_MIDIsize)[j] = ii;
+	ptr = (*pp_MIDIcode)[j];
+	MySetHandleSize((Handle*)&ptr,(Size) size * sizeof(MIDIcode));
+	(*pp_MIDIcode)[j] = ptr;
+	for(i=0; i < ii; i++) {
+		(*((*pp_MIDIcode)[j]))[i] = (*p_MIDI)[i];
 		}
+	if(MyDisposeHandle((Handle*)&p_MIDI) != OK) return(ABORT);
+
+	if(PointToDuration(pp_MIDIcode,NULL,p_MIDIsize,j) != OK) return(ABORT);
+
+	ChangedProtoType(j);
+	return(OK);
 	}
-return(OK);
-}
+
+
+int AppendAllNotesOff(int j) {
+	MIDIcode **ptr;
+	long size;
+
+	if(CheckNonEmptyMIDI(j) != OK) return(MISSED);
+
+	(*p_MIDIsize)[j] += 3L;
+	size = (*p_MIDIsize)[j];
+	ptr = (*pp_MIDIcode)[j];
+	MySetHandleSize((Handle*)&ptr,(Size) size * sizeof(MIDIcode));
+	(*pp_MIDIcode)[j] = ptr;
+
+	(*((*pp_MIDIcode)[j]))[size-3].byte = ControlChange;
+	(*((*pp_MIDIcode)[j]))[size-2].byte = 123;
+	(*((*pp_MIDIcode)[j]))[size-1].byte = 0;
+	(*((*pp_MIDIcode)[j]))[size-3].sequence = 0;
+	(*((*pp_MIDIcode)[j]))[size-2].sequence = 0;
+	(*((*pp_MIDIcode)[j]))[size-1].sequence = 0;
+	(*((*pp_MIDIcode)[j]))[size-3].time = (*((*pp_MIDIcode)[j]))[size-2].time
+		= (*((*pp_MIDIcode)[j]))[size-1].time = 0;
+	ChangedProtoType(j);
+	return(OK);
+	}
+
+int DurationToPoint(MIDIcode ****pp_midicode,Milliseconds ****pp_csoundtime,long **p_size,int j) {
+	// Change time information in prototype j from durations (the usual format)
+	// to dates
+	long i;
+	Milliseconds time;
+
+	if(pp_csoundtime != NULL && PointCsound) {
+		if((*p_size)[j] == ZERO) return(OK);
+		else {
+			BPPrintMessage(0,odError,"=> Err. DurationToPoint(). Point mode in Csound");
+			return(MISSED);
+			}
+		}
+	if(pp_midicode != NULL && PointMIDI) {
+		if((*p_size)[j] == ZERO) return(OK);
+		else {
+			BPPrintMessage(0,odError,"=> Err. DurationToPoint(). Point mode in MIDI");
+			return(MISSED);
+			}
+		}
+	
+	if(pp_csoundtime != NULL) {
+		for(i=0,time = ZERO; i < (*p_size)[j]; i++) {
+			time += (*((*pp_csoundtime)[j]))[i];
+			(*((*pp_csoundtime)[j]))[i] = time;
+			}
+		PointCsound = TRUE;
+		}
+	if(pp_midicode != NULL) {
+		for(i=0,time = ZERO; i < (*p_size)[j]; i++) {
+			time += (*((*pp_midicode)[j]))[i].time;
+			(*((*pp_midicode)[j]))[i].time = time;
+			}
+		PointMIDI = TRUE;
+		}
+	return(OK);
+	}
+
+	
+int PointToDuration(MIDIcode ****pp_midicode,Milliseconds ****pp_csoundtime,long **p_size,int j) {
+	// Change time information in prototype j from dates to durations (the usual format)
+	long i;
+	Milliseconds time;
+
+	if(pp_csoundtime != NULL && !PointCsound) {
+		if((*p_size)[j] == ZERO) {
+			return(OK);
+			}
+		else {
+			BPPrintMessage(0,odError,"=> Err. PointToDuration(). Not point mode in Csound");
+			return(MISSED);
+			}
+		}
+	if(pp_midicode != NULL && !PointMIDI) {
+		if((*p_size)[j] == ZERO) return(OK);
+		else {
+			BPPrintMessage(0,odError,"=> Err. PointToDuration(). Not point mode in MIDI");
+			return(MISSED);
+			}
+		}
+
+	if(pp_csoundtime != NULL) {
+		for(i=(*p_size)[j] - 1; i > 0; i--) {
+			(*((*pp_csoundtime)[j]))[i]
+				= (*((*pp_csoundtime)[j]))[i] - (*((*pp_csoundtime)[j]))[i-1];
+			// BPPrintMessage(0,odInfo,"#@§ csoundtime[%d][%d] = %ld\n",j,i,(*((*pp_csoundtime)[j]))[i]);
+			}
+		PointCsound = FALSE;
+		}
+	if(pp_midicode != NULL) {
+		for(i=(*p_size)[j] - 1; i > 0; i--) {
+			(*((*pp_midicode)[j]))[i].time
+				= (*((*pp_midicode)[j]))[i].time - (*((*pp_midicode)[j]))[i-1].time;
+			}
+		PointMIDI = FALSE;
+		}
+	return(OK);
+	}
+
+
+int SortMIDIdates(long i0, int j) {
+	// Sort MIDI stream on dates in prototype j
+	// (*pp_MIDIcode)[j].time is points, not durations
+	// misdated events are 3-bytes
+	int c0,c1,c2,r;
+	long i;
+	Milliseconds t,t0,t1;
+
+	if(j < 2 || j >= Jbol) {
+		BPPrintMessage(0,odError,"=> Err. SortMIDIdates(). j < 2 || j >= Jbol");
+		return(MISSED);
+		}
+	t = (*((*pp_MIDIcode)[j]))[i0].time;
+	for(i=i0+1; i < (*p_MIDIsize)[j]; i++) {
+		if((*((*pp_MIDIcode)[j]))[i].time < t) {
+			if((r=SortMIDIdates(i,j)) != OK) return(r);
+			i -= 3;
+			c0 = (*((*pp_MIDIcode)[j]))[i].byte;
+			t0 = (*((*pp_MIDIcode)[j]))[i].time;
+			c1 = (*((*pp_MIDIcode)[j]))[i+1].byte;
+			c2 = (*((*pp_MIDIcode)[j]))[i+2].byte;
+			for(i=i+3; i < (*p_MIDIsize)[j]; i++) {
+				if((t1=(*((*pp_MIDIcode)[j]))[i].time) > t0) {
+					(*((*pp_MIDIcode)[j]))[i-3].byte = c0;
+					(*((*pp_MIDIcode)[j]))[i-3].sequence = 0;
+					(*((*pp_MIDIcode)[j]))[i-3].time = t0;
+					(*((*pp_MIDIcode)[j]))[i-2].byte = c1;
+					(*((*pp_MIDIcode)[j]))[i-2].sequence = 0;
+					(*((*pp_MIDIcode)[j]))[i-2].time = t0;
+					(*((*pp_MIDIcode)[j]))[i-1].byte = c2;
+					(*((*pp_MIDIcode)[j]))[i-1].sequence = 0;
+					t = (*((*pp_MIDIcode)[j]))[i-1].time = t0;
+					return(OK);
+					}
+				else {
+					(*((*pp_MIDIcode)[j]))[i-3] = (*((*pp_MIDIcode)[j]))[i];
+					}
+				}
+			(*((*pp_MIDIcode)[j]))[i-3].byte = c0; /* Added 5/3/97 */
+			(*((*pp_MIDIcode)[j]))[i-3].sequence = 0; /* Added 5/3/97 */
+			(*((*pp_MIDIcode)[j]))[i-3].time = t0; /* Added 5/3/97 */
+			(*((*pp_MIDIcode)[j]))[i-2].byte = c1; /* Added 5/3/97 */
+			(*((*pp_MIDIcode)[j]))[i-2].sequence = 0; /* Added 5/3/97 */
+			(*((*pp_MIDIcode)[j]))[i-2].time = t0; /* Added 5/3/97 */
+			(*((*pp_MIDIcode)[j]))[i-1].byte = c2; /* Added 5/3/97 */
+			(*((*pp_MIDIcode)[j]))[i-1].sequence = 0; /* Added 5/3/97 */
+			(*((*pp_MIDIcode)[j]))[i-1].time = t0; /* Added 5/3/97 */
+			}
+		else {
+			t = (*((*pp_MIDIcode)[j]))[i].time;
+			}
+		}
+	return(OK);
+	}
+
+
+int SortCsoundDates(long i0, int j) {
+	// Sort Csound score on dates in prototype j
+	// (*((*pp_CsoundTime)[j]))[i] is points, not durations
+	long i;
+	Milliseconds t,t0,t1;
+	CsoundLine s0;
+	int r;
+
+	if(j < 2 || j >= Jbol) {
+		BPPrintMessage(0,odError,"=> Err. SortCsoundDates(). j < 2 || j >= Jbol");
+		return(MISSED);
+		}
+	t = (*((*pp_CsoundTime)[j]))[i0];
+	for(i=i0+1; i < (*p_CsoundSize)[j]; i++) {
+		if((*((*pp_CsoundTime)[j]))[i] < t) {
+			if((r=SortCsoundDates(i,j)) != OK) return(r);
+			i--;
+			s0 = (*((*pp_CsoundScore)[j]))[i];
+			t0 = (*((*pp_CsoundTime)[j]))[i];
+			for(i=i+1; i < (*p_CsoundSize)[j]; i++) {
+				if((t1=(*((*pp_CsoundTime)[j]))[i]) > t0) {
+					(*((*pp_CsoundScore)[j]))[i-1] = s0;
+					t = (*((*pp_CsoundTime)[j]))[i-1] = t0;
+					return(OK);
+					}
+				else {
+					(*((*pp_CsoundScore)[j]))[i-1] = (*((*pp_CsoundScore)[j]))[i];
+					(*((*pp_CsoundTime)[j]))[i-1] = (*((*pp_CsoundTime)[j]))[i];
+					}
+				}
+			(*((*pp_CsoundScore)[j]))[i-1] = s0;
+			(*((*pp_CsoundTime)[j]))[i-1] = t0;
+			}
+		else {
+			t = (*((*pp_CsoundTime)[j]))[i];
+			}
+		}
+	return(OK);
+	}
 
 
 int SetPrototypeDuration(int j,int *p_longerCsound) {

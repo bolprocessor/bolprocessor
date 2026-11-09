@@ -700,52 +700,52 @@ int StoreChunk(ChunkPointer ***pp_chunk,long *p_ichunk,long *p_imax,unsigned lon
 	}
 
 int MakeRandomSequence(long ***pp_index, long nchunks, int repeat, int store) {
-    long i, pos, x;
-    int r1, r2;
+	long i, pos, x;
+	int r1, r2;
 
-    if(nchunks <= 0L) return(OK);
-    if(*pp_index == NULL) {
-        *pp_index = (long **)GiveSpace((Size)nchunks * sizeof(***pp_index));
-        if(*pp_index == NULL) return(ABORT);
-    	}
-    for(i = 0L; i < nchunks; i++) {
-        // At this point, positions 0 .. i-1 already form a shuffle.
-        (**pp_index)[i] = i;
-        if(!repeat) {
-            // Select an integer uniformly in the interval 0 .. i.
-            // The second draw supplies a fractional part.
-            r1 = bp3_rand();
-            r2 = bp3_rand();
-            UsedRandom = TRUE;
-            pos = (long)((double)(i + 1L) *
-                ((double)r1 + (double)r2 / (double)(BP3_RAND_MAX + 1L)) /
-                (double)(BP3_RAND_MAX + 1L));
-            if(store) {
-                (*p_MemPos)[ProduceStackDepth] = pos;
-                if(++ProduceStackDepth >= MaxDeriv && IncreaseComputeSpace() != OK)
-                    return(ABORT);
-                ProduceStackIndex = ProduceStackDepth;
+	if(nchunks <= 0L) return(OK);
+	if(*pp_index == NULL) {
+		*pp_index = (long **)GiveSpace((Size)nchunks * sizeof(***pp_index));
+		if(*pp_index == NULL) return(ABORT);
+		}
+	for(i = 0L; i < nchunks; i++) {
+		// At this point, positions 0 .. i-1 already form a shuffle.
+		(**pp_index)[i] = i;
+		if(!repeat) {
+			// Select an integer uniformly in the interval 0 .. i.
+			// The second draw supplies a fractional part.
+			r1 = bp3_rand();
+			r2 = bp3_rand();
+			UsedRandom = TRUE;
+			pos = (long)((double)(i + 1L) *
+				((double)r1 + (double)r2 / (double)(BP3_RAND_MAX + 1L)) /
+				(double)(BP3_RAND_MAX + 1L));
+			if(store) {
+				(*p_MemPos)[ProduceStackDepth] = pos;
+				if(++ProduceStackDepth >= MaxDeriv && IncreaseComputeSpace() != OK)
+					return(ABORT);
+				ProduceStackIndex = ProduceStackDepth;
 				}
 			}
-        else {
-            pos = (*p_MemPos)[ProduceStackIndex++];
-            if(ProduceStackIndex > ProduceStackDepth) {
-                repeat = FALSE;
-                if(Answer("End of known computation.\nContinue", 'Y') != YES)
-                    return(ABORT);
+		else {
+			pos = (*p_MemPos)[ProduceStackIndex++];
+			if(ProduceStackIndex > ProduceStackDepth) {
+				repeat = FALSE;
+				if(Answer("End of known computation.\nContinue", 'Y') != YES)
+					return(ABORT);
 				}
 			}
-        if(pos < 0L || pos > i) {
-            BPPrintMessage(0, odError,
-                "=> Err. MakeRandomSequence(): invalid position %ld\n", pos);
-            return(ABORT);
-        	}
-        // Swap the new item with a randomly selected earlier position.
-        x = (**pp_index)[pos];
-        (**pp_index)[pos] = (**pp_index)[i];
-        (**pp_index)[i] = x;
-    	}
-    return(OK);
+		if(pos < 0L || pos > i) {
+			BPPrintMessage(0, odError,
+				"=> Err. MakeRandomSequence(): invalid position %ld\n", pos);
+			return(ABORT);
+			}
+		// Swap the new item with a randomly selected earlier position.
+		x = (**pp_index)[pos];
+		(**pp_index)[pos] = (**pp_index)[i];
+		(**pp_index)[i] = x;
+		}
+	return(OK);
 	}
 
 int RotateSequence(long ***pp_x,long ifirstchunk,long nchunks,int rotate) {
@@ -1162,177 +1162,173 @@ int ZoulebOld(tokenbyte ***pp_a,int *p_level,unsigned long *p_pos_init,int retro
 
 
 int StoreChunkOld(ChunkPointer ***pp_chunk,long *p_i,long *p_imax,unsigned long origin,
-	unsigned long end)
-{
-ChunkPointer** ptr;
+	unsigned long end) {
+	ChunkPointer** ptr;
 
-(**pp_chunk)[*p_i].origin = origin;
-(**pp_chunk)[*p_i].end = end;
-(*p_i)++;
-if((*p_i) >= (*p_imax)) {
-	(*p_imax) = ((*p_imax) * 3L) / 2L;
-	ptr = (*pp_chunk);
-	if((ptr=(ChunkPointer**) IncreaseSpace((Handle)ptr)) == NULL) {
-		return(ABORT);
+	(**pp_chunk)[*p_i].origin = origin;
+	(**pp_chunk)[*p_i].end = end;
+	(*p_i)++;
+	if((*p_i) >= (*p_imax)) {
+		(*p_imax) = ((*p_imax) * 3L) / 2L;
+		ptr = (*pp_chunk);
+		if((ptr=(ChunkPointer**) IncreaseSpace((Handle)ptr)) == NULL) {
+			return(ABORT);
+			}
+		(*pp_chunk) = ptr;
 		}
-	(*pp_chunk) = ptr;
+	return(OK);
 	}
-return(OK);
-}
 
 
 int GetChunkOld(ChunkPointer **p_chunk,long *p_ichunk,long ichunkmax,int rndseq,
 	int retro,int rotate,unsigned long *p_ib,
 	unsigned long *p_maxib,unsigned long *p_i,tokenbyte **p_a,tokenbyte **p_b,
-	long **p_index,int istempbracket,int *p_more)
-{
-unsigned long i,j,origin,end;
-long ichunk;
-int s,cutbracket,found,key,foundit,
-	needbracket,level,newlevel;
-tokenbyte m,p,mm,pp;
-char line[MAXLIN];
+	long **p_index,int istempbracket,int *p_more) {
+	unsigned long i,j,origin,end;
+	long ichunk;
+	int s,cutbracket,found,key,foundit,
+		needbracket,level,newlevel;
+	tokenbyte m,p,mm,pp;
+	char line[MAXLIN];
 
-if(retro) ichunk = ichunkmax - (*p_ichunk) - 1L;
-else ichunk = (*p_ichunk);
+	if(retro) ichunk = ichunkmax - (*p_ichunk) - 1L;
+	else ichunk = (*p_ichunk);
 
-if(p_index != NULL) {	/* _rotate or _rndseq */
-	ichunk = (*p_index)[ichunk];
-	}
-
-if(ichunk < ZERO) {
-	BPPrintMessage(0,odError,"=> Err. GetChunk(). ichunk < ZERO");
-	ichunk = ZERO;
-	}
-if(ichunk >= ichunkmax) {
-	BPPrintMessage(0,odError,"=> Err. GetChunk(). ichunk >= ichunkmax");
-	ichunk = ichunkmax - 1L;
-	}
-
-origin = (*p_chunk)[ichunk].origin;
-end = (*p_chunk)[ichunk].end;
-
-m = (*p_a)[origin]; p = (*p_a)[origin+1L];
-
-// The following is for future compatibility
-cutbracket = (istempbracket && (end - origin) > 2L);
-if(cutbracket) {
-	m = (*p_a)[origin+2L]; p = (*p_a)[origin+3L];
-	switch(m) {
-		case T39:	/* _rotate */
-		case T40:	/* _keyxpand */
-		case T26:	/* _transpose */
-			cutbracket = FALSE;
-			break;
-		case T12:
-			switch(p) {
-				case 21:	/* _retro */
-				case 22:	/* _rndseq */
-				case 24:	/* _ordseq */
-					cutbracket = FALSE;
-					break;
-				}
-			break;
+	if(p_index != NULL) {	/* _rotate or _rndseq */
+		ichunk = (*p_index)[ichunk];
 		}
-	}
-if(cutbracket) (*p_more) -= 2;
+
+	if(ichunk < ZERO) {
+		BPPrintMessage(0,odError,"=> Err. GetChunk(). ichunk < ZERO");
+		ichunk = ZERO;
+		}
+	if(ichunk >= ichunkmax) {
+		BPPrintMessage(0,odError,"=> Err. GetChunk(). ichunk >= ichunkmax");
+		ichunk = ichunkmax - 1L;
+		}
+
+	origin = (*p_chunk)[ichunk].origin;
+	end = (*p_chunk)[ichunk].end;
+
+	m = (*p_a)[origin]; p = (*p_a)[origin+1L];
+
+	// The following is for future compatibility
+	cutbracket = (istempbracket && (end - origin) > 2L);
+	if(cutbracket) {
+		m = (*p_a)[origin+2L]; p = (*p_a)[origin+3L];
+		switch(m) {
+			case T39:	/* _rotate */
+			case T40:	/* _keyxpand */
+			case T26:	/* _transpose */
+				cutbracket = FALSE;
+				break;
+			case T12:
+				switch(p) {
+					case 21:	/* _retro */
+					case 22:	/* _rndseq */
+					case 24:	/* _ordseq */
+						cutbracket = FALSE;
+						break;
+					}
+				break;
+			}
+		}
+	if(cutbracket) (*p_more) -= 2;
 
 GETIT:
 
-for(i=origin,level=0; i < end; i += 2L) {
-	m = (*p_a)[i]; p = (*p_a)[i+1L];
+	for(i=origin,level=0; i < end; i += 2L) {
+		m = (*p_a)[i]; p = (*p_a)[i+1L];
 	
-	if(m == TEND && p == TEND) break;
+		if(m == TEND && p == TEND) break;
 	
-	if(cutbracket && (i == origin || i == (end-2L))) continue;
+		if(cutbracket && (i == origin || i == (end-2L))) continue;
 	
-	if(m == T0 && p == 22) istempbracket++;
-	if(m == T0 && p == 23) istempbracket--;
+		if(m == T0 && p == 22) istempbracket++;
+		if(m == T0 && p == 23) istempbracket--;
 	
-	if(m == T0 && p == 13) level--;
+		if(m == T0 && p == 13) level--;
 		
-	(*p_b)[(*p_ib)++] = m;
-	(*p_b)[(*p_ib)++] = p;
-	if(CheckBuffer((*p_ib),p_maxib,&p_b) != OK) return(ABORT);
-	}
-
-(*p_i) += ((*p_chunk)[*p_ichunk].end - (*p_chunk)[*p_ichunk].origin);
-(*p_ichunk)++;
-
-return(OK);
-}
-
-
-int MakeRandomSequenceOld(long ***pp_x,long size,int repeat,int store)
-{
-int result,r1,r2;
-long pos,x;
-double randomnumber;
-
-if(size == ZERO) return(OK);
-if(*pp_x == NULL) {
-	*pp_x = (long**) GiveSpace((Size) size * sizeof(long));
-	if(*pp_x == NULL) return(ABORT);
-	}
-
-if((result=MakeRandomSequenceOld(pp_x,size-1L,repeat,store)) != OK) return(result);
-
-if(!repeat) {
-	r1 = bp3_rand(); r2 = bp3_rand();
-	UsedRandom = TRUE;
-	randomnumber = r1 + (((double)r2) / ((double)(BP3_RAND_MAX + 1L)));
-	pos = (((double) size) * randomnumber) / ((double)(BP3_RAND_MAX + 1L));
-	if(pos >= size) {
-		BPPrintMessage(0,odError,"=> Err. MakeRandomSequence(). pos >= size");
-		pos = size - 1L;
+		(*p_b)[(*p_ib)++] = m;
+		(*p_b)[(*p_ib)++] = p;
+		if(CheckBuffer((*p_ib),p_maxib,&p_b) != OK) return(ABORT);
 		}
-	if(pos < ZERO) {
-		BPPrintMessage(0,odError,"=> Err. MakeRandomSequence(). pos < ZERO");
-		pos = ZERO;
+
+	(*p_i) += ((*p_chunk)[*p_ichunk].end - (*p_chunk)[*p_ichunk].origin);
+	(*p_ichunk)++;
+
+	return(OK);
+	}
+
+
+int MakeRandomSequenceOld(long ***pp_x,long size,int repeat,int store) {
+	int result,r1,r2;
+	long pos,x;
+	double randomnumber;
+
+	if(size == ZERO) return(OK);
+	if(*pp_x == NULL) {
+		*pp_x = (long**) GiveSpace((Size) size * sizeof(long));
+		if(*pp_x == NULL) return(ABORT);
 		}
-	if(store) {
-		(*p_MemPos)[ProduceStackDepth] = pos;
-		if(++ProduceStackDepth >= MaxDeriv && IncreaseComputeSpace() != OK) return(ABORT);
-		ProduceStackIndex = ProduceStackDepth;
+
+	if((result=MakeRandomSequenceOld(pp_x,size-1L,repeat,store)) != OK) return(result);
+
+	if(!repeat) {
+		r1 = bp3_rand(); r2 = bp3_rand();
+		UsedRandom = TRUE;
+		randomnumber = r1 + (((double)r2) / ((double)(BP3_RAND_MAX + 1L)));
+		pos = (((double) size) * randomnumber) / ((double)(BP3_RAND_MAX + 1L));
+		if(pos >= size) {
+			BPPrintMessage(0,odError,"=> Err. MakeRandomSequence(). pos >= size");
+			pos = size - 1L;
+			}
+		if(pos < ZERO) {
+			BPPrintMessage(0,odError,"=> Err. MakeRandomSequence(). pos < ZERO");
+			pos = ZERO;
+			}
+		if(store) {
+			(*p_MemPos)[ProduceStackDepth] = pos;
+			if(++ProduceStackDepth >= MaxDeriv && IncreaseComputeSpace() != OK) return(ABORT);
+			ProduceStackIndex = ProduceStackDepth;
+			}
 		}
-	}
-else {
-	pos = (*p_MemPos)[ProduceStackIndex++];
-	if(ProduceStackIndex > ProduceStackDepth) {
-		repeat = FALSE;
-		if(Answer("End of known computation.\nContinue",'Y') != YES) return(ABORT);
+	else {
+		pos = (*p_MemPos)[ProduceStackIndex++];
+		if(ProduceStackIndex > ProduceStackDepth) {
+			repeat = FALSE;
+			if(Answer("End of known computation.\nContinue",'Y') != YES) return(ABORT);
+			}
 		}
-	}
-if(pos < (size - 1L)) {
-	x = (**pp_x)[pos];
-	(**pp_x)[pos] = size - 1L;
-	}
-else x = size - 1L;
+	if(pos < (size - 1L)) {
+		x = (**pp_x)[pos];
+		(**pp_x)[pos] = size - 1L;
+		}
+	else x = size - 1L;
 
-(**pp_x)[size-1L] = x;
+	(**pp_x)[size-1L] = x;
 
-return(OK);
-}
-
-
-int RotateSequenceOld(long ***pp_x,long size,int rotate)
-{
-long i,j;
-
-if(size < 1) return(OK);
-
-if(*pp_x == NULL) {
-	*pp_x = (long**) GiveSpace((Size) size * sizeof(long));
-	if(*pp_x == NULL) return(ABORT);
+	return(OK);
 	}
 
-j = rotate % size;	/* Direction changed on 30/4/98 */
-if(j < ZERO) j += size;
 
-for(i=ZERO; i < size; i++) {
-	(**pp_x)[i] = j;
-	j++;
-	if(j >= size) j = ZERO;
+int RotateSequenceOld(long ***pp_x,long size,int rotate) {
+	long i,j;
+
+	if(size < 1) return(OK);
+
+	if(*pp_x == NULL) {
+		*pp_x = (long**) GiveSpace((Size) size * sizeof(long));
+		if(*pp_x == NULL) return(ABORT);
+		}
+
+	j = rotate % size;	/* Direction changed on 30/4/98 */
+	if(j < ZERO) j += size;
+
+	for(i=ZERO; i < size; i++) {
+		(**pp_x)[i] = j;
+		j++;
+		if(j >= size) j = ZERO;
+		}
+	return(OK);
 	}
-return(OK);
-}

@@ -42,20 +42,19 @@
 
 // FIXME: name should be const, but Match needs to take const char * instead of char**
 int FindMatchingFileNamePrefix(/*const*/ char* name) {
-		int	w;
-		char* pre;	
-		for (w = 0; w < WMAX; w++) {
-			if(FilePrefix[w][0] == '\0') continue;
-			// prefixes are case sensitive
-			pre = FilePrefix[w];
-			if(Match(TRUE, &name, &pre, strlen(pre))) return w;
+	int	w;
+	char* pre;	
+	for (w = 0; w < WMAX; w++) {
+		if(FilePrefix[w][0] == '\0') continue;
+		// prefixes are case sensitive
+		pre = FilePrefix[w];
+		if(Match(TRUE, &name, &pre, strlen(pre))) return w;
 		}	
-	return wUnknown;
+return wUnknown;
 	}
 
 // FIXME: name should be const, but Match needs to take const char * instead of char**
-int FindMatchingFileNameExtension(/*const*/ char* name)
-{
+int FindMatchingFileNameExtension(/*const*/ char* name) {
 	int	w; 
 	size_t len;
 	char  *nameExt, *ext;
@@ -72,14 +71,13 @@ int FindMatchingFileNameExtension(/*const*/ char* name)
 		if(len != strlen(ext))  continue;
 		// extensions are case insensitive
 		if(Match(FALSE, &nameExt, &ext, strlen(ext))) return w;
-	}
+		}
 	
 	return wUnknown;
-}
+	}
 
 // FIXME: name and ext should be const, but Match needs to take const char * instead of char**
-int MatchFileNameExtension(/*const*/ char* name, /*const*/ char* ext)
-{
+int MatchFileNameExtension(/*const*/ char* name, /*const*/ char* ext) {
 	char* nameExt;
 	
 	// find the last '.' in name, if any
@@ -91,11 +89,10 @@ int MatchFileNameExtension(/*const*/ char* name, /*const*/ char* ext)
 	
 	// extensions are case insensitive
 	return Match(FALSE, &nameExt, &ext, strlen(ext));
-}
+	}
 
 // FIXME: name should be const, but functions above need to be fixed first
-int IdentifyBPFileTypeByName(/*const*/ char* name)
-{
+int IdentifyBPFileTypeByName(/*const*/ char* name) {
 	int	wfindex;	// window/file index (result)
 
 	// try the filename's prefix, if any
@@ -108,38 +105,38 @@ int IdentifyBPFileTypeByName(/*const*/ char* name)
 	
 	// also try the other extensions that we recognize
 	if(MatchFileNameExtension(name, ".mid") ||
-	    MatchFileNameExtension(name, ".midi"))
+		MatchFileNameExtension(name, ".midi"))
 		return iMIDIfile;
 	if(MatchFileNameExtension(name, ".trace"))  return wTrace;
 	if(MatchFileNameExtension(name, ".txt") ||
-	    MatchFileNameExtension(name, ".sco") ||
-	    MatchFileNameExtension(name, ".htm") ||
-	    MatchFileNameExtension(name, ".html"))
+		MatchFileNameExtension(name, ".sco") ||
+		MatchFileNameExtension(name, ".htm") ||
+		MatchFileNameExtension(name, ".html"))
 		return wScrap;
 
 	return wUnknown;
-}
+	}
 
 
 void strip_trailing_spaces(char *str) {
-    if(str == NULL) return;
-    int len = strlen(str);
-    while (len > 0 && isspace((unsigned char)str[len - 1])) {
-        len--;
+	if(str == NULL) return;
+	int len = strlen(str);
+	while (len > 0 && isspace((unsigned char)str[len - 1])) {
+		len--;
 		}
 		str[len] = '\0';
 	}
 
 
 void remove_double_slash_prefix(char *str) {
-    if(strncmp(str, "//", 2) == 0) {
-        // Shift everything to the left over the "//"
-        memmove(str, str + 2, strlen(str) - 1);
+	if(strncmp(str, "//", 2) == 0) {
+		// Shift everything to the left over the "//"
+		memmove(str, str + 2, strlen(str) - 1);
 		}
 	}
 
 int ReadOne(int bindlines, int careforhtml, int nocomment, FILE *fin,
-            int strip, char ***pp_line, char ***pp_completeline, long *p_pos) {
+			int strip, char ***pp_line, char ***pp_completeline, long *p_pos) {
 	// Read one line at *p_pos.
 	// Return MISSED at end of file or after a read error.
 	// Lines beginning with "//" may be stripped of that prefix.
@@ -229,94 +226,91 @@ int ReadOne(int bindlines, int careforhtml, int nocomment, FILE *fin,
 	}
 
 
-int ReadInteger(FILE* fin,int* p_i,long* p_pos)
-// Read an integer value
-{
-int rep,i;
-char c;
-char **p_line,**p_completeline;
+int ReadInteger(FILE* fin,int* p_i,long* p_pos) {
+	// Read an integer value
+	int rep,i;
+	char c;
+	char **p_line,**p_completeline;
 
-p_line = p_completeline = NULL;
-if((rep = ReadOne(FALSE,FALSE,TRUE,fin,TRUE,&p_line,&p_completeline,p_pos)) == MISSED) goto QUIT;
-if(MyHandleLen(p_line) == 0) {
-	rep = MISSED; goto QUIT;
-	}
-i = 0;
-while(MySpace(c=(*p_line)[i])) i++;
-if(c != '-' && c != '+' && !isdigit(c)) {
-	rep = MISSED; goto QUIT;
-	}
-MyLock(FALSE,(Handle)p_line);
-*p_i = (int) atol(*p_line);	/* Don't use atoi() because int's are 4 bytes */
-MyUnlock((Handle)p_line);
-
-QUIT:
-MyDisposeHandle((Handle*)&p_line);
-MyDisposeHandle((Handle*)&p_completeline);
-return(rep);
-}
-
-
-int ReadLong(FILE* fin,long* p_i,long* p_pos)
-{
-int rep,i;
-char c;
-char **p_line,**p_completeline;
-
-p_line = p_completeline = NULL;
-if((rep = ReadOne(FALSE,FALSE,TRUE,fin,TRUE,&p_line,&p_completeline,p_pos)) == MISSED) goto QUIT;
-if(MyHandleLen(p_line) == 0) return(MISSED);
-i = 0; while(MySpace(c=(*p_line)[i])) i++;
-if(c != '-' && c != '+' && !isdigit(c)) {
-	rep = MISSED; goto QUIT;
-	}
-MyLock(FALSE,(Handle)p_line);
-*p_i = atol(*p_line);
-MyUnlock((Handle)p_line);
+	p_line = p_completeline = NULL;
+	if((rep = ReadOne(FALSE,FALSE,TRUE,fin,TRUE,&p_line,&p_completeline,p_pos)) == MISSED) goto QUIT;
+	if(MyHandleLen(p_line) == 0) {
+		rep = MISSED; goto QUIT;
+		}
+	i = 0;
+	while(MySpace(c=(*p_line)[i])) i++;
+	if(c != '-' && c != '+' && !isdigit(c)) {
+		rep = MISSED; goto QUIT;
+		}
+	MyLock(FALSE,(Handle)p_line);
+	*p_i = (int) atol(*p_line);	/* Don't use atoi() because int's are 4 bytes */
+	MyUnlock((Handle)p_line);
 
 QUIT:
-MyDisposeHandle((Handle*)&p_line);
-MyDisposeHandle((Handle*)&p_completeline);
-return(OK);
-}
-
-
-int ReadUnsignedLong(FILE* fin,unsigned long* p_i,long* p_pos)
-{
-int rep,i;
-char c,*end;
-char **p_line,**p_completeline;
-long x;
-
-p_line = p_completeline = NULL;
-if((rep = ReadOne(FALSE,FALSE,TRUE,fin,TRUE,&p_line,&p_completeline,p_pos)) == MISSED) goto QUIT;
-if(MyHandleLen(p_line) == 0) return(MISSED);
-i = 0; while(MySpace(c=(*p_line)[i])) i++;
-if(c != '-' && c != '+' && !isdigit(c)) {
-	my_sprintf(Message,"\nUnexpected characters in integer: %s",(*p_line));
-	Println(wTrace,Message);
-	rep = MISSED;
-	goto QUIT;
+	MyDisposeHandle((Handle*)&p_line);
+	MyDisposeHandle((Handle*)&p_completeline);
+	return(rep);
 	}
-MyLock(FALSE,(Handle)p_line);
 
-(*p_i) = strtoul((*p_line),&end,0);
 
-/* x = atol(*p_line);
-if(x < ZERO) {
-	my_sprintf(Message,"\nUnexpected negative integer: %ld",x);
-	Println(wTrace,Message);
-	rep = MISSED;
-	goto QUIT;
-	}
-*p_i = (unsigned long) x; */
-MyUnlock((Handle)p_line);
+int ReadLong(FILE* fin,long* p_i,long* p_pos) {
+	int rep,i;
+	char c;
+	char **p_line,**p_completeline;
+
+	p_line = p_completeline = NULL;
+	if((rep = ReadOne(FALSE,FALSE,TRUE,fin,TRUE,&p_line,&p_completeline,p_pos)) == MISSED) goto QUIT;
+	if(MyHandleLen(p_line) == 0) return(MISSED);
+	i = 0; while(MySpace(c=(*p_line)[i])) i++;
+	if(c != '-' && c != '+' && !isdigit(c)) {
+		rep = MISSED; goto QUIT;
+		}
+	MyLock(FALSE,(Handle)p_line);
+	*p_i = atol(*p_line);
+	MyUnlock((Handle)p_line);
 
 QUIT:
-MyDisposeHandle((Handle*)&p_line);
-MyDisposeHandle((Handle*)&p_completeline);
-return(OK);
-}
+	MyDisposeHandle((Handle*)&p_line);
+	MyDisposeHandle((Handle*)&p_completeline);
+	return(OK);
+	}
+
+
+int ReadUnsignedLong(FILE* fin,unsigned long* p_i,long* p_pos) {
+	int rep,i;
+	char c,*end;
+	char **p_line,**p_completeline;
+	long x;
+
+	p_line = p_completeline = NULL;
+	if((rep = ReadOne(FALSE,FALSE,TRUE,fin,TRUE,&p_line,&p_completeline,p_pos)) == MISSED) goto QUIT;
+	if(MyHandleLen(p_line) == 0) return(MISSED);
+	i = 0; while(MySpace(c=(*p_line)[i])) i++;
+	if(c != '-' && c != '+' && !isdigit(c)) {
+		my_sprintf(Message,"\nUnexpected characters in integer: %s",(*p_line));
+		Println(wTrace,Message);
+		rep = MISSED;
+		goto QUIT;
+		}
+	MyLock(FALSE,(Handle)p_line);
+
+	(*p_i) = strtoul((*p_line),&end,0);
+
+	/* x = atol(*p_line);
+	if(x < ZERO) {
+		my_sprintf(Message,"\nUnexpected negative integer: %ld",x);
+		Println(wTrace,Message);
+		rep = MISSED;
+		goto QUIT;
+		}
+	*p_i = (unsigned long) x; */
+	MyUnlock((Handle)p_line);
+
+QUIT:
+	MyDisposeHandle((Handle*)&p_line);
+	MyDisposeHandle((Handle*)&p_completeline);
+	return(OK);
+	}
 
 
 int ReadFloat(FILE* fin,double* p_i,long* p_pos) {
@@ -347,41 +341,39 @@ int ReadFloat(FILE* fin,double* p_i,long* p_pos) {
 	}
 
 
-int WriteToFile(int careforhtml,int format,char* line,short refnum)
-// Writes the line and a return to the file
-{
-int res;
-long count;
-OSErr io;
-char **p_line;
+int WriteToFile(int careforhtml,int format,char* line,short refnum) {
+	// Writes the line and a return to the file
+	int res;
+	long count;
+	OSErr io;
+	char **p_line;
 
-if(refnum == -1) {
-	BPPrintMessage(0,odError,"=> Err. WriteToFile(). refnum == -1 line = \"%s\"\n",line);
-	return(MISSED);
+	if(refnum == -1) {
+		BPPrintMessage(0,odError,"=> Err. WriteToFile(). refnum == -1 line = \"%s\"\n",line);
+		return(MISSED);
+		}
+	p_line = NULL;
+	if((res = MystrcpyStringToHandle(&p_line,line)) != OK) return res;
+
+	BP_NOT_USED(format);	// need to rethink whether this option sd be used
+
+	BPPrintMessage(0,(int)refnum, "%s\n", *p_line);
+	MyDisposeHandle((Handle*)&p_line);
+
+	return(OK);
 	}
-p_line = NULL;
-if((res = MystrcpyStringToHandle(&p_line,line)) != OK) return res;
-
-BP_NOT_USED(format);	// need to rethink whether this option sd be used
-
-BPPrintMessage(0,(int)refnum, "%s\n", *p_line);
-MyDisposeHandle((Handle*)&p_line);
-
-return(OK);
-}
 
 
-int NoReturnWriteToFile(char* line,short refnum)
-// Writes the line and no return to the file
-{
+int NoReturnWriteToFile(char* line,short refnum) {
+	// Writes the line and no return to the file
 
-if(refnum == -1) {
-	BPPrintMessage(0,odError,"=> Err. NoReturnWriteToFile(). refnum == -1");
-	return(MISSED);
+	if(refnum == -1) {
+		BPPrintMessage(0,odError,"=> Err. NoReturnWriteToFile(). refnum == -1");
+		return(MISSED);
+		}
+	BPPrintMessage(0,(int)refnum,line);
+	return(OK);
 	}
-BPPrintMessage(0,(int)refnum,line);
-return(OK);
-}
 
 
 int CleanLF(char** p_buffer,long* p_count,int* p_dos) {
@@ -459,10 +451,10 @@ int GetThisVersion(int w) {
 		goto SORTIR;
 		}
 	if(fileversion >= 3) {
-		/* Delete info and date line */
-	REDO2:
-		if(ReadLine(NO,NO,w,&pos,posmax,&p_line,&j) != OK) goto SORTIR;
-		if((*p_line)[0] == '\0') goto REDO2;
+			/* Delete info and date line */
+		REDO2:
+			if(ReadLine(NO,NO,w,&pos,posmax,&p_line,&j) != OK) goto SORTIR;
+			if((*p_line)[0] == '\0') goto REDO2;
 		}
 	SetSelect(ZERO,pos,TEH[w]);
 	TextDelete(w);

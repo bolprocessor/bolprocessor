@@ -859,6 +859,7 @@ int FindOutputDirectory(void);
 int ClearObjectSpace(void);
 void CreateDoneFile(void);
 void CreateStopFile(void);
+void WriteTimeFile(void);
 int stop(int,char*);
 void send_note(char*);
 
@@ -892,8 +893,8 @@ int BPSetMessageCallback(bp_message_callback_t func);
 #endif
 
 #if !defined(_WIN64)
-    void enable_raw_mode(void);
-    void disable_raw_mode(void);
+	void enable_raw_mode(void);
+	void disable_raw_mode(void);
 #endif
 
 #endif /* BP3_PROTO_H */

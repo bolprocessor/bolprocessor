@@ -1179,7 +1179,7 @@ int FillPhaseDiagram(tokenbyte ***pp_buff,long* p_numberobjects,unsigned long *p
 						level++;
 						if(trace_parameters)
 							for(i = 0; i < (*p_contparameters)[level].number; i++) {
-							BPPrintMessage(1,odInfo,"&@& i = %d active = %d, level = %d\n",i,(*((*p_contparameters)[level].values))[i].active,level);
+								BPPrintMessage(1,odInfo,"&@& i = %d active = %d, level = %d\n",i,(*((*p_contparameters)[level].values))[i].active,level);
 								}
 						if(level >= Maxlevel) {
 							BPPrintMessage(1,odError,"=> Err. FillPhaseDiagram(). level >= Maxlevel");
@@ -1501,8 +1501,7 @@ int FillPhaseDiagram(tokenbyte ***pp_buff,long* p_numberobjects,unsigned long *p
 					
 						while((++nseq) <= (*p_nmax) && (*p_maxcol)[nseq] > classofinext);
 						if(nseq >= Minconc) {
-							Panic = TRUE;
-							{
+							Panic = TRUE; {
 								BPPrintMessage(1,odError,"=> Err. FillPhaseDiagram(). nseq >= Minconc after '&'");
 								goto ENDDIAGRAM;
 								}
@@ -2164,9 +2163,9 @@ int Plot(char where,int *p_nseqplot,unsigned long *p_iplot,char *p_overstrike,in
 				}
 			if(trace_toofast) BPPrintMessage(1,odInfo,"Plot(4) PLOTOUTSIDE nseqplot = %d, iplot = %ld, oldk = %d, newk = %d\n",(*p_nseqplot),(long)iplot,oldk,newk);
 			if((*p_nseqplot) >= Maxconc) {
-	NEWCOLUMN:
-				(*p_nseqplot) = Minconc + 1;
-				(*p_iplot)++;
+				NEWCOLUMN:
+							(*p_nseqplot) = Minconc + 1;
+							(*p_iplot)++;
 				}
 			if((*p_iplot) >= maxseq || (Quantization > 0 && (((*p_iplot) - iplot) > (200L / Quantization)) && !force)) {
 				(*p_overstrike) = TRUE;
@@ -2466,53 +2465,52 @@ int UpdateParameter(int i,ContParameters **p_contparameters,int level,long durat
 	}
 
 
-int IncrementParameter(int i,ContParameters **p_contparameters,int level,double addbeats)
-{
-int imax;
-unsigned long ibeats;
+int IncrementParameter(int i,ContParameters **p_contparameters,int level,double addbeats) {
+	int imax;
+	unsigned long ibeats;
 
-if((*p_contparameters)[level].values == NULL) {
-	BPPrintMessage(0,odError,"=> Err. IncrementParameter(). (*p_contparameters)[level].values == NULL");
-	return(ABORT);
-	}
-imax = MyGetHandleSize((Handle)((*p_contparameters)[level].values)) / sizeof(ContParameterSpecs);
-if(i < 0 || i >= imax) {
-	BPPrintMessage(0,odError,"=> Err. IncrementParameter(). i < 0 || i >= imax");
-	return(ABORT);
-	}
-if(level >= Maxlevel) return(ABORT);
+	if((*p_contparameters)[level].values == NULL) {
+		BPPrintMessage(0,odError,"=> Err. IncrementParameter(). (*p_contparameters)[level].values == NULL");
+		return(ABORT);
+		}
+	imax = MyGetHandleSize((Handle)((*p_contparameters)[level].values)) / sizeof(ContParameterSpecs);
+	if(i < 0 || i >= imax) {
+		BPPrintMessage(0,odError,"=> Err. IncrementParameter(). i < 0 || i >= imax");
+		return(ABORT);
+		}
+	if(level >= Maxlevel) return(ABORT);
 
-// 2026-11-08: saved variations of other channels go on counting beats, even if the current one is not active - fixed by Claude
-if(i <= IPANORAMIC && p_SavedChanValid != NULL && level >= 0 && level < SavedChanLevels) {
-	int chan;
-	long is;
-	ContParameterSpecs *s;
-	for(chan = 1; chan <= MAXCHAN; chan++) {
-		is = SAVEDCHANINDEX(level,chan,i);
-		if(!(*p_SavedChanValid)[is]) continue;
-		s = &((*p_SavedChanParam)[is]);
-		if(!s->active) continue;
-		s->ibeats += addbeats;
-		if(s->ibeats >= s->maxbeats) {	// The variation is over: keep its end value
-			s->start = s->start + s->increment;
-			s->v0 = s->v1 = s->start;
-			s->increment = 0.;
-			s->active = FALSE;
+	// 2026-11-08: saved variations of other channels go on counting beats, even if the current one is not active - fixed by Claude
+	if(i <= IPANORAMIC && p_SavedChanValid != NULL && level >= 0 && level < SavedChanLevels) {
+		int chan;
+		long is;
+		ContParameterSpecs *s;
+		for(chan = 1; chan <= MAXCHAN; chan++) {
+			is = SAVEDCHANINDEX(level,chan,i);
+			if(!(*p_SavedChanValid)[is]) continue;
+			s = &((*p_SavedChanParam)[is]);
+			if(!s->active) continue;
+			s->ibeats += addbeats;
+			if(s->ibeats >= s->maxbeats) {	// The variation is over: keep its end value
+				s->start = s->start + s->increment;
+				s->v0 = s->v1 = s->start;
+				s->increment = 0.;
+				s->active = FALSE;
+				}
 			}
 		}
-	}
 
-if(!(*((*p_contparameters)[level].values))[i].active) return(OK);
+	if(!(*((*p_contparameters)[level].values))[i].active) return(OK);
 
-ibeats = (*((*p_contparameters)[level].values))[i].ibeats + addbeats;
-if(ibeats >= (*((*p_contparameters)[level].values))[i].maxbeats) {
-	(*((*p_contparameters)[level].values))[i].active = FALSE;
-	(*((*p_contparameters)[level].values))[i].v1 = (*((*p_contparameters)[level].values))[i].v0;
-	(*((*p_contparameters)[level].values))[i].increment = 0.;
+	ibeats = (*((*p_contparameters)[level].values))[i].ibeats + addbeats;
+	if(ibeats >= (*((*p_contparameters)[level].values))[i].maxbeats) {
+		(*((*p_contparameters)[level].values))[i].active = FALSE;
+		(*((*p_contparameters)[level].values))[i].v1 = (*((*p_contparameters)[level].values))[i].v0;
+		(*((*p_contparameters)[level].values))[i].increment = 0.;
+		}
+	else (*((*p_contparameters)[level].values))[i].ibeats = ibeats;
+	return(OK);
 	}
-else (*((*p_contparameters)[level].values))[i].ibeats = ibeats;
-return(OK);
-}
 
 
 int MakeNewLineInPhaseTable(int nseq,int *p_nmax,double **p_im,double maxseq,
@@ -2667,25 +2665,23 @@ int PutZeros(int nseq_current, char toofast,double **p_im,unsigned long **p_maxc
 	}
 
 
-int ShowProgress(int k)
-{
-return(OK);
-if(!ShowMessages || ((k % 50) != 0)) return(OK);
-PleaseWait();
-my_sprintf(Message,"Time-objects created: %ld.  Estimated: %ld",(long)k,(long)(MaxObjects-1));
-// FlashInfo(Message);
-return(OK);
-}
-
-
-int TellSkipped(void)
-{
-if(!ToldSkipped) {
-	ToldSkipped = TRUE;
-//	BPPrintMessage(0,odError,"=> Some objects have been skipped. Quantization should be reduced to avoid it.\n");
+int ShowProgress(int k) {
+	return(OK);
+	if(!ShowMessages || ((k % 50) != 0)) return(OK);
+	PleaseWait();
+	my_sprintf(Message,"Time-objects created: %ld.  Estimated: %ld",(long)k,(long)(MaxObjects-1));
+	// FlashInfo(Message);
+	return(OK);
 	}
-return(OK);
-}
+
+
+int TellSkipped(void) {
+	if(!ToldSkipped) {
+		ToldSkipped = TRUE;
+	//	BPPrintMessage(0,odError,"=> Some objects have been skipped. Quantization should be reduced to avoid it.\n");
+		}
+	return(OK);
+	}
 
 int ShowPhaseDiagram(int nmax,unsigned long* imaxseq) {
 	int iseq,nseq,k;

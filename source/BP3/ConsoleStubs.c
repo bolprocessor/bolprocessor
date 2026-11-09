@@ -45,40 +45,34 @@ POSSIBILITY OF SUCH DAMAGE.
 /* These are BP3 functions -- some of these may end up utilizing callbacks
    set by host application using the client API ... */
 
-int PleaseWait(void)
-{
+int PleaseWait(void) {
 	return(OK);
-}
+	}
 
-int StopWait(void)
-{
+int StopWait(void) {
 	return(OK);
-}
+	}
 
-void SetDefaultCursor(void)
-{	
+void SetDefaultCursor(void) {
 	return;
-}
+	}
 
-int BPActivateWindow(int mode,int newNw)
-{
+int BPActivateWindow(int mode,int newNw) {
 	BP_NOT_USED(mode);
 	BP_NOT_USED(newNw);
 	return OK;
-}
+	}
 
-int AppendScript(int command) // OBSOLETE
-{
+int AppendScript(int command) {	// OBSOLETE
 	BP_NOT_USED(command);
 	return OK;
-}
+	}
 
 
-int EndScript(void)
-{
+int EndScript(void) {
 	if(ScriptExecOn > 0) ScriptExecOn--;
 	return OK;
-}
+	}
 
 /*
 int StartCount(void)
@@ -92,19 +86,17 @@ int StartCount(void)
 	return OK;
 } */
 
-int CheckLoadedPrototypes(void)
-{
+int CheckLoadedPrototypes(void) {
 	if(NeedAlphabet && !ObjectMode && !ObjectTry && (rtMIDI || OutCsound || WriteMIDIfile)) {
 		ObjectTry = TRUE;
 	/*	BPPrintMessage(0,odWarning, "Loading object prototypes is not yet possible in the "
 			"console version, so MIDI and Csound output may not work correctly.\n");
 		return MISSED; */
-	}
+		}
 	return OK; // ??
-}
+	}
 
-int LoadAlphabet(int w)
-{
+int LoadAlphabet(int w) {
 
 	// If an alphabet was loaded due to a command-line argument, or none is referenced
 	// in "window" w, the data file, or the grammar file, then everything's fine.
@@ -118,14 +110,13 @@ int LoadAlphabet(int w)
 	BPPrintMessage(0,odWarning, "Ignoring alphabet file specified in data or grammar file!\n");
 	BPPrintMessage(0,odWarning, "(You can specify an alphabet file as a command-line argument).\n");
 	return MISSED;
-}
+	}
 
-int ShowSelect(int dir,int w)
-{
+int ShowSelect(int dir,int w) {
 	BP_NOT_USED(dir);
 	BP_NOT_USED(w);
 	return OK;
-}
+	}
 
 /* int Reformat(int w,int font,int size,int face,RGBColor* p_color,int manual,int force)
 {
@@ -139,8 +130,7 @@ int ShowSelect(int dir,int w)
 	return OK;
 } */
 
-int InterruptCompute(int igram,t_gram *p_gram,int repeat,int grtype,int mode)
-{
+int InterruptCompute(int igram,t_gram *p_gram,int repeat,int grtype,int mode) {
 	BP_NOT_USED(igram);
 	BP_NOT_USED(p_gram);
 	BP_NOT_USED(repeat);
@@ -153,36 +143,34 @@ int InterruptCompute(int igram,t_gram *p_gram,int repeat,int grtype,int mode)
 	} */
 	BPPrintMessage(0,odWarning, "Continuing from InterruptCompute()...\n");
 	return OK;
-}
+	}
 
 static int MakeCsoundScoreFile(OutFileInfo* finfo);
 
 /* Console version of PrepareCsFile() just assumes that score file name
    has been set by a command-line argument */
-int PrepareCsFile(void)
-{
+int PrepareCsFile(void) {
 	if(!CsScoreOpened)	{
 		if(gOptions.outputFiles[ofiCsScore].name != NULL) {
 			return MakeCsoundScoreFile(&(gOptions.outputFiles[ofiCsScore]));
+			}
 		}
-	}
 
 	return OK;
-}
+	}
 
 /* Renamed this function from "MakeCsFile" so that the parameter could be changed
    without clashing with Carbon GUI version.  I'm not sure that it makes any more
    sense to pass the whole OutFileInfo than just the pathname though since 
    CloseCsScore() takes no parameter. */
-static int MakeCsoundScoreFile(OutFileInfo* finfo)
-{	
+static int MakeCsoundScoreFile(OutFileInfo* finfo) {
 	FILE *fout;
 	int i, i_table;
 	
 	if(strcmp(finfo->name, "-") == 0)	{
 		// if name is "-", use stdout and don't "open" finfo
 		fout = stdout;
-	}
+		}
 	else {
 		// open the file for writing
 		ShowMessage(TRUE,wMessage,"\nCreating new Csound score file...");
@@ -190,8 +178,8 @@ static int MakeCsoundScoreFile(OutFileInfo* finfo)
 		if(!fout) {
 			BPPrintMessage(0,odError, "\n=> Could not open file for score %s\n", finfo->name);
 			return MISSED;
+			}
 		}
-	}
 	
 	// set up Csound score output
 	SetOutputDestinations(odCsScore, fout);
@@ -215,11 +203,10 @@ static int MakeCsoundScoreFile(OutFileInfo* finfo)
 	else
 		WriteToFile(NO,CsoundFileFormat,"",CsRefNum);
 	return OK;
-}
+	}
 
 
-int CloseCsScore(void)
-{
+int CloseCsScore(void) {
 	char line[MAXLIN];
 	
 	if(!CsScoreOpened) return(OK);
@@ -238,26 +225,24 @@ int CloseCsScore(void)
 	BPPrintMessage(0,odInfo, "Closing the Csound score file %s\n", gOptions.outputFiles[ofiCsScore].name);
 
 	return OK;
-}
+	}
 
-int CheckTextSize(int w)
-{
+int CheckTextSize(int w) {
 	BP_NOT_USED(w);
 	return OK;
-}
+	}
 
 
 /* These are Mac OS X Carbon calls that could have useful replacements in
    the console/library build or that are too numerous in the BP3 source code
    to conditionalize with the preprocessor. */
 
-void SysBeep(short duration)
-{
+void SysBeep(short duration) {
 	BP_NOT_USED(duration);
 	// FIXME: should probably only send \007 to a terminal ?
 	BPPrintMessage(0,odWarning, "\007Beep!\n");
 	return;
-}
+	}
 
 /*
 int Button(void)

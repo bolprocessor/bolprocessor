@@ -50,11 +50,10 @@ POSSIBILITY OF SUCH DAMAGE.
 
 /* WARNING:  Do not attempt to access the internal members of this struct
    anywhere outside of this file.  They may change! */
-typedef struct s_handle_priv
-{
+typedef struct s_handle_priv {
 	void*	memblock;
 	Size	size;
-} s_handle_priv;
+	} s_handle_priv;
 
 static Handle GiveSpaceInternal(Size size, int clear);
 
@@ -114,9 +113,9 @@ static Handle GiveSpaceInternal(Size size, int clear) {
 Size MyGetHandleSize(Handle h) {
 	if(h == NULL) return (Size) ZERO;
 	if(((s_handle_priv*)h)->memblock == NULL) {
-        BPPrintMessage(0,odError,"=> Err. MyGetHandleSize(). h->memblock == NULL\n");
-        return (Size) ZERO;
-    	}
+		BPPrintMessage(0,odError,"=> Err. MyGetHandleSize(). h->memblock == NULL\n");
+		return (Size) ZERO;
+		}
 	return ((s_handle_priv*)h)->size;
 	}
 

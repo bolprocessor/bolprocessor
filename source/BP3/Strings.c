@@ -39,111 +39,106 @@
 #include "-BP3decl.h"
 
 void my_sprintf(char* buffer, const char *format, ...) {
-    va_list args;
-    // Start extracting arguments based on the format string
-    va_start(args, format);   
-    // Use vsnprintf instead of snprintf to pass the argument list
+	va_list args;
+	// Start extracting arguments based on the format string
+	va_start(args, format);   
+	// Use vsnprintf instead of snprintf to pass the argument list
 	int n_chars = vsnprintf(buffer, MAX_BUFFER_SIZE, format, args);
-    // Clean up the argument list
-    va_end(args);
-    if(n_chars >= MAX_BUFFER_SIZE) {
-        BPPrintMessage(0,odError,"=> Truncation occurred in my_sprintf()\n");
-    	}
-	}
-
-
-void CopyPString(const Str255 src,Str255 dest)
-/* copies a pascal string from src to dest */
-{
-int i,len;
-
-i = 0;
-len = dest[i++] = *src++;
-while(--len >= 0) dest[i++] = *src++;
-}
-
-
-int Pstrcmp(Str255 s1,Str255 s2)
-{
-int i,n1,n2;
-n1 = s1[0]; n2 = s2[0];
-if(n1 != n2) return(-1);
-for(i=1; i <= n1; i++) {
-	if(ByteToInt(s1[i]) != ByteToInt(s2[i])) return(-1);
-	}
-return(0);
-}
-
-
-int MystrcpyStringToTable(char ****p_t,int j,char *s)
-{
-/* register */ int i;
-int imax;
-
-if(p_t == NULL) {
-	BPPrintMessage(0,odError,"=> Err. MystrcpyStringToTable(). p_t = NULL");
-	return(MISSED);
-	}
-imax = (MyGetHandleSize((Handle)(*p_t)[j]) / sizeof(char)) - 1; // Fixed by BB 2021-02-11
-i = -1;
-do {
-	i++;
-	(*((*p_t)[j]))[i] = s[i];
-	}
-while(s[i] != '\0' && i < imax);
-if(s[i] != '\0') {
-	(*((*p_t)[j]))[i] = '\0';
-	if(Beta && s[i] != '\0') BPPrintMessage(0,odError,"=> Err. MystrcpyStringToTable(). s[i] incomplete");
-	}
-return(OK);
-}
-
-
-int MystrcpyTableToString(int imax,char *s,char ****p_t,int j)
-{
-/* register */ int i;
-
-if(p_t == NULL) {
-	BPPrintMessage(0,odError,"=> Err. MystrcpyTableToString(). p_t = NULL");
-	return(MISSED);
-	}
-i = -1;
-do	{
-	i++; s[i] = (*((*p_t)[j]))[i];
-	}
-while(s[i] != '\0' && i < imax-1);
-s[i] = '\0';	/* The content might get truncated */
-return(OK);
-}
-
-
-int MystrcpyStringToHandle(char ***pp_t,char *s)
-{
-long i,imt,ims;
-
-if(s == NULL) {
-	BPPrintMessage(0,odError, "=> Err. MystrcpyStringToHandle(). Input string is NULL\n");
-	return ABORT;
-    }
-ims = utf8_strsize(s) + 1L;
-if(*pp_t == NULL) {
-	if((*pp_t = (char**) GiveSpace((Size)ims * sizeof(char))) == NULL) {
-		BPPrintMessage(0,odError,"=> Err. MystrcpyStringToHandle(). *pp_t == NULL\n");
-		return(ABORT);
+	// Clean up the argument list
+	va_end(args);
+	if(n_chars >= MAX_BUFFER_SIZE) {
+		BPPrintMessage(0,odError,"=> Truncation occurred in my_sprintf()\n");
 		}
 	}
-else {
-	imt = (long) MyGetHandleSize((Handle)*pp_t) / sizeof(char);
-	if(imt < ims) {
-		if(MySetHandleSize((Handle*)pp_t,(Size)ims * sizeof(char)) != OK) {
-			BPPrintMessage(0,odError,"=> Err. MystrcpyStringToHandle(). MySetHandleSize(%ld) failed\n",(long)ims);
+
+
+void CopyPString(const Str255 src,Str255 dest) {
+	/* copies a pascal string from src to dest */
+	int i,len;
+
+	i = 0;
+	len = dest[i++] = *src++;
+	while(--len >= 0) dest[i++] = *src++;
+	}
+
+
+int Pstrcmp(Str255 s1,Str255 s2) {
+	int i,n1,n2;
+	n1 = s1[0]; n2 = s2[0];
+	if(n1 != n2) return(-1);
+	for(i=1; i <= n1; i++) {
+		if(ByteToInt(s1[i]) != ByteToInt(s2[i])) return(-1);
+		}
+	return(0);
+	}
+
+
+int MystrcpyStringToTable(char ****p_t,int j,char *s) {
+	/* register */ int i;
+	int imax;
+
+	if(p_t == NULL) {
+		BPPrintMessage(0,odError,"=> Err. MystrcpyStringToTable(). p_t = NULL");
+		return(MISSED);
+		}
+	imax = (MyGetHandleSize((Handle)(*p_t)[j]) / sizeof(char)) - 1; // Fixed by BB 2021-02-11
+	i = -1;
+	do {
+		i++;
+		(*((*p_t)[j]))[i] = s[i];
+		}
+	while(s[i] != '\0' && i < imax);
+	if(s[i] != '\0') {
+		(*((*p_t)[j]))[i] = '\0';
+		if(Beta && s[i] != '\0') BPPrintMessage(0,odError,"=> Err. MystrcpyStringToTable(). s[i] incomplete");
+		}
+	return(OK);
+	}
+
+
+int MystrcpyTableToString(int imax,char *s,char ****p_t,int j) {
+	/* register */ int i;
+
+	if(p_t == NULL) {
+		BPPrintMessage(0,odError,"=> Err. MystrcpyTableToString(). p_t = NULL");
+		return(MISSED);
+		}
+	i = -1;
+	do	{
+		i++; s[i] = (*((*p_t)[j]))[i];
+		}
+	while(s[i] != '\0' && i < imax-1);
+	s[i] = '\0';	/* The content might get truncated */
+	return(OK);
+	}
+
+
+int MystrcpyStringToHandle(char ***pp_t,char *s) {
+	long i,imt,ims;
+
+	if(s == NULL) {
+		BPPrintMessage(0,odError, "=> Err. MystrcpyStringToHandle(). Input string is NULL\n");
+		return ABORT;
+		}
+	ims = utf8_strsize(s) + 1L;
+	if(*pp_t == NULL) {
+		if((*pp_t = (char**) GiveSpace((Size)ims * sizeof(char))) == NULL) {
+			BPPrintMessage(0,odError,"=> Err. MystrcpyStringToHandle(). *pp_t == NULL\n");
 			return(ABORT);
 			}
 		}
+	else {
+		imt = (long) MyGetHandleSize((Handle)*pp_t) / sizeof(char);
+		if(imt < ims) {
+			if(MySetHandleSize((Handle*)pp_t,(Size)ims * sizeof(char)) != OK) {
+				BPPrintMessage(0,odError,"=> Err. MystrcpyStringToHandle(). MySetHandleSize(%ld) failed\n",(long)ims);
+				return(ABORT);
+				}
+			}
+		}
+	strcpy(**pp_t, s);
+	return(OK);
 	}
-strcpy(**pp_t, s);
-return(OK);
-}
 
 
 int MystrcpyHandleToString(int imax,int offset,char *s,char **p_t) {
@@ -163,71 +158,70 @@ int MystrcpyHandleToString(int imax,int offset,char *s,char **p_t) {
 
 
 int MystrcpyHandleToHandle(int offset,char ***pp_s,char **p_t) {
-// Copy t to s
-long i;
-Size ims = 0,imt = 0;
+	// Copy t to s
+	long i;
+	Size ims = 0,imt = 0;
 
-// Validate input pointers
-    if(pp_s == NULL || *pp_s == NULL) {
-        BPPrintMessage(0,odError, "=> Err. MystrcpyHandleToHandle(). pp_s is NULL\n");
-        return ABORT;
-   		}
-    if(p_t == NULL || *p_t == NULL) {
-        BPPrintMessage(0,odError, "=> Err. MystrcpyHandleToHandle(). p_t is NULL\n");
-        (**pp_s)[0] = '\0';
-        return ABORT;
-   		}
-    // Calculate the length of the source string starting at offset
-    char* source = *p_t + offset;
-    while(source[imt] != '\0') imt++;
+	// Validate input pointers
+		if(pp_s == NULL || *pp_s == NULL) {
+			BPPrintMessage(0,odError, "=> Err. MystrcpyHandleToHandle(). pp_s is NULL\n");
+			return ABORT;
+			}
+		if(p_t == NULL || *p_t == NULL) {
+			BPPrintMessage(0,odError, "=> Err. MystrcpyHandleToHandle(). p_t is NULL\n");
+			(**pp_s)[0] = '\0';
+			return ABORT;
+			}
+		// Calculate the length of the source string starting at offset
+		char* source = *p_t + offset;
+		while(source[imt] != '\0') imt++;
 
-    // If the source string is empty, set destination to empty and exit
-    if(imt == 0) {
-        (**pp_s)[0] = '\0';
-        if(MySetHandleSize((Handle*)pp_s,1) != OK) {
-            BPPrintMessage(0,odError, "=> Err. MySetHandleSize(%ld) in MystrcpyHandleToHandle()\n",(long)imt);
-            return ABORT;
+		// If the source string is empty, set destination to empty and exit
+		if(imt == 0) {
+			(**pp_s)[0] = '\0';
+			if(MySetHandleSize((Handle*)pp_s,1) != OK) {
+				BPPrintMessage(0,odError, "=> Err. MySetHandleSize(%ld) in MystrcpyHandleToHandle()\n",(long)imt);
+				return ABORT;
+				}
+			return OK;
 			}
-        return OK;
-    	}
-    // Include space for null-terminator
-    imt = (imt + 1) * sizeof(char);
-    // Get the current size of the destination handle
-    ims = (long) MyGetHandleSize((Handle)*pp_s);
-    // Resize the destination handle if needed
-    if(imt > ims) {
-        if(MySetHandleSize((Handle*)pp_s, imt) != OK) {
-            BPPrintMessage(0,odError, "=> Err. Err. MySetHandleSize(0) in MystrcpyHandleToHandle()\n");
-            return ABORT;
+		// Include space for null-terminator
+		imt = (imt + 1) * sizeof(char);
+		// Get the current size of the destination handle
+		ims = (long) MyGetHandleSize((Handle)*pp_s);
+		// Resize the destination handle if needed
+		if(imt > ims) {
+			if(MySetHandleSize((Handle*)pp_s, imt) != OK) {
+				BPPrintMessage(0,odError, "=> Err. Err. MySetHandleSize(0) in MystrcpyHandleToHandle()\n");
+				return ABORT;
+				}
 			}
+		// Copy string from source to destination
+		for (i = 0; source[i] != '\0'; i++) (**pp_s)[i] = source[i];
+		(**pp_s)[i] = '\0';  // Ensure null termination
+		return OK;
+	}
+
+
+int GetTextHandle(char ***pp_h,int w) {
+	long i,length;
+
+	if(w < 0 || w >= WMAX || !Editable[w]) {
+		BPPrintMessage(0,odError,"=> Err. GetTextHandle(). Invalid window index");
+		return(MISSED);
 		}
-    // Copy string from source to destination
-    for (i = 0; source[i] != '\0'; i++) (**pp_s)[i] = source[i];
-    (**pp_s)[i] = '\0';  // Ensure null termination
-    return OK;
-	}
-
-
-int GetTextHandle(char ***pp_h,int w)
-{
-long i,length;
-
-if(w < 0 || w >= WMAX || !Editable[w]) {
-	BPPrintMessage(0,odError,"=> Err. GetTextHandle(). Invalid window index");
-	return(MISSED);
-	}
-length = GetTextLength(w);
-if(MySetHandleSize((Handle*)pp_h,(Size)(1L + length) * sizeof(char)) != OK)
-	return(ABORT);
+	length = GetTextLength(w);
+	if(MySetHandleSize((Handle*)pp_h,(Size)(1L + length) * sizeof(char)) != OK)
+		return(ABORT);
 	
-for(i= 0; i < length; i++) {
-	(**pp_h)[i] = GetTextChar(w,i);
-	}
-(**pp_h)[i] = '\0';
+	for(i= 0; i < length; i++) {
+		(**pp_h)[i] = GetTextChar(w,i);
+		}
+	(**pp_h)[i] = '\0';
 
-StripHandle(*pp_h);
-return(OK);
-}
+	StripHandle(*pp_h);
+	return(OK);
+	}
 
 
 int Mystrcmp(char **p_t,char *s) {
@@ -245,20 +239,19 @@ int Mystrcmp(char **p_t,char *s) {
 	}
 
 
-int MyHandlecmp(char **p_t,char **p_s)
-{
-long i;
+int MyHandlecmp(char **p_t,char **p_s) {
+	long i;
 
-i = ZERO;
-if(p_t == NULL || p_s == NULL) {
-	BPPrintMessage(0,odError,"=> Err. MyHandlecmp(). p_t = NULL || p_s = NULL");
+	i = ZERO;
+	if(p_t == NULL || p_s == NULL) {
+		BPPrintMessage(0,odError,"=> Err. MyHandlecmp(). p_t = NULL || p_s = NULL");
+		return(0);
+		}
+	do 
+		if((*p_t)[i] != (*p_s)[i]) return(1);
+	while((*p_s)[i++] != '\0');
 	return(0);
 	}
-do 
-	if((*p_t)[i] != (*p_s)[i]) return(1);
-while((*p_s)[i++] != '\0');
-return(0);
-}
 
 
 int MyHandleLen(char **p_t) {
@@ -282,19 +275,19 @@ int MyHandleLen(char **p_t) {
 
 
 int Strip(char *word) {
-    // Eliminate leading and trailing blanks (including \n, \r, \t)
-    size_t len, start;
-    if (word == NULL || word[0] == '\0') return(OK);
-    len = strlen(word);
-    // Trailing: never go below index 0
-    while (len > 0 && isspace((unsigned char) word[len - 1])) len--;
-    word[len] = '\0';
-    // Leading
-    start = 0;
-    while (start < len && isspace((unsigned char) word[start])) start++;
-    if (start > 0)
-        memmove(word, word + start, len - start + 1);  // +1 copies the '\0'
-    return(OK);
+	// Eliminate leading and trailing blanks (including \n, \r, \t)
+	size_t len, start;
+	if(word == NULL || word[0] == '\0') return(OK);
+	len = strlen(word);
+	// Trailing: never go below index 0
+	while (len > 0 && isspace((unsigned char) word[len - 1])) len--;
+	word[len] = '\0';
+	// Leading
+	start = 0;
+	while (start < len && isspace((unsigned char) word[start])) start++;
+	if(start > 0)
+		memmove(word, word + start, len - start + 1);  // +1 copies the '\0'
+	return(OK);
 	}
 
 void remove_trailing_newline(char *str) {
@@ -307,71 +300,68 @@ void remove_trailing_newline(char *str) {
 	}
 
 
-int StripHandle(char **p_line)
-// Eliminate leading and trailing blanks
-{
-int i,im,j;
+int StripHandle(char **p_line) {
+	// Eliminate leading and trailing blanks
+	int i,im,j;
 
-if(p_line == NULL) {
-	BPPrintMessage(0,odError,"=> Err. StripHandle(). p_line = NULL");
+	if(p_line == NULL) {
+		BPPrintMessage(0,odError,"=> Err. StripHandle(). p_line = NULL");
+		return(OK);
+		}
+	if((*p_line)[0] == '\0') return(OK);
+	j = 0; while(isspace((*p_line)[j])) j++;
+	if(j > 0) {
+		if((im=MyHandleLen(p_line)) == 0) {
+			BPPrintMessage(0,odError,"=> Err. StripHandle(). MyHandleLen(p_line) == 0");
+			return(ABORT);
+			}
+		for(i=j; i <= im; i++) {
+			(*p_line)[i-j] = (*p_line)[i];
+			}
+		}
+	i = MyHandleLen(p_line) - 1;
+	while(isspace((*p_line)[i])) {
+		(*p_line)[i] = '\0'; i--;
+		}
 	return(OK);
 	}
-if((*p_line)[0] == '\0') return(OK);
-j = 0; while(isspace((*p_line)[j])) j++;
-if(j > 0) {
-	if((im=MyHandleLen(p_line)) == 0) {
-		BPPrintMessage(0,odError,"=> Err. StripHandle(). MyHandleLen(p_line) == 0");
-		return(ABORT);
-		}
-	for(i=j; i <= im; i++) {
-		(*p_line)[i-j] = (*p_line)[i];
-		}
-	}
-i = MyHandleLen(p_line) - 1;
-while(isspace((*p_line)[i])) {
-	(*p_line)[i] = '\0'; i--;
-	}
-return(OK);
-}
 
 
 /* FIXME ? This is not "portable". Should we also convert diacriticals?
    If not, then we should just use toupper() instead. */
-char UpperCase(char c)
-{
-if(!isalpha(c)) return(c);
-if(c > 'Z') return(c - ('a' - 'A'));
-else return(c);
-}
+char UpperCase(char c) {
+	if(!isalpha(c)) return(c);
+	if(c > 'Z') return(c - ('a' - 'A'));
+	else return(c);
+	}
 
 
-int UpperCaseString(char* line)
-{
-int i;
+int UpperCaseString(char* line) {
+	int i;
 
-if(line[0] == '\0') return(OK);
-for(i=0; i < strlen(line); i++) line[i] = UpperCase(line[i]);
-return(OK);
-}
+	if(line[0] == '\0') return(OK);
+	for(i=0; i < strlen(line); i++) line[i] = UpperCase(line[i]);
+	return(OK);
+	}
 
 char NextChar(char **pp) {
-    while (MySpace(**pp) && **pp != '\r' && **pp != '\n') {
-        // Get the first byte as an unsigned char for proper range checks.
-        unsigned char c = (unsigned char) **pp;
-        if(c >= 0xF0)
-            // 4-byte UTF-8 character
-            (*pp) += 4;
-        else if(c >= 0xE0)
-            // 3-byte UTF-8 character
-            (*pp) += 3;
-        else if(c >= 0xC0)
-            // 2-byte UTF-8 character
-            (*pp) += 2;
-        else
-            // Single-byte character (ASCII)
-            (*pp)++;
-    	}
-    return **pp;
+	while (MySpace(**pp) && **pp != '\r' && **pp != '\n') {
+		// Get the first byte as an unsigned char for proper range checks.
+		unsigned char c = (unsigned char) **pp;
+		if(c >= 0xF0)
+			// 4-byte UTF-8 character
+			(*pp) += 4;
+		else if(c >= 0xE0)
+			// 3-byte UTF-8 character
+			(*pp) += 3;
+		else if(c >= 0xC0)
+			// 2-byte UTF-8 character
+			(*pp) += 2;
+		else
+			// Single-byte character (ASCII)
+			(*pp)++;
+		}
+	return **pp;
 	}
 
 void MoveOneChar(char **pp) {
@@ -382,41 +372,38 @@ void MoveOneChar(char **pp) {
 	return;
 	}
 
-int CheckEnd(char c)
-{
-if(c == '\0') return(TRUE);
-return(FALSE);
-}
-
-
-char *GetEnd(char** pp)
-{
-while((**pp) != '[' && (**pp) != '\0' && (**pp) != '\n') {
-/*	printf("%c",**pp); */
-	(*pp)++;
+int CheckEnd(char c) {
+	if(c == '\0') return(TRUE);
+	return(FALSE);
 	}
-return(*pp);
-}
 
 
-int FindPattern(char **p_thetarget,char thepattern[],int *p_end)
-{
-char **pp_t,*p_t,*s;
-int i,l;
-
-l = strlen(thepattern);
-pp_t = &p_t;
-*pp_t = thepattern;
-for(i=0; ; i++) {
-	if((*p_thetarget)[i] == '\0') break;
-	s = &((*p_thetarget)[i]);
-	if(Match(TRUE,&s,pp_t,l)) {
-		*p_end = i + l;
-		return(i);
+char *GetEnd(char** pp) {
+	while((**pp) != '[' && (**pp) != '\0' && (**pp) != '\n') {
+	/*	printf("%c",**pp); */
+		(*pp)++;
 		}
+	return(*pp);
 	}
-return(-1);
-}
+
+
+int FindPattern(char **p_thetarget,char thepattern[],int *p_end) {
+	char **pp_t,*p_t,*s;
+	int i,l;
+
+	l = strlen(thepattern);
+	pp_t = &p_t;
+	*pp_t = thepattern;
+	for(i=0; ; i++) {
+		if((*p_thetarget)[i] == '\0') break;
+		s = &((*p_thetarget)[i]);
+		if(Match(TRUE,&s,pp_t,l)) {
+			*p_end = i + l;
+			return(i);
+			}
+		}
+	return(-1);
+	}
 
 
 int Match(int casesensitive,char** p_s,char** p_t,int length) {
@@ -438,62 +425,66 @@ int Match(int casesensitive,char** p_s,char** p_t,int length) {
 
 // Function to calculate the length of a UTF-8 encoded string
 size_t utf8_strlen(const char *s) {
-    size_t length = 0;
-    while (*s) {
-        length++;  // Count each UTF-8 character
-        s += (*s & 0xC0) != 0x80;  // Move to the next character
-    }
-    return length;
-}
+	size_t length = 0;
+	while (*s) {
+		length++;  // Count each UTF-8 character
+		s += (*s & 0xC0) != 0x80;  // Move to the next character
+		}
+	return length;
+	}
 
 // Function to calculate the byte size of a UTF-8 encoded string
 size_t utf8_strsize(const char *s) {
-    size_t byteSize = 0;
-    while (*s) {
-        if((*s & 0x80) == 0) {  // 0xxxxxxx, 1 byte
-            byteSize++;
-        } else if((*s & 0xE0) == 0xC0) {  // 110xxxxx, 2 bytes
-            byteSize += 2;
-        } else if((*s & 0xF0) == 0xE0) {  // 1110xxxx, 3 bytes
-            byteSize += 3;
-        } else if((*s & 0xF8) == 0xF0) {  // 11110xxx, 4 bytes
-            byteSize += 4;
-        }
-        s++;
-    }
-    return byteSize;
-}
+	size_t byteSize = 0;
+	while (*s) {
+		if((*s & 0x80) == 0) {  // 0xxxxxxx, 1 byte
+			byteSize++;
+			}
+		else if((*s & 0xE0) == 0xC0) {  // 110xxxxx, 2 bytes
+			byteSize += 2;
+			}
+		else if((*s & 0xF0) == 0xE0) {  // 1110xxxx, 3 bytes
+			byteSize += 3;
+			}
+		else if((*s & 0xF8) == 0xF0) {  // 11110xxx, 4 bytes
+			byteSize += 4;
+			}
+		s++;
+		}
+	return byteSize;
+	}
 
 
 void convert_path(char* path) {  // Converts a path to forward slashes
-    if(path == NULL) return;
-    int writeIndex = 0;  // This keeps track of where to write in the array
-    for (int readIndex = 0; path[readIndex] != '\0'; readIndex++) {
-        if(path[readIndex] == '\\' && path[readIndex + 1] == '\\') {
-            // When two backslashes are found, skip the next one
-            path[writeIndex++] = '/';  // Replace double backslashes with one forward slash
-            readIndex++;  // Skip the next backslash
-        } else if(path[readIndex] == '\\') {
-            // Single backslash found, convert it to a forward slash
-            path[writeIndex++] = '/';
-        } else {
-            // Normal character, just copy
-            path[writeIndex++] = path[readIndex];
-            }
-        }
-    path[writeIndex] = '\0';  // Null-terminate the modified string
-    }
-
-
-int WriteFloatToLine(char *line,double x)
-{
-if(x >= Infpos) my_sprintf(line,"%ld",(long)Infpos);
-else {
-	if(x == ((long) x)) my_sprintf(line,"%ld",(long)x);
-	else my_sprintf(line,"%.2f",x);
+	if(path == NULL) return;
+	int writeIndex = 0;  // This keeps track of where to write in the array
+	for (int readIndex = 0; path[readIndex] != '\0'; readIndex++) {
+		if(path[readIndex] == '\\' && path[readIndex + 1] == '\\') {
+			// When two backslashes are found, skip the next one
+			path[writeIndex++] = '/';  // Replace double backslashes with one forward slash
+			readIndex++;  // Skip the next backslash
+			}
+		else if(path[readIndex] == '\\') {
+			// Single backslash found, convert it to a forward slash
+			path[writeIndex++] = '/';
+			}
+		else {
+			// Normal character, just copy
+			path[writeIndex++] = path[readIndex];
+			}
+		}
+	path[writeIndex] = '\0';  // Null-terminate the modified string
 	}
-return(OK);
-}
+
+
+int WriteFloatToLine(char *line,double x) {
+	if(x >= Infpos) my_sprintf(line,"%ld",(long)Infpos);
+	else {
+		if(x == ((long) x)) my_sprintf(line,"%ld",(long)x);
+		else my_sprintf(line,"%.2f",x);
+		}
+	return(OK);
+	}
 
 
 void remove_spaces(char *input, char *result) {
@@ -517,26 +508,26 @@ void remove_spaces(char *input, char *result) {
 
 
 void remove_carriage_returns(char *line) {
-    char *src = line, *dst = line;
+	char *src = line, *dst = line;
 	if(line == NULL) {
 		BPPrintMessage(0,odError,"=> Error remove_carriage_returns(). line == NULL\n");
 		return;
 		}
-    while (*src != '\0') {
-        if(*src != '\r') { // Copy over everything that's not a '\r'
-            *dst++ = *src;
-        	}
-        src++;
-    	}
-    *dst = '\0'; // Null-terminate the modified string
+	while (*src != '\0') {
+		if(*src != '\r') { // Copy over everything that's not a '\r'
+			*dst++ = *src;
+			}
+		src++;
+		}
+	*dst = '\0'; // Null-terminate the modified string
 	}
 
 void remove_final_linefeed(char *line) {
-    size_t len = strlen(line);
-    while (len > 0 && (line[len - 1] == '\n' || line[len - 1] == '\r')) {
-        line[--len] = '\0';
-    }
-}
+	size_t len = strlen(line);
+	while (len > 0 && (line[len - 1] == '\n' || line[len - 1] == '\r')) {
+		line[--len] = '\0';
+		}
+	}
 
 /*
 void remove_final_linefeed(char *line) {
@@ -567,11 +558,10 @@ void remove_final_linefeed(char *line) {
 } */
 
 
-char* recode_tags(const char *input)  // Not used
-{
+char* recode_tags(const char *input) {	// Not used
 	char *temp_line1, *temp_line2;
 	temp_line1 = str_replace("<","&lt;",input);
 	temp_line2 = str_replace(">","&gt;",temp_line1);
 	free(temp_line1);
 	return(temp_line2);
-}
+	}

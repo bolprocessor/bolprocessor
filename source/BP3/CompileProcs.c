@@ -39,68 +39,66 @@
 #include "-BP3decl.h"
 
 
-int SkipRem(char **p) 	/* Skip comments between[] or C programming style */
-{
-char c,*ptr;
-int level;
+int SkipRem(char **p) {	/* Skip comments between[] or C programming style */
+	char c,*ptr;
+	int level;
 
 START:
-c = NextChar(p);
-if(c == '\0') return(OK);
-level = 1; ptr = *p;
-if(c == '[' || (c == '/' && ptr[1] == '*')) {
-	if(c == '/') ptr++;
-	while(TRUE) {
-		if(CheckEnd(c)) return(MISSED);
-		ptr++; c = *ptr;
-		if(c == '[') level++;
-		if(c == '/' && ptr[1] == '*') {
-			level++; ptr++;
-			}
-		if(c == ']') level--;
-		if(c == '*' && ptr[1] == '/') {
-			level--; ptr++;
-			}
-		if(level == 0) {
-			ptr++; *p = ptr;
-			goto START;
+	c = NextChar(p);
+	if(c == '\0') return(OK);
+	level = 1; ptr = *p;
+	if(c == '[' || (c == '/' && ptr[1] == '*')) {
+		if(c == '/') ptr++;
+		while(TRUE) {
+			if(CheckEnd(c)) return(MISSED);
+			ptr++; c = *ptr;
+			if(c == '[') level++;
+			if(c == '/' && ptr[1] == '*') {
+				level++; ptr++;
+				}
+			if(c == ']') level--;
+			if(c == '*' && ptr[1] == '/') {
+				level--; ptr++;
+				}
+			if(level == 0) {
+				ptr++; *p = ptr;
+				goto START;
+				}
 			}
 		}
+	*p = ptr;
+	return(OK);
 	}
-*p = ptr;
-return(OK);
-}
 
 
-int FindLeftoffset(tokenbyte **p_left,tokenbyte **p_right,int *p_lenc)
-{
-int moresymbols;
-tokenbyte m,p;
-long i,j;
+int FindLeftoffset(tokenbyte **p_left,tokenbyte **p_right,int *p_lenc) {
+	int moresymbols;
+	tokenbyte m,p;
+	long i,j;
 
-i = *p_lenc = 0;
-if((*p_right)[i] == TEND && (*p_right)[i+1] == TEND) return(0);
-for(i=*p_lenc=0; (*p_left)[i] == T0 && (*p_left)[i+1] == 2
-				&& (*p_right)[i] == T0 && (*p_right)[i+1] == 2; (*p_lenc)++, i+=4){};
-if((*p_left)[i] == TEND && (*p_left)[i+1] == TEND) return(-1);
-for(i = 0; ((m=(*p_left)[i]) == (*p_right)[i])
-	&& ((p=(*p_left)[i+1]) == (*p_right)[i+1])
-	&& (m != TEND || p != TEND); i+=2){};
+	i = *p_lenc = 0;
+	if((*p_right)[i] == TEND && (*p_right)[i+1] == TEND) return(0);
+	for(i=*p_lenc=0; (*p_left)[i] == T0 && (*p_left)[i+1] == 2
+					&& (*p_right)[i] == T0 && (*p_right)[i+1] == 2; (*p_lenc)++, i+=4){};
+	if((*p_left)[i] == TEND && (*p_left)[i+1] == TEND) return(-1);
+	for(i = 0; ((m=(*p_left)[i]) == (*p_right)[i])
+		&& ((p=(*p_left)[i+1]) == (*p_right)[i+1])
+		&& (m != TEND || p != TEND); i+=2){};
 
-moresymbols = 0;
-for(j=i;(*p_left)[j] != TEND || (*p_left)[j+1] != TEND; j+=4) {
-	if((*p_right)[j] == TEND && (*p_right)[j+1] == TEND) break;
-	if((*p_left)[j] == T0 && (*p_left)[j+1] == 2) {	/* Skip neg context */
-		continue;
+	moresymbols = 0;
+	for(j=i;(*p_left)[j] != TEND || (*p_left)[j+1] != TEND; j+=4) {
+		if((*p_right)[j] == TEND && (*p_right)[j+1] == TEND) break;
+		if((*p_left)[j] == T0 && (*p_left)[j+1] == 2) {	/* Skip neg context */
+			continue;
+			}
+		moresymbols = TRUE;
+		break;
 		}
-	moresymbols = TRUE;
-	break;
+	if(!moresymbols) {
+		return(0);
+		}
+	else return(i - 4 * (*p_lenc));
 	}
-if(!moresymbols) {
-	return(0);
-	}
-else return(i - 4 * (*p_lenc));
-}
 
 
 int FindRightoffset(tokenbyte **p_left, tokenbyte **p_right, int *p_lenarg) {
@@ -119,7 +117,7 @@ int FindRightoffset(tokenbyte **p_left, tokenbyte **p_right, int *p_lenarg) {
 	for(i=(imax-2), j=(jmax-2), lerc=0; (*p_left)[i] == T0 && (*p_left)[i+1] == 2
 			&& (*p_right)[j] == T0 && (*p_right)[j+1] == 2; lerc++, i-=2, j-=2){
 	//	BPPrintMessage(0,odInfo,"[%d] %d %d = %d %d\n",i,(*p_left)[i],(*p_left)[i+1],(*p_right)[j],(*p_right)[j+1]);
-			} // Fixed 2024-07-03
+		} // Fixed 2024-07-03
 	for(i=imax,j=jmax,k=0;
 		i >= 0 && j >= 0 && ((*p_left)[i] == (*p_right)[j])
 			&& ((*p_left)[i+1] == (*p_right)[j+1]); k+=2, i-=2, j-=2){};
@@ -228,484 +226,480 @@ int CreateEventScript(char *x,int quick) {
 
 
 long GetArgument(int mode,char **pp,int *p_inc,long *p_initparam,int *p_foundk,
-	double *p_x,long *p_u,long *p_v)
-/* mode = 1 : rule weight (possibly Kx) */
-/* mode = 2 : negative or positive (possibly Kx=y) */
-/* mode = 3 : two integers */
-/* mode = 4 : negative or positive integer */
-/* mode = 5 : negative or positive integer representing 100 times the value */
-/* mode = 6 : negative or positive floating-point value */
-/* mode = 7 : negative or positive floating-point value or ratio */
-{
-int control,sign,dec,isnumber;
-long i,n,num,den;
-char c,d,s,**qq,*q,line[MAXLIN];
-double u,v;
+	double *p_x,long *p_u,long *p_v) {
+	/* mode = 1 : rule weight (possibly Kx) */
+	/* mode = 2 : negative or positive (possibly Kx=y) */
+	/* mode = 3 : two integers */
+	/* mode = 4 : negative or positive integer */
+	/* mode = 5 : negative or positive integer representing 100 times the value */
+	/* mode = 6 : negative or positive floating-point value */
+	/* mode = 7 : negative or positive floating-point value or ratio */
+	int control,sign,dec,isnumber;
+	long i,n,num,den;
+	char c,d,s,**qq,*q,line[MAXLIN];
+	double u,v;
 
-(*p_foundk) = FALSE;
-(*p_inc) = 0;
-if(mode < 1 || mode > 7) {
-	BPPrintMessage(0,odError,"=> Err. GetArgument(). 'mode' out of range");
-	return(INT_MAX);
-	}
-q = &d;
-qq = &q; 
-*qq = *pp;
-(*qq)++;
-while(MySpace(**qq)) (*qq)++;
-
-if(mode == 6) {
-	i = 0; isnumber = TRUE;
-	while((c=(**qq)) != ',' && c != '\0' && c != ')') {
-		if(MySpace(c)) goto NEXTCHAR;
-		line[i++] = c;
-		if(!isdigit(c) && c != '.' && c != '+' && c != '-') isnumber = FALSE;
-		if(i >= MAXLIN) {
-			Print(wTrace,"\nToo long argument in performance control or procedure");
-			return(INT_MAX);
-			}
-NEXTCHAR:
-		(*qq)++;
+	(*p_foundk) = FALSE;
+	(*p_inc) = 0;
+	if(mode < 1 || mode > 7) {
+		BPPrintMessage(0,odError,"=> Err. GetArgument(). 'mode' out of range");
+		return(INT_MAX);
 		}
-	line[i] = '\0';
-	if(isnumber) (*p_x) = Myatof(line,&num,&den);
-	else (*p_x) = 0.;
-	n = 1;	/* dummy value */
-	goto SORTIR;
-	}
-
-if(mode == 7) {
-	i = 0; isnumber = TRUE;
-	while((c=(**qq)) != '\0' && c != ')') {
-		if(MySpace(c)) goto NEXTCHAR2;
-		line[i++] = c;
-		if(!isdigit(c) && c != '.' && c != '+' && c != '-') isnumber = FALSE;
-		if(i >= MAXLIN) {
-			Print(wTrace,"\nToo long argument in performance control or procedure");
-			return(INT_MAX);
-			}
-NEXTCHAR2:
-		(*qq)++;
-		}
-	line[i] = '\0';
-	sign = 1;
-	if(isnumber) {
-		(*p_x) = Myatof(line,p_u,p_v);
-		u = (double) (*p_u);
-		v = (double) (*p_v);
-		}
-	else {
-		(*qq) = (*pp);
-		(*qq)++;
-		n = ZERO;
-		while((c=(**qq)) != '/' && c != ')' && c != '\0') {
-			if(MySpace(c)) goto NEXTCHAR3;
-			if(c == '-') {
-				if(sign == -1 || n > ZERO) return(INT_MAX);
-				sign = -1;
-				goto NEXTCHAR3;
-				}
-			if(!isdigit(c)) return(INT_MAX);
-			n = (10L * n) + c - '0';
-NEXTCHAR3:
-			(*qq)++;
-			}
-		u = (double) n;
-		(*qq)++;
-		n = ZERO;
-		while((c=(**qq)) != ')' && c != '\0') {
-			if(MySpace(c)) goto NEXTCHAR4;
-			if(!isdigit(c)) return(INT_MAX);
-			n = (10L * n) + c - '0';
-NEXTCHAR4:
-			(*qq)++;
-			}
-		if(c != ')') return(INT_MAX);
-		if(n <= ZERO) return(INT_MAX);
-		v = (double) n;
-		}
-	Simplify((double)INT_MAX,u,v,&u,&v);
-	(*p_u) = (long) (u * sign);
-	(*p_v) = (long) v;
-	n = 1;	/* dummy value */
-	goto SORTIR;
-	}
-
-control = 0;
-if((**qq) == 'K' && mode != 3 && mode != 4) {
-	(*p_foundk) = TRUE;
-	if(mode == 5) {
-		Println(wTrace,"\n'_transpose(Kx)' is no longer a valid syntax...");
-		}
-	control = 1;
-	*p_initparam = INT_MAX;
+	q = &d;
+	qq = &q; 
+	*qq = *pp;
 	(*qq)++;
-	}
-sign = 1;
-if(mode == 2 || mode == 4 || mode == 5) {
-	if((**qq) == '+') (*qq)++;
-	else if((**qq) == '-') {
-		(*qq)++; sign = -1;
-		}
 	while(MySpace(**qq)) (*qq)++;
-	}
+
+	if(mode == 6) {
+		i = 0; isnumber = TRUE;
+		while((c=(**qq)) != ',' && c != '\0' && c != ')') {
+			if(MySpace(c)) goto NEXTCHAR;
+			line[i++] = c;
+			if(!isdigit(c) && c != '.' && c != '+' && c != '-') isnumber = FALSE;
+			if(i >= MAXLIN) {
+				Print(wTrace,"\nToo long argument in performance control or procedure");
+				return(INT_MAX);
+				}
+NEXTCHAR:
+			(*qq)++;
+			}
+		line[i] = '\0';
+		if(isnumber) (*p_x) = Myatof(line,&num,&den);
+		else (*p_x) = 0.;
+		n = 1;	/* dummy value */
+		goto SORTIR;
+		}
+
+	if(mode == 7) {
+		i = 0; isnumber = TRUE;
+		while((c=(**qq)) != '\0' && c != ')') {
+			if(MySpace(c)) goto NEXTCHAR2;
+			line[i++] = c;
+			if(!isdigit(c) && c != '.' && c != '+' && c != '-') isnumber = FALSE;
+			if(i >= MAXLIN) {
+				Print(wTrace,"\nToo long argument in performance control or procedure");
+				return(INT_MAX);
+				}
+NEXTCHAR2:
+			(*qq)++;
+			}
+		line[i] = '\0';
+		sign = 1;
+		if(isnumber) {
+			(*p_x) = Myatof(line,p_u,p_v);
+			u = (double) (*p_u);
+			v = (double) (*p_v);
+			}
+		else {
+			(*qq) = (*pp);
+			(*qq)++;
+			n = ZERO;
+			while((c=(**qq)) != '/' && c != ')' && c != '\0') {
+				if(MySpace(c)) goto NEXTCHAR3;
+				if(c == '-') {
+					if(sign == -1 || n > ZERO) return(INT_MAX);
+					sign = -1;
+					goto NEXTCHAR3;
+					}
+				if(!isdigit(c)) return(INT_MAX);
+				n = (10L * n) + c - '0';
+NEXTCHAR3:
+				(*qq)++;
+				}
+			u = (double) n;
+			(*qq)++;
+			n = ZERO;
+			while((c=(**qq)) != ')' && c != '\0') {
+				if(MySpace(c)) goto NEXTCHAR4;
+				if(!isdigit(c)) return(INT_MAX);
+				n = (10L * n) + c - '0';
+NEXTCHAR4:
+				(*qq)++;
+				}
+			if(c != ')') return(INT_MAX);
+			if(n <= ZERO) return(INT_MAX);
+			v = (double) n;
+			}
+		Simplify((double)INT_MAX,u,v,&u,&v);
+		(*p_u) = (long) (u * sign);
+		(*p_v) = (long) v;
+		n = 1;	/* dummy value */
+		goto SORTIR;
+		}
+
+	control = 0;
+	if((**qq) == 'K' && mode != 3 && mode != 4) {
+		(*p_foundk) = TRUE;
+		if(mode == 5) {
+			Println(wTrace,"\n'_transpose(Kx)' is no longer a valid syntax...");
+			}
+		control = 1;
+		*p_initparam = INT_MAX;
+		(*qq)++;
+		}
+	sign = 1;
+	if(mode == 2 || mode == 4 || mode == 5) {
+		if((**qq) == '+') (*qq)++;
+		else if((**qq) == '-') {
+			(*qq)++; sign = -1;
+			}
+		while(MySpace(**qq)) (*qq)++;
+		}
 	
 READ:
-dec = -1;
-for(n=ZERO; (c=(**qq)) != ')' && c != '>' && c != '-' && c != '+'
-		&& c != '=' && c != ',' && !MySpace(c); (*qq)++) {
-	if(!control && (mode == 1) && (c == 'i' || c == -80)) {
-		/* Infinite weight: <inf> (preferred) or legacy <\xb0> (Latin-1 only) */
-		if(c == 'i' && *((*qq)+1) == 'n' && *((*qq)+2) == 'f') {
-			(*qq) += 3;
-			}
-		else if(c == -80) {
-			(*qq)++;
-			}
-		else goto NOT_INF;
-		n = INT_MIN;		/* Infinite weight */
-		while(MySpace(**qq)) (*qq)++;
-		if((**qq) != '>') return(INT_MAX);
-		goto SORTIR;
-	NOT_INF: ;
-		}
-	if(c == '.' && mode == 5) {
-		dec = 0; continue;
-		}
-	if(!isdigit(c)) return(INT_MAX);
-	n = (10L * n) + c - '0';
-	if(dec > -1) dec++;
-	}
-// if(trace_scale) BPPrintMessage(0,odInfo,"GetArgument() n = %d\n",n);
-if(control) n = - n - 1;
-while(MySpace(**qq)) (*qq)++;
-if((mode == 2 || mode == 3) && (**qq) == ')') {
-	n = sign * n;
-	goto SORTIR;
-	}
-if((mode == 4 || mode == 5) && (**qq) == ')') {
-	*p_initparam = (long) sign * n;
-	if(mode == 5) (*p_inc) = dec;
-	goto SORTIR;
-	}
-if(mode == 3 && (**qq) == ',') {
-	(*qq)++;
-	(*p_inc) = sign * n;	/* In general, p_inc has another meaning here. */
-	goto READ;
-	}
-if(mode == 1 && ((**qq) == '>')) goto SORTIR;
-
-s = **qq;
-if(s == '=') {
-	(*qq)++;
-	if(!control) return(INT_MAX);
-	while(MySpace(**qq)) (*qq)++;
-	sign = 1;
-	for(i=ZERO; (((mode == 2 && (**qq) != ')')) || ((mode == 1 && (**qq) != '>' && (**qq) != '+'
-			&& (**qq) != '-') && !MySpace(**qq))); (*qq)++) {
-		c = **qq;
-		if(c == '+') {
-			if(sign == -1) return(INT_MAX); 
-			else continue;
-			}
-		if(c == '-') {
-			if(sign == -1) return(INT_MAX); 
-			else {
-				sign = -1;
-				continue;
+	dec = -1;
+	for(n=ZERO; (c=(**qq)) != ')' && c != '>' && c != '-' && c != '+'
+			&& c != '=' && c != ',' && !MySpace(c); (*qq)++) {
+		if(!control && (mode == 1) && (c == 'i' || c == -80)) {
+			/* Infinite weight: <inf> (preferred) or legacy <\xb0> (Latin-1 only) */
+			if(c == 'i' && *((*qq)+1) == 'n' && *((*qq)+2) == 'f') {
+				(*qq) += 3;
 				}
+			else if(c == -80) {
+				(*qq)++;
+				}
+			else goto NOT_INF;
+			n = INT_MIN;		/* Infinite weight */
+			while(MySpace(**qq)) (*qq)++;
+			if((**qq) != '>') return(INT_MAX);
+			goto SORTIR;
+		NOT_INF: ;
+			}
+		if(c == '.' && mode == 5) {
+			dec = 0; continue;
 			}
 		if(!isdigit(c)) return(INT_MAX);
-		i = (10L * i) + c - '0';
+		n = (10L * n) + c - '0';
+		if(dec > -1) dec++;
 		}
-	*p_initparam = (long) (i * sign);
-	while(MySpace(**qq)) (*qq)++; s = **qq;
-	if(mode == 2) {
-		if((**qq) == ')') goto SORTIR;
-		else return(INT_MAX);
+	// if(trace_scale) BPPrintMessage(0,odInfo,"GetArgument() n = %d\n",n);
+	if(control) n = - n - 1;
+	while(MySpace(**qq)) (*qq)++;
+	if((mode == 2 || mode == 3) && (**qq) == ')') {
+		n = sign * n;
+		goto SORTIR;
 		}
-	if(mode == 1 && (**qq) == '>') goto SORTIR;
-	(*qq)++;
-	}
-	
-while(MySpace(**qq)) (*qq)++;
+	if((mode == 4 || mode == 5) && (**qq) == ')') {
+		*p_initparam = (long) sign * n;
+		if(mode == 5) (*p_inc) = dec;
+		goto SORTIR;
+		}
+	if(mode == 3 && (**qq) == ',') {
+		(*qq)++;
+		(*p_inc) = sign * n;	/* In general, p_inc has another meaning here. */
+		goto READ;
+		}
+	if(mode == 1 && ((**qq) == '>')) goto SORTIR;
 
-s = **qq;
-if(s == '>') goto SORTIR;
-if(s != '+' && s != '-') return(INT_MAX);
-(*qq)++;
-while(MySpace(**qq)) (*qq)++;
-for(i=0; (**qq) != '>' && !MySpace(**qq); (*qq)++) {
-	c = **qq;
-	if(!isdigit(c)) return(INT_MAX);
-	i = (10 * i) + c - '0';
-	}
-if(s == '-') i = -i;
-(*p_inc) = i;
-while((**qq) != '>') {
-	if(!MySpace(**qq)) return(INT_MAX);
+	s = **qq;
+	if(s == '=') {
+		(*qq)++;
+		if(!control) return(INT_MAX);
+		while(MySpace(**qq)) (*qq)++;
+		sign = 1;
+		for(i=ZERO; (((mode == 2 && (**qq) != ')')) || ((mode == 1 && (**qq) != '>' && (**qq) != '+'
+				&& (**qq) != '-') && !MySpace(**qq))); (*qq)++) {
+			c = **qq;
+			if(c == '+') {
+				if(sign == -1) return(INT_MAX); 
+				else continue;
+				}
+			if(c == '-') {
+				if(sign == -1) return(INT_MAX); 
+				else {
+					sign = -1;
+					continue;
+					}
+				}
+			if(!isdigit(c)) return(INT_MAX);
+			i = (10L * i) + c - '0';
+			}
+		*p_initparam = (long) (i * sign);
+		while(MySpace(**qq)) (*qq)++; s = **qq;
+		if(mode == 2) {
+			if((**qq) == ')') goto SORTIR;
+			else return(INT_MAX);
+			}
+		if(mode == 1 && (**qq) == '>') goto SORTIR;
+		(*qq)++;
+		}
+	
+	while(MySpace(**qq)) (*qq)++;
+
+	s = **qq;
+	if(s == '>') goto SORTIR;
+	if(s != '+' && s != '-') return(INT_MAX);
 	(*qq)++;
-	}
+	while(MySpace(**qq)) (*qq)++;
+	for(i=0; (**qq) != '>' && !MySpace(**qq); (*qq)++) {
+		c = **qq;
+		if(!isdigit(c)) return(INT_MAX);
+		i = (10 * i) + c - '0';
+		}
+	if(s == '-') i = -i;
+	(*p_inc) = i;
+	while((**qq) != '>') {
+		if(!MySpace(**qq)) return(INT_MAX);
+		(*qq)++;
+		}
 
 SORTIR:
-(*qq)++;
-*pp = *qq;
-return(n);
-}
-
-
-int GetNilString(char **pp)
-{
-int i,d;
-char *p;
-for(d=0; d < MAXNIL && utf8_strsize(NilString[d]) > 0; d++) {
-	p = *pp; i = 0;
-	while(i < utf8_strsize(NilString[d]) && ((*p) == NilString[d][i])) {
-		i++; p++;
-		}
-	if(i == utf8_strsize(NilString[d]) && (MySpace(*p) || (*p) == '\0')) {
-		*pp = p;
-		NotBPCase[0] = TRUE;
-		return(OK);
-		}
+	(*qq)++;
+	*pp = *qq;
+	return(n);
 	}
-return(MISSED);
-}
 
 
-int GetMode(char **pp, int type)
-{
-int i,j,mode;
-char c,d,*p;
-
-mode = 0;  /* default 'RND' */
-for(j=0; j < MAXMODE && strlen(Mode[j]) > 0; j++) {
-	p = *pp; i = 0;
-	while(i < strlen(Mode[j])
-		&& (((c=(*p)) == (d=Mode[j][i]))
-		|| (UpperCase(c) == d))) {
-		i++; p++;
+int GetNilString(char **pp) {
+	int i,d;
+	char *p;
+	for(d=0; d < MAXNIL && utf8_strsize(NilString[d]) > 0; d++) {
+		p = *pp; i = 0;
+		while(i < utf8_strsize(NilString[d]) && ((*p) == NilString[d][i])) {
+			i++; p++;
+			}
+		if(i == utf8_strsize(NilString[d]) && (MySpace(*p) || (*p) == '\0')) {
+			*pp = p;
+			NotBPCase[0] = TRUE;
+			return(OK);
+			}
 		}
-	if(i == strlen(Mode[j])) {
-		*pp = p;
-		mode = j;
-		break;
+	return(MISSED);
+	}
+
+
+int GetMode(char **pp, int type) {
+	int i,j,mode;
+	char c,d,*p;
+
+	mode = 0;  /* default 'RND' */
+	for(j=0; j < MAXMODE && strlen(Mode[j]) > 0; j++) {
+		p = *pp; i = 0;
+		while(i < strlen(Mode[j])
+			&& (((c=(*p)) == (d=Mode[j][i]))
+			|| (UpperCase(c) == d))) {
+			i++; p++;
+			}
+		if(i == strlen(Mode[j])) {
+			*pp = p;
+			mode = j;
+			break;
+			}
 		}
-	}
-if(type == ORDtype) {
-	if(mode == j) return(mode);
-	else return(1);	/* default 'LEFT' */
-	}
-if(type == LINtype || type == SUB1type || type == POSLONGtype) {
-	if(mode == j && mode != 1) {
-		my_sprintf(Message,"\n'%s' ignored in this rule.  Forced to 'LEFT' because of subgrammar type.",
-			Mode[mode]);
-		Print(wTrace,Message);
-		return(-1);
+	if(type == ORDtype) {
+		if(mode == j) return(mode);
+		else return(1);	/* default 'LEFT' */
 		}
-	mode = 1;
+	if(type == LINtype || type == SUB1type || type == POSLONGtype) {
+		if(mode == j && mode != 1) {
+			my_sprintf(Message,"\n'%s' ignored in this rule.  Forced to 'LEFT' because of subgrammar type.",
+				Mode[mode]);
+			Print(wTrace,Message);
+			return(-1);
+			}
+		mode = 1;
+		}
+	return(mode);
 	}
-return(mode);
-}
 
 
-int SkipGramProc(char **pp)
-{
-int i,j,found;
-long y;
-char *p;
-double x;
+int SkipGramProc(char **pp) {
+	int i,j,found;
+	long y;
+	char *p;
+	double x;
 
-found = FALSE;
-if(NextChar(pp) != '_') return(MISSED);
-while((j=GetProcedure(-1,pp,0,&i,&i,&x,&y)) != RESUME) {
-	if(j >= 0) found = TRUE;
-	if(j == ABORT) return(j);
+	found = FALSE;
+	if(NextChar(pp) != '_') return(MISSED);
+	while((j=GetProcedure(-1,pp,0,&i,&i,&x,&y)) != RESUME) {
+		if(j >= 0) found = TRUE;
+		if(j == ABORT) return(j);
+		}
+	p = *pp;
+	while(MySpace(*p)) p++;
+	*pp = p;
+	if(found && (*p == '\0' || *p == '[')) return(OK);
+	return(MISSED);
 	}
-p = *pp;
-while(MySpace(*p)) p++;
-*pp = p;
-if(found && (*p == '\0' || *p == '[')) return(OK);
-return(MISSED);
-}
 
 
 int GetProcedure(int igram,char **pp,int arg_nr,int *p_igram,int *p_irul,double *p_x,
 	long *p_y) {
-/* arg_nr = 0 : searching for procedure on top of a subgrammar */
+	/* arg_nr = 0 : searching for procedure on top of a subgrammar */
 
-int i,im,j,jproc,k,incweight,length,foundk;
-long initparam,u,v;
-char c,d,*p,*q,*ptr;
+	int i,im,j,jproc,k,incweight,length,foundk;
+	long initparam,u,v;
+	char c,d,*p,*q,*ptr;
 
-if(arg_nr > 2) {
-	Print(wTrace,"\nCan't accept rule procedure in glossary.");
-	return(ABORT);
-	}
-if((**pp) == '\0') return(RESUME);
-jproc = -1; im = 0;
-*p_igram = *p_irul = 0;
-for(j=0; j < MaxProc; j++) {
-	p = *pp; i = 0; length = MyHandleLen((*p_GramProcedure)[j]);
-	while(MySpace(*p)) p++;
-	while(i < length && (((c=(*p)) == (d=(*((*p_GramProcedure)[j]))[i]))
-				|| (d == UpperCase(c)) || (c == UpperCase(d)))) {
-		i++; p++;
+	if(arg_nr > 2) {
+		Print(wTrace,"\nCan't accept rule procedure in glossary.");
+		return(ABORT);
 		}
-	if(i == length && i > im) {
-		jproc = j; im = i; q = p;
+	if((**pp) == '\0') return(RESUME);
+	jproc = -1; im = 0;
+	*p_igram = *p_irul = 0;
+	for(j=0; j < MaxProc; j++) {
+		p = *pp; i = 0; length = MyHandleLen((*p_GramProcedure)[j]);
+		while(MySpace(*p)) p++;
+		while(i < length && (((c=(*p)) == (d=(*((*p_GramProcedure)[j]))[i]))
+					|| (d == UpperCase(c)) || (c == UpperCase(d)))) {
+			i++; p++;
+			}
+		if(i == length && i > im) {
+			jproc = j; im = i; q = p;
+			}
 		}
-	}
-if(jproc == -1) return(RESUME);
-p = q;
+	if(jproc == -1) return(RESUME);
+	p = q;
 
-switch(jproc) {
-	case 0:	/* _goto */
-	case 1:	/* _failed */
-	case 2:	/* _repeat */
-		NotBPCase[7] = TRUE;
-	/*	if(AllItems) {
-			BPPrintMessage(0,odError,"=> Cannot produce all items because this grammar contains a '%s' instruction\n",*((*p_GramProcedure)[jproc]));
-			return(ABORT);
-			} */
-		/* no break */
-	case 16:	/* _srand */
-		if(jproc != 16 && arg_nr != 2) {
-			my_sprintf(Message,"\n'%s' may only occur be in the right argument or a rule.",
-				*((*p_GramProcedure)[jproc]));
-			Print(wTrace,Message);
-			return(ABORT);
-			}
-		if((*p) != '(') {
-			Expect('(',*((*p_GramProcedure)[jproc]),*p);
-			return(ABORT);
-			}
-		if(jproc == 16) {
-			if(arg_nr != 0) return(jproc);	/* This won't be used. _srand() actually belongs to the left argument */
-			if((k=GetArgument(4,&p,&incweight,&initparam,&foundk,p_x,&u,&v)) == INT_MAX) {
-				Print(wTrace,"\nIncorrect or missing argument after '_srand'");
+	switch(jproc) {
+		case 0:	/* _goto */
+		case 1:	/* _failed */
+		case 2:	/* _repeat */
+			NotBPCase[7] = TRUE;
+		/*	if(AllItems) {
+				BPPrintMessage(0,odError,"=> Cannot produce all items because this grammar contains a '%s' instruction\n",*((*p_GramProcedure)[jproc]));
 				return(ABORT);
-				}
-			if(initparam < 0 || initparam > 32767) {
-				my_sprintf(Message,"\nIncorrect argument in '_srand(%ld)'. Range is 0..32767",
-					(long)initparam);
+				} */
+			/* no break */
+		case 16:	/* _srand */
+			if(jproc != 16 && arg_nr != 2) {
+				my_sprintf(Message,"\n'%s' may only occur be in the right argument or a rule.",
+					*((*p_GramProcedure)[jproc]));
 				Print(wTrace,Message);
 				return(ABORT);
 				}
-			(*p_y) = initparam;
-			*pp = p;
-			return(jproc);
-			break;
-			}
-		if(jproc == 2) {	/* _repeat */
-			if((k=GetArgument(2,&p,&incweight,&initparam,&foundk,p_x,&u,&v)) == INT_MAX) {
-				Print(wTrace,"\nIncorrect or missing argument after '_repeat'");
+			if((*p) != '(') {
+				Expect('(',*((*p_GramProcedure)[jproc]),*p);
 				return(ABORT);
 				}
-			else {
-				if(foundk) {
-					i = - k - 1;
-					if(i < 1 || i >= MAXPARAMCTRL) {
-						my_sprintf(Message,"\n'<K%ld>' not accepted. Range [1,%ld]\n",(long)i,(long)MAXPARAMCTRL-1);
-						Print(wTrace,Message);
-						return(ABORT);
-						}
-					*p_irul = i;
-					if(initparam == INT_MAX) {
-						k = ParamInit[i];
-						}
-					else {	/* Found '<Kx=y>' */
-						k = 1;
-						if(ParamInit[i] == INT_MAX) ParamInit[i] = ParamValue[i] = initparam;
-						else {
-							if(ParamInit[i] != initparam) {
-								my_sprintf(Message,
-									"\nInitial value of '<K%ld>' already set to %ld...",
-										(long)i,(long)ParamInit[i]);
-								Print(wTrace,Message);
-								return(ABORT);
+			if(jproc == 16) {
+				if(arg_nr != 0) return(jproc);	/* This won't be used. _srand() actually belongs to the left argument */
+				if((k=GetArgument(4,&p,&incweight,&initparam,&foundk,p_x,&u,&v)) == INT_MAX) {
+					Print(wTrace,"\nIncorrect or missing argument after '_srand'");
+					return(ABORT);
+					}
+				if(initparam < 0 || initparam > 32767) {
+					my_sprintf(Message,"\nIncorrect argument in '_srand(%ld)'. Range is 0..32767",
+						(long)initparam);
+					Print(wTrace,Message);
+					return(ABORT);
+					}
+				(*p_y) = initparam;
+				*pp = p;
+				return(jproc);
+				break;
+				}
+			if(jproc == 2) {	/* _repeat */
+				if((k=GetArgument(2,&p,&incweight,&initparam,&foundk,p_x,&u,&v)) == INT_MAX) {
+					Print(wTrace,"\nIncorrect or missing argument after '_repeat'");
+					return(ABORT);
+					}
+				else {
+					if(foundk) {
+						i = - k - 1;
+						if(i < 1 || i >= MAXPARAMCTRL) {
+							my_sprintf(Message,"\n'<K%ld>' not accepted. Range [1,%ld]\n",(long)i,(long)MAXPARAMCTRL-1);
+							Print(wTrace,Message);
+							return(ABORT);
+							}
+						*p_irul = i;
+						if(initparam == INT_MAX) {
+							k = ParamInit[i];
+							}
+						else {	/* Found '<Kx=y>' */
+							k = 1;
+							if(ParamInit[i] == INT_MAX) ParamInit[i] = ParamValue[i] = initparam;
+							else {
+								if(ParamInit[i] != initparam) {
+									my_sprintf(Message,
+										"\nInitial value of '<K%ld>' already set to %ld...",
+											(long)i,(long)ParamInit[i]);
+									Print(wTrace,Message);
+									return(ABORT);
+									}
 								}
 							}
 						}
 					}
 				}
-			}
-		else {
-			p++; k = 0;
-			while((c=(*p)) != ',') {
+			else {
+				p++; k = 0;
+				while((c=(*p)) != ',') {
+					c -= '0';
+					if(c >= 0 && c <= 9) k = 10 * k + c;
+					else {
+						Print(wTrace,"\nInvalid grammar index after '_goto' or '_failed'");
+						return(ABORT);
+						}
+					p++;
+					}
+				}
+			*p_igram = k; p++;
+			if(jproc == 2) {	/* _repeat */
+				*pp = p; return(jproc);
+				}
+			k = 0;
+			while((c=(*p)) != ')') {
 				c -= '0';
 				if(c >= 0 && c <= 9) k = 10 * k + c;
 				else {
-					Print(wTrace,"\nInvalid grammar index after '_goto' or '_failed'");
+					Print(wTrace,"\nInvalid rule index after '_goto' or '_failed'");
 					return(ABORT);
 					}
 				p++;
 				}
-			}
-		*p_igram = k; p++;
-		if(jproc == 2) {	/* _repeat */
-			*pp = p; return(jproc);
-			}
-		k = 0;
-		while((c=(*p)) != ')') {
-			c -= '0';
-			if(c >= 0 && c <= 9) k = 10 * k + c;
-			else {
-				Print(wTrace,"\nInvalid rule index after '_goto' or '_failed'");
+			*p_irul = k; p++;
+			*pp = p;
+			return(jproc);
+			break;
+		case 11:	/* _destru */
+			NotBPCase[7] = TRUE;
+			if(arg_nr == 1) {
+				my_sprintf(Message,"\n'%s' should be on top of a subgrammar or in the right argument of a rule.",
+					*((*p_GramProcedure)[jproc]));
+				Print(wTrace,Message);
+				return(ABORT);
+				}
+		case 12:	/* _randomize */
+			if(arg_nr > 0) return(RESUME);
+		case 3:		/* _stop */
+		case 4:		/* _print */
+		case 5:		/* _printOn */
+		case 6:		/* _printOff */
+		case 7:		/* _stepOn */
+		case 8:		/* _stepOff */
+		case 9:		/* _traceOn */
+		case 10:	/* _traceOff */
+		case 14:	/* _striated */
+		case 15:	/* _smooth */
+			break;
+		case 13:	/* _mm */
+			if((igram > 1 || arg_nr > 0) && (jproc == 14 || jproc == 15 || jproc == 13)) {
+				my_sprintf(Message,"\n'%s' should always be on top of the first subgrammar.",
+					*((*p_GramProcedure)[jproc]));
+				Println(wTrace,Message);
+				}
+			if((*p) != '(') {
+				Expect('(',*((*p_GramProcedure)[jproc]),*p);
+				return(ABORT);
+				}
+			if((k=GetArgument(6,&p,&incweight,&initparam,&foundk,p_x,&u,&v)) == INT_MAX) {
+				Print(wTrace,"\nIncorrect or missing argument after '_mm'");
+				return(ABORT);
+				}
+			p--;
+			if((*p) != ')') {
+				Expect(')',*((*p_GramProcedure)[jproc]),*p);
 				return(ABORT);
 				}
 			p++;
-			}
-		*p_irul = k; p++;
-		*pp = p;
-		return(jproc);
-		break;
-	case 11:	/* _destru */
-		NotBPCase[7] = TRUE;
-		if(arg_nr == 1) {
-			my_sprintf(Message,"\n'%s' should be on top of a subgrammar or in the right argument of a rule.",
-				*((*p_GramProcedure)[jproc]));
-			Print(wTrace,Message);
-			return(ABORT);
-			}
-	case 12:	/* _randomize */
-		if(arg_nr > 0) return(RESUME);
-	case 3:		/* _stop */
-	case 4:		/* _print */
-	case 5:		/* _printOn */
-	case 6:		/* _printOff */
-	case 7:		/* _stepOn */
-	case 8:		/* _stepOff */
-	case 9:		/* _traceOn */
-	case 10:	/* _traceOff */
-	case 14:	/* _striated */
-	case 15:	/* _smooth */
-		break;
-	case 13:	/* _mm */
-		if((igram > 1 || arg_nr > 0) && (jproc == 14 || jproc == 15 || jproc == 13)) {
-			my_sprintf(Message,"\n'%s' should always be on top of the first subgrammar.",
-				*((*p_GramProcedure)[jproc]));
-			Println(wTrace,Message);
-			}
-		if((*p) != '(') {
-			Expect('(',*((*p_GramProcedure)[jproc]),*p);
-			return(ABORT);
-			}
-		if((k=GetArgument(6,&p,&incweight,&initparam,&foundk,p_x,&u,&v)) == INT_MAX) {
-			Print(wTrace,"\nIncorrect or missing argument after '_mm'");
-			return(ABORT);
-			}
-		p--;
-		if((*p) != ')') {
-			Expect(')',*((*p_GramProcedure)[jproc]),*p);
-			return(ABORT);
-			}
-		p++;
-		break;
+			break;
+		}
+	*pp = p;
+	return(jproc);
 	}
-*pp = p;
-return(jproc);
-}
 
 
 int GetPerformanceControl(char **pp,int arg_nr,int *p_n,int quick,long *p_u,long *p_v,
@@ -1534,308 +1528,302 @@ int GetPerformanceControl(char **pp,int arg_nr,int *p_n,int quick,long *p_u,long
 	}
 
 
-	int GetSubgramType(char **pp)
-	{
-	int i,jtype;
-	char c,d,*p;
-	for(jtype = 0; jtype < MAXTYPE && strlen(SubgramType[jtype]) > 0; jtype++) {
-		p = *pp; i = 0;
-		while(MySpace(*p)) p++;
-		while(i < strlen(SubgramType[jtype]) &&
-			(((c=(*p)) == (d=SubgramType[jtype][i]))
-				|| (UpperCase(c) == d))) {
-			i++; p++;
+	int GetSubgramType(char **pp) {
+		int i,jtype;
+		char c,d,*p;
+		for(jtype = 0; jtype < MAXTYPE && strlen(SubgramType[jtype]) > 0; jtype++) {
+			p = *pp; i = 0;
+			while(MySpace(*p)) p++;
+			while(i < strlen(SubgramType[jtype]) &&
+				(((c=(*p)) == (d=SubgramType[jtype][i]))
+					|| (UpperCase(c) == d))) {
+				i++; p++;
+				}
+			if((i == strlen(SubgramType[jtype]) && ((*p) == '\0' || MySpace(*p) || (*p) == '['))) {
+				*pp = p;
+				if(jtype == SUBtype || jtype == SUB1type || jtype == POSLONGtype) NotBPCase[2] = TRUE;
+				return(jtype);
+				}
 			}
-		if((i == strlen(SubgramType[jtype]) && ((*p) == '\0' || MySpace(*p) || (*p) == '['))) {
-			*pp = p;
-			if(jtype == SUBtype || jtype == SUB1type || jtype == POSLONGtype) NotBPCase[2] = TRUE;
-			return(jtype);
+		return(-1);
+		}
+
+
+int GetArg(char **pp, char **qq1, char **qq2, char **qq3, char **qq4) {
+	// Get pointers delimitating the two arguments of a rule:
+	// *qq1 is the beginning of the first argument
+	// *qq2 is the end of the first argument
+	// *qq3 is the beginning of the second argument
+	// *qq4 is the end of the second argument
+	int operator,i2,i3;
+	char x[ARROWLENGTH+1];
+
+	*qq1 = *pp;
+	for(operator=0; operator < MAXARROW && strlen(Arrow[operator]) > 0; operator++) {
+		strcpy(x,Arrow[operator]);
+		strcat(x," ");	// This helps discriminating --> from '-->'
+		if((i2 = FindPattern(qq1,x,&i3)) > 0) {
+			*qq2 = &((*qq1)[i2-1]);
+			*qq3 = &((*qq1)[i3]);
+			*qq4 = *qq3;
+			*qq4 = GetEnd(qq4);
+			if(operator == 0 || operator == 2) {
+				NotBPCase[3] = FALSE; // '<->', '<--'
+				// This rule is valid for analysis
+				}
+			return(operator);
+			}
+		}
+	for(operator=0; operator < MAXARROW && strlen(Arrow[operator]) > 0; operator++) {
+		strcpy(x,Arrow[operator]);	/* This search is only useful if |arg2| = 0 */
+		if((i2 = FindPattern(qq1,x,&i3)) > 0) {
+			*qq2 = &((*qq1)[i2-1]);
+			*qq3 = &((*qq1)[i3]);
+			*qq4 = *qq3;
+			*qq4 = GetEnd(qq4);
+			NotBPCase[0] = TRUE;	/* Erase rule */
+			return(operator);
 			}
 		}
 	return(-1);
 	}
 
 
-int GetArg(char **pp, char **qq1, char **qq2, char **qq3, char **qq4)
-// Get pointers delimitating the two arguments of a rule:
-// *qq1 is the beginning of the first argument
-// *qq2 is the end of the first argument
-// *qq3 is the beginning of the second argument
-// *qq4 is the end of the second argument
-{
-int operator,i2,i3;
-char x[ARROWLENGTH+1];
+int NumberWildCards(tokenbyte **p_Q) {
+	int i,n;
+	for(i=0,n=0; (*p_Q)[i] != TEND || (*p_Q)[i+1] != TEND; i+=2)
+		if((*p_Q)[i] == T0 && (*p_Q)[i+1] == 1) n++;
+	return(n);
+	}
 
-*qq1 = *pp;
-for(operator=0; operator < MAXARROW && strlen(Arrow[operator]) > 0; operator++) {
-	strcpy(x,Arrow[operator]);
-	strcat(x," ");	// This helps discriminating --> from '-->'
-	if((i2 = FindPattern(qq1,x,&i3)) > 0) {
-		*qq2 = &((*qq1)[i2-1]);
-		*qq3 = &((*qq1)[i3]);
-		*qq4 = *qq3;
-		*qq4 = GetEnd(qq4);
-		if(operator == 0 || operator == 2) {
-			NotBPCase[3] = FALSE; // '<->', '<--'
-			// This rule is valid for analysis
+
+int CompilePatterns(void) {
+	int rep,oldjpatt;
+
+	CompileOn++;
+	rep = MISSED; CompiledPt = FALSE;
+	oldjpatt = Jpatt;
+	// ShowMessage(TRUE,wMessage,"Looking for time patterns...");
+	if((rep=ReleasePatternSpace()) != OK) goto ERR;
+
+	if((rep=GetPatterns(wAlphabet,TRUE)) != OK){	/* Just counting patterns */
+		Jpatt = 0; goto ERR;
+		}
+	if((rep=GetPatterns(wGrammar,TRUE)) != OK){
+		Jpatt = 0; goto ERR;
+		}
+	if(Jpatt == 0) {
+		goto SORTIR;
+		}
+	if((rep=GetPatternSpace()) != OK) {
+		ReleasePatternSpace();
+		goto ERR;
+		}
+	Jpatt = 0;
+	if((rep=GetPatterns(wAlphabet,FALSE)) != OK) {	/* Now creating patterns */
+		ReleasePatternSpace();
+		goto ERR;
+		}
+	if((rep=GetPatterns(wGrammar,FALSE)) != OK) {
+		ReleasePatternSpace();
+		goto ERR;
+		}
+	if(Jpatt > 0 && Nature_of_time != SMOOTH) {
+		if(!ScriptExecOn) {
+			BPPrintMessage(0,odError,"Since time-patterns are used you might want to use smooth time");
+	//		BPActivateWindow(SLOW,wMetronom);
 			}
-		return(operator);
+		else {
+			PrintBehindln(wTrace,"Since time-patterns were found, time was set to 'smooth'.");
+			Nature_of_time = SMOOTH;
+			}
 		}
-	}
-for(operator=0; operator < MAXARROW && strlen(Arrow[operator]) > 0; operator++) {
-	strcpy(x,Arrow[operator]);	/* This search is only useful if |arg2| = 0 */
-	if((i2 = FindPattern(qq1,x,&i3)) > 0) {
-		*qq2 = &((*qq1)[i2-1]);
-		*qq3 = &((*qq1)[i3]);
-		*qq4 = *qq3;
-		*qq4 = GetEnd(qq4);
-		NotBPCase[0] = TRUE;	/* Erase rule */
-		return(operator);
-		}
-	}
-return(-1);
-}
-
-
-int NumberWildCards(tokenbyte **p_Q)
-{
-int i,n;
-for(i=0,n=0; (*p_Q)[i] != TEND || (*p_Q)[i+1] != TEND; i+=2)
-	if((*p_Q)[i] == T0 && (*p_Q)[i+1] == 1) n++;
-return(n);
-}
-
-
-int CompilePatterns(void)
-{
-int rep,oldjpatt;
-
-CompileOn++;
-rep = MISSED; CompiledPt = FALSE;
-oldjpatt = Jpatt;
-// ShowMessage(TRUE,wMessage,"Looking for time patterns...");
-if((rep=ReleasePatternSpace()) != OK) goto ERR;
-
-if((rep=GetPatterns(wAlphabet,TRUE)) != OK){	/* Just counting patterns */
-	Jpatt = 0; goto ERR;
-	}
-if((rep=GetPatterns(wGrammar,TRUE)) != OK){
-	Jpatt = 0; goto ERR;
-	}
-if(Jpatt == 0) {
-	goto SORTIR;
-	}
-if((rep=GetPatternSpace()) != OK) {
-	ReleasePatternSpace();
-	goto ERR;
-	}
-Jpatt = 0;
-if((rep=GetPatterns(wAlphabet,FALSE)) != OK) {	/* Now creating patterns */
-	ReleasePatternSpace();
-	goto ERR;
-	}
-if((rep=GetPatterns(wGrammar,FALSE)) != OK) {
-	ReleasePatternSpace();
-	goto ERR;
-	}
-if(Jpatt > 0 && Nature_of_time != SMOOTH) {
-	if(!ScriptExecOn) {
-		BPPrintMessage(0,odError,"Since time-patterns are used you might want to use smooth time");
-//		BPActivateWindow(SLOW,wMetronom);
-		}
-	else {
-		PrintBehindln(wTrace,"Since time-patterns were found, time was set to 'smooth'.");
-		Nature_of_time = SMOOTH;
-		}
-	}
 
 SORTIR:
-CompiledPt = TRUE;
-// HideWindow(Window[wMessage]);
-if(CompileOn) CompileOn--;
-return(OK);
+	CompiledPt = TRUE;
+	// HideWindow(Window[wMessage]);
+	if(CompileOn) CompileOn--;
+	return(OK);
 
 ERR:
-ShowMessage(TRUE,wMessage,"Can't compile time patterns");
-if(CompileOn) CompileOn--;
-return(rep);
-}
+	ShowMessage(TRUE,wMessage,"Can't compile time patterns");
+	if(CompileOn) CompileOn--;
+	return(rep);
+	}
 
 
-int GetPatterns(int w, int justcount)
-{
-long pos,posmax;
-int done,result,gap;
-char **p_line,line[MAXLIN];
+int GetPatterns(int w, int justcount) {
+	long pos,posmax;
+	int done,result,gap;
+	char **p_line,line[MAXLIN];
 
-done = FALSE;
-pos = ZERO; result = MISSED;
-posmax = GetTextLength(w);
-p_line = NULL;
-while(ReadLine(NO,YES,w,&pos,posmax,&p_line,&gap) == OK) {
-	if((*p_line)[0] == '\0') continue;
-	if(Mystrcmp(p_line,"TEMPLATES:") == 0) {
-//		BPPrintMessage(1,odInfo,"@@@ patt\n");
-		do {
-//			if(ReadLine(NO,YES,wGrammar,&pos,posmax,&p_line,&gap) != OK) return(result);
-			if(ReadLine(NO,YES,wGrammar,&pos,posmax,&p_line,&gap) != OK) break;
-			if((*p_line)[0] == '\0') continue;
+	done = FALSE;
+	pos = ZERO; result = MISSED;
+	posmax = GetTextLength(w);
+	p_line = NULL;
+	while(ReadLine(NO,YES,w,&pos,posmax,&p_line,&gap) == OK) {
+		if((*p_line)[0] == '\0') continue;
+		if(Mystrcmp(p_line,"TEMPLATES:") == 0) {
+	//		BPPrintMessage(1,odInfo,"@@@ patt\n");
+			do {
+	//			if(ReadLine(NO,YES,wGrammar,&pos,posmax,&p_line,&gap) != OK) return(result);
+				if(ReadLine(NO,YES,wGrammar,&pos,posmax,&p_line,&gap) != OK) break;
+				if((*p_line)[0] == '\0') continue;
+				}
+			while((*p_line)[0] != '-' || (*p_line)[1] != '-');
+			continue;
 			}
-		while((*p_line)[0] != '-' || (*p_line)[1] != '-');
-		continue;
+		if(!done && (Mystrcmp(p_line,"TIMEPATTERNS:") == 0)) {
+			done = TRUE; continue;
+			}
+		if(!done) continue;
+		if((*p_line)[0] == '-' && (*p_line)[1] == '-') break;
+		MystrcpyHandleToString(MAXLIN,0,line,p_line);
+		if((result=ReadPatterns(p_line,justcount)) != OK) {
+			Println(wTrace,line);
+			goto QUIT;
+			}
 		}
-	if(!done && (Mystrcmp(p_line,"TIMEPATTERNS:") == 0)) {
-		done = TRUE; continue;
-		}
-	if(!done) continue;
-	if((*p_line)[0] == '-' && (*p_line)[1] == '-') break;
-	MystrcpyHandleToString(MAXLIN,0,line,p_line);
-	if((result=ReadPatterns(p_line,justcount)) != OK) {
-		Println(wTrace,line);
-		goto QUIT;
-		}
-	}
-result = OK;
+	result = OK;
 
 QUIT:
-MyDisposeHandle((Handle*)&p_line);
-if(CheckEmergency() != OK) result = ABORT;
-return(result);
-}
-
-
-int ReadPatterns(char **p_line,int justcount)
-{
-char **p_y,c,line2[MAXLIN];
-int r,i,j,k,kk,l,length,z=0;
-long n;
-tokenbyte jj;
-
-if((p_y = (char**) GiveSpace((Size)((BOLSIZE+1) * sizeof(char)))) == NULL) {
-	return(ABORT);
+	MyDisposeHandle((Handle*)&p_line);
+	if(CheckEmergency() != OK) result = ABORT;
+	return(result);
 	}
-if(p_line == NULL) {
-	BPPrintMessage(0,odError,"=> Err. ReadPatterns(). p_line == NULL");
+
+
+int ReadPatterns(char **p_line,int justcount) {
+	char **p_y,c,line2[MAXLIN];
+	int r,i,j,k,kk,l,length,z=0;
+	long n;
+	tokenbyte jj;
+
+	if((p_y = (char**) GiveSpace((Size)((BOLSIZE+1) * sizeof(char)))) == NULL) {
+		return(ABORT);
+		}
+	if(p_line == NULL) {
+		BPPrintMessage(0,odError,"=> Err. ReadPatterns(). p_line == NULL");
+		r = OK;
+		goto QUIT;
+		}
+	l = MyHandleLen(p_line)-1;
 	r = OK;
-	goto QUIT;
-	}
-l = MyHandleLen(p_line)-1;
-r = OK;
-for(i=0; i < l;) {
-	while(MySpace((*p_line)[i]) && i < l) i++;
-	if((*p_line)[i] == '[') {
-		while((*p_line)[++i] != ']') if(i >= l) goto QUIT;
-		i++; if(i >= l) goto QUIT;
+	for(i=0; i < l;) {
+		while(MySpace((*p_line)[i]) && i < l) i++;
+		if((*p_line)[i] == '[') {
+			while((*p_line)[++i] != ']') if(i >= l) goto QUIT;
+			i++; if(i >= l) goto QUIT;
+			}
+		if((length=GetBol(p_line,&i)) > BOLSIZE) {
+			my_sprintf(Message,"\nMaximum length of pattern name: %ld chars.\n",(long)BOLSIZE);
+			Print(wTrace,Message);
+			ShowError(46,0,0);
+			N_err++;
+			r = MISSED;
+			goto QUIT;
+			}
+		if(length == -1) {
+			ShowError(46,0,0);
+			N_err++;
+			r = MISSED;
+			goto QUIT;
+			}
+		j = i + length;
+		(*p_line)[j++] = '\0';
+		for(kk=0; (i+kk) < j; kk++) {
+			c = (*p_line)[i + kk];
+			(*p_y)[kk] = c;
+			}
+		jj = CreateBol(TRUE,FALSE,p_y,justcount,FALSE,PATTERN);
+		if(jj < 0 || jj >= Jpatt) {
+			N_err++;
+			r = ABORT;
+			goto QUIT;
+			}
+		while((MySpace((*p_line)[j]) || (*p_line)[j] == '=') && j < l) j++;
+		if(j >= l) {
+			my_sprintf(Message,"\nIncomplete time pattern: ratio missing.\n");
+			Print(wTrace,Message);
+			ShowError(47,0,0);
+			N_err++;
+			r = MISSED;
+			goto QUIT;
+			}
+		if(j >= MAXLIN) {
+			Print(wTrace,"\nToo long line in TIME PATTERNS.\n");
+			N_err++;
+			r = MISSED;
+			goto QUIT;
+			}
+		for(k=0; k < MAXLIN; k++) {
+			line2[k] = (*p_line)[k+j];
+			if(line2[k] == '\0') break;
+			}
+		z = 0;
+		if((n=GetLong(line2,&z)) == INT_MAX) {
+			ShowError(47,0,0);
+			N_err++;
+			r = MISSED;
+			goto QUIT;
+			}
+		j += z;
+		if(!justcount) (*p_Ppatt)[Jpatt-1] = n;
+		while(MySpace(c=(*p_line)[j]) && j < l) j++;
+		if(j >= l) {
+			my_sprintf(Message,
+				"\nIncomplete time pattern: ratio denominator missing.\n");
+			Print(wTrace,Message);
+			ShowError(47,0,0);
+			N_err++;
+			r = MISSED;
+			goto QUIT;
+			}
+		if(c != '/') {
+			my_sprintf(Message,"\n'/' expected.\n");
+			Print(wTrace,Message);
+			ShowError(47,0,0);
+			N_err++;
+			r = MISSED;
+			goto QUIT;
+			}
+		j++;
+		while(MySpace(c=(*p_line)[j]) && j < l) j++;
+		if(j > l) {
+			my_sprintf(Message,
+				"\nIncomplete time pattern: ratio denominator missing.\n");
+			Print(wTrace,Message);
+			ShowError(47,0,0);
+			N_err++;
+			r = MISSED;
+			goto QUIT;
+			}
+		if(j >= MAXLIN) {
+			Print(wTrace,"\nToo long line in TIME PATTERNS.\n");
+			N_err++;
+			r = MISSED;
+			goto QUIT;
+			}
+		for(k=0; k < MAXLIN; k++) {
+			line2[k] = (*p_line)[k+j];
+			if(line2[k] == '\0') break;
+			}
+		z = 0;
+		if((n=GetLong(line2,&z)) == INT_MAX) {
+			ShowError(47,0,0);
+			r = MISSED;
+			N_err++;
+			goto QUIT;
+			}
+		j += z;
+		if(!justcount) (*p_Qpatt)[Jpatt-1] = n;
+		i = j;
 		}
-	if((length=GetBol(p_line,&i)) > BOLSIZE) {
-		my_sprintf(Message,"\nMaximum length of pattern name: %ld chars.\n",(long)BOLSIZE);
-		Print(wTrace,Message);
-		ShowError(46,0,0);
-		N_err++;
-		r = MISSED;
-		goto QUIT;
-		}
-	if(length == -1) {
-		ShowError(46,0,0);
-		N_err++;
-		r = MISSED;
-		goto QUIT;
-		}
-	j = i + length;
-	(*p_line)[j++] = '\0';
-	for(kk=0; (i+kk) < j; kk++) {
-		c = (*p_line)[i + kk];
-		(*p_y)[kk] = c;
-		}
-	jj = CreateBol(TRUE,FALSE,p_y,justcount,FALSE,PATTERN);
-	if(jj < 0 || jj >= Jpatt) {
-		N_err++;
-		r = ABORT;
-		goto QUIT;
-		}
-	while((MySpace((*p_line)[j]) || (*p_line)[j] == '=') && j < l) j++;
-	if(j >= l) {
-		my_sprintf(Message,"\nIncomplete time pattern: ratio missing.\n");
-		Print(wTrace,Message);
-		ShowError(47,0,0);
-		N_err++;
-		r = MISSED;
-		goto QUIT;
-		}
-	if(j >= MAXLIN) {
-		Print(wTrace,"\nToo long line in TIME PATTERNS.\n");
-		N_err++;
-		r = MISSED;
-		goto QUIT;
-		}
-	for(k=0; k < MAXLIN; k++) {
-		line2[k] = (*p_line)[k+j];
-		if(line2[k] == '\0') break;
-		}
-	z = 0;
-	if((n=GetLong(line2,&z)) == INT_MAX) {
-		ShowError(47,0,0);
-		N_err++;
-		r = MISSED;
-		goto QUIT;
-		}
-	j += z;
-	if(!justcount) (*p_Ppatt)[Jpatt-1] = n;
-	while(MySpace(c=(*p_line)[j]) && j < l) j++;
-	if(j >= l) {
-		my_sprintf(Message,
-			"\nIncomplete time pattern: ratio denominator missing.\n");
-		Print(wTrace,Message);
-		ShowError(47,0,0);
-		N_err++;
-		r = MISSED;
-		goto QUIT;
-		}
-	if(c != '/') {
-		my_sprintf(Message,"\n'/' expected.\n");
-		Print(wTrace,Message);
-		ShowError(47,0,0);
-		N_err++;
-		r = MISSED;
-		goto QUIT;
-		}
-	j++;
-	while(MySpace(c=(*p_line)[j]) && j < l) j++;
-	if(j > l) {
-		my_sprintf(Message,
-			"\nIncomplete time pattern: ratio denominator missing.\n");
-		Print(wTrace,Message);
-		ShowError(47,0,0);
-		N_err++;
-		r = MISSED;
-		goto QUIT;
-		}
-	if(j >= MAXLIN) {
-		Print(wTrace,"\nToo long line in TIME PATTERNS.\n");
-		N_err++;
-		r = MISSED;
-		goto QUIT;
-		}
-	for(k=0; k < MAXLIN; k++) {
-		line2[k] = (*p_line)[k+j];
-		if(line2[k] == '\0') break;
-		}
-	z = 0;
-	if((n=GetLong(line2,&z)) == INT_MAX) {
-		ShowError(47,0,0);
-		r = MISSED;
-		N_err++;
-		goto QUIT;
-		}
-	j += z;
-	if(!justcount) (*p_Qpatt)[Jpatt-1] = n;
-	i = j;
-	}
 
 QUIT:
-MyDisposeHandle((Handle*)&p_y);
-return(r);
-}
+	MyDisposeHandle((Handle*)&p_y);
+	return(r);
+	}
 
 int FindPart(char* line) {
 	int i;

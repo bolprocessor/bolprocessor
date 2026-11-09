@@ -602,113 +602,112 @@ int CompileObjectScore(int j,int *p_longerCsound) {
 	}
 
 
-int DeCompileObjectScore(int j)
-{
-long ievent;
-int k,ip,rep,ins,longerCsound,overflow,result,instrumentindex;
-double param;
+int DeCompileObjectScore(int j) {
+	long ievent;
+	int k,ip,rep,ins,longerCsound,overflow,result,instrumentindex;
+	double param;
 
-if(j < 2 || j >= Jbol) {
-	BPPrintMessage(0,odError,"=> Err. DeCompileObjectScore(). j < 2 || j >= Jbol\n");
-	return(MISSED);
-	}
-result = OK;
-if((*p_CsoundSize)[j] < 1L) return(OK);
-if(CompileRegressions() != OK) return(MISSED);
-
-CompileOn++;
-
-if(ShowMessages && !LoadOn)
-	ShowMessage(TRUE,wMessage,"The Csound score of this object is being updated...");
-
-if(DurationToPoint(NULL,pp_CsoundTime,p_CsoundSize,j) != OK) {
-	if(CompileOn) CompileOn--;
-	return(ABORT);
-	}
-PrintBehind(wPrototype7,"t 0 ");
-WriteFloatToLine(LineBuff,(double)(*p_CsoundTempo)[j]);
-PrintBehindln(wPrototype7,LineBuff);
-for(ievent=ZERO; ievent < (*p_CsoundSize)[j]; ievent++) {
+	if(j < 2 || j >= Jbol) {
+		BPPrintMessage(0,odError,"=> Err. DeCompileObjectScore(). j < 2 || j >= Jbol\n");
+		return(MISSED);
+		}
 	result = OK;
-	instrumentindex = (*((*pp_CsoundScore)[j]))[ievent].instrument;
-	for(ins=0; ins < Jinstr; ins++) {
-		if((*p_CsInstrumentIndex)[ins] == instrumentindex) break;
+	if((*p_CsoundSize)[j] < 1L) return(OK);
+	if(CompileRegressions() != OK) return(MISSED);
+
+	CompileOn++;
+
+	if(ShowMessages && !LoadOn)
+		ShowMessage(TRUE,wMessage,"The Csound score of this object is being updated...");
+
+	if(DurationToPoint(NULL,pp_CsoundTime,p_CsoundSize,j) != OK) {
+		if(CompileOn) CompileOn--;
+		return(ABORT);
 		}
-	if(ins >= Jinstr) {
-		if(instrumentindex > 1) {
-			BPPrintMessage(0,odError,"=> Can't decompile this Csound score. We need a '-cs' file describing Csound instruments");
-			PointToDuration(NULL,pp_CsoundTime,p_CsoundSize,j);
-			BPActivateWindow(SLOW,wCsoundResources);
-			DurationToPoint(NULL,pp_CsoundTime,p_CsoundSize,j);
-			result = ABORT;
-			goto SORTIR;
+	PrintBehind(wPrototype7,"t 0 ");
+	WriteFloatToLine(LineBuff,(double)(*p_CsoundTempo)[j]);
+	PrintBehindln(wPrototype7,LineBuff);
+	for(ievent=ZERO; ievent < (*p_CsoundSize)[j]; ievent++) {
+		result = OK;
+		instrumentindex = (*((*pp_CsoundScore)[j]))[ievent].instrument;
+		for(ins=0; ins < Jinstr; ins++) {
+			if((*p_CsInstrumentIndex)[ins] == instrumentindex) break;
 			}
-		ins = 0; instrumentindex = 1;
-		}
-	my_sprintf(LineBuff,"i%ld ",(long)instrumentindex);
-	PrintBehind(wPrototype7,LineBuff);
-	WriteFloatToLine(LineBuff,(double)(*((*pp_CsoundTime)[j]))[ievent]
-											* (*p_CsoundTempo)[j] / 60000.);
-	PrintBehind(wPrototype7,LineBuff); PrintBehind(wPrototype7," ");
-	WriteFloatToLine(LineBuff,(double)(*((*pp_CsoundScore)[j]))[ievent].duration
-											* (*p_CsoundTempo)[j] / 60000.);
-	PrintBehind(wPrototype7,LineBuff); PrintBehind(wPrototype7," ");
-	if((*((*pp_CsoundScore)[j]))[ievent].h_param != NULL) {
-		for(k=0; k < (*((*pp_CsoundScore)[j]))[ievent].nbparameters; k++) {
-			param = (*(*((*pp_CsoundScore)[j]))[ievent].h_param)[k];
-			ip = k + 4;
-			if(ip == (*p_CsPitchBendStartIndex)[ins] || ip == (*p_CsPitchBendEndIndex)[ins]) {
-				param = XtoY(param,&((*p_CsInstrument)[ins].rPitchBend),&overflow,
-					instrumentindex);
-				if(overflow) {
-					result = ABORT; goto SORTIR;
-					}
+		if(ins >= Jinstr) {
+			if(instrumentindex > 1) {
+				BPPrintMessage(0,odError,"=> Can't decompile this Csound score. We need a '-cs' file describing Csound instruments");
+				PointToDuration(NULL,pp_CsoundTime,p_CsoundSize,j);
+				BPActivateWindow(SLOW,wCsoundResources);
+				DurationToPoint(NULL,pp_CsoundTime,p_CsoundSize,j);
+				result = ABORT;
+				goto SORTIR;
 				}
-			if(ip == (*p_CsVolumeStartIndex)[ins] || ip == (*p_CsVolumeEndIndex)[ins]) {
-				param = XtoY(param,&((*p_CsInstrument)[ins].rVolume),&overflow,
-					instrumentindex);
-				if(overflow) {
-					result = ABORT; goto SORTIR;
-					}
-				}
-			if(ip == (*p_CsPressureStartIndex)[ins] || ip == (*p_CsPressureEndIndex)[ins]) {
-				param = XtoY(param,&((*p_CsInstrument)[ins].rPressure),&overflow,
-					instrumentindex);
-				if(overflow) {
-					result = ABORT; goto SORTIR;
-					}
-				}
-			if(ip == (*p_CsModulationStartIndex)[ins] || ip == (*p_CsModulationEndIndex)[ins]) {
-				param = XtoY(param,&((*p_CsInstrument)[ins].rModulation),&overflow,
-					instrumentindex);
-				if(overflow) {
-					result = ABORT; goto SORTIR;
-					}
-				}
-			if(ip == (*p_CsPanoramicStartIndex)[ins] || ip == (*p_CsPanoramicEndIndex)[ins]) {
-				param = XtoY(param,&((*p_CsInstrument)[ins].rPanoramic),&overflow,
-					instrumentindex);
-				if(overflow) {
-					result = ABORT; goto SORTIR;
-					}
-				}
-			WriteFloatToLine(LineBuff,param);
-			PrintBehind(wPrototype7,LineBuff); PrintBehind(wPrototype7," ");
+			ins = 0; instrumentindex = 1;
 			}
+		my_sprintf(LineBuff,"i%ld ",(long)instrumentindex);
+		PrintBehind(wPrototype7,LineBuff);
+		WriteFloatToLine(LineBuff,(double)(*((*pp_CsoundTime)[j]))[ievent]
+												* (*p_CsoundTempo)[j] / 60000.);
+		PrintBehind(wPrototype7,LineBuff); PrintBehind(wPrototype7," ");
+		WriteFloatToLine(LineBuff,(double)(*((*pp_CsoundScore)[j]))[ievent].duration
+												* (*p_CsoundTempo)[j] / 60000.);
+		PrintBehind(wPrototype7,LineBuff); PrintBehind(wPrototype7," ");
+		if((*((*pp_CsoundScore)[j]))[ievent].h_param != NULL) {
+			for(k=0; k < (*((*pp_CsoundScore)[j]))[ievent].nbparameters; k++) {
+				param = (*(*((*pp_CsoundScore)[j]))[ievent].h_param)[k];
+				ip = k + 4;
+				if(ip == (*p_CsPitchBendStartIndex)[ins] || ip == (*p_CsPitchBendEndIndex)[ins]) {
+					param = XtoY(param,&((*p_CsInstrument)[ins].rPitchBend),&overflow,
+						instrumentindex);
+					if(overflow) {
+						result = ABORT; goto SORTIR;
+						}
+					}
+				if(ip == (*p_CsVolumeStartIndex)[ins] || ip == (*p_CsVolumeEndIndex)[ins]) {
+					param = XtoY(param,&((*p_CsInstrument)[ins].rVolume),&overflow,
+						instrumentindex);
+					if(overflow) {
+						result = ABORT; goto SORTIR;
+						}
+					}
+				if(ip == (*p_CsPressureStartIndex)[ins] || ip == (*p_CsPressureEndIndex)[ins]) {
+					param = XtoY(param,&((*p_CsInstrument)[ins].rPressure),&overflow,
+						instrumentindex);
+					if(overflow) {
+						result = ABORT; goto SORTIR;
+						}
+					}
+				if(ip == (*p_CsModulationStartIndex)[ins] || ip == (*p_CsModulationEndIndex)[ins]) {
+					param = XtoY(param,&((*p_CsInstrument)[ins].rModulation),&overflow,
+						instrumentindex);
+					if(overflow) {
+						result = ABORT; goto SORTIR;
+						}
+					}
+				if(ip == (*p_CsPanoramicStartIndex)[ins] || ip == (*p_CsPanoramicEndIndex)[ins]) {
+					param = XtoY(param,&((*p_CsInstrument)[ins].rPanoramic),&overflow,
+						instrumentindex);
+					if(overflow) {
+						result = ABORT; goto SORTIR;
+						}
+					}
+				WriteFloatToLine(LineBuff,param);
+				PrintBehind(wPrototype7,LineBuff); PrintBehind(wPrototype7," ");
+				}
+			}
+		PrintBehind(wPrototype7,"\n");
 		}
-	PrintBehind(wPrototype7,"\n");
-	}
-PrintBehind(wPrototype7,"\ne\n");
+	PrintBehind(wPrototype7,"\ne\n");
 
 SORTIR:
 
-if(PointToDuration(NULL,pp_CsoundTime,p_CsoundSize,j) != OK) result = ABORT;
-if(result == OK) result = CompileObjectScore(j,&longerCsound);
+	if(PointToDuration(NULL,pp_CsoundTime,p_CsoundSize,j) != OK) result = ABORT;
+	if(result == OK) result = CompileObjectScore(j,&longerCsound);
 
-if(CompileOn) CompileOn--;
+	if(CompileOn) CompileOn--;
 
-return(result);
-}
+	return(result);
+	}
 
 int FindCsoundInstrument(char* line) {
 	// Find the instrument index in the compiled '-cs' file
@@ -797,89 +796,87 @@ int ResetMoreParameter(int j,int ip) {
 
 /* Returns 1 and sets *date if the line (content_len chars, without <BR>)
    is an i-statement with a numeric p2. */
-static int parse_i_statement(const char *s, size_t content_len, double *date)
-{
-    const char *p = s, *end = s + content_len;
-    char *q;
-    double d;
+static int parse_i_statement(const char *s, size_t content_len, double *date) {
+	const char *p = s, *end = s + content_len;
+	char *q;
+	double d;
 
-    while (p < end && isspace((unsigned char)*p)) p++;
-    if (p >= end || *p != 'i') return 0;
-    p++;
-    while (p < end && isspace((unsigned char)*p)) p++;   /* "i 1" form      */
-    while (p < end && !isspace((unsigned char)*p)) p++;  /* instrument p1   */
-    while (p < end && isspace((unsigned char)*p)) p++;
-    if (p >= end) return 0;
+	while (p < end && isspace((unsigned char)*p)) p++;
+	if(p >= end || *p != 'i') return 0;
+	p++;
+	while (p < end && isspace((unsigned char)*p)) p++;   /* "i 1" form      */
+	while (p < end && !isspace((unsigned char)*p)) p++;  /* instrument p1   */
+	while (p < end && isspace((unsigned char)*p)) p++;
+	if(p >= end) return 0;
 
-    d = strtod(p, &q);
-    if (q == p || q > end) return 0;   /* no numeric p2 (e.g. "+" or ".") */
-    *date = d;
-    return 1;
-}
+	d = strtod(p, &q);
+	if(q == p || q > end) return 0;   /* no numeric p2 (e.g. "+" or ".") */
+	*date = d;
+	return 1;
+	}
 
-static int compare_lines(const void *a, const void *b)
-{
-    const ScoreLine *x = (const ScoreLine *)a;
-    const ScoreLine *y = (const ScoreLine *)b;
-    if (x->date < y->date) return -1;
-    if (x->date > y->date) return  1;
-    return (x->order < y->order) ? -1 : (x->order > y->order); /* stable */
-}
+static int compare_lines(const void *a, const void *b) {
+	const ScoreLine *x = (const ScoreLine *)a;
+	const ScoreLine *y = (const ScoreLine *)b;
+	if(x->date < y->date) return -1;
+	if(x->date > y->date) return  1;
+	return (x->order < y->order) ? -1 : (x->order > y->order); /* stable */
+	}
 
 
 int sort_csound_score(char **p_line) {
 // Sorts each block of consecutive i-statements by start date (p2)
-    char *str, *buf, *dst;
-    const char *p, *next;
-    size_t total, n = 1, k = 0, a, b;
-    ScoreLine *lines;
+	char *str, *buf, *dst;
+	const char *p, *next;
+	size_t total, n = 1, k = 0, a, b;
+	ScoreLine *lines;
 
-    if (p_line == NULL || *p_line == NULL) return ABORT;
-    str = *p_line;
-    total = strlen(str);
+	if(p_line == NULL || *p_line == NULL) return ABORT;
+	str = *p_line;
+	total = strlen(str);
 
-    // Count lines
-    for (p = str; (p = strstr(p, LINE_SEP)) != NULL; p += LINE_SEP_LEN) n++;
+	// Count lines
+	for (p = str; (p = strstr(p, LINE_SEP)) != NULL; p += LINE_SEP_LEN) n++;
 
-    lines = (ScoreLine *)malloc(n * sizeof(ScoreLine));
-    buf   = (char *)malloc(total + 1);
-    if (lines == NULL || buf == NULL) { free(lines); free(buf); return ABORT; }
+	lines = (ScoreLine *)malloc(n * sizeof(ScoreLine));
+	buf   = (char *)malloc(total + 1);
+	if(lines == NULL || buf == NULL) { free(lines); free(buf); return ABORT; }
 
 	// Split into lines, each keeping its trailing <BR>
-    p = str;
-    for (;;) {
-        size_t content_len;
-        next = strstr(p, LINE_SEP);
-        content_len = next ? (size_t)(next - p) : strlen(p);
-        lines[k].text  = p;
-        lines[k].len   = next ? content_len + LINE_SEP_LEN : content_len;
-        lines[k].order = (long)k;
-        lines[k].date  = 0.;
-        lines[k].is_i  = parse_i_statement(p, content_len, &lines[k].date);
-        k++;
-        if (next == NULL) break;
-        p = next + LINE_SEP_LEN;
-    	}
+	p = str;
+	for (;;) {
+		size_t content_len;
+		next = strstr(p, LINE_SEP);
+		content_len = next ? (size_t)(next - p) : strlen(p);
+		lines[k].text  = p;
+		lines[k].len   = next ? content_len + LINE_SEP_LEN : content_len;
+		lines[k].order = (long)k;
+		lines[k].date  = 0.;
+		lines[k].is_i  = parse_i_statement(p, content_len, &lines[k].date);
+		k++;
+		if(next == NULL) break;
+		p = next + LINE_SEP_LEN;
+		}
 
-    // Sort each run of consecutive i-statements; other lines (t, f, s, comments, <HTML>...) stay where they are.
-    for (a = 0; a < n; a = b) {
-        if (!lines[a].is_i) { b = a + 1; continue; }
-        for (b = a; b < n && lines[b].is_i; b++) ;
-        if (b - a > 1)
-            qsort(lines + a, b - a, sizeof(ScoreLine), compare_lines);
-    	}
+	// Sort each run of consecutive i-statements; other lines (t, f, s, comments, <HTML>...) stay where they are.
+	for (a = 0; a < n; a = b) {
+		if(!lines[a].is_i) { b = a + 1; continue; }
+		for (b = a; b < n && lines[b].is_i; b++) ;
+		if(b - a > 1)
+			qsort(lines + a, b - a, sizeof(ScoreLine), compare_lines);
+		}
 
-    // Rebuild, then copy back (same length, so the handle size is unchanged)
-    dst = buf;
-    for (k = 0; k < n; k++) {
-        memcpy(dst, lines[k].text, lines[k].len);
-        dst += lines[k].len;
-    	}
-    *dst = '\0';
-    memcpy(str, buf, total + 1);
-    free(lines);
-    free(buf);
-    return OK;
+	// Rebuild, then copy back (same length, so the handle size is unchanged)
+	dst = buf;
+	for (k = 0; k < n; k++) {
+		memcpy(dst, lines[k].text, lines[k].len);
+		dst += lines[k].len;
+		}
+	*dst = '\0';
+	memcpy(str, buf, total + 1);
+	free(lines);
+	free(buf);
+	return OK;
 	}
 
 

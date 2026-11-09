@@ -39,231 +39,228 @@
 #include "-BP3decl.h"
 
 
-int CheckHTML(int linebreaks,int w,char** p_buffer,long* p_count,int* p_html)
-// Check whether buffer contains HTML code, and converts if necessary
-{
-/* register */ int i,j,k,itoken;
-int foundslash,imax,n,html;
-char c,line[HTMLTOKENLENGTH];
+int CheckHTML(int linebreaks,int w,char** p_buffer,long* p_count,int* p_html) {
+	// Check whether buffer contains HTML code, and converts if necessary
+	/* register */ int i,j,k,itoken;
+	int foundslash,imax,n,html;
+	char c,line[HTMLTOKENLENGTH];
 
-imax = (*p_count) - 2;
-if(*p_html) goto FOUND;
-for(i=0; i < imax;) {
-	j = i + 1;
-	c = (*p_buffer)[i];
-	if(c == '&') {
-		if((*p_buffer)[j] == '#') {
-			j++;
+	imax = (*p_count) - 2;
+	if(*p_html) goto FOUND;
+	for(i=0; i < imax;) {
+		j = i + 1;
+		c = (*p_buffer)[i];
+		if(c == '&') {
+			if((*p_buffer)[j] == '#') {
+				j++;
+				while(TRUE) {
+					if(j >= (*p_count) || (j > (i+5))) break;
+					c = (*p_buffer)[j];
+					if(c == ';' && (j > (i+2))) goto FOUND;
+					if(!isdigit(c)) break;
+					j++;
+					}
+				goto NEXTTOKEN;
+				}
 			while(TRUE) {
-				if(j >= (*p_count) || (j > (i+5))) break;
+				if(j >= *p_count) break;
 				c = (*p_buffer)[j];
-				if(c == ';' && (j > (i+2))) goto FOUND;
-				if(!isdigit(c)) break;
+				if(c == ';' && j > (i+1)) goto FOUND;
+				if(!isalpha(c)) break;
 				j++;
 				}
 			goto NEXTTOKEN;
 			}
-		while(TRUE) {
-			if(j >= *p_count) break;
-			c = (*p_buffer)[j];
-			if(c == ';' && j > (i+1)) goto FOUND;
-			if(!isalpha(c)) break;
-			j++;
-			}
-		goto NEXTTOKEN;
-		}
-	if(c == '<') {
-		foundslash = FALSE;
-		k = 0;
-		while(TRUE) {
-			if(j >= *p_count) break;
-			c = (*p_buffer)[j];
-			if(c == '>') {
-				if(foundslash && j > (i+2)) goto FOUND;
-				line[k] = '\0';
-				if(strcmp(line,"HTML") == 0) goto FOUND;
-				if(strcmp(line,"BR") == 0) goto FOUND;
-				goto NEXTTOKEN;
-				}
-			if(!foundslash) {
-				if(c == '/') {
-					foundslash = TRUE;
-					j++;
-					continue;
-					}
-				if(k < HTMLTOKENLENGTH) {
-					line[k] = UpperCase(c);
-					k++;
-					}
-				else break;
-				}
-			if(!isalpha(c)) break;
-			j++;
-			}
-		}
-NEXTTOKEN:
-	i = j;
-	}
-return(OK);	/* This is not a HTML file */
-
-FOUND:
-/* Transcode from HTML to plain text in Unicode */ /* Mac character set */
-// NEEDS checking!
-
-/* if(w == wScrap && !(*p_html)) {
-	if(Answer("Interpret HTML",'Y') != YES) return(OK);
-	} */
-*p_html = html = TRUE;
-// BPPrintMessage(0,odError, "(*p_buffer) = %s\n",(*p_buffer));
-for(i=j=0; ;i++,j++) {
-	if(j >= *p_count) break;
-	c = (*p_buffer)[j];
-	if(html && (c == '\r' || c == '\n')) {
-		if(c == '\r' && j > 0 && (*p_buffer)[j-1] != '>') (*p_buffer)[i++] = ' ';
-		goto BAD;
-		}
-	if(c == '<') {
-FOUNDTOKEN:
-		/* Discard tag */
-		j++; k = 0;
-		while(TRUE) {
-			if(j >= *p_count) goto BAD;
-			c = (*p_buffer)[j];
-			if(c == '>') {
-				if(k < HTMLTOKENLENGTH) line[k] = '\0';
-				if(strcmp(line,"/HTML") == 0) {
-					html = FALSE;
-					goto BAD;
-					}
-				if(!html) {
-					if(strcmp(line,"HTML") == 0) {
-						html = TRUE;
-						goto BAD;
-						}
-					else {
-						(*p_buffer)[i++] = '<';
-						for(k=0; k < strlen(line); k++) {
-							(*p_buffer)[i++] = line[k];
-							}
-						(*p_buffer)[i] = '>';
-						goto GOOD;
-						}
-					}
-				if(strcmp(line,"TITLE") == 0) {
-					/* Skip the title */
-					while(TRUE) {
-						j++;
-						if(j >= *p_count) break;
-						c = (*p_buffer)[j];
-						if(c == '<') goto FOUNDTOKEN;
-						}
-					break;
-					}
-				if(strcmp(line,"BR") == 0 || strcmp(line,"br") == 0
-						|| strcmp(line,"/UL") == 0
-						|| strcmp(line,"LI") == 0) {
-					(*p_buffer)[i] = '\n';
-					goto GOOD;
-					}
-				if(strcmp(line,"P") == 0
-						|| strcmp(line,"HR") == 0) {
-					(*p_buffer)[i++] = '\r';
-					(*p_buffer)[i] = '\r';
-					goto GOOD;
-					}
-				if(line[0] == '/' && line[1] == 'H') {
-					for(k=2; k < strlen(line); k++) {
-						if(!isdigit(line[k])) goto BAD;
-						}
-					(*p_buffer)[i] = '\r';
-					goto GOOD;
-					}
-				goto BAD;	/* Ignore this token */
-				} 
-			if(k < HTMLTOKENLENGTH) line[k] = UpperCase(c);
-			j++; k++;
-			}
-		}
-	if(!html) {
-		(*p_buffer)[i] = c;
-		goto GOOD;
-		}
-	if(c == '&') {
-		j++; k = 0;
-		if((*p_buffer)[j] == '#') {
-			j++; n = 0;
+		if(c == '<') {
+			foundslash = FALSE;
+			k = 0;
 			while(TRUE) {
-				if(j >= (*p_count)) break;
+				if(j >= *p_count) break;
 				c = (*p_buffer)[j];
-				if(c == ';') {
-					if(n >= 32 && n < 256) {
-						(*p_buffer)[i] = (*p_HTMLchar2)[n];
-						goto GOOD;
-						}
-					break;
+				if(c == '>') {
+					if(foundslash && j > (i+2)) goto FOUND;
+					line[k] = '\0';
+					if(strcmp(line,"HTML") == 0) goto FOUND;
+					if(strcmp(line,"BR") == 0) goto FOUND;
+					goto NEXTTOKEN;
 					}
-				if(isdigit(c) && n < 256) n = (10 * n) + (c - '0');
-				else n = 256;
+				if(!foundslash) {
+					if(c == '/') {
+						foundslash = TRUE;
+						j++;
+						continue;
+						}
+					if(k < HTMLTOKENLENGTH) {
+						line[k] = UpperCase(c);
+						k++;
+						}
+					else break;
+					}
+				if(!isalpha(c)) break;
 				j++;
 				}
-			goto BAD; 	/* Token wasn't recognized */
 			}
-		while(TRUE) {
-			if(j >= *p_count) goto BAD;
-			c = (*p_buffer)[j];
-			if(c == ';') {
-				if(k < HTMLTOKENLENGTH) line[k] = '\0';
-				else line[0] = '\0';
-				for(itoken=0; itoken < MAXHTMLDIACR; itoken++) {
-					if(Mystrcmp((*p_Diacritical)[itoken],line) == 0) {
-						(*p_buffer)[i] = (*p_HTMLchar1)[itoken];
+NEXTTOKEN:
+		i = j;
+		}
+	return(OK);	/* This is not a HTML file */
+
+FOUND:
+	/* Transcode from HTML to plain text in Unicode */ /* Mac character set */
+	// NEEDS checking!
+
+	/* if(w == wScrap && !(*p_html)) {
+		if(Answer("Interpret HTML",'Y') != YES) return(OK);
+		} */
+	*p_html = html = TRUE;
+	// BPPrintMessage(0,odError, "(*p_buffer) = %s\n",(*p_buffer));
+	for(i=j=0; ;i++,j++) {
+		if(j >= *p_count) break;
+		c = (*p_buffer)[j];
+		if(html && (c == '\r' || c == '\n')) {
+			if(c == '\r' && j > 0 && (*p_buffer)[j-1] != '>') (*p_buffer)[i++] = ' ';
+			goto BAD;
+			}
+		if(c == '<') {
+FOUNDTOKEN:
+			/* Discard tag */
+			j++; k = 0;
+			while(TRUE) {
+				if(j >= *p_count) goto BAD;
+				c = (*p_buffer)[j];
+				if(c == '>') {
+					if(k < HTMLTOKENLENGTH) line[k] = '\0';
+					if(strcmp(line,"/HTML") == 0) {
+						html = FALSE;
+						goto BAD;
+						}
+					if(!html) {
+						if(strcmp(line,"HTML") == 0) {
+							html = TRUE;
+							goto BAD;
+							}
+						else {
+							(*p_buffer)[i++] = '<';
+							for(k=0; k < strlen(line); k++) {
+								(*p_buffer)[i++] = line[k];
+								}
+							(*p_buffer)[i] = '>';
+							goto GOOD;
+							}
+						}
+					if(strcmp(line,"TITLE") == 0) {
+						/* Skip the title */
+						while(TRUE) {
+							j++;
+							if(j >= *p_count) break;
+							c = (*p_buffer)[j];
+							if(c == '<') goto FOUNDTOKEN;
+							}
+						break;
+						}
+					if(strcmp(line,"BR") == 0 || strcmp(line,"br") == 0
+							|| strcmp(line,"/UL") == 0
+							|| strcmp(line,"LI") == 0) {
+						(*p_buffer)[i] = '\n';
 						goto GOOD;
 						}
+					if(strcmp(line,"P") == 0
+							|| strcmp(line,"HR") == 0) {
+						(*p_buffer)[i++] = '\r';
+						(*p_buffer)[i] = '\r';
+						goto GOOD;
+						}
+					if(line[0] == '/' && line[1] == 'H') {
+						for(k=2; k < strlen(line); k++) {
+							if(!isdigit(line[k])) goto BAD;
+							}
+						(*p_buffer)[i] = '\r';
+						goto GOOD;
+						}
+					goto BAD;	/* Ignore this token */
+					} 
+				if(k < HTMLTOKENLENGTH) line[k] = UpperCase(c);
+				j++; k++;
+				}
+			}
+		if(!html) {
+			(*p_buffer)[i] = c;
+			goto GOOD;
+			}
+		if(c == '&') {
+			j++; k = 0;
+			if((*p_buffer)[j] == '#') {
+				j++; n = 0;
+				while(TRUE) {
+					if(j >= (*p_count)) break;
+					c = (*p_buffer)[j];
+					if(c == ';') {
+						if(n >= 32 && n < 256) {
+							(*p_buffer)[i] = (*p_HTMLchar2)[n];
+							goto GOOD;
+							}
+						break;
+						}
+					if(isdigit(c) && n < 256) n = (10 * n) + (c - '0');
+					else n = 256;
+					j++;
 					}
 				goto BAD; 	/* Token wasn't recognized */
 				}
-			if(k < HTMLTOKENLENGTH) line[k] = c;
-			k++; j++;
+			while(TRUE) {
+				if(j >= *p_count) goto BAD;
+				c = (*p_buffer)[j];
+				if(c == ';') {
+					if(k < HTMLTOKENLENGTH) line[k] = '\0';
+					else line[0] = '\0';
+					for(itoken=0; itoken < MAXHTMLDIACR; itoken++) {
+						if(Mystrcmp((*p_Diacritical)[itoken],line) == 0) {
+							(*p_buffer)[i] = (*p_HTMLchar1)[itoken];
+							goto GOOD;
+							}
+						}
+					goto BAD; 	/* Token wasn't recognized */
+					}
+				if(k < HTMLTOKENLENGTH) line[k] = c;
+				k++; j++;
+				}
+			}
+		(*p_buffer)[i] = (*p_buffer)[j];
+GOOD:
+		continue;
+BAD:
+		i--;
+		}
+	(*p_count) = i;
+	return(OK); 
+	}
+
+int GoodHTMLchar(char c) {
+	if(isalnum(c)) return(YES);
+	if(ispunct(c)) {
+		switch(c) {
+			case '&':
+			case '<':
+			case '>':
+			case '\"':
+				return(NO);
+			default:
+				return(YES);
 			}
 		}
-	(*p_buffer)[i] = (*p_buffer)[j];
-GOOD:
-	continue;
-BAD:
-	i--;
+	return(NO);
 	}
-(*p_count) = i;
-return(OK); 
-}
 
-int GoodHTMLchar(char c)
-{
-if(isalnum(c)) return(YES);
-if(ispunct(c)) {
-	switch(c) {
-		case '&':
-		case '<':
-		case '>':
-		case '\"':
-			return(NO);
-		default:
-			return(YES);
+
+int NeedsHTMLConversion(char **p_line) {
+	long i;
+	char c;
+
+	if(p_line == NULL) return(NO);
+
+	i = 0;
+	while((c=(*p_line)[i++]) != '\0') {
+		if(!GoodHTMLchar(c) && c != '\r') return(YES);
 		}
+	return(NO);
 	}
-return(NO);
-}
-
-
-int NeedsHTMLConversion(char **p_line)
-{
-long i;
-char c;
-
-if(p_line == NULL) return(NO);
-
-i = 0;
-while((c=(*p_line)[i++]) != '\0') {
-	if(!GoodHTMLchar(c) && c != '\r') return(YES);
-	}
-return(NO);
-}

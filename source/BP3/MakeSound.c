@@ -798,31 +798,31 @@ int MakeSound(long *p_kmax,unsigned long imaxstreak,int maxnsequences,long tmin,
 			BPPrintMessage(0,odInfo,"Tcurr = %ld, occurrence = %d, t0 = %ld (ms), t1 = %ld (ms), Time_res = %ld\n\n",(long)Tcurr,occurrence,(long)t0,(long)t1,(long)Time_res);
 			
 		if(cswrite) {
-	TRYCSFILE:
-			// Tempo assignment
-			if(Pclock > 0.) {	// Striated or measured smooth time
-				if(Simplify((double)INT_MAX,60L*Qclock,Pclock,&p,&q) != OK)
-					Simplify((double)INT_MAX,Qclock,floor(Pclock/60L),&p,&q);
-				my_sprintf(Message,"t %.3f 60",
-					((double) torigin) * Qclock / ((double) Pclock) / 1000.);
-				}
-			else {	// Unmeasured smooth time
-				my_sprintf(Message,"t %.3f 60",((double) torigin) / 1000.);
-				}
-			if(ConvertMIDItoCsound)
-				Println(wPrototype7,Message);
-			else {
-				if(CsoundTrace) ShowMessage(TRUE,wMessage,Message);
-				if((!Improvize  && !PlayAllChunks && !AllItems) || !AssignedTempoCsoundFile) { // Fixed !PlayAllChunks 2024-05-20
-					AssignedTempoCsoundFile = TRUE;
-					if(WriteToFile(NO,CsoundFileFormat,Message,CsRefNum) != OK) {
-						BPPrintMessage(0,odError,"=> Couldn't write to file '%s'. May be it has been closed by another application\n");
-						CloseCsScore();
-						if((result=PrepareCsFile()) != OK) goto OVER;
-						goto TRYCSFILE;
+			TRYCSFILE:
+					// Tempo assignment
+					if(Pclock > 0.) {	// Striated or measured smooth time
+						if(Simplify((double)INT_MAX,60L*Qclock,Pclock,&p,&q) != OK)
+							Simplify((double)INT_MAX,Qclock,floor(Pclock/60L),&p,&q);
+						my_sprintf(Message,"t %.3f 60",
+							((double) torigin) * Qclock / ((double) Pclock) / 1000.);
 						}
-					}
-				}
+					else {	// Unmeasured smooth time
+						my_sprintf(Message,"t %.3f 60",((double) torigin) / 1000.);
+						}
+					if(ConvertMIDItoCsound)
+						Println(wPrototype7,Message);
+					else {
+						if(CsoundTrace) ShowMessage(TRUE,wMessage,Message);
+						if((!Improvize  && !PlayAllChunks && !AllItems) || !AssignedTempoCsoundFile) { // Fixed !PlayAllChunks 2024-05-20
+							AssignedTempoCsoundFile = TRUE;
+							if(WriteToFile(NO,CsoundFileFormat,Message,CsRefNum) != OK) {
+								BPPrintMessage(0,odError,"=> Couldn't write to file '%s'. May be it has been closed by another application\n");
+								CloseCsScore();
+								if((result=PrepareCsFile()) != OK) goto OVER;
+								goto TRYCSFILE;
+								}
+							}
+						}
 			}
 		
 		ItemOutPutOn = TRUE;
@@ -2184,8 +2184,8 @@ int ChannelConvert(int ch) {
 					(long)ch,(long)x,(long)ParamKey[x],(long)MAXCHAN);
 				}
 			else {
-			my_sprintf(Message,"=> Trying to assign channel #%ld by K%ld.\nValue should be 1..%ld",
-				(long)ch,(long)x,(long)MAXCHAN);
+				my_sprintf(Message,"=> Trying to assign channel #%ld by K%ld.\nValue should be 1..%ld",
+					(long)ch,(long)x,(long)MAXCHAN);
 				}
 			}
 	//	BPPrintMessage(0,odError,"%s",Message);
@@ -2195,64 +2195,60 @@ int ChannelConvert(int ch) {
 	}
 								
 								
-double ContinuousParameter(Milliseconds time_ms,int paramseq,ControlStream **p_stream)
-{
-double param;
+double ContinuousParameter(Milliseconds time_ms,int paramseq,ControlStream **p_stream) {
+	double param;
 
-param = (*p_stream)[paramseq].startvalue
-		+ ((double)(*p_stream)[paramseq].difference * (time_ms - (*p_stream)[paramseq].starttime))
-			/ (*p_stream)[paramseq].dur;
-return(param);
-}
-
-
-int WaitForLastSounds(long buffertime)
-// buffertime * Time_res is the remaining time after which we'll stop waiting.
-{
-int result,r,rep,compiledmem;
-long timeleft,formertime;
-unsigned long drivertime;
-
-if(!rtMIDI || Panic) return(OK);
-
-result = OK;
-return(result);
-}
-
-
-int WaitForEmptyBuffer(void)
-{
-long timeleft,formertime;
-int result,rep,compiledmem;
-unsigned long drivertime;
-
-result = OK;
-return(result);
-}
-
-
-long Findibm(int index,Milliseconds dur,int chan)
-{
-int rate;
-long x;
-
-switch(index) {
-	case IMODULATION:
-		rate = ModulationRate[chan+1]; break;
-	case IPITCHBEND:
-		rate = PitchbendRate[chan+1]; break;
-	case IPRESSURE:
-		rate = PressRate[chan+1]; break;
-	case IVOLUME:
-		rate = VolumeRate[chan+1]; break;
-	case IPANORAMIC:
-		rate = PanoramicRate[chan+1]; break;
-	default:
-		return(1L);
+	param = (*p_stream)[paramseq].startvalue
+			+ ((double)(*p_stream)[paramseq].difference * (time_ms - (*p_stream)[paramseq].starttime))
+				/ (*p_stream)[paramseq].dur;
+	return(param);
 	}
-x = ((unsigned long)(dur * rate)) / 1000L;
-return(x);
-}
+
+
+int WaitForLastSounds(long buffertime) {
+	// buffertime * Time_res is the remaining time after which we'll stop waiting.
+	int result,r,rep,compiledmem;
+	long timeleft,formertime;
+	unsigned long drivertime;
+
+	if(!rtMIDI || Panic) return(OK);
+
+	result = OK;
+	return(result);
+	}
+
+
+int WaitForEmptyBuffer(void) {
+	long timeleft,formertime;
+	int result,rep,compiledmem;
+	unsigned long drivertime;
+
+	result = OK;
+	return(result);
+	}
+
+
+long Findibm(int index,Milliseconds dur,int chan) {
+	int rate;
+	long x;
+
+	switch(index) {
+		case IMODULATION:
+			rate = ModulationRate[chan+1]; break;
+		case IPITCHBEND:
+			rate = PitchbendRate[chan+1]; break;
+		case IPRESSURE:
+			rate = PressRate[chan+1]; break;
+		case IVOLUME:
+			rate = VolumeRate[chan+1]; break;
+		case IPANORAMIC:
+			rate = PanoramicRate[chan+1]; break;
+		default:
+			return(1L);
+		}
+	x = ((unsigned long)(dur * rate)) / 1000L;
+	return(x);
+	}
 
 
 int SendControl(ContinuousControl **p_control,Milliseconds t0,int chan,int iparam,int maxconc,
@@ -2314,10 +2310,10 @@ int SendControl(ContinuousControl **p_control,Milliseconds t0,int chan,int ipara
 	if(value > 16383. && value < 16384.) value = 16383.;
 
 	if(value < 0. || value > 16383.) {
-			my_sprintf(Message,"=> Err. SendControl(). value = %.3f\n",value);
-			Print(wTrace,Message);
-			BPPrintMessage(0,odError,"=> Err. SendControl(). value = %.3f\n",value);
-		return(ABORT);
+		my_sprintf(Message,"=> Err. SendControl(). value = %.3f\n",value);
+		Print(wTrace,Message);
+		BPPrintMessage(0,odError,"=> Err. SendControl(). value = %.3f\n",value);
+	return(ABORT);
 		}
 
 	time = t0 + (*param)[iparam].starttime
@@ -2481,7 +2477,7 @@ double GetTableValue(double alpha,long imax,Coordinates** coords,double startval
 	if(imax > MyGetHandleSize((Handle)coords) / sizeof(Coordinates)) {
 	//	BPPrintMessage(0,odError,"=> Err. GetTableValue(). imax >= MyGetHandleSize((Handle)coords) / sizeof(Coordinates)");
 		return(0.);
-			}
+		}
 	xmax = (*(coords))[imax-1L].i;
 	x = alpha * (double) xmax;
 	i = 0; while((*(coords))[i].i < x) i++;

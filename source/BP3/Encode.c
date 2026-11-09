@@ -88,19 +88,19 @@ tokenbyte **Encode(t_gram* p_gram,int sequence,int notargument, int igram, int i
 		while(GetNilString(pp) == OK){}; /* Skip "lambda" */
 		c = NextChar(pp);
 		if(isdigit(c)) {
-	SEARCHNUMBER:
-			if((k=FindNumber(pp)) != -1) {
-				(*p_buff)[i++] = T1;
-				(*p_buff)[i++] = (tokenbyte)((k - (k % TOKBASE)) / TOKBASE);
-				(*p_buff)[i++] = T1;
-				(*p_buff)[i++] = (tokenbyte)(k % TOKBASE);
-				if(i > imax) {
-					BPPrintMessage(0,odError,"=> i > imax. Err. Encode()");
-					goto ERR;
-					}
-				c = NextChar(pp);
-				continue;
-				}
+			SEARCHNUMBER:
+					if((k=FindNumber(pp)) != -1) {
+						(*p_buff)[i++] = T1;
+						(*p_buff)[i++] = (tokenbyte)((k - (k % TOKBASE)) / TOKBASE);
+						(*p_buff)[i++] = T1;
+						(*p_buff)[i++] = (tokenbyte)(k % TOKBASE);
+						if(i > imax) {
+							BPPrintMessage(0,odError,"=> i > imax. Err. Encode()");
+							goto ERR;
+							}
+						c = NextChar(pp);
+						continue;
+						}
 			}
 		if(c == '*') {
 			(*pp)++;
@@ -336,8 +336,8 @@ tokenbyte **Encode(t_gram* p_gram,int sequence,int notargument, int igram, int i
 #else
 						if(OutCsound || rtMIDI || WriteMIDIfile || EventListOn) {
 #endif
-							(*p_buff)[i++] = T44; (*p_buff)[i++] = (tokenbyte) n;
-							if(trace_scale) BPPrintMessage(0,odInfo,"Encode() T44 i = %ld n = %d\n",i,n);
+								(*p_buff)[i++] = T44; (*p_buff)[i++] = (tokenbyte) n;
+								if(trace_scale) BPPrintMessage(0,odInfo,"Encode() T44 i = %ld n = %d\n",i,n);
 							}
 						break;
 					case 66: /* _capture() */
@@ -876,65 +876,65 @@ tokenbyte **Encode(t_gram* p_gram,int sequence,int notargument, int igram, int i
 				}
 			}
 		if(lmax  > 0) {
-	FOUNDNOTE2:
-			leftside = neg = FALSE;
-			(*p_buff)[i++] = T25;
-			key += (C4key - 60);
-			if(key < 0 || key >= MAXKEY) {
-				BPPrintMessage(0,odError,"=> Simple note '%s' is out of range.\n",q);
-			/*	ShowWindow(GetDialogWindow(TuningPtr));
-				SelectWindow(GetDialogWindow(TuningPtr)); */
-				goto ERR;
-				}
-			(*p_buff)[i++] = (tokenbyte) key;
-			*pp = qmax;
-			if(i > imax) {
-				BPPrintMessage(0,odError,"=> i > imax. Err. Encode()");
-				goto ERR;
-				}
-			if((**pp) == '&') bound = TRUE;
-			last_is_terminal = TRUE;
-			c = NextChar(pp);
-			p_mem = *pp;
-			continue;
+			FOUNDNOTE2:
+					leftside = neg = FALSE;
+					(*p_buff)[i++] = T25;
+					key += (C4key - 60);
+					if(key < 0 || key >= MAXKEY) {
+						BPPrintMessage(0,odError,"=> Simple note '%s' is out of range.\n",q);
+					/*	ShowWindow(GetDialogWindow(TuningPtr));
+						SelectWindow(GetDialogWindow(TuningPtr)); */
+						goto ERR;
+						}
+					(*p_buff)[i++] = (tokenbyte) key;
+					*pp = qmax;
+					if(i > imax) {
+						BPPrintMessage(0,odError,"=> i > imax. Err. Encode()");
+						goto ERR;
+						}
+					if((**pp) == '&') bound = TRUE;
+					last_is_terminal = TRUE;
+					c = NextChar(pp);
+					p_mem = *pp;
+					continue;
 			}
 
 	SEARCHTERMINAL:
 		if(OkBolChar(c)) {
 			
-	SEARCHTERMINAL2:
-			if(arg_nr == 0 && !last_is_terminal && c == '_') {
-			// This is a syntax error, confusing '_' with '-'
-				if(trace_last_is_terminal) BPPrintMessage(0,odError,"=> fixed '_'\n");
-				**pp = '-'; 
-				}
-			lmax = 0;		// Look for terminal symbol
-			for(j=0; j < Jbol; j++) {
-				q = *pp;
-				l = MyHandleLen((*p_Bol)[j]);
-				if(l == 0) {
-					BPPrintMessage(0,odError,"=> Err. Encode(). l == 0");
-					break;
-					}
-				if(Match(TRUE,&q,(*p_Bol)[j],l) && l > lmax) {
-					lmax = l; jj = j;
-					qmax = q + l;
-					}
-				}
-			if(lmax  > 0) {
-				leftside = neg = FALSE;
-				(*p_buff)[i++] = T3; (*p_buff)[i++] = (tokenbyte) jj;
-				(*pp) = qmax;
-				if(i > imax) {
-					BPPrintMessage(0,odError,"=> i > imax. Err. Encode()");
-					goto ERR;
-					}
-				if((**pp) == '&') bound = TRUE;
-				last_is_terminal = TRUE;
-				c = NextChar(pp);
-				p_mem = *pp;
-				continue;
-				}
+			SEARCHTERMINAL2:
+					if(arg_nr == 0 && !last_is_terminal && c == '_') {
+					// This is a syntax error, confusing '_' with '-'
+						if(trace_last_is_terminal) BPPrintMessage(0,odError,"=> fixed '_'\n");
+						**pp = '-'; 
+						}
+					lmax = 0;		// Look for terminal symbol
+					for(j=0; j < Jbol; j++) {
+						q = *pp;
+						l = MyHandleLen((*p_Bol)[j]);
+						if(l == 0) {
+							BPPrintMessage(0,odError,"=> Err. Encode(). l == 0");
+							break;
+							}
+						if(Match(TRUE,&q,(*p_Bol)[j],l) && l > lmax) {
+							lmax = l; jj = j;
+							qmax = q + l;
+							}
+						}
+					if(lmax  > 0) {
+						leftside = neg = FALSE;
+						(*p_buff)[i++] = T3; (*p_buff)[i++] = (tokenbyte) jj;
+						(*pp) = qmax;
+						if(i > imax) {
+							BPPrintMessage(0,odError,"=> i > imax. Err. Encode()");
+							goto ERR;
+							}
+						if((**pp) == '&') bound = TRUE;
+						last_is_terminal = TRUE;
+						c = NextChar(pp);
+						p_mem = *pp;
+						continue;
+						}
 			}
 			
 	SEARCHTIMEPATTERN:
@@ -1143,151 +1143,148 @@ tokenbyte **Encode(t_gram* p_gram,int sequence,int notargument, int igram, int i
 	}
 
 
-int GetContext(t_gram* p_gram,int igram, int irul, char **pp, char **ppmax, p_context *p_ppc, int *p_meta)
-{
-int levpar,result,flagindex;
-char c,c1,*p1,**pp1,c2,*p2,**pp2;
-p_context ppx,ppy,ptr;
-tokenbyte **p;
+int GetContext(t_gram* p_gram,int igram, int irul, char **pp, char **ppmax, p_context *p_ppc, int *p_meta) {
+	int levpar,result,flagindex;
+	char c,c1,*p1,**pp1,c2,*p2,**pp2;
+	p_context ppx,ppy,ptr;
+	tokenbyte **p;
 
-if((ptr = (p_context) GiveSpace((Size)sizeof(t_context))) == NULL) return(ABORT);
-flagindex = 0;
-*p_ppc = ptr;
-p1 = &c1; p2 = &c2;
-pp1 = &p1; pp2 = &p2;
-++(*pp);		/* skip first '(' */
-*pp1 = *pp;
-for(levpar = 1; (*pp) <= (*ppmax); (*pp)++) {
-	c = NextChar(pp);
-	if(c == '\n' || c == '[') return(MISSED);
-	if(c == '(') {
-		levpar++;
-		continue;
-		}
-	if(c == ')') {
-		if(--levpar == 0) break;
-		}
-	}
-/* printf("levpar=%ld",(long)levpar); Pause(0); */
-if(levpar != 0) {
-	my_sprintf(Message,"Incorrect bracketting.\n");
-	Print(wTrace,Message);
-	return(MISSED);
-	}
-*pp2 = (*pp);
-**pp2 = ' '; /* Erase ')' */
-ppx = NULL; ppy = NULL;
-result = OK;
-if((p = Encode(p_gram,FALSE,TRUE,igram,irul,pp1,pp2,&ppx,&ppy,p_meta,0,NULL,FALSE,&result))
-		== NULL) {
-	(*(*p_ppc))->p_arg = NULL;
-	if(result < 0) return(result);
-	my_sprintf(Message,"Can't encode remote context!\n");
-	Print(wTrace,Message);
-	if(EmergencyExit) return(ABORT);
-	return(MISSED);
-	}
-(*(*p_ppc))->p_arg = p;
-if((ppx != NULL) || (ppy != NULL)) {
-	my_sprintf(Message,"Can't have multilayered remote context!\n");
-	Print(wTrace,Message);
-	return(MISSED);
-	}
-++(*pp); NextChar(pp);
-return(OK);
-}
-
-
-
-long FindNumber(char **pp)
-{
-long n;
-char c;
-
-n = ZERO;
-if((c=**pp) < '0' || c > '9') return(-1L);
-while((c=**pp) >= '0' && c <= '9') {
-	n = (10L * n) + (long)(c - '0');
-	(*pp)++;
-	}
-return(n);
-}
-
-
-int GetVar(char **pp, char **ppmax)
-{
-int i,im,j,l,bracket;
-char c,*porg,*q,**ptr,line[MAXLIN];
-Size oldsize;
-
-bracket = FALSE;
-porg = *pp;
-if(**pp == '|') {
-	(*pp)++; bracket = TRUE;
-	}
-if(p_Var != NULL && Jvar > 0) {
-	for(j=1; j <= Jvar; j++) { 
-		l = MyHandleLen((*p_Var)[j]);
-		if(l == 0) {
-			BPPrintMessage(0,odError,"=> Err. GetVar(). l == 0");
-			break;
+	if((ptr = (p_context) GiveSpace((Size)sizeof(t_context))) == NULL) return(ABORT);
+	flagindex = 0;
+	*p_ppc = ptr;
+	p1 = &c1; p2 = &c2;
+	pp1 = &p1; pp2 = &p2;
+	++(*pp);		/* skip first '(' */
+	*pp1 = *pp;
+	for(levpar = 1; (*pp) <= (*ppmax); (*pp)++) {
+		c = NextChar(pp);
+		if(c == '\n' || c == '[') return(MISSED);
+		if(c == '(') {
+			levpar++;
+			continue;
 			}
-		q = *pp;
-		if(Match(TRUE,&q,(*p_Var)[j],l)) {
-			q += l;
-			if((*q == '|' && bracket) || (!bracket && !OkChar(*q))) {
-				if(bracket) q++;
-				*pp = q;
-				return(j);
+		if(c == ')') {
+			if(--levpar == 0) break;
+			}
+		}
+	/* printf("levpar=%ld",(long)levpar); Pause(0); */
+	if(levpar != 0) {
+		my_sprintf(Message,"Incorrect bracketting.\n");
+		Print(wTrace,Message);
+		return(MISSED);
+		}
+	*pp2 = (*pp);
+	**pp2 = ' '; /* Erase ')' */
+	ppx = NULL; ppy = NULL;
+	result = OK;
+	if((p = Encode(p_gram,FALSE,TRUE,igram,irul,pp1,pp2,&ppx,&ppy,p_meta,0,NULL,FALSE,&result))
+			== NULL) {
+		(*(*p_ppc))->p_arg = NULL;
+		if(result < 0) return(result);
+		my_sprintf(Message,"Can't encode remote context!\n");
+		Print(wTrace,Message);
+		if(EmergencyExit) return(ABORT);
+		return(MISSED);
+		}
+	(*(*p_ppc))->p_arg = p;
+	if((ppx != NULL) || (ppy != NULL)) {
+		my_sprintf(Message,"Can't have multilayered remote context!\n");
+		Print(wTrace,Message);
+		return(MISSED);
+		}
+	++(*pp); NextChar(pp);
+	return(OK);
+	}
+
+
+
+long FindNumber(char **pp) {
+	long n;
+	char c;
+
+	n = ZERO;
+	if((c=**pp) < '0' || c > '9') return(-1L);
+	while((c=**pp) >= '0' && c <= '9') {
+		n = (10L * n) + (long)(c - '0');
+		(*pp)++;
+		}
+	return(n);
+	}
+
+
+int GetVar(char **pp, char **ppmax) {
+	int i,im,j,l,bracket;
+	char c,*porg,*q,**ptr,line[MAXLIN];
+	Size oldsize;
+
+	bracket = FALSE;
+	porg = *pp;
+	if(**pp == '|') {
+		(*pp)++; bracket = TRUE;
+		}
+	if(p_Var != NULL && Jvar > 0) {
+		for(j=1; j <= Jvar; j++) { 
+			l = MyHandleLen((*p_Var)[j]);
+			if(l == 0) {
+				BPPrintMessage(0,odError,"=> Err. GetVar(). l == 0");
+				break;
+				}
+			q = *pp;
+			if(Match(TRUE,&q,(*p_Var)[j],l)) {
+				q += l;
+				if((*q == '|' && bracket) || (!bracket && !OkChar(*q))) {
+					if(bracket) q++;
+					*pp = q;
+					return(j);
+					}
 				}
 			}
 		}
-	}
-c = **pp;
-if(!isupper(c) && !bracket) {
-	for(i=0,(*pp)=porg; (*pp) <= (*ppmax) && !MySpace(**pp) && i < MAXLIN; (*pp)++,i++)
-					line[i] = **pp;
-	line[i] = '\0'; im = i;
-	my_sprintf(Message,
-	"Variable must start with uppercase character or '|'. Can't make sense of \"%s\".",
-		line);
-	Print(wTrace,Message);
-	if(OkBolChar(c)) {
-		my_sprintf(Message,
-			" May be unknown terminal symbol, time-pattern or incorrect note convention?");
-		Print(wTrace,Message);
-		}
-	Print(wTrace,"\n");
-	return(ABORT);
-	}
-if(MaxVar != 0) {
-	/* The contrary may happen if encoding with no compiled grammar and no compiled glossary */
-	if(++Jvar >= MaxVar) {
-		if((p_Var = (char****) IncreaseSpace((Handle)p_Var)) == NULL)
-										return(ABORT);
-		if((p_VarStatus = (int**) IncreaseSpace((Handle)p_VarStatus)) == NULL)
-										return(ABORT);
-		for(i=Jvar; i < (MaxVar=(MyGetHandleSize((Handle)p_Var) / sizeof(char**))); i++) {
-			(*p_Var)[i] = NULL; (*p_VarStatus)[i] = 0;
-			}
-		}
-	ptr = (char**) GiveSpace((Size)MAXLIN * sizeof(char));
-	if(((*p_Var)[Jvar] = ptr) == NULL) return(ABORT);
-	}
-for(i=0; (*pp) <= (*ppmax)+1; (*pp)++,i++) {
 	c = **pp;
-	if(MaxVar > 0 && i >= MAXLIN) {
-		(*((*p_Var)[Jvar]))[i-1] = '\0';
-		my_sprintf(Message,"Max %ld chars in variable! Can't accept \"%s...\"",
-			(long)MAXLIN-1L,(*((*p_Var)[Jvar])));
+	if(!isupper(c) && !bracket) {
+		for(i=0,(*pp)=porg; (*pp) <= (*ppmax) && !MySpace(**pp) && i < MAXLIN; (*pp)++,i++)
+						line[i] = **pp;
+		line[i] = '\0'; im = i;
+		my_sprintf(Message,
+		"Variable must start with uppercase character or '|'. Can't make sense of \"%s\".",
+			line);
 		Print(wTrace,Message);
-		ptr = (*p_Var)[Jvar];
-		MyDisposeHandle((Handle*)&ptr);
-		(*p_Var)[Jvar] = NULL;
-		Jvar--;
+		if(OkBolChar(c)) {
+			my_sprintf(Message,
+				" May be unknown terminal symbol, time-pattern or incorrect note convention?");
+			Print(wTrace,Message);
+			}
+		Print(wTrace,"\n");
 		return(ABORT);
 		}
-	if((c == '|' && bracket) || (!bracket && (!OkChar(c))) || ((*pp) > (*ppmax))) {
+	if(MaxVar != 0) {
+		/* The contrary may happen if encoding with no compiled grammar and no compiled glossary */
+		if(++Jvar >= MaxVar) {
+			if((p_Var = (char****) IncreaseSpace((Handle)p_Var)) == NULL)
+											return(ABORT);
+			if((p_VarStatus = (int**) IncreaseSpace((Handle)p_VarStatus)) == NULL)
+											return(ABORT);
+			for(i=Jvar; i < (MaxVar=(MyGetHandleSize((Handle)p_Var) / sizeof(char**))); i++) {
+				(*p_Var)[i] = NULL; (*p_VarStatus)[i] = 0;
+				}
+			}
+		ptr = (char**) GiveSpace((Size)MAXLIN * sizeof(char));
+		if(((*p_Var)[Jvar] = ptr) == NULL) return(ABORT);
+		}
+	for(i=0; (*pp) <= (*ppmax)+1; (*pp)++,i++) {
+		c = **pp;
+		if(MaxVar > 0 && i >= MAXLIN) {
+			(*((*p_Var)[Jvar]))[i-1] = '\0';
+			my_sprintf(Message,"Max %ld chars in variable! Can't accept \"%s...\"",
+				(long)MAXLIN-1L,(*((*p_Var)[Jvar])));
+			Print(wTrace,Message);
+			ptr = (*p_Var)[Jvar];
+			MyDisposeHandle((Handle*)&ptr);
+			(*p_Var)[Jvar] = NULL;
+			Jvar--;
+			return(ABORT);
+			}
+		if((c == '|' && bracket) || (!bracket && (!OkChar(c))) || ((*pp) > (*ppmax))) {
 			if(MaxVar > 0 && i == 0) {
 				Print(wTrace,
 				"Variable name can't be empty. (May be you forgot a space before '-->')");
@@ -1325,11 +1322,11 @@ for(i=0; (*pp) <= (*ppmax)+1; (*pp)++,i++) {
 			if(bracket) (*pp)++;
 			return(Jvar);
 			}
-	if(MaxVar > 0) (*((*p_Var)[Jvar]))[i] = c;
+		if(MaxVar > 0) (*((*p_Var)[Jvar]))[i] = c;
+		}
+	BPPrintMessage(0,odError,"=> Err2. GetVar()");
+	return(ABORT);
 	}
-BPPrintMessage(0,odError,"=> Err2. GetVar()");
-return(ABORT);
-}
 
 
 int FindCode(char x) {
@@ -1356,375 +1353,367 @@ int FindCode(char x) {
 	}
 
 
-int Recode(int notargument,long *p_imax,tokenbyte ***pp_buff)
-{
-int j,imaster,nbmaster;
-long i,orgmaster[MAXLEVEL],endmaster[MAXLEVEL];
+int Recode(int notargument,long *p_imax,tokenbyte ***pp_buff) {
+	int j,imaster,nbmaster;
+	long i,orgmaster[MAXLEVEL],endmaster[MAXLEVEL];
 
-i = ZERO;
-imaster = 0;
-while(i < (*p_imax)-1) {
-	if((**pp_buff)[i] == T0) {
-		i++;
-		if((**pp_buff)[i] == 8) {		/* '(' */
-			i++; /* levpar++;  */
-			if((**pp_buff)[i] != T0) return(18);
+	i = ZERO;
+	imaster = 0;
+	while(i < (*p_imax)-1) {
+		if((**pp_buff)[i] == T0) {
 			i++;
-			if((**pp_buff)[i] == 6) {	/* '=' */
-				(**pp_buff)[i-1] = 2;
-				(**pp_buff)[i] = 0;
-				imaster++;
+			if((**pp_buff)[i] == 8) {		/* '(' */
+				i++; /* levpar++;  */
+				if((**pp_buff)[i] != T0) return(18);
+				i++;
+				if((**pp_buff)[i] == 6) {	/* '=' */
+					(**pp_buff)[i-1] = 2;
+					(**pp_buff)[i] = 0;
+					imaster++;
+					}
+				else {
+					if((**pp_buff)[i] != 4) return(18);
+											/* only ':' should follow */
+					(**pp_buff)[i-1] = 2;
+					(**pp_buff)[i] = 1;
+					}
 				}
-			else {
-				if((**pp_buff)[i] != 4) return(18);
-										/* only ':' should follow */
-				(**pp_buff)[i-1] = 2;
-				(**pp_buff)[i] = 1;
-				}
+		/*	else
+				if((**pp_buff)[i] == 9) {
+					if(levpar > 0) levpar--;
+					for(h=nhomo; h >= 1; h--)
+						if(depth[h] >= levpar) nhomo--;
+					} */
+			i++;
 			}
-	/*	else
-			if((**pp_buff)[i] == 9) {
-				if(levpar > 0) levpar--;
-				for(h=nhomo; h >= 1; h--)
-					if(depth[h] >= levpar) nhomo--;
+		else {
+		/*	if((**pp_buff)[i] == T5) {
+				j = (int)(**pp_buff)[i+1];
+				nhomo++;
+				if(nhomo >= MAXLEVEL) {
+					BPPrintMessage(0,odError,"Increase 'MAXLEVEL'.  Err Recode()");
+					return(20);
+					}
+				depth[nhomo] = levpar;
+				homoname[nhomo] = j; 
 				} */
-		i++;
-		}
-	else {
-	/*	if((**pp_buff)[i] == T5) {
-			j = (int)(**pp_buff)[i+1];
-			nhomo++;
-			if(nhomo >= MAXLEVEL) {
-				BPPrintMessage(0,odError,"Increase 'MAXLEVEL'.  Err Recode()");
-				return(20);
-				}
-			depth[nhomo] = levpar;
-			homoname[nhomo] = j; 
-			} */
-		i+=2;
-		}
-
-	}
-// OPTIMIZE: does the rest of this need to be done if imaster == 0 ?
-nbmaster = 0;
-// FIXME ? FindMaster() currently always returns 0; should it return -1 if LastSymbol() returns 0 ? No!
-// if(FindMaster(pp_buff,orgmaster,endmaster,&nbmaster,p_imax) == -1) return(16);
-FindMaster(pp_buff,orgmaster,endmaster,&nbmaster,p_imax);
-/* Print(wTrace,"\nList of masters:\n");
-if(nbmaster == 0) Print(wTrace,"none\n");
-else
-	for(j=1; j<= nbmaster; j++) {
-		my_sprintf(Message,"\n<%ld> ",(long)j);
-		Print(wTrace,Message);
-		for(i=orgmaster[j]; i <= endmaster[j]; i=i+2) {
-			my_sprintf(Message," %ld.%ld",(long)(**pp_buff)[i],(long)(**pp_buff)[i+1]);
-			Print(wTrace,Message);
+			i+=2;
 			}
+
 		}
-*/
-
-if((j=BindSlaves(pp_buff,orgmaster,endmaster,&nbmaster,p_imax))
-	!= 0) return(j);
-return(0);
-}
-
-
-int FindMaster(tokenbyte ***pp_buff, long orgmaster[], long endmaster[], int *p_nbmaster, long *p_imax)
-{
-long i;
-int j;
-
-for(i=0; i < (*p_imax)-1; i+=2) {
-	if((**pp_buff)[i] == T0 && (**pp_buff)[i+1] == 8) {		/* '(' */
-		if((**pp_buff)[i+2] == T2 && (**pp_buff)[i+3] == 0) { /* '=' */
-			i += 4;
-			if((j=LastSymbol(pp_buff,i,p_imax)) == 0) continue;
-			(*p_nbmaster)++;
-			orgmaster[*p_nbmaster] = i;
-			endmaster[*p_nbmaster] = j;
-			}
-		}
-	}
-return(0);
-}
-
-
-int LastSymbol(tokenbyte ***pp_buff, long iorg, long *p_imax)
-{
-int levpar;
-long i;
-
-for(i=iorg,levpar=1; i < (*p_imax)-1; i+=2) {
-	if((**pp_buff)[i] == T0 && (**pp_buff)[i+1] == 9) {	/* ')' */
-		levpar--;
-		if(levpar == 0) return(i-2);
-		}
+	// OPTIMIZE: does the rest of this need to be done if imaster == 0 ?
+	nbmaster = 0;
+	// FIXME ? FindMaster() currently always returns 0; should it return -1 if LastSymbol() returns 0 ? No!
+	// if(FindMaster(pp_buff,orgmaster,endmaster,&nbmaster,p_imax) == -1) return(16);
+	FindMaster(pp_buff,orgmaster,endmaster,&nbmaster,p_imax);
+	/* Print(wTrace,"\nList of masters:\n");
+	if(nbmaster == 0) Print(wTrace,"none\n");
 	else
-		if((**pp_buff)[i] == T0 && (**pp_buff)[i+1] == 8) levpar++; 	/* '(' */
+		for(j=1; j<= nbmaster; j++) {
+			my_sprintf(Message,"\n<%ld> ",(long)j);
+			Print(wTrace,Message);
+			for(i=orgmaster[j]; i <= endmaster[j]; i=i+2) {
+				my_sprintf(Message," %ld.%ld",(long)(**pp_buff)[i],(long)(**pp_buff)[i+1]);
+				Print(wTrace,Message);
+				}
+			}
+	*/
+
+	if((j=BindSlaves(pp_buff,orgmaster,endmaster,&nbmaster,p_imax))
+		!= 0) return(j);
+	return(0);
 	}
-return(0);
-}
+
+
+int FindMaster(tokenbyte ***pp_buff, long orgmaster[], long endmaster[], int *p_nbmaster, long *p_imax) {
+	long i;
+	int j;
+
+	for(i=0; i < (*p_imax)-1; i+=2) {
+		if((**pp_buff)[i] == T0 && (**pp_buff)[i+1] == 8) {		/* '(' */
+			if((**pp_buff)[i+2] == T2 && (**pp_buff)[i+3] == 0) { /* '=' */
+				i += 4;
+				if((j=LastSymbol(pp_buff,i,p_imax)) == 0) continue;
+				(*p_nbmaster)++;
+				orgmaster[*p_nbmaster] = i;
+				endmaster[*p_nbmaster] = j;
+				}
+			}
+		}
+	return(0);
+	}
+
+
+int LastSymbol(tokenbyte ***pp_buff, long iorg, long *p_imax) {
+	int levpar;
+	long i;
+
+	for(i=iorg,levpar=1; i < (*p_imax)-1; i+=2) {
+		if((**pp_buff)[i] == T0 && (**pp_buff)[i+1] == 9) {	/* ')' */
+			levpar--;
+			if(levpar == 0) return(i-2);
+			}
+		else
+			if((**pp_buff)[i] == T0 && (**pp_buff)[i+1] == 8) levpar++; 	/* '(' */
+		}
+	return(0);
+	}
 
 
 int BindSlaves(tokenbyte ***pp_buff,long *orgmaster,long *endmaster,int *p_nbmaster,
-	long *p_imax)
-{
-tokenbyte **p_a;
-long i,ii,j,k;
-int h,levpar,mark,islave;
-long length[MAXLEVEL];
-int nhomo,homoname[MAXLEVEL],depth[MAXLEVEL];
+	long *p_imax) {
+	tokenbyte **p_a;
+	long i,ii,j,k;
+	int h,levpar,mark,islave;
+	long length[MAXLEVEL];
+	int nhomo,homoname[MAXLEVEL],depth[MAXLEVEL];
 
-/* First pick-up ref numbers in master table */
+	/* First pick-up ref numbers in master table */
 
-if(*pp_buff == NULL) {
-	BPPrintMessage(0,odError,"=> Err. BindSlaves(). *pp_buff = NULL");
-	return(ABORT);
-	}
-if((p_a=(tokenbyte**) GiveSpace((Size) MyGetHandleSize((Handle)*pp_buff))) == NULL)
+	if(*pp_buff == NULL) {
+		BPPrintMessage(0,odError,"=> Err. BindSlaves(). *pp_buff = NULL");
 		return(ABORT);
+		}
+	if((p_a=(tokenbyte**) GiveSpace((Size) MyGetHandleSize((Handle)*pp_buff))) == NULL)
+			return(ABORT);
 	
-if(CopyBuf(pp_buff,&p_a) == ABORT) return(ABORT);
+	if(CopyBuf(pp_buff,&p_a) == ABORT) return(ABORT);
 
-for(i=levpar=nhomo=islave=0; i < (*p_imax)-1; i+=2) {
-	if((**pp_buff)[i] == T0 && (**pp_buff)[i+1] == 8) {
-		levpar++;
-		}
-	if((**pp_buff)[i] == T0 && (**pp_buff)[i+1] == 9) {	/* ')' */
-		if(levpar > 0) levpar--;
-		for(h=nhomo; h >= 1; h--)
-			if(depth[h] >= levpar) nhomo--;
-		}
-	if((**pp_buff)[i] == T5) {
-		nhomo++;
-		if(nhomo >= MAXLEVEL) {
-			BPPrintMessage(0,odError,"Increase 'MAXLEVEL'.  Err Recode()");
-			MyDisposeHandle((Handle*)&p_a);
-			return(20);	// should this be error 25 or 40 ? - akozar
+	for(i=levpar=nhomo=islave=0; i < (*p_imax)-1; i+=2) {
+		if((**pp_buff)[i] == T0 && (**pp_buff)[i+1] == 8) {
+			levpar++;
 			}
-		depth[nhomo] = levpar;
-		homoname[nhomo] = (int)(**pp_buff)[i+1];
-		}
-	if((**pp_buff)[i] == T2 && (**pp_buff)[i+1] == 1) {
-								/* temp ':', this is a slave */
-		if((j=Reference(pp_buff,orgmaster,endmaster,p_nbmaster,p_imax,i+2,
-			nhomo,levpar,depth,homoname)) == -1) {
-			MyDisposeHandle((Handle*)&p_a);
-			return(17);
+		if((**pp_buff)[i] == T0 && (**pp_buff)[i+1] == 9) {	/* ')' */
+			if(levpar > 0) levpar--;
+			for(h=nhomo; h >= 1; h--)
+				if(depth[h] >= levpar) nhomo--;
 			}
-		(*p_a)[i+1] = (tokenbyte) j;
-		length[islave++] = endmaster[j] - orgmaster[j] + 2;
-		if(islave >= MAXLEVEL) {
-			BPPrintMessage(0,odError,"Increase 'MAXLEVEL'.  Err BindSlaves(). ");
-			MyDisposeHandle((Handle*)&p_a);
-			return(40);
+		if((**pp_buff)[i] == T5) {
+			nhomo++;
+			if(nhomo >= MAXLEVEL) {
+				BPPrintMessage(0,odError,"Increase 'MAXLEVEL'.  Err Recode()");
+				MyDisposeHandle((Handle*)&p_a);
+				return(20);	// should this be error 25 or 40 ? - akozar
+				}
+			depth[nhomo] = levpar;
+			homoname[nhomo] = (int)(**pp_buff)[i+1];
 			}
-		continue;
+		if((**pp_buff)[i] == T2 && (**pp_buff)[i+1] == 1) {
+									/* temp ':', this is a slave */
+			if((j=Reference(pp_buff,orgmaster,endmaster,p_nbmaster,p_imax,i+2,
+				nhomo,levpar,depth,homoname)) == -1) {
+				MyDisposeHandle((Handle*)&p_a);
+				return(17);
+				}
+			(*p_a)[i+1] = (tokenbyte) j;
+			length[islave++] = endmaster[j] - orgmaster[j] + 2;
+			if(islave >= MAXLEVEL) {
+				BPPrintMessage(0,odError,"Increase 'MAXLEVEL'.  Err BindSlaves(). ");
+				MyDisposeHandle((Handle*)&p_a);
+				return(40);
+				}
+			continue;
+			}
 		}
-	}
-if(CopyBuf(&p_a,pp_buff) == ABORT) return(17);  // should this return ABORT as above? - akozar
-MyDisposeHandle((Handle*)&p_a);
+	if(CopyBuf(&p_a,pp_buff) == ABORT) return(17);  // should this return ABORT as above? - akozar
+	MyDisposeHandle((Handle*)&p_a);
 
-/* Erase content of slaves... */
-/* ... especially copies of 'ZERO' markers that are irrelevant */
+	/* Erase content of slaves... */
+	/* ... especially copies of 'ZERO' markers that are irrelevant */
 
-// OPTIMIZE: I think we can skip the rest of this if islave == 0
-i = 0; islave = 0;
-while(i < (*p_imax)-1)	{
-	if((**pp_buff)[i] == T2 && (**pp_buff)[i+1] != 0) {	/* found slave */
-		for(j=i+2; j < i+2+length[islave]; j=j+2) {
-			(**pp_buff)[j] = TEND; (**pp_buff)[j+1] = TEND;
+	// OPTIMIZE: I think we can skip the rest of this if islave == 0
+	i = 0; islave = 0;
+	while(i < (*p_imax)-1)	{
+		if((**pp_buff)[i] == T2 && (**pp_buff)[i+1] != 0) {	/* found slave */
+			for(j=i+2; j < i+2+length[islave]; j=j+2) {
+				(**pp_buff)[j] = TEND; (**pp_buff)[j+1] = TEND;
+				}
+			i = j;
+			islave++;
 			}
-		i = j;
-		islave++;
+		i += 2;
 		}
-	i += 2;
-	}
 	
-/* Count ZERO markers and write true slave markers */
-for(i=0; i < (*p_imax)-1; i+=2) {
-	if((**pp_buff)[i] != T2 || (j=(**pp_buff)[i+1]) == 0) continue;
-													/* look for slave */
-	for(ii=orgmaster[j],mark=1; ii < (i-2); ii=ii+2)
-		if((**pp_buff)[ii] == T2 && (**pp_buff)[ii+1] == 0) /* ZERO marker */
-			mark++;
-	(**pp_buff)[i+1] = (tokenbyte) mark;
-	}
-
-/* Now delete all '0 0's in slaves */
-i = 0; islave = 0;
-while(i < (*p_imax)-1)	{
-	if((**pp_buff)[i] == T2 && (**pp_buff)[i+1] != 0) {	/* found slave */
-		j = i + 2; k = j + length[islave];
-		// OPTIMIZE: save & use p_a above and copy back to pp_buff here instead, skipping
-		// slave contents, so we only need to move the rest of the buffer once ??
-		// See longer explanation in BP2-info4-Grammar-functions.txt - akozar
-		MoveDown(pp_buff,&j,&k,p_imax);
-		islave++; i=j;
+	/* Count ZERO markers and write true slave markers */
+	for(i=0; i < (*p_imax)-1; i+=2) {
+		if((**pp_buff)[i] != T2 || (j=(**pp_buff)[i+1]) == 0) continue;
+														/* look for slave */
+		for(ii=orgmaster[j],mark=1; ii < (i-2); ii=ii+2)
+			if((**pp_buff)[ii] == T2 && (**pp_buff)[ii+1] == 0) /* ZERO marker */
+				mark++;
+		(**pp_buff)[i+1] = (tokenbyte) mark;
 		}
-	i += 2;
+
+	/* Now delete all '0 0's in slaves */
+	i = 0; islave = 0;
+	while(i < (*p_imax)-1)	{
+		if((**pp_buff)[i] == T2 && (**pp_buff)[i+1] != 0) {	/* found slave */
+			j = i + 2; k = j + length[islave];
+			// OPTIMIZE: save & use p_a above and copy back to pp_buff here instead, skipping
+			// slave contents, so we only need to move the rest of the buffer once ??
+			// See longer explanation in BP2-info4-Grammar-functions.txt - akozar
+			MoveDown(pp_buff,&j,&k,p_imax);
+			islave++; i=j;
+			}
+		i += 2;
+		}
+	return(0);
 	}
-return(0);
-}
 
 
 int Reference(tokenbyte ***pp_buff, long orgmaster[], long endmaster[], int *p_nbmaster,
-	long *p_imax, long iorg, int nhomo, int levpar, int depth[], int homoname[])
-{
-long i,j;
-int k,n,dif,h,p1,q1,p2,q2;
+	long *p_imax, long iorg, int nhomo, int levpar, int depth[], int homoname[]) {
+	long i,j;
+	int k,n,dif,h,p1,q1,p2,q2;
 
-for(k=1; k <= (*p_nbmaster); k++) {
-	dif = 0;
-	for(i=iorg,j=orgmaster[k]; j <= endmaster[k]; i+=2,j+=2) {
-		p1 = (int)(**pp_buff)[i]; q1 = (int)(**pp_buff)[i+1];
-		p2 = (int)(**pp_buff)[j]; q2 = (int)(**pp_buff)[j+1];
-		if(p1 == T25 || p2 == T25) {
-			if(p1 == T25) q1 += 16384;
-			if(p2 == T25) q2 += 16384;
-			p1 = p2 = T3;
-			if(nhomo > 0) goto TERMINAL;
-			}
-		if(p2 == T3 && q2 > 1 && nhomo > 0) {
-			/* Apply homorphisms to terminal */
+	for(k=1; k <= (*p_nbmaster); k++) {
+		dif = 0;
+		for(i=iorg,j=orgmaster[k]; j <= endmaster[k]; i+=2,j+=2) {
+			p1 = (int)(**pp_buff)[i]; q1 = (int)(**pp_buff)[i+1];
+			p2 = (int)(**pp_buff)[j]; q2 = (int)(**pp_buff)[j+1];
+			if(p1 == T25 || p2 == T25) {
+				if(p1 == T25) q1 += 16384;
+				if(p2 == T25) q2 += 16384;
+				p1 = p2 = T3;
+				if(nhomo > 0) goto TERMINAL;
+				}
+			if(p2 == T3 && q2 > 1 && nhomo > 0) {
+				/* Apply homorphisms to terminal */
 TERMINAL:
-			for(n=nhomo; n >= 1; n--) {
-				if(depth[n] < levpar) {
-					h = homoname[n];
-					if(h >= Jhomo) {
-						BPPrintMessage(0,odError,"=> Err. Reference(). h >= Jhomo");
-						return(-1);
+				for(n=nhomo; n >= 1; n--) {
+					if(depth[n] < levpar) {
+						h = homoname[n];
+						if(h >= Jhomo) {
+							BPPrintMessage(0,odError,"=> Err. Reference(). h >= Jhomo");
+							return(-1);
+							}
+						q2 = Image(h,q2);
 						}
-					q2 = Image(h,q2);
 					}
 				}
+			if(p1 != p2 || q1 != q2) {
+				dif = TRUE; 
+				break;
+				}
 			}
-		if(p1 != p2 || q1 != q2) {
-			dif = TRUE; 
-			break;
+		if(!dif && (j == (endmaster[k] + 2)) && (**pp_buff)[j] == T0
+				&& (**pp_buff)[j+1] == 9) 		/* Next symbol is ')' */
+			return(k);
+		}
+	return(-1);
+	}
+
+
+tokenbyte Image(int h,int j) {
+	tokenbyte jj;
+
+	if(j >= 16384) {
+		jj = j - 16384;
+		if(jj > 127) {
+			BPPrintMessage(0,odError,"=> Err. Image(). jj > 127");
+			return(j);
+			}
+		jj = (*((*p_NoteImage)[h]))[jj];
+		}
+	else {
+		if(j < 0 || j >= Jbol) {
+			BPPrintMessage(0,odError,"=> Err. Image(). j < 0 || j >= Jbol");
+			return(j);
+			}
+		jj = (*((*p_Image)[h]))[j];
+		}
+	return(jj);
+	}
+
+
+int FoundPeriod(tokenbyte ***pp_a) {
+	long i;
+	tokenbyte m,p;
+
+	if(pp_a == NULL || *pp_a == NULL || **pp_a == NULL) return(FALSE);
+	for(i=0; ; i+=2) {
+		m = (int)(**pp_a)[i]; p = (int)(**pp_a)[i+1];
+		if(m == TEND && p == TEND) break;
+		if(m == T0 && p == 7) {		/* '�' */
+			return(TRUE);
 			}
 		}
-	if(!dif && (j == (endmaster[k] + 2)) && (**pp_buff)[j] == T0
-			&& (**pp_buff)[j+1] == 9) 		/* Next symbol is ')' */
-		return(k);
+	return(FALSE);
 	}
-return(-1);
-}
 
 
-tokenbyte Image(int h,int j)
-{
-tokenbyte jj;
+int ShowError(int i,int igram,int irul) {
+	char t[255];
+	static int fatal[] = {0,1,1,0,0,0,1,0,0,0,0,0,0,1,0,0,0,0,0,1,0,1,0,0,1,1,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0};
+	static char* err[] = {"",
+		"too many grammars", 		/* 1 */
+		"too many rules",			/* 2 */
+		"rule syntax",				/* 3 */
+		"flag name too long",		/* 4 */
+		"rule incomplete",			/* 5 */
+		"file not found",			/* 6 */
+		"subgrammar type",		/* 7 */
+		"incorrect expression or bad derivation",			/* 8 */
+		"error in remote context",	/* 9 */
+		"unterminated comment: can't find ']' nor '*/'",		/* 10 */
+		"incorrect terminal",		/* 11 */
+		"variable name too long",	/* 12 */
+		"too many variables",		/* 13 */
+		"argument too large: increase 'FIELDSIZE'!",	/* 14 */
+		"argument syntax",			/* 15 */
+		"bad slave marker",			/* 16 */
+		"slave has no reference (may be incorrect homomorphism in alphabet)",	/* 17 */
+		"'=' or ':' marker must follow opening bracket",	/* 18 */
+		"too many terminal symbols",						/* 19 */
+		"incorrect weight",							/* 20 */
+		"can't read this file",						/* 21 */
+		"terminal name too long",					/* 22 */
+		"variable name can't be empty (could be missing space before '-->')",
+																		/* 23 */
+		"incorrect homomorphism",					/* 24 */
+		"too many homomorphisms",					/* 25 */
+		"symbol too long",							/* 26 */
+		"terminal symbol contains unwanted character", /* 27 */
+		"'n' is too high in '?n' metavariable",		/* 28 */
+		"more '?' in right argument",				/* 29 */
+		"can't write this file",					/* 30 */
+		"can't interpret polyphonic structure",		/* 31 */
+		"can't create MIDI data",					/* 32 */
+		"error in arithmetic",						/* 33 */
+		"too long sequence",						/* 34 */
+		"subgrammar type should be one single word:'ORD','LEFT','LIN','SUB'", /* 35 */
+		"too many sound-objects",							/* 36 */
+		"can't set time",									/* 37 */
+		"item ignored...",									/* 38 */
+		"'{' and '}' not balanced",							/* 39 */
+		"too many parenthesis levels: increase 'MAXLEVEL'",	/* 40 */
+		"weight misplaced or incorrect <<out-time object>>",		/* 41 */
+		"incorrect tag",									/* 42 */
+		"number should be less than 256",					/* 43 */
+		"procedure should be single word, e.g. '_destru'",	/* 44 */
+		"only one flag allowed in left argument",			/* 45 */
+		"incorrect time pattern name(s)",						/* 46 */
+		"incorrect time value in pattern(s)",					/* 47 */
+		"same time-pattern(s) defined twice",						/* 48 */
+		"/flags/ not allowed in SUB or SUB1 or POSLONG subgrammar or glossary",	/* 49 */
+		"/flag = .../ assignment or comparison should occur only in argument of rule", /* 50 */
+		"/flag/ incrementation or comparison should occur only in left argument of rule",	/* 51 */
+		"Missing slash after /flag/",	/* 52 */
+		"=> Incorrect integer value for /flag/ assignment or incrementation",	/* 53 */
+		"Reserved words 'lambda', 'nil', 'empty' and 'null' can't be redefined as terminals", /* 54 */
+		"=> Incorrect character in argument" /* 55 */
+		};
 
-if(j >= 16384) {
-	jj = j - 16384;
-	if(jj > 127) {
-		BPPrintMessage(0,odError,"=> Err. Image(). jj > 127");
-		return(j);
+	if(i < 0) return(TRUE);
+	my_sprintf(Message,"Error code %ld: %s",(long)i,err[i]);
+	if(igram != 0) {
+		my_sprintf(t," in gram#%ld rule %ld\n",(long)igram,(long)irul);
 		}
-	jj = (*((*p_NoteImage)[h]))[jj];
+	else strcpy(t,"\n");
+	strcat(Message,t);
+	// BPPrintMessage(0,odError,Message);
+	BPActivateWindow(SLOW,wTrace);
+	Print(wTrace,Message);
+	ShowSelect(CENTRE,wTrace);
+	return(fatal[i]);
 	}
-else {
-	if(j < 0 || j >= Jbol) {
-		BPPrintMessage(0,odError,"=> Err. Image(). j < 0 || j >= Jbol");
-		return(j);
-		}
-	jj = (*((*p_Image)[h]))[j];
-	}
-return(jj);
-}
-
-
-int FoundPeriod(tokenbyte ***pp_a)
-{
-long i;
-tokenbyte m,p;
-
-if(pp_a == NULL || *pp_a == NULL || **pp_a == NULL) return(FALSE);
-for(i=0; ; i+=2) {
-	m = (int)(**pp_a)[i]; p = (int)(**pp_a)[i+1];
-	if(m == TEND && p == TEND) break;
-	if(m == T0 && p == 7) {		/* '�' */
-		return(TRUE);
-		}
-	}
-return(FALSE);
-}
-
-
-int ShowError(int i,int igram,int irul)
-{
-char t[255];
-static int fatal[] = {0,1,1,0,0,0,1,0,0,0,0,0,0,1,0,0,0,0,0,1,0,1,0,0,1,1,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0};
-static char* err[] = {"",
-"too many grammars", 		/* 1 */
-"too many rules",			/* 2 */
-"rule syntax",				/* 3 */
-"flag name too long",		/* 4 */
-"rule incomplete",			/* 5 */
-"file not found",			/* 6 */
-"subgrammar type",		/* 7 */
-"incorrect expression or bad derivation",			/* 8 */
-"error in remote context",	/* 9 */
-"unterminated comment: can't find ']' nor '*/'",		/* 10 */
-"incorrect terminal",		/* 11 */
-"variable name too long",	/* 12 */
-"too many variables",		/* 13 */
-"argument too large: increase 'FIELDSIZE'!",	/* 14 */
-"argument syntax",			/* 15 */
-"bad slave marker",			/* 16 */
-"slave has no reference (may be incorrect homomorphism in alphabet)",	/* 17 */
-"'=' or ':' marker must follow opening bracket",	/* 18 */
-"too many terminal symbols",						/* 19 */
-"incorrect weight",							/* 20 */
-"can't read this file",						/* 21 */
-"terminal name too long",					/* 22 */
-"variable name can't be empty (could be missing space before '-->')",
-																/* 23 */
-"incorrect homomorphism",					/* 24 */
-"too many homomorphisms",					/* 25 */
-"symbol too long",							/* 26 */
-"terminal symbol contains unwanted character", /* 27 */
-"'n' is too high in '?n' metavariable",		/* 28 */
-"more '?' in right argument",				/* 29 */
-"can't write this file",					/* 30 */
-"can't interpret polyphonic structure",		/* 31 */
-"can't create MIDI data",					/* 32 */
-"error in arithmetic",						/* 33 */
-"too long sequence",						/* 34 */
-"subgrammar type should be one single word:'ORD','LEFT','LIN','SUB'", /* 35 */
-"too many sound-objects",							/* 36 */
-"can't set time",									/* 37 */
-"item ignored...",									/* 38 */
-"'{' and '}' not balanced",							/* 39 */
-"too many parenthesis levels: increase 'MAXLEVEL'",	/* 40 */
-"weight misplaced or incorrect <<out-time object>>",		/* 41 */
-"incorrect tag",									/* 42 */
-"number should be less than 256",					/* 43 */
-"procedure should be single word, e.g. '_destru'",	/* 44 */
-"only one flag allowed in left argument",			/* 45 */
-"incorrect time pattern name(s)",						/* 46 */
-"incorrect time value in pattern(s)",					/* 47 */
-"same time-pattern(s) defined twice",						/* 48 */
-"/flags/ not allowed in SUB or SUB1 or POSLONG subgrammar or glossary",	/* 49 */
-"/flag = .../ assignment or comparison should occur only in argument of rule", /* 50 */
-"/flag/ incrementation or comparison should occur only in left argument of rule",	/* 51 */
-"Missing slash after /flag/",	/* 52 */
-"=> Incorrect integer value for /flag/ assignment or incrementation",	/* 53 */
-"Reserved words 'lambda', 'nil', 'empty' and 'null' can't be redefined as terminals", /* 54 */
-"=> Incorrect character in argument" /* 55 */
-	};
-
-if(i < 0) return(TRUE);
-my_sprintf(Message,"Error code %ld: %s",(long)i,err[i]);
-if(igram != 0) {
-	my_sprintf(t," in gram#%ld rule %ld\n",(long)igram,(long)irul);
-	}
-else strcpy(t,"\n");
-strcat(Message,t);
-// BPPrintMessage(0,odError,Message);
-BPActivateWindow(SLOW,wTrace);
-Print(wTrace,Message);
-ShowSelect(CENTRE,wTrace);
-return(fatal[i]);
-}

@@ -59,12 +59,6 @@
 // Select compilation options (ALL OBSOLETE)
 // The only compilation options are the ones selecting code for MacOS, Windows and Linux.
 
-// 1 if building the OS X Carbon GUI, 0 otherwise
-// Needs to be removed
-#ifndef BP_CARBON_GUI_FORGET_THIS
-#define BP_CARBON_GUI_FORGET_THIS 0
-#endif
-
 #ifdef __cplusplus
 #  include <cstdio>
 #  include <cstring>
@@ -126,7 +120,7 @@ typedef struct TERec {
 	int32_t		selEnd;			// end of selection (range [0,length])
 	Handle2		hText;			// text buffer
 	int32_t		length;			// length of text in buffer (not buffer size)
-} TERec, **TEHandle;
+	} TERec, **TEHandle;
 
 TEHandle NewTextHandle(void);
 int CopyStringToTextHandle(TEHandle th, const char* str);
@@ -703,7 +697,7 @@ typedef enum {
 	ftiMIDIorchestra = 17,
 	ftiHTML = 18,
 	ftiMidiDriver = 19
-} FileTypeIndex;
+	} FileTypeIndex;
 
 #define MAXFILETYPEINDEX	20
 #define MAX_BUFFER_SIZE 1024
@@ -990,13 +984,13 @@ typedef	int (*bp_message_callback_t)(void* bp, int dest, const char *format, va_
 typedef enum {
 	no_action = 0, compile, produce, produce_items, produce_all, play, play_item,
 	play_all, create_set, analyze, expand, show_beats, templates, enter_notes,
-} action_t;
+	} action_t;
 
 typedef struct OutFileInfo {
 	const char	*name;
 	FILE		*fout;
 	int		isOpen;
-} OutFileInfo;
+	} OutFileInfo;
 
 typedef struct BPConsoleOpts {
 	action_t	action;
@@ -1020,7 +1014,7 @@ typedef struct BPConsoleOpts {
 	int			noteConvention;	
 	int			midiFileFormat;	
 	unsigned	seed;
-} BPConsoleOpts;
+	} BPConsoleOpts;
 
 // indices to gOptions.outputFiles[]
 typedef enum {
@@ -1030,7 +1024,7 @@ typedef enum {
 	ofiTraceFile,	// output file for tracing processes (no option yet)
 	ofiEventListfile, // output Eventlist file (--eventlistout option)
 	ofiWeightsFile	// weights file used as an output
-}	outfileidx_t;
+	}	outfileidx_t;
 
 typedef TEHandle TextHandle;
 typedef long TextOffset;	// should be short, but there are many assumptions of long - akozar
@@ -1550,33 +1544,33 @@ struct DynamicMenuItem {
 typedef struct DynamicMenuItem DynamicMenuItem; */
 
 typedef struct {
-} NavReplyRecord;
+	} NavReplyRecord;
 
 typedef struct {
-} NSWReply;
+	} NSWReply;
 
 typedef struct {
-} WindowRecord, *WindowPtr;
+	} WindowRecord, *WindowPtr;
 
 typedef struct {
-} Dialog, *DialogPtr, *DialogRef;
+	} Dialog, *DialogPtr, *DialogRef;
 
 typedef struct {
-} EventRecord, *EventPtr;
+	} EventRecord, *EventPtr;
 
 typedef struct {
-} AppleEvent;
+	} AppleEvent;
 
 typedef struct {
-} QDGlobals, *GrafPtr, *CGrafPtr, *GWorldPtr, **GDHandle, Cursor;
+	} QDGlobals, *GrafPtr, *CGrafPtr, *GWorldPtr, **GDHandle, Cursor;
 
 typedef struct {
-    const char *text;   /* start of the line in the original string        */
-    size_t      len;    /* length of the line INCLUDING its trailing <BR>  */
-    double      date;   /* p2 (start time) if this is an i-statement       */
-    long        order;  /* original position, for a stable sort            */
-    int         is_i;   /* 1 if this is a sortable i-statement             */
-} ScoreLine;
+	const char *text;   /* start of the line in the original string        */
+	size_t      len;    /* length of the line INCLUDING its trailing <BR>  */
+	double      date;   /* p2 (start time) if this is an i-statement       */
+	long        order;  /* original position, for a stable sort            */
+	int         is_i;   /* 1 if this is a sortable i-statement             */
+	} ScoreLine;
 
 
 #include "-BP3.proto.h"

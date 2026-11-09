@@ -523,8 +523,8 @@ int ReloadSettings(void) {
 		BPPrintMessage(1,odError,"=> Cannot delete _saved_settings\n");
 		}
 	if(access(filecontents, F_OK) != 0) {
-    	if(strncmp(filecontents, "../", 3) == 0)
-        	filecontents[1] = '/';  // "../" → "./"
+		if(strncmp(filecontents, "../", 3) == 0)
+			filecontents[1] = '/';  // "../" → "./"
 		}
 	if(TraceLive) BPPrintMessage(1,odInfo,"👉 Loading settings: %s\n",filecontents);
 	result = LoadSettings(filecontents,FALSE);
@@ -603,18 +603,18 @@ int LoadSettings(const char *filename, int startup) {
 	int old_livesettings = LiveSettings;
 
    	char *json_data = read_file(filename);
-    if(!json_data) {
+	if(!json_data) {
 		BPPrintMessage(0,odError,"=> Could not open settings file %s\n", filename);
 		return MISSED;
 		}
 	cJSON *json = cJSON_Parse(json_data);
-    if(!json) {
-        BPPrintMessage(0,odError,"=> Could not parse JSON settings: %s\n",cJSON_GetErrorPtr());
+	if(!json) {
+		BPPrintMessage(0,odError,"=> Could not parse JSON settings: %s\n",cJSON_GetErrorPtr());
 		free(json_data);
-        return MISSED;
-    	}
-    cJSON *current_element = NULL;
-    cJSON_ArrayForEach(current_element,json) {
+		return MISSED;
+		}
+	cJSON *current_element = NULL;
+	cJSON_ArrayForEach(current_element,json) {
 		if(!cJSON_IsObject(current_element)) continue;
 		const char *key = current_element->string; // Get the key name (e.g., "Quantization")
 		if(key == NULL) continue;
@@ -727,11 +727,11 @@ int LoadSettings(const char *filename, int startup) {
 		else if(strcmp(key,"LearnFromWeights") == 0) LearnFromWeights = intvalue;
 		else if(strcmp(key,"ParseMode") == 0) {
 			strncpy(ParseMode,string_value,sizeof(ParseMode) - 1);
-    		ParseMode[sizeof(ParseMode) - 1] = '\0';
+			ParseMode[sizeof(ParseMode) - 1] = '\0';
 			}
 		else if(strcmp(key,"UrlToPush") == 0) {
 			strncpy(UrlToPush,string_value,sizeof(UrlToPush) - 1);
-    		UrlToPush[sizeof(UrlToPush) - 1] = '\0';
+			UrlToPush[sizeof(UrlToPush) - 1] = '\0';
 			BPPrintMessage(0,odInfo,"UrlToPush = %s\n",UrlToPush);
 			}
 		}
@@ -801,8 +801,8 @@ int LoadSettings(const char *filename, int startup) {
 		if(Nature_of_time == STRIATED) BPPrintMessage(0,odInfo,"Time is STRIATED according to the settings\n");
 		else BPPrintMessage(0,odInfo,"Time is SMOOTH (no metronome)\n");
 		}
-    cJSON_Delete(json);
-    free(json_data);
+	cJSON_Delete(json);
+	free(json_data);
 	return(result);
 	}
 
@@ -999,15 +999,15 @@ int LoadObjectPrototypes(int checkversion,int tryname) {
 		int length;
 
 		// Select the last path separator, whether '/' or '\'
-		if (slash == NULL) separator = backslash;
-		else if (backslash == NULL) separator = slash;
+		if(slash == NULL) separator = backslash;
+		else if(backslash == NULL) separator = slash;
 		else separator = (slash > backslash) ? slash : backslash;
 		basename = (separator != NULL) ? separator + 1 : path;
 
 		if(strncmp(basename, "-so.",4) == 0) {
 			// Keep the directory, remove "-so.", and add "proto-" + ".json"
 			length = snprintf(json_path, sizeof json_path,"%sproto-%s.json", OutputDir, basename + 4);
-			if (length < 0 || (size_t)length >= sizeof json_path) {
+			if(length < 0 || (size_t)length >= sizeof json_path) {
 				BPPrintMessage(0, odError,"=> JSON file path is too long: %s\n", path);
 				sojson = NULL;
 				}
@@ -1015,7 +1015,7 @@ int LoadObjectPrototypes(int checkversion,int tryname) {
 			}
 		if(sojson == NULL) {
 			int saved_errno = errno;
-    		BPPrintMessage(0, odError,"=> Cannot create JSON file of prototypes \"%s\": %s\n",json_path, strerror(saved_errno));
+			BPPrintMessage(0, odError,"=> Cannot create JSON file of prototypes \"%s\": %s\n",json_path, strerror(saved_errno));
 			}
 		else {
 			fprintf(sojson,"{\n\"header\": \"Bol Processor sound-object prototypes\",\n");
@@ -1455,24 +1455,24 @@ NEXTBOL:
 
 void thismode(int value,char mode[30]) {
 	if(value == -2) value = 1; // Fixing old bug
-    switch (value) {
-        case PERCENT:
-            strcpy(mode, "PERCENT");
-            break;
-        case FIXVALUE:
-            strcpy(mode, "FIXVALUE");
-            break;
-        case IRRELEVANT:
-            strcpy(mode, "IRRELEVANT");
-            break;
-        default:
-            strcpy(mode, "UNKNOWN");
-            break;
+	switch (value) {
+		case PERCENT:
+			strcpy(mode, "PERCENT");
+			break;
+		case FIXVALUE:
+			strcpy(mode, "FIXVALUE");
+			break;
+		case IRRELEVANT:
+			strcpy(mode, "IRRELEVANT");
+			break;
+		default:
+			strcpy(mode, "UNKNOWN");
+			break;
 		}
 	}
 
 void thismode_csound(int value,char mode[30]) {
-		switch(value) {
+	switch(value) {
 		case GLOBAL_CS:
 			strcpy(mode,"GLOBAL_CS");
 			break;
@@ -1486,187 +1486,187 @@ void thismode_csound(int value,char mode[30]) {
 	}
 
 void thismode_pivot(int value,char mode[30]) {
-    switch (value) {
-        case PIVBEG:
-            strcpy(mode, "PIVBEG");
-            break;
-        case PIVEND:
-            strcpy(mode, "PIVEND");
-            break;
-        case PIVBEGON:
-            strcpy(mode, "PIVBEGON");
-            break;
-        case PIVENDOFF:
-            strcpy(mode, "PIVENDOFF");
-            break;
-        case PIVMIDDLE:
-            strcpy(mode, "PIVMIDDLE");
-            break;
-        case PIVMIDDLEONOFF:
-            strcpy(mode, "PIVMIDDLEONOFF");
-            break;
-        case SETPIVOT:
-            strcpy(mode, "SETPIVOT");
-            break;
-        default:
-            strcpy(mode, "UNKNOWN");
-            break;
+	switch (value) {
+		case PIVBEG:
+			strcpy(mode, "PIVBEG");
+			break;
+		case PIVEND:
+			strcpy(mode, "PIVEND");
+			break;
+		case PIVBEGON:
+			strcpy(mode, "PIVBEGON");
+			break;
+		case PIVENDOFF:
+			strcpy(mode, "PIVENDOFF");
+			break;
+		case PIVMIDDLE:
+			strcpy(mode, "PIVMIDDLE");
+			break;
+		case PIVMIDDLEONOFF:
+			strcpy(mode, "PIVMIDDLEONOFF");
+			break;
+		case SETPIVOT:
+			strcpy(mode, "SETPIVOT");
+			break;
+		default:
+			strcpy(mode, "UNKNOWN");
+			break;
 		}
 	}
 
 void thismode_type(int value,char mode[30]) {
-    switch (value) {
-        case MIDI_TYPE:
-            strcpy(mode, "MIDI_TYPE");
-            break;
-        case CSOUND_TYPE:
-            strcpy(mode, "CSOUND_TYPE");
-            break;
-        case MIDI_CSOUND_TYPE:
-            strcpy(mode, "MIDI_CSOUND_TYPE");
-            break;
-        default:
-            strcpy(mode, "SILENT");
-            break;
+	switch (value) {
+		case MIDI_TYPE:
+			strcpy(mode, "MIDI_TYPE");
+			break;
+		case CSOUND_TYPE:
+			strcpy(mode, "CSOUND_TYPE");
+			break;
+		case MIDI_CSOUND_TYPE:
+			strcpy(mode, "MIDI_CSOUND_TYPE");
+			break;
+		default:
+			strcpy(mode, "SILENT");
+			break;
 		}
 	}
 
 void thismode_rescale(int value,char mode[30]) {
-    switch (value) {
-        case OK_RESCALE:
-            strcpy(mode, "OK_RESCALE");
-            break;
-        case NEVER_RESCALE:
-            strcpy(mode, "NEVER_RESCALE");
-            break;
+	switch (value) {
+		case OK_RESCALE:
+			strcpy(mode, "OK_RESCALE");
+			break;
+		case NEVER_RESCALE:
+			strcpy(mode, "NEVER_RESCALE");
+			break;
 		case DILATION_RATIO:
-            strcpy(mode, "DILATION_RATIO");
-            break;
-        default:
-            strcpy(mode, "UNKNOWN");
-            break;
+			strcpy(mode, "DILATION_RATIO");
+			break;
+		default:
+			strcpy(mode, "UNKNOWN");
+			break;
 		}
 	}
 
 void thismode_channel(int value,char mode[30]) {
-    switch (value) {
-        case GLOBAL_CH:
-            strcpy(mode, "GLOBAL_CH");
-            break;
-        case LOCAL_CH:
-            strcpy(mode, "LOCAL_CH");
-            break;
-        default:
-            strcpy(mode, "UNKNOWN"); // This never happens
-            break;
+	switch (value) {
+		case GLOBAL_CH:
+			strcpy(mode, "GLOBAL_CH");
+			break;
+		case LOCAL_CH:
+			strcpy(mode, "LOCAL_CH");
+			break;
+		default:
+			strcpy(mode, "UNKNOWN"); // This never happens
+			break;
 		}
 	}
 
 char* read_file(const char *filename) {
 	// Load the content of a text file as a single string
-    FILE *file = fopen(filename, "r");
-    if(!file) {
-        perror("Unable to open file");
-        return NULL;
-    	}
-    // Get the file size
-    fseek(file, 0, SEEK_END);
-    long filesize = ftell(file);
-    rewind(file);
-    // Allocate memory and read the file
-    char *data = (char *)malloc(filesize + 1);
-    if(!data) {
-        perror("Memory allocation failed");
-        fclose(file);
-        return NULL;
+	FILE *file = fopen(filename, "r");
+	if(!file) {
+		perror("Unable to open file");
+		return NULL;
+		}
+	// Get the file size
+	fseek(file, 0, SEEK_END);
+	long filesize = ftell(file);
+	rewind(file);
+	// Allocate memory and read the file
+	char *data = (char *)malloc(filesize + 1);
+	if(!data) {
+		perror("Memory allocation failed");
+		fclose(file);
+		return NULL;
    		}
-    size_t bytes_read = fread(data, 1, filesize, file);
+	size_t bytes_read = fread(data, 1, filesize, file);
 	if(bytes_read != filesize) {
 		if(ferror(file))
-    		BPPrintMessage(0,odError,"=> Error while reading file: %s\n",strerror(errno));
+			BPPrintMessage(0,odError,"=> Error while reading file: %s\n",strerror(errno));
 		else
 			BPPrintMessage(0,odError,"=> Unexpected end of file: read %zu bytes instead of %zu\n",bytes_read, filesize);
 		return NULL;
 		}
-    data[filesize] = '\0';
-    fclose(file);
-    return data;
+	data[filesize] = '\0';
+	fclose(file);
+	return data;
 	}
 
 int SaveStringAsJson(FILE *sojson,const char *key,const char *unit,const char *name,const char* value) {
 	if(sojson == NULL) return(MISSED);
 	if(strlen(key) == 0 && strlen(unit) == 0)
-    	fprintf(sojson,"    \"%s\": \"%s\",\n", name, value);
+		fprintf(sojson,"    \"%s\": \"%s\",\n", name, value);
 	else if(strlen(unit) == 0)
-    	fprintf(sojson,"    \"%s\": {\n      \"key\": \"%s\",\n      \"value\": \"%s\"\n      },\n",name,key,value);
+		fprintf(sojson,"    \"%s\": {\n      \"key\": \"%s\",\n      \"value\": \"%s\"\n      },\n",name,key,value);
 	else 
-    	fprintf(sojson,"    \"%s\": {\n      \"key\": \"%s\",\n      \"value\": \"%s\",\n      \"unit\": \"%s\"\n      },\n",name,key,value,unit);
+		fprintf(sojson,"    \"%s\": {\n      \"key\": \"%s\",\n      \"value\": \"%s\",\n      \"unit\": \"%s\"\n      },\n",name,key,value,unit);
 	return(OK);
 	}
 int SaveIntAsJson(FILE *sojson,const char *key,const char *unit,const char *name,int value) {
 	if(sojson == NULL) return(MISSED);
 	if(strlen(key) == 0 && strlen(unit) == 0)
-    	fprintf(sojson,"    \"%s\": %d,\n", name, value);
+		fprintf(sojson,"    \"%s\": %d,\n", name, value);
 	else if(strlen(unit) == 0)
-    	fprintf(sojson,"    \"%s\": {\n      \"key\": \"%s\",\n      \"value\": %d\n      },\n",name,key,value);
+		fprintf(sojson,"    \"%s\": {\n      \"key\": \"%s\",\n      \"value\": %d\n      },\n",name,key,value);
 	else 
-    	fprintf(sojson,"    \"%s\": {\n      \"key\": \"%s\",\n      \"value\": %d,\n      \"unit\": \"%s\"\n      },\n",name,key,value,unit);
+		fprintf(sojson,"    \"%s\": {\n      \"key\": \"%s\",\n      \"value\": %d,\n      \"unit\": \"%s\"\n      },\n",name,key,value,unit);
 	return(OK);
 	}
 int SaveLongAsJson(FILE *sojson,const char *key,const char *unit,const char *name,long value) {
 	if(sojson == NULL) return(MISSED);
 	if(strlen(key) == 0 && strlen(unit) == 0)
-    	fprintf(sojson,"    \"%s\": %ld,\n", name, value);
+		fprintf(sojson,"    \"%s\": %ld,\n", name, value);
 	else if(strlen(unit) == 0)
-    	fprintf(sojson,"    \"%s\": {\n      \"key\": \"%s\",\n      \"value\": %ld\n      },\n",name,key,value);
+		fprintf(sojson,"    \"%s\": {\n      \"key\": \"%s\",\n      \"value\": %ld\n      },\n",name,key,value);
 	else 
-    	fprintf(sojson,"    \"%s\": {\n      \"key\": \"%s\",\n      \"value\": %ld,\n      \"unit\": \"%s\"\n      },\n",name,key,value,unit);
+		fprintf(sojson,"    \"%s\": {\n      \"key\": \"%s\",\n      \"value\": %ld,\n      \"unit\": \"%s\"\n      },\n",name,key,value,unit);
 	return(OK);
 	}
 int SaveFloatAsJson(FILE *sojson,const char *key,const char *unit,const char *name,double value) {
 	if(sojson == NULL) return(MISSED);
 	if(strlen(key) == 0 && strlen(unit) == 0)
-    	fprintf(sojson,"    \"%s\": %.4f,\n", name, value);
+		fprintf(sojson,"    \"%s\": %.4f,\n", name, value);
 	else if(strlen(unit) == 0)
-    	fprintf(sojson,"    \"%s\": {\n      \"key\": \"%s\",\n      \"value\": %.4f\n      },\n",name,key,value);
+		fprintf(sojson,"    \"%s\": {\n      \"key\": \"%s\",\n      \"value\": %.4f\n      },\n",name,key,value);
 	else 
-    	fprintf(sojson,"    \"%s\": {\n      \"key\": \"%s\",\n      \"value\": %.4f,\n      \"unit\": \"%s\"\n      },\n",name,key,value,unit);
+		fprintf(sojson,"    \"%s\": {\n      \"key\": \"%s\",\n      \"value\": %.4f,\n      \"unit\": \"%s\"\n      },\n",name,key,value,unit);
 	return(OK);
 	}
 
 void WriteJsonString(FILE *f, const char *text) {
-    const unsigned char *p = (const unsigned char *)text;
-    fputc('"', f);
-    while (*p != '\0') {
-        switch (*p) {
-            case '"':  fputs("\\\"", f); break;
-            case '\\': fputs("\\\\", f); break;
-            case '\b': fputs("\\b",  f); break;
-            case '\f': fputs("\\f",  f); break;
-            case '\n': fputs("\\n",  f); break;
-            case '\r': fputs("\\r",  f); break;
-            case '\t': fputs("\\t",  f); break;
-            default:
-                if (*p < 0x20) {
-                    fprintf(f, "\\u%04x", (unsigned int)*p);
-                	}
-                else {
-                    fputc(*p, f);
-                	}
-                break;
-        	}
-        p++;
-    	}
-    fputc('"', f);
+	const unsigned char *p = (const unsigned char *)text;
+	fputc('"', f);
+	while (*p != '\0') {
+		switch (*p) {
+			case '"':  fputs("\\\"", f); break;
+			case '\\': fputs("\\\\", f); break;
+			case '\b': fputs("\\b",  f); break;
+			case '\f': fputs("\\f",  f); break;
+			case '\n': fputs("\\n",  f); break;
+			case '\r': fputs("\\r",  f); break;
+			case '\t': fputs("\\t",  f); break;
+			default:
+				if(*p < 0x20) {
+					fprintf(f, "\\u%04x", (unsigned int)*p);
+					}
+				else {
+					fputc(*p, f);
+					}
+				break;
+			}
+		p++;
+		}
+	fputc('"', f);
 	}
 
 void delay(int number_of_seconds) {
-    // Converting time into milli_seconds
-    int milli_seconds = 1000 * number_of_seconds;
+	// Converting time into milli_seconds
+	int milli_seconds = 1000 * number_of_seconds;
   
-    // Storing start time
-    clock_t start_time = clock();
+	// Storing start time
+	clock_t start_time = clock();
   
-    // looping till required time is not achieved
-    while(clock() < start_time + milli_seconds);
+	// looping till required time is not achieved
+	while(clock() < start_time + milli_seconds);
 	}

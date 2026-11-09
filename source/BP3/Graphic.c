@@ -69,7 +69,7 @@ int DrawItem(int w,SoundObjectInstanceParameters **p_object,Milliseconds **p_t1,
 	p_list **waitlist;
 
 	// BPPrintMessage(1,odInfo,"@ DrawItem() ItemNumber = %ld, MaxItemsProduce = %d\n",ItemNumber,MaxItemsProduce);
-    if(!ShowGraphic || (!rtMIDI && ((MaxItemsProduce > 0) && (ItemNumber > MaxItemsProduce)))) {
+	if(!ShowGraphic || (!rtMIDI && ((MaxItemsProduce > 0) && (ItemNumber > MaxItemsProduce)))) {
 		return OK;
 		}
 	if(!ShowObjectGraph) return(OK);
@@ -1054,7 +1054,7 @@ int DrawItemBackground(Rect *p_r,unsigned long imax,int htext,int hrect,int left
 	char line[BOLSIZE+5],showsmalldivisions,line_image[200];
 	Str255 label;
 
-    if(!ShowGraphic) return OK;
+	if(!ShowGraphic) return OK;
 	shift = 0.;
 	if(strcmp(type,"pianoroll") == 0) shift = 0.; // Later we'll take care of this  2024-05-10
 	else {

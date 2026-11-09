@@ -42,9 +42,9 @@ int trace_display = 0;
 int check_context = 0;
 
 int Print(int w, const char *format, ...) { // 2026-04-27
-    va_list args;
-    int length;
-    char buffer[4096];
+	va_list args;
+	int length;
+	char buffer[4096];
 
 	NumberTraceLines++;
 	if(!OKtraceLines) return(OK);
@@ -57,28 +57,28 @@ int Print(int w, const char *format, ...) { // 2026-04-27
 		OKtraceLines = FALSE;
 		return OK;
 		}
-	if (!FirstGrammar) return OK;
-    if (w < 0 || w >= WMAX) {
-        BPPrintMessage(0, odError, "=> Err1. Print() w = %d\n", w);
-        return OK;
-    	}
-    if (!Editable[w]) {
-        BPPrintMessage(0, odError, "=> Err2. Print() Not editable %d\n", w);
-        return MISSED;
-    	}
-    va_start(args, format);
-    length = vsnprintf(buffer, sizeof buffer, format, args);
-    va_end(args);
-    if (length < 0) {
-        BPPrintMessage(0, odError, "=> Err3. Print() formatting failed\n");
-        return MISSED;
-    	}
-    if ((size_t)length >= sizeof buffer) {
-        BPPrintMessage(0, odError, "=> Err4. Print() text truncated\n");
-        length = sizeof buffer - 1;
-    	}
-    TextInsert(buffer, length, TEH[w]);
-    return OK;
+	if(!FirstGrammar) return OK;
+	if(w < 0 || w >= WMAX) {
+		BPPrintMessage(0, odError, "=> Err1. Print() w = %d\n", w);
+		return OK;
+		}
+	if(!Editable[w]) {
+		BPPrintMessage(0, odError, "=> Err2. Print() Not editable %d\n", w);
+		return MISSED;
+		}
+	va_start(args, format);
+	length = vsnprintf(buffer, sizeof buffer, format, args);
+	va_end(args);
+	if(length < 0) {
+		BPPrintMessage(0, odError, "=> Err3. Print() formatting failed\n");
+		return MISSED;
+		}
+	if((size_t)length >= sizeof buffer) {
+		BPPrintMessage(0, odError, "=> Err4. Print() text truncated\n");
+		length = sizeof buffer - 1;
+		}
+	TextInsert(buffer, length, TEH[w]);
+	return OK;
 	}
 
 
@@ -591,7 +591,7 @@ int ShowRule(t_gram *p_gram,int igram,int irul,int wind,int producemode,
 					(long)(-(**h).increment));
 				Print(wind,Message);
 				if(producemode) {
-				my_sprintf(Message,": %ld/",(long)(*p_Flag)[(**h).x]);
+					my_sprintf(Message,": %ld/",(long)(*p_Flag)[(**h).x]);
 					}
 				else my_sprintf(Message,"/");
 				}
@@ -693,59 +693,58 @@ int ShowRule(t_gram *p_gram,int igram,int irul,int wind,int producemode,
 	}
 
 
-int ShowAlphabet(void)
-{
-int i,j,jj,dirtymem;
+int ShowAlphabet(void) {
+	int i,j,jj,dirtymem;
 
-SetSelect(GetTextLength(wTrace),GetTextLength(wTrace),TEH[wTrace]);
-Println(wTrace,"\nALPHABET:");
-if(Jhomo == 0) {
-	for(j=0; j < Jbol; j++) {
-		Println(wTrace,*((*p_Bol)[j]));
+	SetSelect(GetTextLength(wTrace),GetTextLength(wTrace),TEH[wTrace]);
+	Println(wTrace,"\nALPHABET:");
+	if(Jhomo == 0) {
+		for(j=0; j < Jbol; j++) {
+			Println(wTrace,*((*p_Bol)[j]));
+			}
 		}
-	}
-for(i=0; i < Jhomo; i++) {
-	// Reformat(wTrace,-1,-1,-1,&Color[HomomorphismC],NO,NO);
-	my_sprintf(Message,"%s\n",*((*p_Homo)[i]));
-	Print(wTrace,Message);
-	// Reformat(wTrace,-1,-1,-1,&Black,NO,NO);
-	for(j=0; j < Jbol; j++){
-		jj = (*((*p_Image)[i]))[j];
-		if(jj >= 16384) {
-			my_sprintf(Message,"%s --> %s\n",*((*p_Bol)[j]),
-							*((*(p_NoteName[NoteConvention]))[jj-16384]));
-			}
-		else {
-			my_sprintf(Message,"%s --> %s\n",*((*p_Bol)[j]),*((*p_Bol)[jj]));
-			}
+	for(i=0; i < Jhomo; i++) {
+		// Reformat(wTrace,-1,-1,-1,&Color[HomomorphismC],NO,NO);
+		my_sprintf(Message,"%s\n",*((*p_Homo)[i]));
 		Print(wTrace,Message);
-		}
-	for(j=0; j < 128; j++){
-		jj = (*((*p_NoteImage)[i]))[j];
-		if(jj < Jbol) {
-			my_sprintf(Message,"%s --> %s\n",*((*(p_NoteName[NoteConvention]))[j]),
-				*((*p_Bol)[jj]));
+		// Reformat(wTrace,-1,-1,-1,&Black,NO,NO);
+		for(j=0; j < Jbol; j++){
+			jj = (*((*p_Image)[i]))[j];
+			if(jj >= 16384) {
+				my_sprintf(Message,"%s --> %s\n",*((*p_Bol)[j]),
+								*((*(p_NoteName[NoteConvention]))[jj-16384]));
+				}
+			else {
+				my_sprintf(Message,"%s --> %s\n",*((*p_Bol)[j]),*((*p_Bol)[jj]));
+				}
 			Print(wTrace,Message);
 			}
-		if(jj >= 16384) {
-			if((jj-16384) != j) {
+		for(j=0; j < 128; j++){
+			jj = (*((*p_NoteImage)[i]))[j];
+			if(jj < Jbol) {
 				my_sprintf(Message,"%s --> %s\n",*((*(p_NoteName[NoteConvention]))[j]),
-					*((*(p_NoteName[NoteConvention]))[jj-16384]));
+					*((*p_Bol)[jj]));
 				Print(wTrace,Message);
 				}
-			}
-		else
-			if(jj >= Jbol) {
-				BPPrintMessage(0,odError,"=> Err. ShowAlphabet(). jj >= Jbol");
-				return(ABORT);
+			if(jj >= 16384) {
+				if((jj-16384) != j) {
+					my_sprintf(Message,"%s --> %s\n",*((*(p_NoteName[NoteConvention]))[j]),
+						*((*(p_NoteName[NoteConvention]))[jj-16384]));
+					Print(wTrace,Message);
+					}
 				}
+			else
+				if(jj >= Jbol) {
+					BPPrintMessage(0,odError,"=> Err. ShowAlphabet(). jj >= Jbol");
+					return(ABORT);
+					}
+			}
+		my_sprintf(Message,"------------\n");
+		Print(wTrace,Message);
 		}
-	my_sprintf(Message,"------------\n");
-	Print(wTrace,Message);
+	ShowSelect(CENTRE,wTrace);
+	return(OK);
 	}
-ShowSelect(CENTRE,wTrace);
-return(OK);
-}
 
 int BalancedPoly(tokenbyte ***pp_a) {
 	tokenbyte m,p;
@@ -835,50 +834,48 @@ int DisplayMode(tokenbyte ***pp_a,int *p_ifunc,int *p_hastabs) {
 	}
 
 
-int SequenceField(tokenbyte ***pp_a,long id)
-{
-long i,foundperiod;
-tokenbyte m,p;
-int level;
+int SequenceField(tokenbyte ***pp_a,long id) {
+	long i,foundperiod;
+	tokenbyte m,p;
+	int level;
 
-level = 0; foundperiod = FALSE;
-for(i=id; ; i+=2) {
-	m = (**pp_a)[i]; p = (**pp_a)[i+1];
-	if(m == TEND && p == TEND) break;
-	if(m == T0 && p == 7 && level == 0) foundperiod = TRUE;
-	if(m == T0 && (p == 13 || p == 14) && level == 0) return(foundperiod);
-	if(m == T0 && p == 12) level++;
-	if(m == T0 && p == 13) level--;
-	}
-return(FALSE);
-}
-
-
-int HasStructure(tokenbyte **p_a)
-{
-tokenbyte m,p;
-unsigned long i;
-int datamode;
-
-for(i=ZERO; ; i+=2L) {
-	m = (*p_a)[i]; p = (*p_a)[i+1];
-	if(m == TEND && p == TEND) break;
-	switch(m) {
-		case T0:
-			switch(p) {
-				case 6:		/* master parenthesis */
-				case 8:		/* '(' */
-					return(YES);
-					break;
-				}
-			break;
-		case T5:	/* homomorphism */
-			return(YES);
-			break;
+	level = 0; foundperiod = FALSE;
+	for(i=id; ; i+=2) {
+		m = (**pp_a)[i]; p = (**pp_a)[i+1];
+		if(m == TEND && p == TEND) break;
+		if(m == T0 && p == 7 && level == 0) foundperiod = TRUE;
+		if(m == T0 && (p == 13 || p == 14) && level == 0) return(foundperiod);
+		if(m == T0 && p == 12) level++;
+		if(m == T0 && p == 13) level--;
 		}
+	return(FALSE);
 	}
-return(NO);
-}
+
+
+int HasStructure(tokenbyte **p_a) {
+	tokenbyte m,p;
+	unsigned long i;
+	int datamode;
+
+	for(i=ZERO; ; i+=2L) {
+		m = (*p_a)[i]; p = (*p_a)[i+1];
+		if(m == TEND && p == TEND) break;
+		switch(m) {
+			case T0:
+				switch(p) {
+					case 6:		/* master parenthesis */
+					case 8:		/* '(' */
+						return(YES);
+						break;
+					}
+				break;
+			case T5:	/* homomorphism */
+				return(YES);
+				break;
+			}
+		}
+	return(NO);
+	}
 
 /*
 HasPeriods(tokenbyte **p_a)
@@ -895,35 +892,34 @@ return(NO);
 } */
 
 
-int ShowDuration(int store)
-{
-char line[MAXLIN];
-int i;
+int ShowDuration(int store) {
+	char line[MAXLIN];
+	int i;
 
-if(Pduration > 0.) {
-	if(Qduration > 1.)
-		my_sprintf(Message,"Dur = %.0f/%.0f = %.1f ticks",
-			Pduration,Qduration,Pduration/Qduration);
-	else my_sprintf(Message,"Dur = %.0f ticks",Pduration);
+	if(Pduration > 0.) {
+		if(Qduration > 1.)
+			my_sprintf(Message,"Dur = %.0f/%.0f = %.1f ticks",
+				Pduration,Qduration,Pduration/Qduration);
+		else my_sprintf(Message,"Dur = %.0f ticks",Pduration);
 		
-	if(Ratio != Prod) {
-		if(Ratio < (double) ULONG_MAX) my_sprintf(line,"  Ratio = %lu",(unsigned long)Ratio);
-		else my_sprintf(line,"   Ratio = %.0f",Ratio);
+		if(Ratio != Prod) {
+			if(Ratio < (double) ULONG_MAX) my_sprintf(line,"  Ratio = %lu",(unsigned long)Ratio);
+			else my_sprintf(line,"   Ratio = %.0f",Ratio);
+			if((strlen(Message) + strlen(line)) < MAXLIN) strcat(Message,line);
+			}
+		
+		my_sprintf(line,"  Prod = %.0f",Prod);
 		if((strlen(Message) + strlen(line)) < MAXLIN) strcat(Message,line);
+	
+		my_sprintf(line,"  [%ld objects]",(long)MaxObjects);
+		if((strlen(Message) + strlen(line)) < MAXLIN) strcat(Message,line);
+	
+		if(Kpress > 1.) my_sprintf(line,"  Comp = %.0f",Kpress);
+		else my_sprintf(line,"  (no compression)");
+	
+		if((strlen(Message) + strlen(line)) < MAXLIN) strcat(Message,line);
+	
+		if(trace_display) ShowMessage(store, wMessage, Message);
 		}
-		
-	my_sprintf(line,"  Prod = %.0f",Prod);
-	if((strlen(Message) + strlen(line)) < MAXLIN) strcat(Message,line);
-	
-	my_sprintf(line,"  [%ld objects]",(long)MaxObjects);
-	if((strlen(Message) + strlen(line)) < MAXLIN) strcat(Message,line);
-	
-	if(Kpress > 1.) my_sprintf(line,"  Comp = %.0f",Kpress);
-	else my_sprintf(line,"  (no compression)");
-	
-	if((strlen(Message) + strlen(line)) < MAXLIN) strcat(Message,line);
-	
-	if(trace_display) ShowMessage(store, wMessage, Message);
+	return(OK);
 	}
-return(OK);
-}

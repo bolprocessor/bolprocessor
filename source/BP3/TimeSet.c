@@ -526,9 +526,9 @@ TRY:
 QUEST1:
 			rep = GetCap();
 			if(rep == 'Q') {
-					result = ABORT;
-					goto EXIT1;
-					}
+				result = ABORT;
+				goto EXIT1;
+				}
 			if(rep == 'C') {
 				DiscontinuityOK = TRUE; CoverOK = FALSE;
 				}
@@ -563,9 +563,9 @@ QUEST2:
 				case 'S':	goto TRY;
 				case 'A':	break;
 				case 'Q':	{
-						result = ABORT;
-						goto EXIT1;
-						}
+					result = ABORT;
+					goto EXIT1;
+					}
 				default: SysBeep(10); goto QUEST2;
 				}
 			}

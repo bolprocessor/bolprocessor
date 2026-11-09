@@ -661,8 +661,8 @@ DONESPEED:
 		if(m == T25) {	/* Simple note */
 			if(!nocode && sp != 4 && sp && (sp < 3 || (datamode && *(p_speed) < 2.)
 				|| SplitTimeObjects)) if(Space(f,th,&sp) != OK) {
-					r = ABORT; goto SORTIR;
-					}
+				r = ABORT; goto SORTIR;
+				}
 			p += 16384;
 			goto TERMINAL;
 			}
@@ -1092,8 +1092,8 @@ PRINTPROLONGATIONS:
 			
 		if(ifunc && m == T0 && p == 5) { /* interpreting grammar: ';' becomes '\r' */
 			if(OutChar(f,th,'\n') != OK) {
-						r = ABORT; goto SORTIR;
-						}
+				r = ABORT; goto SORTIR;
+				}
 			sp = 0;
 			continue;
 			}
@@ -1132,8 +1132,8 @@ PRINTPROLONGATIONS:
 		//	if(th != NULL) Reformat(wind,-1,-1,-1,&Black,NO,NO);
 			if(sp == 4) {
 				if(OutChar(f,th,' ') != OK) {
-						r = ABORT; goto SORTIR;
-						}
+					r = ABORT; goto SORTIR;
+					}
 				sp = 0;
 				}
 			continue;
@@ -1292,8 +1292,8 @@ PRINTPROLONGATIONS:
 							new_depth,copylevel,tab,setting_section,beat,p_h,
 							p_section,sp,print_periods,p_firstslash,p_newline,p_newsection,
 							p_scale)) != OK) {
-						goto SORTIR;
-						}
+					goto SORTIR;
+					}
 				copylevel--;
 				if(levpar > 0) levpar--;
 				for(n=nhomo; n >= 1; n--)
@@ -1305,8 +1305,8 @@ PRINTPROLONGATIONS:
 			
 		if(m == T9 && p < Jpatt) {				/* Time pattern */
 			if(!nocode && sp != 4 && sp) if(Space(f,th,&sp) != OK) {
-						r = ABORT; goto SORTIR;
-						}
+				r = ABORT; goto SORTIR;
+				}
 		//	if(th != NULL) Reformat(wind,-1,-1,-1,&Color[TimePatternC],NO,NO);
 			if((r=Display('\0',nhomo,levpar,homoname,depth,p_maxib,pp_a,&i,istemplate,m,p,
 					nocode,pp_b,p_ib,f,th,"%s",(*p_Patt)[p],-1)) != OK) {
@@ -1315,8 +1315,8 @@ PRINTPROLONGATIONS:
 		//	if(th != NULL) Reformat(wind,-1,-1,-1,&Black,NO,NO);
 			if(sp == 4 || ifunc) {
 				if(OutChar(f,th,' ') != OK) {
-						r = ABORT; goto SORTIR;
-						}
+					r = ABORT; goto SORTIR;
+					}
 				}
 			sp = 3;
 			goto PRINTPROLONGATIONS;
@@ -1325,30 +1325,27 @@ PRINTPROLONGATIONS:
 		if(m == T8 && p <= MAXWAIT) {	/* Synchronization tag */
 			if(!nocode) {
 				if(Space(f,th,&sp) != OK) {
-						r = ABORT; goto SORTIR;
-						}
+					r = ABORT; goto SORTIR;
+					}
 				sp = 1;
 				if((r=Display('\0',nhomo,levpar,homoname,depth,p_maxib,pp_a,&i,istemplate,m,p,
-						nocode,pp_b,p_ib,f,th,"<<",NULL,-1)) != OK) {
-					{
-						goto SORTIR;
-						}
+						nocode,pp_b,p_ib,f,th,"<<",NULL,-1)) != OK) { {
+					goto SORTIR;
+					}
 					}
 		//		Reformat(wind,-1,-1,-1,&Color[TagC],NO,NO);
 				}
 			if((r=Display('\0',nhomo,levpar,homoname,depth,p_maxib,pp_a,&i,istemplate,m,p,
-					nocode,pp_b,p_ib,f,th,"W%ld",NULL,p)) != OK) {
-				{
-						goto SORTIR;
-						}
+					nocode,pp_b,p_ib,f,th,"W%ld",NULL,p)) != OK) { {
+				goto SORTIR;
+				}
 				}
 			if(!nocode) {
 		//		Reformat(wind,-1,-1,-1,&Black,NO,NO);
 				if((r=Display('\0',nhomo,levpar,homoname,depth,p_maxib,pp_a,&i,istemplate,m,p,
-					nocode,pp_b,p_ib,f,th,">>",NULL,-1)) != OK) {
-					{
-						goto SORTIR;
-						}
+					nocode,pp_b,p_ib,f,th,">>",NULL,-1)) != OK) { {
+					goto SORTIR;
+					}
 					}
 				}
 			continue;
@@ -1357,8 +1354,8 @@ PRINTPROLONGATIONS:
 		if(m == T7 && (p < Jbol || p > 16383)) {	/* Out-time object or out-time simple note */
 			if(!nocode) {
 				if(Space(f,th,&sp) != OK) {
-						r = ABORT; goto SORTIR;
-						}
+					r = ABORT; goto SORTIR;
+					}
 				sp = 1;
 				if((r=Display('\0',nhomo,levpar,homoname,depth,p_maxib,pp_a,&i,istemplate,(tokenbyte)0,
 						(tokenbyte)0,nocode,pp_b,p_ib,f,th,"<<",NULL,-1)) != OK) {
@@ -1640,67 +1637,63 @@ SHOWNUMBER:
 	}
 
 
-long SearchOrigin(tokenbyte ***pp_a,long ia,tokenbyte p)
-/* Find beginning of master referenced by n */
-{
-long i;
-tokenbyte q;
+long SearchOrigin(tokenbyte ***pp_a,long ia,tokenbyte p) {
+	/* Find beginning of master referenced by n */
+	long i;
+	tokenbyte q;
 
-for(i=ia-6,q=0; i > 0; i -=2 ) {
-	if((**pp_a)[i] == T2 && (**pp_a)[i+1] == 0 && ++q == p) return(i+2);
+	for(i=ia-6,q=0; i > 0; i -=2 ) {
+		if((**pp_a)[i] == T2 && (**pp_a)[i+1] == 0 && ++q == p) return(i+2);
+		}
+	ShowError(17,0,0);
+	return(-1);
 	}
-ShowError(17,0,0);
-return(-1);
-}
 
 
-int Space(FILE *f,TextHandle th,int *p_sp)
-{
-if(*p_sp) {
-	if(OutChar(f,th,' ') != OK) return(ABORT);
-	*p_sp = 0;
+int Space(FILE *f,TextHandle th,int *p_sp) {
+	if(*p_sp) {
+		if(OutChar(f,th,' ') != OK) return(ABORT);
+		*p_sp = 0;
+		}
+	return(OK);
 	}
-return(OK);
-}
 
 
-int PrintPeriod(FILE* f,TextHandle th)
-{
-if(UseBullet) {
-	if(TRUE || SplitTimeObjects) { // 2026-04-13
-		 if(OutChar(f,th,' ') != OK) return(ABORT);
-		 if(OutChar(f,th,'.') != OK) return(ABORT);
-		 if(OutChar(f,th,' ') != OK) return(ABORT);
+int PrintPeriod(FILE* f,TextHandle th) {
+	if(UseBullet) {
+		if(TRUE || SplitTimeObjects) { // 2026-04-13
+			if(OutChar(f,th,' ') != OK) return(ABORT);
+			if(OutChar(f,th,'.') != OK) return(ABORT);
+			if(OutChar(f,th,' ') != OK) return(ABORT);
+			}
+		else {
+			if(OutChar(f,th,'.') != OK) return(ABORT);
+			}
 		}
 	else {
-		 if(OutChar(f,th,'.') != OK) return(ABORT);
+		if(OutChar(f,th,'.') != OK) return(ABORT);
 		}
+	return(OK);
 	}
-else {
-	 if(OutChar(f,th,'.') != OK) return(ABORT);
-	}
-return(OK);
-}
 
 
-int OutChar(FILE* f,TextHandle th,char c)
-{
-char s[2];
+int OutChar(FILE* f,TextHandle th,char c) {
+	char s[2];
 
-s[0] = c;
-s[1] = '\0';
-if(f == stdout) {
-	if(th == NULL) {
-		BPPrintMessage(0,odError,"=> Err. OutChar()");
-		return(ABORT);
+	s[0] = c;
+	s[1] = '\0';
+	if(f == stdout) {
+		if(th == NULL) {
+			BPPrintMessage(0,odError,"=> Err. OutChar()");
+			return(ABORT);
+			}
+		else /* DoKey(c,0,th); */ TextInsert(s,1L,th);
 		}
-	else /* DoKey(c,0,th); */ TextInsert(s,1L,th);
+	else {
+		if(f != NULL) fprintf(f,"%s",s);
+		}
+	return(OK);
 	}
-else {
-	if(f != NULL) fprintf(f,"%s",s);
-	}
-return(OK);
-}
 
 
 int Display(char thechar,int nhomo,int levpar,int* homoname,int* depth,unsigned long *p_maxib,tokenbyte ***pp_a,unsigned long *p_i,int istemplate,tokenbyte m,tokenbyte p,int nocode,tokenbyte ***pp_b,unsigned long *p_ib,FILE *f,TextHandle th,char *format,char **p_smthing,long integ) {
@@ -1726,51 +1719,51 @@ int Display(char thechar,int nhomo,int levpar,int* homoname,int* depth,unsigned 
 			(**pp_b)[(*p_ib)++] = p;
 			}
 		else {
-			/* pp_a is istemplate, pp_b is item without structure */
-	POSITION:
-			if((**pp_b)[*p_ib] == T0 && (**pp_b)[(*p_ib)+1] == 7) {
-				(*p_ib) += 2;		/* Skip '•' */
-				goto POSITION;
-				}
-			if((**pp_b)[*p_ib] == TEND && (**pp_b)[(*p_ib)+1] == TEND) return(MISSED);
-			if(m == T3 && p == 0) {	/* '_' */
-				if((**pp_b)[*p_ib] != T3 && (**pp_b)[*p_ib] != T47 && (**pp_b)[*p_ib] != T25) return(MISSED);
-				mm = (**pp_b)[*p_ib];
-				pp = (**pp_b)[(*p_ib)+1];
-				if(mm == T25) pp += 16384;
-				if(nhomo > 0 && levpar > 0) {
-					/* Search for original terminal symbol */
-					for(px=2; px < Jbol; px++) {
-						py = px;
-						for(n=nhomo; n >= 1; n--) {
-							h = homoname[n];
-							if(depth[n] < levpar) {
-								py = Image(h,py);
-								}
-							}
-						if(pp == py) {
-							pp = px;
-							mm = T3;
-							if(pp >= 16384) {
-								mm = T25;
-								pp -= 16384;
-								}
-							goto FOUNDIT;
-							}
+					/* pp_a is istemplate, pp_b is item without structure */
+			POSITION:
+					if((**pp_b)[*p_ib] == T0 && (**pp_b)[(*p_ib)+1] == 7) {
+						(*p_ib) += 2;		/* Skip '•' */
+						goto POSITION;
 						}
-					}
-	FOUNDIT:
-				if(mm == T25 && pp >= 16384) pp -= 16384;
-				(**pp_a)[*p_i] = (tokenbyte) mm;
-				(**pp_a)[(*p_i)+1] = (tokenbyte) pp;
-				(*p_ib) += 2;
-				return(OK);
-				}
-			if(m == T1 || m == T0 || m == T5 || m == T3 || m == T47 || m == T25 || m == T43) {
-			/* m = T3 or T25 while checking slave bracket */
-				if(m != (**pp_b)[*p_ib] || p != (**pp_b)[(*p_ib)+1]) return(MISSED);
-				(*p_ib) += 2;
-				}
+					if((**pp_b)[*p_ib] == TEND && (**pp_b)[(*p_ib)+1] == TEND) return(MISSED);
+					if(m == T3 && p == 0) {	/* '_' */
+						if((**pp_b)[*p_ib] != T3 && (**pp_b)[*p_ib] != T47 && (**pp_b)[*p_ib] != T25) return(MISSED);
+						mm = (**pp_b)[*p_ib];
+						pp = (**pp_b)[(*p_ib)+1];
+						if(mm == T25) pp += 16384;
+						if(nhomo > 0 && levpar > 0) {
+							/* Search for original terminal symbol */
+							for(px=2; px < Jbol; px++) {
+								py = px;
+								for(n=nhomo; n >= 1; n--) {
+									h = homoname[n];
+									if(depth[n] < levpar) {
+										py = Image(h,py);
+										}
+									}
+								if(pp == py) {
+									pp = px;
+									mm = T3;
+									if(pp >= 16384) {
+										mm = T25;
+										pp -= 16384;
+										}
+									goto FOUNDIT;
+									}
+								}
+							}
+			FOUNDIT:
+						if(mm == T25 && pp >= 16384) pp -= 16384;
+						(**pp_a)[*p_i] = (tokenbyte) mm;
+						(**pp_a)[(*p_i)+1] = (tokenbyte) pp;
+						(*p_ib) += 2;
+						return(OK);
+						}
+					if(m == T1 || m == T0 || m == T5 || m == T3 || m == T47 || m == T25 || m == T43) {
+					/* m = T3 or T25 while checking slave bracket */
+						if(m != (**pp_b)[*p_ib] || p != (**pp_b)[(*p_ib)+1]) return(MISSED);
+						(*p_ib) += 2;
+						}
 			}
 		}
 	else {
@@ -1814,97 +1807,96 @@ int Display(char thechar,int nhomo,int levpar,int* homoname,int* depth,unsigned 
 	}
 
 
-int ShowCodes(int j)
-{
-int w,ch;
-long i;
+int ShowCodes(int j) {
+	int w,ch;
+	long i;
 
-if(j < 2 || j >= Jbol) return(MISSED);
-if((*p_MIDIsize)[j] > ZERO) {
-	if((*((*pp_MIDIcode)[j]))[0].time > ZERO) {
-		my_sprintf(Message,"Silence=%ldms ",(long)(*((*pp_MIDIcode)[j]))[0].time);
-		PrintBehind(wNotice,Message);
-		}
-	for(i=0; i < (*p_MIDIsize)[j]; i++) {
-		w = (*((*pp_MIDIcode)[j]))[i].byte;
-		if(ChannelEvent(w)) {
-			ch = w % 16;
-			w -= ch;
-			ch++;
+	if(j < 2 || j >= Jbol) return(MISSED);
+	if((*p_MIDIsize)[j] > ZERO) {
+		if((*((*pp_MIDIcode)[j]))[0].time > ZERO) {
+			my_sprintf(Message,"Silence=%ldms ",(long)(*((*pp_MIDIcode)[j]))[0].time);
+			PrintBehind(wNotice,Message);
 			}
-		if(w == NoteOn && (*((*pp_MIDIcode)[j]))[i+2].byte > 0) {
-			my_sprintf(Message,"NoteOn#%ld[%ld] ",(long)(*((*pp_MIDIcode)[j]))[i+1].byte,(long)ch);
-			PrintBehind(wNotice,Message); i+= 2;
-			}
-		else {
-			if(w == NoteOff || (w == NoteOn && (*((*pp_MIDIcode)[j]))[i+2].byte == 0)) {
-				my_sprintf(Message,"NoteOff#%ld[%ld] ",(long)(*((*pp_MIDIcode)[j]))[i+1].byte,(long)ch);
-				PrintBehind(wNotice,Message);
-				i+= 2;
+		for(i=0; i < (*p_MIDIsize)[j]; i++) {
+			w = (*((*pp_MIDIcode)[j]))[i].byte;
+			if(ChannelEvent(w)) {
+				ch = w % 16;
+				w -= ch;
+				ch++;
+				}
+			if(w == NoteOn && (*((*pp_MIDIcode)[j]))[i+2].byte > 0) {
+				my_sprintf(Message,"NoteOn#%ld[%ld] ",(long)(*((*pp_MIDIcode)[j]))[i+1].byte,(long)ch);
+				PrintBehind(wNotice,Message); i+= 2;
 				}
 			else {
-				if(w > 127) {
-					switch(w) {
-						case ChannelPressure:
-							my_sprintf(Message,"ChPress=%ld[%ld] ",
-								(long)(*((*pp_MIDIcode)[j]))[i+1].byte,(long)ch);
-							PrintBehind(wNotice,Message);
-							i += 1; break;
-						case PitchBend:
-							my_sprintf(Message,"Bend=%ld[%ld] ",(long)((*((*pp_MIDIcode)[j]))[i+1].byte
-								+ 128 * (*((*pp_MIDIcode)[j]))[i+2].byte),(long)ch); // Fixed by BB 2022-02-20
-							PrintBehind(wNotice,Message);
-							i += 2; break;
-						case ProgramChange:
-							my_sprintf(Message,"Progr#%ld[%ld] ",
-								(long)(*((*pp_MIDIcode)[j]))[i+1].byte + ProgNrFrom,(long)ch);
-							PrintBehind(wNotice,Message);
-							i += 1;
-							break;
-						case TimingClock:
-							my_sprintf(Message,"Silence %ldms ",(long)(*((*pp_MIDIcode)[j]))[i].time);
-							if(i == (*p_MIDIsize)[j]-1 && i > 0) PrintBehind(wNotice,Message);
-							break;
-						case ControlChange:
-							if((*((*pp_MIDIcode)[j]))[i+1].byte == 123
-													&& (*((*pp_MIDIcode)[j]))[i+2].byte == 0) {
-								my_sprintf(Message,"AllNotesOff[%ld] ",(long)ch);
-								PrintBehind(wNotice,Message);
-								i += 2; break;
-								}
-							if((*((*pp_MIDIcode)[j]))[i+1].byte == 1 && (*((*pp_MIDIcode)[j]))[i+4].byte == 33) {
-								my_sprintf(Message,"Mod=%ld[%ld] ",(long)(128L * (*((*pp_MIDIcode)[j]))[i+2].byte)	+ (*((*pp_MIDIcode)[j]))[i+5].byte,(long)ch); // Fixed by BB 2022-02-20
-								PrintBehind(wNotice,Message);
-								i += 5; break;
-								}
-							else {
-								my_sprintf(Message,"Ctrl#%ld=%ld[%ld] ",
-									(long)(*((*pp_MIDIcode)[j]))[i+1].byte,
-									(long)(*((*pp_MIDIcode)[j]))[i+2].byte,(long)ch);
-								PrintBehind(wNotice,Message);
-								i += 2; break;
-								}
-							/* Here we fall into default */
-						default:
-							my_sprintf(Message,"<%ld> ",(long)w);
-							PrintBehind(wNotice,Message);
-							break;																 
-						}
+				if(w == NoteOff || (w == NoteOn && (*((*pp_MIDIcode)[j]))[i+2].byte == 0)) {
+					my_sprintf(Message,"NoteOff#%ld[%ld] ",(long)(*((*pp_MIDIcode)[j]))[i+1].byte,(long)ch);
+					PrintBehind(wNotice,Message);
+					i+= 2;
 					}
 				else {
-					my_sprintf(Message,"%ld ",(long)w);
-					PrintBehind(wNotice,Message);
+					if(w > 127) {
+						switch(w) {
+							case ChannelPressure:
+								my_sprintf(Message,"ChPress=%ld[%ld] ",
+									(long)(*((*pp_MIDIcode)[j]))[i+1].byte,(long)ch);
+								PrintBehind(wNotice,Message);
+								i += 1; break;
+							case PitchBend:
+								my_sprintf(Message,"Bend=%ld[%ld] ",(long)((*((*pp_MIDIcode)[j]))[i+1].byte
+									+ 128 * (*((*pp_MIDIcode)[j]))[i+2].byte),(long)ch); // Fixed by BB 2022-02-20
+								PrintBehind(wNotice,Message);
+								i += 2; break;
+							case ProgramChange:
+								my_sprintf(Message,"Progr#%ld[%ld] ",
+									(long)(*((*pp_MIDIcode)[j]))[i+1].byte + ProgNrFrom,(long)ch);
+								PrintBehind(wNotice,Message);
+								i += 1;
+								break;
+							case TimingClock:
+								my_sprintf(Message,"Silence %ldms ",(long)(*((*pp_MIDIcode)[j]))[i].time);
+								if(i == (*p_MIDIsize)[j]-1 && i > 0) PrintBehind(wNotice,Message);
+								break;
+							case ControlChange:
+								if((*((*pp_MIDIcode)[j]))[i+1].byte == 123
+														&& (*((*pp_MIDIcode)[j]))[i+2].byte == 0) {
+									my_sprintf(Message,"AllNotesOff[%ld] ",(long)ch);
+									PrintBehind(wNotice,Message);
+									i += 2; break;
+									}
+								if((*((*pp_MIDIcode)[j]))[i+1].byte == 1 && (*((*pp_MIDIcode)[j]))[i+4].byte == 33) {
+									my_sprintf(Message,"Mod=%ld[%ld] ",(long)(128L * (*((*pp_MIDIcode)[j]))[i+2].byte)	+ (*((*pp_MIDIcode)[j]))[i+5].byte,(long)ch); // Fixed by BB 2022-02-20
+									PrintBehind(wNotice,Message);
+									i += 5; break;
+									}
+								else {
+									my_sprintf(Message,"Ctrl#%ld=%ld[%ld] ",
+										(long)(*((*pp_MIDIcode)[j]))[i+1].byte,
+										(long)(*((*pp_MIDIcode)[j]))[i+2].byte,(long)ch);
+									PrintBehind(wNotice,Message);
+									i += 2; break;
+									}
+								/* Here we fall into default */
+							default:
+								my_sprintf(Message,"<%ld> ",(long)w);
+								PrintBehind(wNotice,Message);
+								break;																 
+							}
+						}
+					else {
+						my_sprintf(Message,"%ld ",(long)w);
+						PrintBehind(wNotice,Message);
+						}
 					}
 				}
 			}
+		Print(wNotice,"\n");
 		}
-	Print(wNotice,"\n");
+	else Print(wNotice,"This object is empty");
+	SetSelect(ZERO,ZERO,TEH[wNotice]);
+	ShowSelect(CENTRE,wNotice);
+	return(OK);
 	}
-else Print(wNotice,"This object is empty");
-SetSelect(ZERO,ZERO,TEH[wNotice]);
-ShowSelect(CENTRE,wNotice);
-return(OK);
-}
 
 
 int AcceptControl(tokenbyte m) {
@@ -1939,32 +1931,31 @@ int AcceptControl(tokenbyte m) {
 
 
 int CheckPeriodOrLine(int print_periods,int *p_newline,int *p_newsection,FILE *f,
-	TextHandle th,int *p_beat,unsigned long numberprolongations,int *p_sp)
-{
-int r;
+	TextHandle th,int *p_beat,unsigned long numberprolongations,int *p_sp) {
+	int r;
 
-r = OK;
-if(*p_newline) {
-	if(print_periods > 2) {
-		(*p_beat)++;
-		if((r=PrintPeriod(f,th)) != OK) goto SORTIR;
-		if(/* OutChar(f,th,'�') != OK || */ OutChar(f,th,'\n') != OK) {
-			r = ABORT; goto SORTIR;
+	r = OK;
+	if(*p_newline) {
+		if(print_periods > 2) {
+			(*p_beat)++;
+			if((r=PrintPeriod(f,th)) != OK) goto SORTIR;
+			if(/* OutChar(f,th,'�') != OK || */ OutChar(f,th,'\n') != OK) {
+				r = ABORT; goto SORTIR;
+				}
+			(*p_sp) = 0;
 			}
-		(*p_sp) = 0;
+		(*p_newline) = FALSE;
 		}
-	(*p_newline) = FALSE;
-	}
-if(*p_newsection) {
-	if(print_periods) {
-		(*p_beat)++;
-		if((r=PrintPeriod(f,th)) != OK) goto SORTIR;
-		(*p_sp) = 0;
+	if(*p_newsection) {
+		if(print_periods) {
+			(*p_beat)++;
+			if((r=PrintPeriod(f,th)) != OK) goto SORTIR;
+			(*p_sp) = 0;
+			}
+		else if(numberprolongations > 1L) (*p_sp) = 1;
+		(*p_newsection) = FALSE;
 		}
-	else if(numberprolongations > 1L) (*p_sp) = 1;
-	(*p_newsection) = FALSE;
-	}
 	
 SORTIR:
-return(r);
-}
+	return(r);
+	}

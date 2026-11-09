@@ -41,103 +41,101 @@
 
 /* WARNING: Record carefully any change done here as it may take ages to trace bad consequences */
 
-int ResetProject(int init)
-{
-long count;
-int i,w,r;
-Handle ptr;
+int ResetProject(int init) {
+	long count;
+	int i,w,r;
+	Handle ptr;
 
-if(check_memory_use) BPPrintMessage(0,odInfo,"Before ResetProject() MemoryUsed = %ld\n",(long)MemoryUsed);
-for(w=0; w < WMAX; w++) {
-	// just clearing the name of all files enough ? - akozar 20130830
-	FileName[w][0] = '\0';
-	}
-NotSaidKpress = TRUE;
-IgnoreUndefinedVariables = TRUE;
-ToldAboutPianoRoll = FALSE;
-if(init && !ScriptExecOn) {
-/*	if(!ScriptExecOn) {
-		WindowParID[iSettings] = ParIDbp2;
-		TheVRefNum[iSettings] = RefNumbp2;
-		} */
-//	if(InitButtons() != OK) return(MISSED);
-	if(LoadSettings(NULL, TRUE) == ABORT) return(ABORT);
-/*	for(w=0; w < WMAX; w++) {
-		switch(w) {
-			case wGrammar:
-			case wData:
-			case wAlphabet:
-			case wStartString:
-			case wInteraction:
-			case wGlossary:
-			case wTimeBase:
-			case iWeights:
-			case iSettings:
-			case iObjects:
-			case wCsoundResources:
-			case wMIDIorchestra:
-				TheVRefNum[w] = RefNumStartUp;
-				WindowParID[w] = ParIDstartup;
-				break;
-			}
-		} */
-	}
-
-if(ReleaseScaleSpace() != OK) return(MISSED);
-if(ReleaseProduceStackSpace() != OK) return(MISSED);
-if(ReleaseObjectPrototypes() != OK) return(MISSED);
-if(ReleaseGrammarSpace(&Gram,TRUE) != OK) return(MISSED);
-if(ReleaseVariableSpace() != OK) return(MISSED);
-if(ReleaseAlphabetSpace() != OK) return(MISSED);
-if(ReleasePatternSpace() != OK) return(MISSED);
-// if(ReleaseGlossarySpace() != OK) return(MISSED);
-if(init && (ReleaseScriptSpace() != OK)) return(MISSED);
-if(ReleaseConstants() != OK) return(MISSED);
-
-ItemNumber = ZERO;
-ptr = (Handle) p_Initbuff;
-MyDisposeHandle(&ptr);
-p_Initbuff = NULL;
-for(i=0; i <= MAXCHAN; i++) {
-	PressRate[i] = SamplingRate;
-	PitchbendRate[i] = SamplingRate;
-	ModulationRate[i] = SamplingRate;
-	VolumeRate[i] = SamplingRate;
-	PanoramicRate[i] = SamplingRate;
-	VolumeControl[i] = VolumeController;
-	PitchbendRange[i] = DeftPitchbendRange;
-	PanoramicControl[i] = PanoramicController;
-	}
-LastAction = NO;
-if(TraceMemory && check_memory_use) {
-	my_sprintf(Message,"New project memory use: %ld [leaked: %ld]",
-		(long) MemoryUsed,(long)MemoryUsed - MemoryUsedInit);
-	ShowMessage(TRUE, wMessage, Message);
-	}
-return OK;
-}
-
-
-int ResetScriptQueue(void)
-// Reset the (stacked) list of scripts currently being executed
-{
-int i;
-Handle ptr;
-
-ScriptExecOn = 0;
-if(p_StringList != NULL) {
-	for(i=0; i < (MyGetHandleSize((Handle)p_StringList) / sizeof(char**)); i++) {
-		ptr = (Handle) (*p_StringList)[i];
-		MyDisposeHandle(&ptr);
+	if(check_memory_use) BPPrintMessage(0,odInfo,"Before ResetProject() MemoryUsed = %ld\n",(long)MemoryUsed);
+	for(w=0; w < WMAX; w++) {
+		// just clearing the name of all files enough ? - akozar 20130830
+		FileName[w][0] = '\0';
 		}
+	NotSaidKpress = TRUE;
+	IgnoreUndefinedVariables = TRUE;
+	ToldAboutPianoRoll = FALSE;
+	if(init && !ScriptExecOn) {
+	/*	if(!ScriptExecOn) {
+			WindowParID[iSettings] = ParIDbp2;
+			TheVRefNum[iSettings] = RefNumbp2;
+			} */
+	//	if(InitButtons() != OK) return(MISSED);
+		if(LoadSettings(NULL, TRUE) == ABORT) return(ABORT);
+	/*	for(w=0; w < WMAX; w++) {
+			switch(w) {
+				case wGrammar:
+				case wData:
+				case wAlphabet:
+				case wStartString:
+				case wInteraction:
+				case wGlossary:
+				case wTimeBase:
+				case iWeights:
+				case iSettings:
+				case iObjects:
+				case wCsoundResources:
+				case wMIDIorchestra:
+					TheVRefNum[w] = RefNumStartUp;
+					WindowParID[w] = ParIDstartup;
+					break;
+				}
+			} */
+		}
+
+	if(ReleaseScaleSpace() != OK) return(MISSED);
+	if(ReleaseProduceStackSpace() != OK) return(MISSED);
+	if(ReleaseObjectPrototypes() != OK) return(MISSED);
+	if(ReleaseGrammarSpace(&Gram,TRUE) != OK) return(MISSED);
+	if(ReleaseVariableSpace() != OK) return(MISSED);
+	if(ReleaseAlphabetSpace() != OK) return(MISSED);
+	if(ReleasePatternSpace() != OK) return(MISSED);
+	// if(ReleaseGlossarySpace() != OK) return(MISSED);
+	if(init && (ReleaseScriptSpace() != OK)) return(MISSED);
+	if(ReleaseConstants() != OK) return(MISSED);
+
+	ItemNumber = ZERO;
+	ptr = (Handle) p_Initbuff;
+	MyDisposeHandle(&ptr);
+	p_Initbuff = NULL;
+	for(i=0; i <= MAXCHAN; i++) {
+		PressRate[i] = SamplingRate;
+		PitchbendRate[i] = SamplingRate;
+		ModulationRate[i] = SamplingRate;
+		VolumeRate[i] = SamplingRate;
+		PanoramicRate[i] = SamplingRate;
+		VolumeControl[i] = VolumeController;
+		PitchbendRange[i] = DeftPitchbendRange;
+		PanoramicControl[i] = PanoramicController;
+		}
+	LastAction = NO;
+	if(TraceMemory && check_memory_use) {
+		my_sprintf(Message,"New project memory use: %ld [leaked: %ld]",
+			(long) MemoryUsed,(long)MemoryUsed - MemoryUsedInit);
+		ShowMessage(TRUE, wMessage, Message);
+		}
+	return OK;
 	}
-MyDisposeHandle((Handle*)pp_StringList);
-SizeStringList = 10; NrStrings = 0;
-if((p_StringList=(char****)GiveSpace((Size)(SizeStringList * sizeof(char**))))
-	== NULL) return(ABORT);
-for(i=0; i < SizeStringList; i++) (*p_StringList)[i] = NULL;
-return OK;
-}
+
+
+int ResetScriptQueue(void) {
+	// Reset the (stacked) list of scripts currently being executed
+	int i;
+	Handle ptr;
+
+	ScriptExecOn = 0;
+	if(p_StringList != NULL) {
+		for(i=0; i < (MyGetHandleSize((Handle)p_StringList) / sizeof(char**)); i++) {
+			ptr = (Handle) (*p_StringList)[i];
+			MyDisposeHandle(&ptr);
+			}
+		}
+	MyDisposeHandle((Handle*)pp_StringList);
+	SizeStringList = 10; NrStrings = 0;
+	if((p_StringList=(char****)GiveSpace((Size)(SizeStringList * sizeof(char**))))
+		== NULL) return(ABORT);
+	for(i=0; i < SizeStringList; i++) (*p_StringList)[i] = NULL;
+	return OK;
+	}
 
 
 int ReleasePhaseDiagram(int nmax,unsigned long*** pp_imaxseq) {
@@ -284,27 +282,26 @@ int ReleaseAlphabetSpace(void) {
 	}
 
 
-int ReleasePatternSpace(void)
-{
-int j;
-Handle ptr;
+int ReleasePatternSpace(void) {
+	int j;
+	Handle ptr;
 
-for(j=0; j < (MyGetHandleSize((Handle)p_Patt) / sizeof(char**)); j++) {
-	ptr = (Handle) (*p_Patt)[j];
+	for(j=0; j < (MyGetHandleSize((Handle)p_Patt) / sizeof(char**)); j++) {
+		ptr = (Handle) (*p_Patt)[j];
+		MyDisposeHandle(&ptr);
+		}
+	ptr = (Handle) p_Patt;
 	MyDisposeHandle(&ptr);
+	p_Patt = NULL;
+	ptr = (Handle) p_Ppatt;
+	MyDisposeHandle(&ptr);
+	p_Ppatt = NULL;
+	ptr = (Handle) p_Qpatt;
+	MyDisposeHandle(&ptr);
+	p_Qpatt = NULL;
+	Jpatt = 0; CompiledPt = FALSE;
+	return OK;
 	}
-ptr = (Handle) p_Patt;
-MyDisposeHandle(&ptr);
-p_Patt = NULL;
-ptr = (Handle) p_Ppatt;
-MyDisposeHandle(&ptr);
-p_Ppatt = NULL;
-ptr = (Handle) p_Qpatt;
-MyDisposeHandle(&ptr);
-p_Qpatt = NULL;
-Jpatt = 0; CompiledPt = FALSE;
-return OK;
-}
 
 int ReleaseGrammarSpace(t_gram* p_gram,int all) {
 	int igram,irul,j;
@@ -460,140 +457,136 @@ int ReleaseScriptSpace(void) {
 	}
 
 
-int ReleaseScaleSpace(void)
-{
-int i_scale;
-Handle ptr;
-for(i_scale = 1; i_scale <= NumberScales; i_scale++) {
-	if((*Scale)[i_scale].tuningratio != NULL) {
-		ptr = (Handle) (*Scale)[i_scale].tuningratio;
-		MyDisposeHandle(&ptr);
-		(*Scale)[i_scale].tuningratio = NULL;
+int ReleaseScaleSpace(void) {
+	int i_scale;
+	Handle ptr;
+	for(i_scale = 1; i_scale <= NumberScales; i_scale++) {
+		if((*Scale)[i_scale].tuningratio != NULL) {
+			ptr = (Handle) (*Scale)[i_scale].tuningratio;
+			MyDisposeHandle(&ptr);
+			(*Scale)[i_scale].tuningratio = NULL;
+			}
+		if((*Scale)[NumberScales].label != NULL) {
+			ptr = (Handle) (*Scale)[NumberScales].label;
+			MyDisposeHandle(&ptr);
+			(*Scale)[NumberScales].label = NULL;
+			}
 		}
-	if((*Scale)[NumberScales].label != NULL) {
-		ptr = (Handle) (*Scale)[NumberScales].label;
+	if(Scale != NULL) {
+		ptr = (Handle) Scale;
 		MyDisposeHandle(&ptr);
-		(*Scale)[NumberScales].label = NULL;
+		Scale = NULL;
 		}
+	return(OK);
 	}
-if(Scale != NULL) {
-	ptr = (Handle) Scale;
+
+int ReleaseProduceStackSpace(void) {
+	Handle ptr;
+
+	if(check_memory_use) BPPrintMessage(0,odInfo,"MemoryUsed start ReleaseProduceStackSpace = %ld i_ptr = %d\n",(long)MemoryUsed,i_ptr);
+	ptr = (Handle) p_MemGram;
 	MyDisposeHandle(&ptr);
-	Scale = NULL;
-	}
-return(OK);
-}
-
-int ReleaseProduceStackSpace(void)
-{
-Handle ptr;
-
-if(check_memory_use) BPPrintMessage(0,odInfo,"MemoryUsed start ReleaseProduceStackSpace = %ld i_ptr = %d\n",(long)MemoryUsed,i_ptr);
-ptr = (Handle) p_MemGram;
-MyDisposeHandle(&ptr);
-p_MemGram = NULL;
-ptr = (Handle) p_MemRul;
-MyDisposeHandle(&ptr);
-p_MemRul = NULL;
-ptr = (Handle) p_MemPos;
-MyDisposeHandle(&ptr);
-p_MemPos = NULL;
-ptr = (Handle) p_LastStackIndex;
-MyDisposeHandle(&ptr);
-p_LastStackIndex = NULL;
-ptr = (Handle) p_ItemStart;
-MyDisposeHandle(&ptr);
-p_ItemStart = NULL;
-ptr = (Handle) p_ItemEnd;
-MyDisposeHandle(&ptr);
-p_ItemEnd = NULL;
-if(check_memory_use) BPPrintMessage(0,odInfo,"MemoryUsed end ReleaseProduceStackSpace = %ld i_ptr = %d\n",(long)MemoryUsed,i_ptr);
-return(OK);
-}
-
-
-int ReleaseConstants(void)
-{
-int j,maxparam;
-Handle ptr;
-
-if(p_StringConstant == NULL) goto MORE;
-
-maxparam = (MyGetHandleSize((Handle)p_StringConstant) / sizeof(char**));
-
-for(j=0; j < maxparam; j++) {
-	ptr = (Handle) (*p_StringConstant)[j];
+	p_MemGram = NULL;
+	ptr = (Handle) p_MemRul;
 	MyDisposeHandle(&ptr);
+	p_MemRul = NULL;
+	ptr = (Handle) p_MemPos;
+	MyDisposeHandle(&ptr);
+	p_MemPos = NULL;
+	ptr = (Handle) p_LastStackIndex;
+	MyDisposeHandle(&ptr);
+	p_LastStackIndex = NULL;
+	ptr = (Handle) p_ItemStart;
+	MyDisposeHandle(&ptr);
+	p_ItemStart = NULL;
+	ptr = (Handle) p_ItemEnd;
+	MyDisposeHandle(&ptr);
+	p_ItemEnd = NULL;
+	if(check_memory_use) BPPrintMessage(0,odInfo,"MemoryUsed end ReleaseProduceStackSpace = %ld i_ptr = %d\n",(long)MemoryUsed,i_ptr);
+	return(OK);
 	}
-ptr = (Handle) p_StringConstant;
-MyDisposeHandle(&ptr);
-p_StringConstant = NULL;
+
+
+int ReleaseConstants(void) {
+	int j,maxparam;
+	Handle ptr;
+
+	if(p_StringConstant == NULL) goto MORE;
+
+	maxparam = (MyGetHandleSize((Handle)p_StringConstant) / sizeof(char**));
+
+	for(j=0; j < maxparam; j++) {
+		ptr = (Handle) (*p_StringConstant)[j];
+		MyDisposeHandle(&ptr);
+		}
+	ptr = (Handle) p_StringConstant;
+	MyDisposeHandle(&ptr);
+	p_StringConstant = NULL;
 
 MORE:
-ptr = (Handle) p_NumberConstant;
-MyDisposeHandle(&ptr);
-p_NumberConstant = NULL;
-return(OK);
-}
-
-
-int ReleaseCsoundInstruments(void)
-{
-int i,j;
-Handle ptr;
-
-for(j=0; j < Jinstr; j++) {
-	ptr = (Handle)(*pp_CsInstrumentName)[j];
+	ptr = (Handle) p_NumberConstant;
 	MyDisposeHandle(&ptr);
-	ptr = (Handle)(*pp_CsInstrumentComment)[j];
-	MyDisposeHandle(&ptr);
-	for(i=0; i < (*p_CsInstrument)[j].ipmax; i++) {
-		if((*p_CsInstrument)[j].paramlist == NULL) {
-			BPPrintMessage(0,odError,"=> Err. ReleaseCsoundInstruments(). (*p_CsInstrument)[j].paramlist == NULL");
-			break;
-			}
-		ptr = (Handle) (*((*p_CsInstrument)[j].paramlist))[i].name;
+	p_NumberConstant = NULL;
+	return(OK);
+	}
+
+
+int ReleaseCsoundInstruments(void) {
+	int i,j;
+	Handle ptr;
+
+	for(j=0; j < Jinstr; j++) {
+		ptr = (Handle)(*pp_CsInstrumentName)[j];
 		MyDisposeHandle(&ptr);
-		ptr = (Handle) (*((*p_CsInstrument)[j].paramlist))[i].comment;
+		ptr = (Handle)(*pp_CsInstrumentComment)[j];
+		MyDisposeHandle(&ptr);
+		for(i=0; i < (*p_CsInstrument)[j].ipmax; i++) {
+			if((*p_CsInstrument)[j].paramlist == NULL) {
+				BPPrintMessage(0,odError,"=> Err. ReleaseCsoundInstruments(). (*p_CsInstrument)[j].paramlist == NULL");
+				break;
+				}
+			ptr = (Handle) (*((*p_CsInstrument)[j].paramlist))[i].name;
+			MyDisposeHandle(&ptr);
+			ptr = (Handle) (*((*p_CsInstrument)[j].paramlist))[i].comment;
+			MyDisposeHandle(&ptr);
+			}
+		ptr = (Handle) (*p_CsInstrument)[j].paramlist;
 		MyDisposeHandle(&ptr);
 		}
-	ptr = (Handle) (*p_CsInstrument)[j].paramlist;
-	MyDisposeHandle(&ptr);
+	for(i = 0; i < MaxCsoundTables; i++) {
+		ptr = (Handle) (*p_CsoundTables)[i];
+		MyDisposeHandle(&ptr);
+		}
+	MyDisposeHandle((Handle*)&p_CsoundTables);
+	MyDisposeHandle((Handle*)&p_CsInstrument);
+	MyDisposeHandle((Handle*)&pp_CsInstrumentName);
+	MyDisposeHandle((Handle*)&pp_CsInstrumentComment);
+	MyDisposeHandle((Handle*)&p_CsInstrumentIndex);
+	MyDisposeHandle((Handle*)&p_CsPitchFormat);
+	MyDisposeHandle((Handle*)&p_CsDilationRatioIndex);
+	MyDisposeHandle((Handle*)&p_CsAttackVelocityIndex);
+	MyDisposeHandle((Handle*)&p_CsReleaseVelocityIndex);
+	MyDisposeHandle((Handle*)&p_CsPitchIndex);
+	MyDisposeHandle((Handle*)&p_CsPitchBendStartIndex);
+	MyDisposeHandle((Handle*)&p_CsVolumeStartIndex);
+	MyDisposeHandle((Handle*)&p_CsPressureStartIndex);
+	MyDisposeHandle((Handle*)&p_CsModulationStartIndex);
+	MyDisposeHandle((Handle*)&p_CsPanoramicStartIndex);
+	MyDisposeHandle((Handle*)&p_CsPitchBendEndIndex);
+	MyDisposeHandle((Handle*)&p_CsVolumeEndIndex);
+	MyDisposeHandle((Handle*)&p_CsPressureEndIndex);
+	MyDisposeHandle((Handle*)&p_CsModulationEndIndex);
+	MyDisposeHandle((Handle*)&p_CsPanoramicEndIndex);
+	for(i=0; i < 6; i++) {
+		MyDisposeHandle((Handle*)&(p_CsPitchBend[i]));
+		MyDisposeHandle((Handle*)&(p_CsVolume[i]));
+		MyDisposeHandle((Handle*)&(p_CsPressure[i]));
+		MyDisposeHandle((Handle*)&(p_CsModulation[i]));
+		MyDisposeHandle((Handle*)&(p_CsPanoramic[i]));
+		}
+	Jinstr = 0;
+	return(OK);
 	}
-for(i = 0; i < MaxCsoundTables; i++) {
-	ptr = (Handle) (*p_CsoundTables)[i];
-	MyDisposeHandle(&ptr);
-	}
-MyDisposeHandle((Handle*)&p_CsoundTables);
-MyDisposeHandle((Handle*)&p_CsInstrument);
-MyDisposeHandle((Handle*)&pp_CsInstrumentName);
-MyDisposeHandle((Handle*)&pp_CsInstrumentComment);
-MyDisposeHandle((Handle*)&p_CsInstrumentIndex);
-MyDisposeHandle((Handle*)&p_CsPitchFormat);
-MyDisposeHandle((Handle*)&p_CsDilationRatioIndex);
-MyDisposeHandle((Handle*)&p_CsAttackVelocityIndex);
-MyDisposeHandle((Handle*)&p_CsReleaseVelocityIndex);
-MyDisposeHandle((Handle*)&p_CsPitchIndex);
-MyDisposeHandle((Handle*)&p_CsPitchBendStartIndex);
-MyDisposeHandle((Handle*)&p_CsVolumeStartIndex);
-MyDisposeHandle((Handle*)&p_CsPressureStartIndex);
-MyDisposeHandle((Handle*)&p_CsModulationStartIndex);
-MyDisposeHandle((Handle*)&p_CsPanoramicStartIndex);
-MyDisposeHandle((Handle*)&p_CsPitchBendEndIndex);
-MyDisposeHandle((Handle*)&p_CsVolumeEndIndex);
-MyDisposeHandle((Handle*)&p_CsPressureEndIndex);
-MyDisposeHandle((Handle*)&p_CsModulationEndIndex);
-MyDisposeHandle((Handle*)&p_CsPanoramicEndIndex);
-for(i=0; i < 6; i++) {
-	MyDisposeHandle((Handle*)&(p_CsPitchBend[i]));
-	MyDisposeHandle((Handle*)&(p_CsVolume[i]));
-	MyDisposeHandle((Handle*)&(p_CsPressure[i]));
-	MyDisposeHandle((Handle*)&(p_CsModulation[i]));
-	MyDisposeHandle((Handle*)&(p_CsPanoramic[i]));
-	}
-Jinstr = 0;
-return(OK);
-}
 
 
 int ResizeCsoundInstrumentsSpace(int howmany) {
@@ -1327,53 +1320,52 @@ int GetGrammarSpace(t_gram* p_gram) {
 	}
 
 
-int GetAlphabetSpace(void)
-{
-int i,j,**ptr1;
-char **ptr2,**p_x;
+int GetAlphabetSpace(void) {
+	int i,j,**ptr1;
+	char **ptr2,**p_x;
 
-if(Jbol < 2) {
-	BPPrintMessage(0,odError,"=> Err. GetAlphabetSpace(). Jbol < 2");
-	return(ABORT);
-	}
-if((p_x = (char**) GiveSpace((Size)((2) * sizeof(char)))) == NULL) {
-	return(ABORT);
-	}
-if((p_Bol = (char****) GiveSpace((Size)(Jbol) * sizeof(char**))) == NULL) return(ABORT);
-for(j=0; j < Jbol; j++) (*p_Bol)[j] = NULL;
-if(p_Image != NULL || p_NoteImage != NULL || p_Homo != NULL) {
-	BPPrintMessage(0,odError,"=> Err. GetAlphabetSpace(). p_Image != NULL || p_NoteImage != NULL || p_Homo != NULL");
-	return(ABORT);
-	}
-/* p_Image = p_NoteImage = NULL; p_Homo = NULL; */
-/* if(Jhomo > 0) {
-	if((p_Image = (int****) GiveSpace((Size)(Jhomo) * sizeof(int**))) == NULL)
+	if(Jbol < 2) {
+		BPPrintMessage(0,odError,"=> Err. GetAlphabetSpace(). Jbol < 2");
 		return(ABORT);
-	if((p_NoteImage = (int****) GiveSpace((Size)(Jhomo) * sizeof(int**))) == NULL)
+		}
+	if((p_x = (char**) GiveSpace((Size)((2) * sizeof(char)))) == NULL) {
 		return(ABORT);
-	if((p_Homo = (char****) GiveSpace((Size)(Jhomo) * sizeof(char**))) == NULL) return(ABORT);
-	} */
-/* for(i=0; i < Jhomo; i++) {
-	if((ptr2 = (char**) GiveSpace((Size)HOMOSIZE)) == NULL) return(ABORT);
-	(*p_Homo)[i] = ptr2;
-	MystrcpyStringToTable(p_Homo,i,"\0");
+		}
+	if((p_Bol = (char****) GiveSpace((Size)(Jbol) * sizeof(char**))) == NULL) return(ABORT);
+	for(j=0; j < Jbol; j++) (*p_Bol)[j] = NULL;
+	if(p_Image != NULL || p_NoteImage != NULL || p_Homo != NULL) {
+		BPPrintMessage(0,odError,"=> Err. GetAlphabetSpace(). p_Image != NULL || p_NoteImage != NULL || p_Homo != NULL");
+		return(ABORT);
+		}
+	/* p_Image = p_NoteImage = NULL; p_Homo = NULL; */
+	/* if(Jhomo > 0) {
+		if((p_Image = (int****) GiveSpace((Size)(Jhomo) * sizeof(int**))) == NULL)
+			return(ABORT);
+		if((p_NoteImage = (int****) GiveSpace((Size)(Jhomo) * sizeof(int**))) == NULL)
+			return(ABORT);
+		if((p_Homo = (char****) GiveSpace((Size)(Jhomo) * sizeof(char**))) == NULL) return(ABORT);
+		} */
+	/* for(i=0; i < Jhomo; i++) {
+		if((ptr2 = (char**) GiveSpace((Size)HOMOSIZE)) == NULL) return(ABORT);
+		(*p_Homo)[i] = ptr2;
+		MystrcpyStringToTable(p_Homo,i,"\0");
 	
-	if((ptr1 = (int**) GiveSpace((Size)(Jbol) * sizeof(int))) == NULL) return(ABORT);
-	(*p_Image)[i] = ptr1;
-	for(j=0; j < Jbol; j++) (*((*p_Image)[i]))[j] = j;
+		if((ptr1 = (int**) GiveSpace((Size)(Jbol) * sizeof(int))) == NULL) return(ABORT);
+		(*p_Image)[i] = ptr1;
+		for(j=0; j < Jbol; j++) (*((*p_Image)[i]))[j] = j;
 	
-	if((ptr1 = (int**) GiveSpace((Size)(128) * sizeof(int))) == NULL) return(ABORT);
-	(*p_NoteImage)[i] = ptr1;
-	for(j=0; j < 128; j++) (*((*p_NoteImage)[i]))[j] = 16384 + j;
-	} */
-Jbol = 0; Jhomo = 0;
-MystrcpyStringToHandle(&p_x,"_");
-if(CreateBol(TRUE,FALSE,p_x,FALSE,FALSE,BOL) < 0) return(ABORT);
-MystrcpyStringToHandle(&p_x,"-");
-if(CreateBol(TRUE,FALSE,p_x,FALSE,FALSE,BOL) < 0) return(ABORT);
-MyDisposeHandle((Handle*)&p_x);
-return OK;
-}
+		if((ptr1 = (int**) GiveSpace((Size)(128) * sizeof(int))) == NULL) return(ABORT);
+		(*p_NoteImage)[i] = ptr1;
+		for(j=0; j < 128; j++) (*((*p_NoteImage)[i]))[j] = 16384 + j;
+		} */
+	Jbol = 0; Jhomo = 0;
+	MystrcpyStringToHandle(&p_x,"_");
+	if(CreateBol(TRUE,FALSE,p_x,FALSE,FALSE,BOL) < 0) return(ABORT);
+	MystrcpyStringToHandle(&p_x,"-");
+	if(CreateBol(TRUE,FALSE,p_x,FALSE,FALSE,BOL) < 0) return(ABORT);
+	MyDisposeHandle((Handle*)&p_x);
+	return OK;
+	}
 
 
 int GetVariableSpace(void) {
@@ -1421,50 +1413,48 @@ int GetScriptSpace(void) {
 	}
 
 
-int CreateBuffer(tokenbyte*** pp_buff)
-{
-tokenbyte** ptr;
+int CreateBuffer(tokenbyte*** pp_buff) {
+	tokenbyte** ptr;
 
-BufferSize = DeftBufferSize;
-if(*pp_buff == NULL) {
-	if((ptr=(tokenbyte**) GiveSpace((Size) MAXDISPL * sizeof(tokenbyte)))
-		== NULL) return(ABORT);
-	*pp_buff = ptr;
+	BufferSize = DeftBufferSize;
+	if(*pp_buff == NULL) {
+		if((ptr=(tokenbyte**) GiveSpace((Size) MAXDISPL * sizeof(tokenbyte)))
+			== NULL) return(ABORT);
+		*pp_buff = ptr;
+		}
+	else {
+		MySetHandleSize((Handle*)pp_buff,(Size) MAXDISPL * sizeof(tokenbyte));
+		}
+	(**pp_buff)[0] = (**pp_buff)[1] = TEND;
+	return OK;
 	}
-else {
-	MySetHandleSize((Handle*)pp_buff,(Size) MAXDISPL * sizeof(tokenbyte));
-	}
-(**pp_buff)[0] = (**pp_buff)[1] = TEND;
-return OK;
-}
 
 
-int MakeComputeSpace(int maxderiv)
-{
-if(maxderiv < 2) {
-	BPPrintMessage(0,odError,"=> Err. MakeComputeSpace()");
-	maxderiv = 10;
+int MakeComputeSpace(int maxderiv) {
+	if(maxderiv < 2) {
+		BPPrintMessage(0,odError,"=> Err. MakeComputeSpace()");
+		maxderiv = 10;
+		}
+	if((p_MemGram == NULL) &&
+		((p_MemGram = (int**) GiveSpace((Size)(maxderiv*sizeof(int)))) == NULL))
+		return(ABORT);
+	if((p_MemRul == NULL) &&
+		((p_MemRul = (int**) GiveSpace((Size)(maxderiv*sizeof(int)))) == NULL))
+		return(ABORT);
+	if((p_MemPos == NULL) &&
+		((p_MemPos = (long**) GiveSpace((Size)(maxderiv*sizeof(long)))) == NULL))
+		return(ABORT);
+	if((p_LastStackIndex == NULL) &&
+		((p_LastStackIndex = (long**) GiveSpace((Size)(maxderiv*sizeof(long))))
+			== NULL)) return(ABORT);
+	if((p_ItemStart == NULL) &&
+		((p_ItemStart = (long**) GiveSpace((Size)maxderiv*sizeof(long)))
+			== NULL)) return(ABORT);
+	if((p_ItemEnd == NULL) &&
+		((p_ItemEnd = (long**) GiveSpace((Size)maxderiv*sizeof(long)))
+			== NULL)) return(ABORT);
+	return OK;
 	}
-if((p_MemGram == NULL) &&
-	((p_MemGram = (int**) GiveSpace((Size)(maxderiv*sizeof(int)))) == NULL))
-	return(ABORT);
-if((p_MemRul == NULL) &&
-	((p_MemRul = (int**) GiveSpace((Size)(maxderiv*sizeof(int)))) == NULL))
-	return(ABORT);
-if((p_MemPos == NULL) &&
-	((p_MemPos = (long**) GiveSpace((Size)(maxderiv*sizeof(long)))) == NULL))
-	return(ABORT);
-if((p_LastStackIndex == NULL) &&
-	((p_LastStackIndex = (long**) GiveSpace((Size)(maxderiv*sizeof(long))))
-		== NULL)) return(ABORT);
-if((p_ItemStart == NULL) &&
-	((p_ItemStart = (long**) GiveSpace((Size)maxderiv*sizeof(long)))
-		== NULL)) return(ABORT);
-if((p_ItemEnd == NULL) &&
-	((p_ItemEnd = (long**) GiveSpace((Size)maxderiv*sizeof(long)))
-		== NULL)) return(ABORT);
-return OK;
-}
 
 /* int ReleaseComputeSpace(void)
 {
@@ -1507,120 +1497,116 @@ int IncreaseComputeSpace(void) {
 	}
 
 
-int CheckTerminalSpace(void)
-{
-int i,j,oldjbol;
-int **ptr;
-char **p_x;
+int CheckTerminalSpace(void) {
+	int i,j,oldjbol;
+	int **ptr;
+	char **p_x;
 
-if(p_Bol == NULL) oldjbol = 0;
-else oldjbol = MyGetHandleSize((Handle)p_Bol) / sizeof(char**);
-if((p_x = (char**) GiveSpace((Size)((2) * sizeof(char)))) == NULL) {
-	return(ABORT);
-	}
-if(Jbol > oldjbol) {
-	CompiledPt = FALSE;
-	MySetHandleSize((Handle*)&p_Bol,(Size)Jbol*sizeof(char**));
-	for(i=oldjbol; i < Jbol; i++) {
-		(*p_Bol)[i] = NULL;
+	if(p_Bol == NULL) oldjbol = 0;
+	else oldjbol = MyGetHandleSize((Handle)p_Bol) / sizeof(char**);
+	if((p_x = (char**) GiveSpace((Size)((2) * sizeof(char)))) == NULL) {
+		return(ABORT);
 		}
-	for(i=0; i < Jhomo; i++) {
-		ptr = (*p_Image)[i];
-		MySetHandleSize((Handle*)&ptr,(Size)Jbol*sizeof(int));
-		(*p_Image)[i] = ptr;
-		/* Every homomorphism is set to identity */
-		for(j=oldjbol; j < Jbol; j++) (*((*p_Image)[i]))[j] = j;
+	if(Jbol > oldjbol) {
+		CompiledPt = FALSE;
+		MySetHandleSize((Handle*)&p_Bol,(Size)Jbol*sizeof(char**));
+		for(i=oldjbol; i < Jbol; i++) {
+			(*p_Bol)[i] = NULL;
+			}
+		for(i=0; i < Jhomo; i++) {
+			ptr = (*p_Image)[i];
+			MySetHandleSize((Handle*)&ptr,(Size)Jbol*sizeof(int));
+			(*p_Image)[i] = ptr;
+			/* Every homomorphism is set to identity */
+			for(j=oldjbol; j < Jbol; j++) (*((*p_Image)[i]))[j] = j;
+			}
 		}
+	if(Jbol < 2) {
+		Jbol = Jhomo = 0;
+		MystrcpyStringToHandle(&p_x,"_");
+		if(CreateBol(TRUE,FALSE,p_x,FALSE,FALSE,BOL) < 0) return(ABORT);
+		MystrcpyStringToHandle(&p_x,"-");
+		if(CreateBol(TRUE,FALSE,p_x,FALSE,FALSE,BOL) < 0) return(ABORT);
+		}
+	MyDisposeHandle((Handle*)&p_x);
+	return OK;
 	}
-if(Jbol < 2) {
-	Jbol = Jhomo = 0;
-	MystrcpyStringToHandle(&p_x,"_");
-	if(CreateBol(TRUE,FALSE,p_x,FALSE,FALSE,BOL) < 0) return(ABORT);
-	MystrcpyStringToHandle(&p_x,"-");
-	if(CreateBol(TRUE,FALSE,p_x,FALSE,FALSE,BOL) < 0) return(ABORT);
+
+
+int ResetVariables(int w) {
+	// Reset status of variables
+	int j;
+
+	if(p_VarStatus == NULL) return(OK);
+	if(p_Var == NULL) {
+		BPPrintMessage(0,odError,"=> Err. ResetVariables(). p_Var = NULL");
+		return(ABORT);
+		}
+	if(w != wGrammar && w != wGlossary) return(MISSED);
+	for(j=1; j < (MyGetHandleSize((Handle)p_VarStatus) / sizeof(int)); j++) {
+		if(w == wGrammar) (*p_VarStatus)[j] = (*p_VarStatus)[j] & (4+8);
+	//	if(w == wGlossary) (*p_VarStatus)[j] = (*p_VarStatus)[j] & (1+2);
+		}
+	return(OK);
 	}
-MyDisposeHandle((Handle*)&p_x);
-return OK;
-}
 
 
-int ResetVariables(int w)
-// Reset status of variables
-{
-int j;
+int KillSubTree(node n) {
+	arc a,**h_a,**newh_a;
+	Handle ptr;
 
-if(p_VarStatus == NULL) return(OK);
-if(p_Var == NULL) {
-	BPPrintMessage(0,odError,"=> Err. ResetVariables(). p_Var = NULL");
-	return(ABORT);
+	h_a = n.p;
+	while(h_a != NULL) {
+		a = **h_a;
+		KillSubTree(**a.p);
+		ptr = (Handle) a.p;
+		MyDisposeHandle(&ptr);
+		newh_a = a.next;
+		MyDisposeHandle((Handle*)&h_a);
+		h_a = newh_a;
+		}
+	n.accept = FALSE;
+	n.p = NULL;
+	return(OK);
 	}
-if(w != wGrammar && w != wGlossary) return(MISSED);
-for(j=1; j < (MyGetHandleSize((Handle)p_VarStatus) / sizeof(int)); j++) {
-	if(w == wGrammar) (*p_VarStatus)[j] = (*p_VarStatus)[j] & (4+8);
-//	if(w == wGlossary) (*p_VarStatus)[j] = (*p_VarStatus)[j] & (1+2);
+
+
+int ClearLockedSpace(void) {
+	long i;
+
+	for(i=0; i < MaxProc; i++) {
+		MyUnlock((Handle)(*p_GramProcedure)[i]);
+		MyDisposeHandle((Handle*)&(*p_GramProcedure)[i]);
+		}
+	MyUnlock((Handle)p_GramProcedure);
+	MyDisposeHandle((Handle*)&p_GramProcedure);
+
+	for(i=0; i < MaxPerformanceControl; i++) {
+		MyUnlock((Handle)(*p_PerformanceControl)[i]);
+		MyDisposeHandle((Handle*)&(*p_PerformanceControl)[i]);
+		}
+	MyUnlock((Handle)p_PerformanceControl);
+	MyDisposeHandle((Handle*)&p_PerformanceControl);
+
+	for(i=0; i < 127; i++) {
+		MyUnlock((Handle)(*p_GeneralMIDIpatch)[i]);
+		MyDisposeHandle((Handle*)&(*p_GeneralMIDIpatch)[i]);
+		}
+	MyUnlock((Handle)p_GeneralMIDIpatch);
+	MyDisposeHandle((Handle*)&p_GeneralMIDIpatch);
+
+	for(i=0; i < MAXHTMLDIACR; i++) {
+		MyUnlock((Handle)(*p_Diacritical)[i]);
+		MyDisposeHandle((Handle*)&(*p_Diacritical)[i]);
+		}
+	MyUnlock((Handle)p_Diacritical);
+	MyDisposeHandle((Handle*)&p_Diacritical);
+
+	MyUnlock((Handle)p_HTMLdiacritical);
+	MyDisposeHandle((Handle*)&p_HTMLdiacritical);
+
+	return(OK);
 	}
-return(OK);
-}
-
-
-int KillSubTree(node n)
-{
-arc a,**h_a,**newh_a;
-Handle ptr;
-
-h_a = n.p;
-while(h_a != NULL) {
-	a = **h_a;
-	KillSubTree(**a.p);
-	ptr = (Handle) a.p;
-	MyDisposeHandle(&ptr);
-	newh_a = a.next;
-	MyDisposeHandle((Handle*)&h_a);
-	h_a = newh_a;
-	}
-n.accept = FALSE;
-n.p = NULL;
-return(OK);
-}
-
-
-int ClearLockedSpace(void)
-{
-long i;
-
-for(i=0; i < MaxProc; i++) {
-	MyUnlock((Handle)(*p_GramProcedure)[i]);
-	MyDisposeHandle((Handle*)&(*p_GramProcedure)[i]);
-	}
-MyUnlock((Handle)p_GramProcedure);
-MyDisposeHandle((Handle*)&p_GramProcedure);
-
-for(i=0; i < MaxPerformanceControl; i++) {
-	MyUnlock((Handle)(*p_PerformanceControl)[i]);
-	MyDisposeHandle((Handle*)&(*p_PerformanceControl)[i]);
-	}
-MyUnlock((Handle)p_PerformanceControl);
-MyDisposeHandle((Handle*)&p_PerformanceControl);
-
-for(i=0; i < 127; i++) {
-	MyUnlock((Handle)(*p_GeneralMIDIpatch)[i]);
-	MyDisposeHandle((Handle*)&(*p_GeneralMIDIpatch)[i]);
-	}
-MyUnlock((Handle)p_GeneralMIDIpatch);
-MyDisposeHandle((Handle*)&p_GeneralMIDIpatch);
-
-for(i=0; i < MAXHTMLDIACR; i++) {
-	MyUnlock((Handle)(*p_Diacritical)[i]);
-	MyDisposeHandle((Handle*)&(*p_Diacritical)[i]);
-	}
-MyUnlock((Handle)p_Diacritical);
-MyDisposeHandle((Handle*)&p_Diacritical);
-
-MyUnlock((Handle)p_HTMLdiacritical);
-MyDisposeHandle((Handle*)&p_HTMLdiacritical);
-
-return(OK);
-}
 
 
 int CheckBuffer(unsigned long i,unsigned long *p_maxi,tokenbyte ***pp_c) {
@@ -1649,26 +1635,23 @@ int CheckBuffer(unsigned long i,unsigned long *p_maxi,tokenbyte ***pp_c) {
 	IncreaseSpace()).  Should it check to make sure the calculation does 
 	not overflow ?? -- akozar, 20130812
  */
-int ThreeOverTwo(long *p_x)
-{
+int ThreeOverTwo(long *p_x) {
 	long y;
 	
 	y = ((*p_x) * 3L) / 2L;
 	*p_x = y;
 	return(OK);
-}
-
-
-int CheckEmergency(void)
-{
-if((stop(0,"CheckEmergency") != OK) || EmergencyExit) {
-//	BPPrintMessage(0,odError,"Out of memory. Save your work and exit...");
-	return(NO);
 	}
-return(OK);
-}
 
-int DoSystem(void)
-{
+
+int CheckEmergency(void) {
+	if((stop(0,"CheckEmergency") != OK) || EmergencyExit) {
+	//	BPPrintMessage(0,odError,"Out of memory. Save your work and exit...");
+		return(NO);
+		}
 	return(OK);
-}
+	}
+
+int DoSystem(void) {
+	return(OK);
+	}

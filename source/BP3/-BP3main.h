@@ -47,40 +47,6 @@ long MemoryUsed,MemoryUsedInit,MaxMemoryUsed,MaxHandles,
 	SessionTime;
 int CheckMem;
 
-#if BP_CARBON_GUI_FORGET_THIS
-IntProcPtr Menu[][MAXMENUITEMS] =
-	{{NULLPROC,mAbout,NULLPROC,NULLPROC,NULLPROC,NULLPROC,NULLPROC,NULLPROC,NULLPROC,NULLPROC,
-		NULLPROC,NULLPROC,NULLPROC,NULLPROC,NULLPROC,NULLPROC,NULLPROC,NULLPROC,NULLPROC,NULLPROC,
-		NULLPROC,NULLPROC,NULLPROC,NULLPROC,NULLPROC},
-	{NULLPROC,mNewProject,mLoadProject,NULLPROC,mOpenFile,mClearWindow,mGoAway,mSaveFile,mSaveAs,mRevert,
-		mGetInfo,NULLPROC,mLoadSettings,mSaveSettings,mSaveSettingsAs,mSaveStartup,NULLPROC,mMakeGrammarFromTable,
-		mReceiveMIDI,mSendMIDI,mLoadTimePattern,NULLPROC,mPageSetup,mPrint,NULLPROC,mQuit},
-	{NULLPROC,mUndo,NULLPROC,mCut,mCopy,mPaste,mClear,NULLPROC,mSelectAll,NULLPROC,mText,mToken,NULLPROC,mTypeNote,
-		NULLPROC,mPickPerformanceControl,mPickGrammarProcedure,NULLPROC,NULLPROC,NULLPROC,NULLPROC,NULLPROC,
-		NULLPROC,NULLPROC,NULLPROC,NULLPROC},
-	{NULLPROC,mFind,mEnterFind,mFindAgain,NULLPROC,mCheckVariables,mListTerminals,mListReserved,
-		mBalance,NULLPROC,NULLPROC,NULLPROC,NULLPROC,NULLPROC,NULLPROC,NULLPROC,NULLPROC,NULLPROC,
-		NULLPROC,NULLPROC,NULLPROC,NULLPROC,NULLPROC,NULLPROC,NULLPROC,NULLPROC},
-	{NULLPROC,mCompile,mProduce,mCheckDeterminism,mTemplates,mAnalyze,mPlaySelectionOrPrototype,mExpandSelection,
-		mCaptureSelection,mShowPeriods,mExecuteScript,mTransliterateFile,NULLPROC,mPause,mResume,mStop,
-		NULLPROC,mResetSessionTime,mTellSessionTime,NULLPROC,mHelp,NULLPROC,NULLPROC,NULLPROC,NULLPROC,NULLPROC},
-	{NULLPROC,m9pt,m10pt,m12pt,m14pt,NULLPROC,mChangeColor,mUseGraphicsColor,mUseTextColor,
-		NULLPROC,mAzerty,mQwerty,NULLPROC,mUseBullet,NULLPROC,mSplitTimeObjects,mSplitVariables,
-		NULLPROC,NULLPROC,NULLPROC,NULLPROC,NULLPROC,NULLPROC,NULLPROC,NULLPROC,NULLPROC},
-	{NULLPROC,mMetronom,mComputationSettings,mInputOutputSettings,mRandomSequence,mTimeAccuracy,mBufferSize,
-		mGraphicSettings,mDefaultPerformanceValues,mDefaultStrikeMode,mFileSavePreferences,mTuning,NULLPROC,
-		mFrenchConvention,mEnglishConvention,mIndianConvention,mKeyConvention,NULLPROC,mPianoRoll,NULLPROC,
-		NULLPROC,NULLPROC,NULLPROC,NULLPROC,NULLPROC,NULLPROC},
-	{NULLPROC,mMIDI,mMIDIfile,mCsound,NULLPROC,NULLPROC,mMIDIinputcheck,mMIDIoutputcheck,mMIDIfilter,NULLPROC,
-		mMIDIorchestra,mCsoundInstrumentsSpecs,NULLPROC,mShowCMSettings,mOpenAudioMidiSetup,NULLPROC,NULLPROC,
-		NULLPROC,NULLPROC,NULLPROC,NULLPROC,NULLPROC,NULLPROC,NULLPROC,NULLPROC,NULLPROC},
-	{NULLPROC,mGrammar,mAlphabet,mData,mMiscSettings,mObjectPrototypes,mTimeBase,mInteraction,mScript,mGlossary,
-		mKeyboard,NULLPROC,mControlPannel,NULLPROC,mGraphic,mTrace,mStartString,mScrap,
-		mNotice,NULLPROC,mFAQ,NULLPROC,mShowMessages,NULLPROC,NULLPROC,NULLPROC}};
-
-ResID  WindowMenuIcons[11] = { 10, 129, 130, 132, 133, 131, 140, 139, 137, 138, 136 };
-ResID  DeviceMenuIcons[12] = { 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 144, 142 };
-#endif /* BP_CARBON_GUI_FORGET_THIS */
 
 // FIXME: figure out how to completely remove TempMemoryUsed (& FixedMaxQuantization?)
 int EmergencyExit,FixedMaxQuantization,TraceMemory,
@@ -336,8 +302,8 @@ char ParseMode[6];
 char MIDIinputname[MAXPORTS][MAXNAME],MIDIoutputname[MAXPORTS][MAXNAME],OutputMIDIportComment[MAXPORTS][MAXNAME],InputMIDIportComment[MAXPORTS][MAXNAME];
 int MIDIinput[MAXPORTS], MIDIoutput[MAXPORTS]; // In Linux, these are 'clients'. Otherwise, 'ports'.
 #if defined(__linux__)
-    snd_seq_t *Seq_handle = NULL;
-    int Out_port[MAXPORTS],In_port[MAXPORTS];
+	snd_seq_t *Seq_handle = NULL;
+	int Out_port[MAXPORTS],In_port[MAXPORTS];
 	int MIDIinputport[MAXPORTS],MIDIoutputport[MAXPORTS];
 #endif
 int MaxInputPorts, MaxOutputPorts;

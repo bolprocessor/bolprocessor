@@ -169,9 +169,9 @@ int CscoreWrite(Milliseconds cut_the_end,Rect* p_graphrect,int leftoffset,int to
 		
 		if((paramscopy = (ParameterStatus**)
 			GiveSpace((Size)(maxparam * sizeof(ParameterStatus)))) == NULL) {
-				BPPrintMessage(0,odError,"Err. GiveSpace in CscoreWrite(ZERO,). maxparam = %ld\n",(long)maxparam);
-				goto SORTIR;
-				}
+			BPPrintMessage(0,odError,"Err. GiveSpace in CscoreWrite(ZERO,). maxparam = %ld\n",(long)maxparam);
+			goto SORTIR;
+			}
 		for(i = 0; i < maxparam; i++) (*paramscopy)[i] = (*((*perf)->params))[i];
 		(*perf)->startparams[key] = paramscopy;
 		result = OK;
@@ -775,31 +775,30 @@ WRITECSCORELINE:
 	if(pitchclass >= 0) {
 		strcpy(line,"; ");
 		PrintThisNote(i_scale,key,0,-1,LineBuff);
-		strcat(line,LineBuff);
-		// 2026-11-08: values are rounded to the nearest cent instead of truncated, so that 149.99 and 150.006 both display 150.
-		// The start of the pitchbend is displayed if the end is not zero (e.g. "-> 0 to -50"), and the end is displayed
-		// whenever the instrument has an end field, including 0 (e.g. "-> + 49 to 0") - fixed by Claude
-		{
-		int cb = (int) lround(cents_base), c1 = (int) lround(cents_add1), c2 = (int) lround(cents_add2);
-		int hasend = ((*p_CsPitchBendEndIndex)[ins] > 0);
-		strcpy(LineBuff,"");
-		if(cb > 0) my_sprintf(LineBuff," + %d",cb);
-		if(cb < 0) my_sprintf(LineBuff," %d",cb);
-		strcat(line,LineBuff);
-		strcpy(LineBuff,"");
-		if(c1 != 0 || (hasend && c2 != 0)) {
-			if(c1 > 0) my_sprintf(LineBuff," -> + %d",c1);
-			else my_sprintf(LineBuff," -> %d",c1);
+		strcat(line,LineBuff); {
+			// 2026-11-08: values are rounded to the nearest cent instead of truncated, so that 149.99 and 150.006 both display 150.
+			// The start of the pitchbend is displayed if the end is not zero (e.g. "-> 0 to -50"), and the end is displayed
+			// whenever the instrument has an end field, including 0 (e.g. "-> + 49 to 0") - fixed by Claude
+			int cb = (int) lround(cents_base), c1 = (int) lround(cents_add1), c2 = (int) lround(cents_add2);
+			int hasend = ((*p_CsPitchBendEndIndex)[ins] > 0);
+			strcpy(LineBuff,"");
+			if(cb > 0) my_sprintf(LineBuff," + %d",cb);
+			if(cb < 0) my_sprintf(LineBuff," %d",cb);
 			strcat(line,LineBuff);
 			strcpy(LineBuff,"");
-			if(hasend) {
-				if(c2 > 0) my_sprintf(LineBuff," to + %d",c2);
-				else my_sprintf(LineBuff," to %d",c2);
+			if(c1 != 0 || (hasend && c2 != 0)) {
+				if(c1 > 0) my_sprintf(LineBuff," -> + %d",c1);
+				else my_sprintf(LineBuff," -> %d",c1);
+				strcat(line,LineBuff);
+				strcpy(LineBuff,"");
+				if(hasend) {
+					if(c2 > 0) my_sprintf(LineBuff," to + %d",c2);
+					else my_sprintf(LineBuff," to %d",c2);
+					}
 				}
+			strcat(LineBuff," cents");
+			if(cb != 0 || c1 != 0 || (hasend && c2 != 0)) strcat(line,LineBuff);
 			}
-		strcat(LineBuff," cents");
-		if(cb != 0 || c1 != 0 || (hasend && c2 != 0)) strcat(line,LineBuff);
-		}
 		strcat(Message,line);
 		}
 	else line[0] = '\0';

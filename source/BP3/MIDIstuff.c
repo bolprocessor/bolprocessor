@@ -39,13 +39,13 @@ int trace_midi_filter = 0;
 int trace_driver = 0;
 
 int read_midisetup() {
-    char *itemType, *itemIndex, *itemNumber, *portName, *portComment, line[MAXLIN];
+	char *itemType, *itemIndex, *itemNumber, *portName, *portComment, line[MAXLIN];
 	char *key, *value;
-    FILE *file;
+	FILE *file;
 	unsigned long long_value;
 	int i, int_value, index;
 	size_t len;
-    int result = FALSE;
+	int result = FALSE;
 	MaxInputPorts = 0;
 	MaxOutputPorts = 1;
 	for(i = 0; i < MAXPORTS; i++) {
@@ -55,17 +55,17 @@ int read_midisetup() {
 		strcpy(InputMIDIportComment[i],"");
 		MIDIoutput[i] = -1;  MIDIinput[i] = -1;
 		}
-    file = my_fopen(0,Midiportfilename,"r");
-    if(file != NULL) {
-        BPPrintMessage(0,odInfo,"Reading MIDI port settings: %s\n",Midiportfilename);
-        while(fgets(line, sizeof(line), file) != NULL) {
+	file = my_fopen(0,Midiportfilename,"r");
+	if(file != NULL) {
+		BPPrintMessage(0,odInfo,"Reading MIDI port settings: %s\n",Midiportfilename);
+		while(fgets(line, sizeof(line), file) != NULL) {
 			remove_carriage_returns(line);
 		//	BPPrintMessage(0,odInfo,"%s\n",line);
-            itemType = strtok(line, "\t");
-            itemIndex = strtok(NULL, "\t");
-            itemNumber = strtok(NULL, "\t");
-            portName = strtok(NULL, "\t");
-            portComment = strtok(NULL, "\n");
+			itemType = strtok(line, "\t");
+			itemIndex = strtok(NULL, "\t");
+			itemNumber = strtok(NULL, "\t");
+			portName = strtok(NULL, "\t");
+			portComment = strtok(NULL, "\n");
 			strip_newline(itemType);
 			strip_newline(itemIndex);
 			strip_newline(itemNumber);
@@ -76,13 +76,13 @@ int read_midisetup() {
 				BPPrintMessage(0,odError,"=> ERROR: Incorrect index %d on this line: %s\n",index,line);
 				break;
 				}
-            if(!portName) portName = "";
+			if(!portName) portName = "";
 			if(portName && strlen(portName) >= (MAXNAME - 1)) {
 				BPPrintMessage(0,odError,"=> ERROR: Name is longer than %d on this line: %s\n",MAXNAME,line);
 				break;
 				}
-          //  BPPrintMessage(0,odInfo,"index = %d, itemType = %s, itemIndex = %s, itemNumber = %s, portName = %s, portComment = %s\n",index, itemType,itemIndex,itemNumber,portName,portComment);
-            if(strcmp(itemType,"MIDIinput") == 0) {
+		  //  BPPrintMessage(0,odInfo,"index = %d, itemType = %s, itemIndex = %s, itemNumber = %s, portName = %s, portComment = %s\n",index, itemType,itemIndex,itemNumber,portName,portComment);
+			if(strcmp(itemType,"MIDIinput") == 0) {
 				if(itemNumber && strlen(itemNumber) > 0) {
 					MIDIinput[index] = atoi(itemNumber);
 					if(strlen(portName) > 0) strcpy(MIDIinputname[index],portName);
@@ -109,56 +109,56 @@ int read_midisetup() {
 				else MIDIoutput[index] = -1;
 				}
 			if(strcmp(itemType,"MIDIacceptFilter") == 0) {
-        //        BPPrintMessage(0,odInfo,"MIDIacceptFilter = %s\n",itemNumber);
-        		if(itemNumber && strlen(itemNumber) > 0) {
+		//        BPPrintMessage(0,odInfo,"MIDIacceptFilter = %s\n",itemNumber);
+				if(itemNumber && strlen(itemNumber) > 0) {
 					long_value = 0L;
-            		for(i = 0; i < 18; i++) {
+					for(i = 0; i < 18; i++) {
 						if(itemNumber[i] != '0' && itemNumber[i] != '1') {
 							BPPrintMessage(0,odError,"Non-binary digit found at location %d in filter: “%s”\nLine: %s\n",i,itemNumber,line);
 							return FALSE;
 							}
-                		long_value = (long_value * 2L) + (itemNumber[i] - '0');
-            			}
+						long_value = (long_value * 2L) + (itemNumber[i] - '0');
+						}
 					MIDIacceptFilter[index] = long_value;
 					GetInputFilterWord(index);
 					}
 				}
 			if(strcmp(itemType,"MIDIpassFilter") == 0) {
-        		if(itemNumber && strlen(itemNumber) > 0) {
+				if(itemNumber && strlen(itemNumber) > 0) {
 					long_value = 0L;
-            		for(i = 0; i < 18; i++) {
+					for(i = 0; i < 18; i++) {
 						if(itemNumber[i] != '0' && itemNumber[i] != '1') {
 							BPPrintMessage(0,odError,"Non-binary digit found at location %d in filter: “%s”\nLine: %s\n",i,itemNumber,line);
 							return FALSE;
 							}
-                		long_value = (long_value * 2L) + (itemNumber[i] - '0');
-            			}
+						long_value = (long_value * 2L) + (itemNumber[i] - '0');
+						}
 					MIDIpassFilter[index] = long_value;
 				//	BPPrintMessage(0,odInfo,"Lu: MIDIpassFilter[%d] = %ld = %s\n",index,MIDIpassFilter[index],itemNumber);
 					GetOutputFilterWord(index);
 					}
-        		}
+				}
 			if(strcmp(itemType,"MIDIchannelFilter") == 0) {
-       			if(itemNumber && strlen(itemNumber) > 0) {
+				if(itemNumber && strlen(itemNumber) > 0) {
 					strcpy(MIDIchannelFilter[index],itemNumber);
 				//	BPPrintMessage(0,odInfo,"@ Lu: MIDIchannelFilter[%d] = %s\n",index,MIDIchannelFilter[index]);
 					}
-        		}
+				}
 			if(strcmp(itemType,"MIDIpartFilter") == 0) {
-       			if(itemNumber && strlen(itemNumber) > 0) {
+				if(itemNumber && strlen(itemNumber) > 0) {
 					strcpy(MIDIpartFilter[index],itemNumber);
 			//		BPPrintMessage(0,odInfo,"Lu: MIDIpartFilter[%d] = %s\n",index,MIDIpartFilter[index]);
 					}
-        		}
+				}
 			if(strcmp(itemType,"MIDIoutFilter") == 0) {
-            //  BPPrintMessage(0,odInfo,"MIDIoutFilter = %s\n",itemNumber);
+			//  BPPrintMessage(0,odInfo,"MIDIoutFilter = %s\n",itemNumber);
 				if(itemNumber && strlen(itemNumber) > 0) {
 					strcpy(MIDIoutFilter[index],itemNumber);
 			//		BPPrintMessage(0,odInfo,"Lu: MIDIoutFilter[%d] = %s\n",index,MIDIoutFilter[index]);
 					}
 				}
 			}
-        my_fclose(file);
+		my_fclose(file);
 		BPPrintMessage(0,odInfo,"🎹 Your real-time MIDI settings:\n");
 		for(index = 0; index < MaxOutputPorts; index++) {
 			if(strcmp(OutputMIDIportComment[index],"void") == 0) strcpy(line,"");
@@ -171,81 +171,81 @@ int read_midisetup() {
 			BPPrintMessage(0,odInfo,"MIDI input = %d: “%s” - %s\n",MIDIinput[index],MIDIinputname[index],line);
 			}
 		// BPPrintMessage(0,odInfo,"\n");
-        }
-    return(result);
-    }
+		}
+	return(result);
+	}
 
 void strip_newline(char *str) {
-    if(str) {
-        size_t len = strlen(str);
-        while(len > 0 && (str[len - 1] == '\n' || str[len - 1] == '\r')) {
-            str[len - 1] = '\0';
-            len--;
+	if(str) {
+		size_t len = strlen(str);
+		while(len > 0 && (str[len - 1] == '\n' || str[len - 1] == '\r')) {
+			str[len - 1] = '\0';
+			len--;
 			}
 		}
 	}
 	
 void save_midisetup() {
-    FILE* thefile;
+	FILE* thefile;
 	char* binaryString;
 	int index;
-    thefile = my_fopen(1,Midiportfilename,"w");
-    if(thefile != NULL) {
-        BPPrintMessage(0,odInfo,"\nMIDI settings saved to %s\n",Midiportfilename);
+	thefile = my_fopen(1,Midiportfilename,"w");
+	if(thefile != NULL) {
+		BPPrintMessage(0,odInfo,"\nMIDI settings saved to %s\n",Midiportfilename);
 		for(index = 0; index < MaxOutputPorts; index++) {
 			if(strlen(MIDIoutputname[index]) == 0) continue;
-            if(strlen(OutputMIDIportComment[index]) == 0)
-                strcpy(OutputMIDIportComment[index],"void");
+			if(strlen(OutputMIDIportComment[index]) == 0)
+				strcpy(OutputMIDIportComment[index],"void");
 			fprintf(thefile, "MIDIoutput\t%d\t%d\t%s\t%s\n",index,MIDIoutput[index],MIDIoutputname[index],OutputMIDIportComment[index]);
 		//	BPPrintMessage(0,odInfo,"Ecrit: MIDIoutput[%d] = %d\t%s\t%s\n",index,MIDIoutput[index],MIDIoutputname[index],OutputMIDIportComment[index]);
 		//	BPPrintMessage(0,odInfo,"Ecrit: MIDIoutFilter[%d] = %s\n",index,MIDIoutFilter[index]);
 			fprintf(thefile, "MIDIoutFilter\t%d\t%s\n",index,MIDIoutFilter[index]);
 		//	BPPrintMessage(0,odInfo,"Ecrit: MIDIchannelFilter[%d] = %s\n",index,MIDIchannelFilter[index]);
-        	fprintf(thefile, "MIDIchannelFilter\t%d\t%s\n",index,MIDIchannelFilter[index]);
+			fprintf(thefile, "MIDIchannelFilter\t%d\t%s\n",index,MIDIchannelFilter[index]);
 		//	BPPrintMessage(0,odInfo,"Ecrit: MIDIpartFilter[%d] = %s\n",index,MIDIpartFilter[index]);
-        	fprintf(thefile, "MIDIpartFilter\t%d\t%s\n",index,MIDIpartFilter[index]);
+			fprintf(thefile, "MIDIpartFilter\t%d\t%s\n",index,MIDIpartFilter[index]);
 			}
 		for(index = 0; index < MaxInputPorts; index++) {
 			if(strlen(MIDIinputname[index]) == 0) continue;
-            if(strlen(InputMIDIportComment[index]) == 0)
-                strcpy(InputMIDIportComment[index],"void");
+			if(strlen(InputMIDIportComment[index]) == 0)
+				strcpy(InputMIDIportComment[index],"void");
 			fprintf(thefile, "MIDIinput\t%d\t%d\t%s\t%s\n",index,MIDIinput[index],MIDIinputname[index],InputMIDIportComment[index]);
 			SetInputFilterWord(index);
 			binaryString = longToBinary(18,(unsigned long)MIDIacceptFilter[index]);
-        	fprintf(thefile, "MIDIacceptFilter\t%d\t%s\n",index,binaryString);
+			fprintf(thefile, "MIDIacceptFilter\t%d\t%s\n",index,binaryString);
 			free(binaryString);
 			SetOutputFilterWord(index);
 			binaryString = longToBinary(18,(unsigned long)MIDIpassFilter[index]);
-        	fprintf(thefile, "MIDIpassFilter\t%d\t%s\n",index,binaryString);
+			fprintf(thefile, "MIDIpassFilter\t%d\t%s\n",index,binaryString);
 			free(binaryString);
 			}
-        my_fclose(thefile);
-        }
-    }
+		my_fclose(thefile);
+		}
+	}
 
 char* longToBinary(int totalBits,unsigned long num) {
-    char *binary = (char *)malloc(totalBits + 1); // Allocate memory for 18 bits plus null terminator
-    unsigned long mask = 1UL << (totalBits - 1);
-    for(int i = 0; i < totalBits; i++, mask >>= 1) {
-        binary[i] = (num & mask) ? '1' : '0'; // Set each character in the array
-    	}
-    binary[totalBits] = '\0'; // Null-terminate the string
-    return binary; // Return the binary string
+	char *binary = (char *)malloc(totalBits + 1); // Allocate memory for 18 bits plus null terminator
+	unsigned long mask = 1UL << (totalBits - 1);
+	for(int i = 0; i < totalBits; i++, mask >>= 1) {
+		binary[i] = (num & mask) ? '1' : '0'; // Set each character in the array
+		}
+	binary[totalBits] = '\0'; // Null-terminate the string
+	return binary; // Return the binary string
 	}
 
 int MIDIflush(int quick, int now) {
-    unsigned long current_time,time_now;
-    long i,j;
+	unsigned long current_time,time_now;
+	long i,j;
 	int kcurrentinstance,i_scale,changed;
-    long time;
-    unsigned char midiData[4];
-    int dataSize;
-    int result,size,type;
+	long time;
+	unsigned char midiData[4];
+	int dataSize;
+	int result,size,type;
 
 	if(ChangedGrammar || ChangedSettings) return OK;
 //	if(ChangedGrammar) return OK;
 	result = OK;
-    size = sizeof(MIDI_Event);
+	size = sizeof(MIDI_Event);
 	current_time = getClockTime() - initTime;
 /*	if(now) {
 		dataSize = 3;
@@ -264,21 +264,21 @@ int MIDIflush(int quick, int now) {
 					if(type == NoteOff) break;
 					}
 				}
-            memmove(&eventStack[i], &eventStack[i + 1], (eventCount - i - 1) * size);
+			memmove(&eventStack[i], &eventStack[i + 1], (eventCount - i - 1) * size);
 			}
-        eventCount = 0L;
+		eventCount = 0L;
 		TimeStopped = 0L;
-        return result;
+		return result;
 		} */
-    if(Panic) eventCount = 0L;
-    if((result = stop(0,"MIDIflush")) != OK) {
-        eventCount = 0L;
-        return result;
-        }
+	if(Panic) eventCount = 0L;
+	if((result = stop(0,"MIDIflush")) != OK) {
+		eventCount = 0L;
+		return result;
+		}
 	if(!quick && (result = MaybeWait(current_time)) != OK) return result;
 	// BPPrintMessage(0,odInfo,"current_time = %ld, initTime = %ld\n",current_time,initTime);
 	i = j = 0;
-    while(i < eventCount) {
+	while(i < eventCount) {
 	//	BPPrintMessage(1,odInfo,"eventStack[%ld].time = %ld, event = %d %d %d, current_time = %ld\n",i,(long)eventStack[i].time, eventStack[i].status,eventStack[i].data1,eventStack[i].data2,current_time);
 		if((result = MaybeWait(current_time)) != OK) return result; // We need it also here
 		j++;
@@ -308,10 +308,10 @@ int MIDIflush(int quick, int now) {
 				}
 			}
 
-        if((eventStack[i].time + TimeStopped) <= current_time) {
-            midiData[0] = eventStack[i].status;
+		if((eventStack[i].time + TimeStopped) <= current_time) {
+			midiData[0] = eventStack[i].status;
 			type = eventStack[i].status & 0xF0;
-            midiData[1] = eventStack[i].data1;
+			midiData[1] = eventStack[i].data1;
 			midiData[2] = eventStack[i].data2;
 			if(eventStack[i].type == TWO_BYTE_EVENT) {
 				midiData[1] = 0; dataSize = 2;
@@ -329,15 +329,15 @@ int MIDIflush(int quick, int now) {
 		//		BPPrintMessage(1,odInfo,"§ %ld ms, %d %d %d, TimeStopped = %ld\n",(long)time/1000L,midiData[0],midiData[1],midiData[2],(long)TimeStopped/1000L); 
 				sendMIDIEvent(kcurrentinstance,i_scale,OUTmidi,0,midiData,dataSize,time);
 				}
-            // Move remaining events forward
-            memmove(&eventStack[i], &eventStack[i + 1], (eventCount - i - 1) * size);
-            eventCount--;
-            }
-        else i++;
-        }
+			// Move remaining events forward
+			memmove(&eventStack[i], &eventStack[i + 1], (eventCount - i - 1) * size);
+			eventCount--;
+			}
+		else i++;
+		}
 	if(!quick && (result = MaybeWait(current_time)) != OK) return result;
-    return OK;
-    }
+	return OK;
+	}
 
 
 int MaybeWait(unsigned long current_time) {
@@ -689,42 +689,42 @@ INTERPRET:
 			return(OK);
 			}
 		else {
-		if(Jinscript > 0) {
-			if(FirstNoteOn) {
-				if(TraceMIDIinteraction) BPPrintMessage(0,odError,"time_now = 0L in HandleInputEvent()\n");
-				time_now = 0L;
-				}
-			else time_now = getClockTime() - initTime; // microseconds
-		//	if(TraceMIDIinteraction) BPPrintMessage(0,odInfo,"@ Received NoteOn key = %d channel %d date %ld ms, checking %d script(s)\n",c1,channel,time_now / 1000L,Jinscript);
-			// Find the next expected NoteOn
-			for(j = 1; j <= Jinscript; j++) {
-				if(((*p_INscript)[j]).chan == -1) { // This is a deactivated instruction
-			//		if(j == Jinscript) Jinscript = 0; // No need to try later
-					continue;
+			if(Jinscript > 0) {
+				if(FirstNoteOn) {
+					if(TraceMIDIinteraction) BPPrintMessage(0,odError,"time_now = 0L in HandleInputEvent()\n");
+					time_now = 0L;
 					}
-				thisscripttime = ((*p_INscript)[j]).time + TimeStopped;
-				// We won't verify that velocity (c2) is greater than zero, because a NoteOn with velocity zero can be used as a soundless instruction
-				if(channel == ((*p_INscript)[j]).chan && c1 == ((*p_INscript)[j]).key && time_now > thisscripttime) {
-					if(TraceMIDIinteraction) {
-						BPPrintMessage(1,odInfo, "[%d] Good NoteOn key #%d, time = %ld ms, this script time = %ld ms\n", j, c1, time_now / 1000L, thisscripttime / 1000L);
+				else time_now = getClockTime() - initTime; // microseconds
+			//	if(TraceMIDIinteraction) BPPrintMessage(0,odInfo,"@ Received NoteOn key = %d channel %d date %ld ms, checking %d script(s)\n",c1,channel,time_now / 1000L,Jinscript);
+				// Find the next expected NoteOn
+				for(j = 1; j <= Jinscript; j++) {
+					if(((*p_INscript)[j]).chan == -1) { // This is a deactivated instruction
+				//		if(j == Jinscript) Jinscript = 0; // No need to try later
+						continue;
 						}
-					StopPlay = FALSE;
-				//	Oldtimestopped = TimeStopped; // 2024-07-03
-					TimeStopped +=  1000 * MIDIsyncDelay; // Necessary to restore the timing of the next events
-					if(TRUE || !Improvize) { // Not sure this is necessary  2024-08-30
-						((*p_INscript)[j]).chan = -1; // This input event is now deactivated
-						for(jj = 1; jj <= Jinscript; jj++) { //  Now we deactivate all input events at the same date
-							if(((*p_INscript)[j]).time >= ((*p_INscript)[jj]).time && ((*p_INscript)[jj]).chan != -1) {
-								((*p_INscript)[jj]).chan = -1;
-								strcpy(Message,"");
+					thisscripttime = ((*p_INscript)[j]).time + TimeStopped;
+					// We won't verify that velocity (c2) is greater than zero, because a NoteOn with velocity zero can be used as a soundless instruction
+					if(channel == ((*p_INscript)[j]).chan && c1 == ((*p_INscript)[j]).key && time_now > thisscripttime) {
+						if(TraceMIDIinteraction) {
+							BPPrintMessage(1,odInfo, "[%d] Good NoteOn key #%d, time = %ld ms, this script time = %ld ms\n", j, c1, time_now / 1000L, thisscripttime / 1000L);
+							}
+						StopPlay = FALSE;
+					//	Oldtimestopped = TimeStopped; // 2024-07-03
+						TimeStopped +=  1000 * MIDIsyncDelay; // Necessary to restore the timing of the next events
+						if(TRUE || !Improvize) { // Not sure this is necessary  2024-08-30
+							((*p_INscript)[j]).chan = -1; // This input event is now deactivated
+							for(jj = 1; jj <= Jinscript; jj++) { //  Now we deactivate all input events at the same date
+								if(((*p_INscript)[j]).time >= ((*p_INscript)[jj]).time && ((*p_INscript)[jj]).chan != -1) {
+									((*p_INscript)[jj]).chan = -1;
+									strcpy(Message,"");
+									}
 								}
 							}
+						return OK;
 						}
-					return OK;
 					}
 				}
-			}
-		}}}}}}}}}
+			}}}}}}}}}
 		if(ParamControlChan > 0) {
 			for(i=1; i < MAXPARAMCTRL; i++) {
 				if(ParamChan[i] != -1 && ParamKey[i] == c1
@@ -1006,24 +1006,24 @@ int SetOutputFilterWord(int i) {
 
 int GetInputFilterWord(int i) {
 	long n = 1L;
-    ResetIn[i] = (MIDIacceptFilter[i] & n) != 0; n <<= 1;
-    ActiveSenseIn[i] = (MIDIacceptFilter[i] & n) != 0; n <<= 1;
-    ContTypeIn[i] = (MIDIacceptFilter[i] & n) != 0; n <<= 1;
-    StartTypeIn[i] = (MIDIacceptFilter[i] & n) != 0; n <<= 1;
-    ClockTypeIn[i] = (MIDIacceptFilter[i] & n) != 0; n <<= 1;
-    EndSysExIn[i] = (MIDIacceptFilter[i] & n) != 0; n <<= 1;
-    TuneTypeIn[i] = (MIDIacceptFilter[i] & n) != 0; n <<= 1;
-    SongSelIn[i] = (MIDIacceptFilter[i] & n) != 0; n <<= 1;
-    SongPosIn[i] = (MIDIacceptFilter[i] & n) != 0; n <<= 1;
-    TimeCodeIn[i] = (MIDIacceptFilter[i] & n) != 0; n <<= 1;
-    SysExIn[i] = (MIDIacceptFilter[i] & n) != 0; n <<= 1;
-    PitchBendIn[i] = (MIDIacceptFilter[i] & n) != 0; n <<= 1;
-    ChannelPressureIn[i] = (MIDIacceptFilter[i] & n) != 0; n <<= 1;
-    ProgramTypeIn[i] = (MIDIacceptFilter[i] & n) != 0; n <<= 1;
-    ControlTypeIn[i] = (MIDIacceptFilter[i] & n) != 0; n <<= 1;
-    KeyPressureIn[i] = (MIDIacceptFilter[i] & n) != 0; n <<= 1;
-    NoteOnIn[i] = (MIDIacceptFilter[i] & n) != 0; n <<= 1;
-    NoteOffIn[i] = (MIDIacceptFilter[i] & n) != 0; // Last use of n
+	ResetIn[i] = (MIDIacceptFilter[i] & n) != 0; n <<= 1;
+	ActiveSenseIn[i] = (MIDIacceptFilter[i] & n) != 0; n <<= 1;
+	ContTypeIn[i] = (MIDIacceptFilter[i] & n) != 0; n <<= 1;
+	StartTypeIn[i] = (MIDIacceptFilter[i] & n) != 0; n <<= 1;
+	ClockTypeIn[i] = (MIDIacceptFilter[i] & n) != 0; n <<= 1;
+	EndSysExIn[i] = (MIDIacceptFilter[i] & n) != 0; n <<= 1;
+	TuneTypeIn[i] = (MIDIacceptFilter[i] & n) != 0; n <<= 1;
+	SongSelIn[i] = (MIDIacceptFilter[i] & n) != 0; n <<= 1;
+	SongPosIn[i] = (MIDIacceptFilter[i] & n) != 0; n <<= 1;
+	TimeCodeIn[i] = (MIDIacceptFilter[i] & n) != 0; n <<= 1;
+	SysExIn[i] = (MIDIacceptFilter[i] & n) != 0; n <<= 1;
+	PitchBendIn[i] = (MIDIacceptFilter[i] & n) != 0; n <<= 1;
+	ChannelPressureIn[i] = (MIDIacceptFilter[i] & n) != 0; n <<= 1;
+	ProgramTypeIn[i] = (MIDIacceptFilter[i] & n) != 0; n <<= 1;
+	ControlTypeIn[i] = (MIDIacceptFilter[i] & n) != 0; n <<= 1;
+	KeyPressureIn[i] = (MIDIacceptFilter[i] & n) != 0; n <<= 1;
+	NoteOnIn[i] = (MIDIacceptFilter[i] & n) != 0; n <<= 1;
+	NoteOffIn[i] = (MIDIacceptFilter[i] & n) != 0; // Last use of n
 /*	BPPrintMessage(0,odInfo,"@@@ MIDIacceptFilter[%d] = %ld\n",i,MIDIacceptFilter[i]);
 	BPPrintMessage(0,odInfo,"@@@ NoteOnIn[%d] = %d\n",i,NoteOnIn[i]); */
 	return(OK);
@@ -1033,23 +1033,23 @@ int GetInputFilterWord(int i) {
 int GetOutputFilterWord(int i) {
 	long n = 1L;
  	ResetPass[i] = (MIDIpassFilter[i] & n) != 0; n <<= 1;
-    ActiveSensePass[i] = (MIDIpassFilter[i] & n) != 0; n <<= 1;
-    ContTypePass[i] = (MIDIpassFilter[i] & n) != 0; n <<= 1;
-    StartTypePass[i] = (MIDIpassFilter[i] & n) != 0; n <<= 1;
-    ClockTypePass[i] = (MIDIpassFilter[i] & n) != 0; n <<= 1;
-    EndSysExPass[i] = (MIDIpassFilter[i] & n) != 0; n <<= 1;
-    TuneTypePass[i] = (MIDIpassFilter[i] & n) != 0; n <<= 1;
-    SongSelPass[i] = (MIDIpassFilter[i] & n) != 0; n <<= 1;
-    SongPosPass[i] = (MIDIpassFilter[i] & n) != 0; n <<= 1;
-    TimeCodePass[i] = (MIDIpassFilter[i] & n) != 0; n <<= 1;
-    SysExPass[i] = (MIDIpassFilter[i] & n) != 0; n <<= 1;
-    PitchBendPass[i] = (MIDIpassFilter[i] & n) != 0; n <<= 1;
-    ChannelPressurePass[i] = (MIDIpassFilter[i] & n) != 0; n <<= 1;
-    ProgramTypePass[i] = (MIDIpassFilter[i] & n) != 0; n <<= 1;
-    ControlTypePass[i] = (MIDIpassFilter[i] & n) != 0; n <<= 1;
-    KeyPressurePass[i] = (MIDIpassFilter[i] & n) != 0; n <<= 1;
-    NoteOnPass[i] = (MIDIpassFilter[i] & n) != 0; n <<= 1;
-    NoteOffPass[i] = (MIDIpassFilter[i] & n) != 0; // Last use of n
+	ActiveSensePass[i] = (MIDIpassFilter[i] & n) != 0; n <<= 1;
+	ContTypePass[i] = (MIDIpassFilter[i] & n) != 0; n <<= 1;
+	StartTypePass[i] = (MIDIpassFilter[i] & n) != 0; n <<= 1;
+	ClockTypePass[i] = (MIDIpassFilter[i] & n) != 0; n <<= 1;
+	EndSysExPass[i] = (MIDIpassFilter[i] & n) != 0; n <<= 1;
+	TuneTypePass[i] = (MIDIpassFilter[i] & n) != 0; n <<= 1;
+	SongSelPass[i] = (MIDIpassFilter[i] & n) != 0; n <<= 1;
+	SongPosPass[i] = (MIDIpassFilter[i] & n) != 0; n <<= 1;
+	TimeCodePass[i] = (MIDIpassFilter[i] & n) != 0; n <<= 1;
+	SysExPass[i] = (MIDIpassFilter[i] & n) != 0; n <<= 1;
+	PitchBendPass[i] = (MIDIpassFilter[i] & n) != 0; n <<= 1;
+	ChannelPressurePass[i] = (MIDIpassFilter[i] & n) != 0; n <<= 1;
+	ProgramTypePass[i] = (MIDIpassFilter[i] & n) != 0; n <<= 1;
+	ControlTypePass[i] = (MIDIpassFilter[i] & n) != 0; n <<= 1;
+	KeyPressurePass[i] = (MIDIpassFilter[i] & n) != 0; n <<= 1;
+	NoteOnPass[i] = (MIDIpassFilter[i] & n) != 0; n <<= 1;
+	NoteOffPass[i] = (MIDIpassFilter[i] & n) != 0; // Last use of n
 /*	char* binaryStr = printBinary18(MIDIpassFilter[i],18);
 	BPPrintMessage(0,odInfo,"MIDIpassFilter[%d] = %s = %ld\n",i,binaryStr,MIDIpassFilter[i]);
 	BPPrintMessage(0,odInfo,"NoteOnPass[%d] = %d\n",i,NoteOnPass[i]);
@@ -1071,18 +1071,18 @@ int ResetMIDIFilter(void) {
 	}
 
 char* printBinary18(long num, int n) { // Used for checking MIDI filters: display "num" as a binary number of n digits
-    char* binaryString = malloc(n+1); // Allocate memory for 18 characters plus a null terminator
-    if(binaryString == NULL) {
-        fprintf(stderr, "Memory allocation failed\n");
-        return NULL; // Return NULL if memory allocation fails
+	char* binaryString = malloc(n+1); // Allocate memory for 18 characters plus a null terminator
+	if(binaryString == NULL) {
+		fprintf(stderr, "Memory allocation failed\n");
+		return NULL; // Return NULL if memory allocation fails
    		}
-    unsigned long mask = 1UL << (n-1); // Start with the mask at the highest bit of the n bits
-    for(int i = 0; i < n; i++) {
-        binaryString[i] = (num & mask) ? '1' : '0'; // Set each character in the array
-        mask >>= 1; // Shift the mask right
-    	}
-    binaryString[n] = '\0'; // Null-terminate the string
-    return binaryString; // Return the binary string
+	unsigned long mask = 1UL << (n-1); // Start with the mask at the highest bit of the n bits
+	for(int i = 0; i < n; i++) {
+		binaryString[i] = (num & mask) ? '1' : '0'; // Set each character in the array
+		mask >>= 1; // Shift the mask right
+		}
+	binaryString[n] = '\0'; // Null-terminate the string
+	return binaryString; // Return the binary string
 	}
 
 
@@ -1311,17 +1311,16 @@ int PassOutEvent(int c, int i) {
 	return(YES);
 	}
 
-int SendMIDIstream(int check,char** p_line,int hexa)
-{
-int i,r;
-long n,time;
-MIDI_Event e;
+int SendMIDIstream(int check,char** p_line,int hexa) {
+	int i,r;
+	long n,time;
+	MIDI_Event e;
 
-if((*p_line)[0] == '\0') return(MISSED);
-i = 0; r = MISSED;
+	if((*p_line)[0] == '\0') return(MISSED);
+	i = 0; r = MISSED;
 
-return(r);
-}
+	return(r);
+	}
 
 
 int MIDItoPrototype(int zerostart,int filter,int j,MIDIcode **p_b,long imax) {
@@ -1526,7 +1525,7 @@ int FindScale(int scale) {
 int AssignUniqueChannel(int status, int note, int value, int i_scale, int pitch, Milliseconds time) {
 	// time is only used for checking
 	int test = FALSE;
-    int ch;
+	int ch;
 	if(i_scale < 0) i_scale = 0;
 	if(i_scale >= MAXCONVENTIONS) {
 		BPPrintMessage(1,odError,"=> Error i_scale = %d, >= MAXCONVENTIONS (100)\n",i_scale);
@@ -1542,7 +1541,7 @@ int AssignUniqueChannel(int status, int note, int value, int i_scale, int pitch,
 				MPEnote[ch] = 0;
 				MPEscale[ch] = -1;
 				MPEpitch[ch] = -1;
-            	return ch;
+				return ch;
 				}
 			}
 		for(ch = 1; ch < MAXCHAN; ch++) {
@@ -1569,21 +1568,21 @@ int AssignUniqueChannel(int status, int note, int value, int i_scale, int pitch,
 			if(status == NoteOn && value > 0 && MPEscale[ch] == i_scale && MPEpitch[ch] == pitch) return ch;
 			}
 		}
-    for(ch = 1; ch < MAXCHAN; ch++) {
+	for(ch = 1; ch < MAXCHAN; ch++) {
 		if(test) BPPrintMessage(0,odInfo,"@ NoteOn ch = %d  value = %d, MPEnote[ch] = %d, MPEold_note[ch] = %d, MPEscale[ch] = %d, MPEpitch[ch] == %d\n",ch,value,MPEnote[ch],MPEold_note[ch],MPEscale[ch],MPEpitch[ch]);
-        if(MPEnote[ch] == 0 && MPEscale[ch] == -1) {
+		if(MPEnote[ch] == 0 && MPEscale[ch] == -1) {
 			if(test) BPPrintMessage(0,odInfo,"ch = %d  value = %d\n",ch,value);
-            if(status == NoteOn) { // Record a new NoteOn
+			if(status == NoteOn) { // Record a new NoteOn
 				MPEnote[ch] = note;
 				MPEscale[ch] = i_scale;
 				MPEpitch[ch] = pitch;
 				if(test) BPPrintMessage(1,odInfo,"• NoteOn %d pitch = %d -> ch = %d time = %ld\n",note,pitch,ch,(long)(time - MIDIsetUpTime));
-                return ch;
-                }
-            }
-        }
-    return(0); // No space left, all 15 channels are busy
-    }
+				return ch;
+				}
+			}
+		}
+	return(0); // No space left, all 15 channels are busy
+	}
 
 int SendToDriver(int kcurrentinstance, int scale, int blockkey, Milliseconds time, int nseq, int *p_running_status, MIDI_Event *p_e) {
 	// nseq is useless
@@ -1593,8 +1592,8 @@ int SendToDriver(int kcurrentinstance, int scale, int blockkey, Milliseconds tim
 	byte midibyte;
 	MIDI_Event pb_event;
 	double frequency;
-    int pitchBendValue;
-    unsigned char pitchBendLSB, pitchBendMSB;
+	int pitchBendValue;
+	unsigned char pitchBendLSB, pitchBendMSB;
 	char this_key[100];
 
 	int check_corrections = FALSE;
@@ -1752,7 +1751,7 @@ int SendToDriver(int kcurrentinstance, int scale, int blockkey, Milliseconds tim
 			return FINISH;
 			}
 		eventCount = SendToStack(*p_e,time,kcurrentinstance,i_scale,eventCount);
-    	if((result = CleanUpBuffer()) != OK) return result;
+		if((result = CleanUpBuffer()) != OK) return result;
 		if((type == NoteOn) && FirstNoteOn) {
 			FirstNoteOn = FALSE;
 			initTime = (UInt64) getClockTime(); // Microseconds
@@ -1937,54 +1936,54 @@ int AllControlsOffAllChannels(int verbose) {
 	}
 
 int CaptureMidiEvent(Milliseconds time,int nseq,MIDI_Event *p_e) {
-		MIDIcode **ptr;
-		Milliseconds currenttime;
-		long size;
+	MIDIcode **ptr;
+	Milliseconds currenttime;
+	long size;
 
-		size = (long) MyGetHandleSize((Handle)Stream.code);
-		size = (size / sizeof(MIDIcode)) - 5L;
-		if(Stream.i >= size) {
-			ptr = Stream.code;
-			if((ptr = (MIDIcode**)IncreaseSpace((Handle)ptr)) == NULL) return MISSED;
-			Stream.code = ptr;
-			}
-		if(Stream.i == ZERO) {
-			currenttime = ZERO;
-			DataOrigin = time;
-			}
-		else currenttime = time - DataOrigin;
-		switch(p_e->type) {
-			case RAW_EVENT:
-				(*Stream.code)[Stream.i].time = currenttime;
-				(*Stream.code)[Stream.i].byte = ByteToInt(p_e->data2);
-				(*Stream.code)[Stream.i].sequence = nseq;
-				Stream.i++;
-				break;
-			case TWO_BYTE_EVENT:
-				(*Stream.code)[Stream.i].time = currenttime;
-				(*Stream.code)[Stream.i].byte = ByteToInt(p_e->status);
-				(*Stream.code)[Stream.i].sequence = nseq;
-				Stream.i++;
-				(*Stream.code)[Stream.i].time = currenttime;
-				(*Stream.code)[Stream.i].byte = ByteToInt(p_e->data2);
-				(*Stream.code)[Stream.i].sequence = nseq;
-				Stream.i++;
-				break;
-			case NORMAL_EVENT:
-				(*Stream.code)[Stream.i].time = currenttime;
-				(*Stream.code)[Stream.i].byte = ByteToInt(p_e->status);
-				(*Stream.code)[Stream.i].sequence = nseq;
-				Stream.i++;
-				(*Stream.code)[Stream.i].time = currenttime;
-				(*Stream.code)[Stream.i].byte = ByteToInt(p_e->data1);
-				(*Stream.code)[Stream.i].sequence = nseq;
-				Stream.i++;
-				(*Stream.code)[Stream.i].time = currenttime;
-				(*Stream.code)[Stream.i].byte = ByteToInt(p_e->data2);
-				(*Stream.code)[Stream.i].sequence = nseq;
-				Stream.i++;
+	size = (long) MyGetHandleSize((Handle)Stream.code);
+	size = (size / sizeof(MIDIcode)) - 5L;
+	if(Stream.i >= size) {
+		ptr = Stream.code;
+		if((ptr = (MIDIcode**)IncreaseSpace((Handle)ptr)) == NULL) return MISSED;
+		Stream.code = ptr;
 		}
-	return OK;
+	if(Stream.i == ZERO) {
+		currenttime = ZERO;
+		DataOrigin = time;
+		}
+	else currenttime = time - DataOrigin;
+	switch(p_e->type) {
+		case RAW_EVENT:
+			(*Stream.code)[Stream.i].time = currenttime;
+			(*Stream.code)[Stream.i].byte = ByteToInt(p_e->data2);
+			(*Stream.code)[Stream.i].sequence = nseq;
+			Stream.i++;
+			break;
+		case TWO_BYTE_EVENT:
+			(*Stream.code)[Stream.i].time = currenttime;
+			(*Stream.code)[Stream.i].byte = ByteToInt(p_e->status);
+			(*Stream.code)[Stream.i].sequence = nseq;
+			Stream.i++;
+			(*Stream.code)[Stream.i].time = currenttime;
+			(*Stream.code)[Stream.i].byte = ByteToInt(p_e->data2);
+			(*Stream.code)[Stream.i].sequence = nseq;
+			Stream.i++;
+			break;
+		case NORMAL_EVENT:
+			(*Stream.code)[Stream.i].time = currenttime;
+			(*Stream.code)[Stream.i].byte = ByteToInt(p_e->status);
+			(*Stream.code)[Stream.i].sequence = nseq;
+			Stream.i++;
+			(*Stream.code)[Stream.i].time = currenttime;
+			(*Stream.code)[Stream.i].byte = ByteToInt(p_e->data1);
+			(*Stream.code)[Stream.i].sequence = nseq;
+			Stream.i++;
+			(*Stream.code)[Stream.i].time = currenttime;
+			(*Stream.code)[Stream.i].byte = ByteToInt(p_e->data2);
+			(*Stream.code)[Stream.i].sequence = nseq;
+			Stream.i++;
+		}
+return OK;
 	}
 
 int CleanUpBuffer(void) {
@@ -2009,15 +2008,15 @@ int CleanUpBuffer(void) {
 #define PITCH_BEND_RANGE  200    // ±200 cents
 
 double calculate_pitchbend_cents(unsigned char lsb, unsigned char msb) {
-    // Combine the 7-bit LSB and MSB into a 14-bit value
-    int pitch_bend_value = (msb << 7) | lsb;
+	// Combine the 7-bit LSB and MSB into a 14-bit value
+	int pitch_bend_value = (msb << 7) | lsb;
 
-    // Calculate the deviation from the center position
-    int deviation_from_center = pitch_bend_value - PITCH_BEND_CENTER;
+	// Calculate the deviation from the center position
+	int deviation_from_center = pitch_bend_value - PITCH_BEND_CENTER;
 
-    // Calculate the range in cents (±200 cents)
-    double correction_in_cents = (double)deviation_from_center * PITCH_BEND_RANGE / PITCH_BEND_CENTER;
-    return correction_in_cents;
+	// Calculate the range in cents (±200 cents)
+	double correction_in_cents = (double)deviation_from_center * PITCH_BEND_RANGE / PITCH_BEND_CENTER;
+	return correction_in_cents;
 	}
 
 int GetThisNote(char* line,int* p_thekey,int* p_channel,int ignorechannel) {
@@ -2219,7 +2218,7 @@ int WriteToTab(Milliseconds clocktime,MIDI_Event *p_e) {
 	int channel = status_with_channel & 0x0F;
 	int status = status_with_channel - channel;
 	char this_key[100];
-    strcpy(this_key,"");
+	strcpy(this_key,"");
 	if(TabfileStart == -1L) {
 		TabfileStart = clocktime;
 		}
@@ -2227,7 +2226,7 @@ int WriteToTab(Milliseconds clocktime,MIDI_Event *p_e) {
 
 	int key = data1;
 	NoteConvention = ENGLISH;
-    PrintThisNote(0,key,0,-1,this_key);
+	PrintThisNote(0,key,0,-1,this_key);
 
 	// Write to the simple tab file
 	fprintf(TabfilePtr,"%ld\t%d\t%d\t%d\n",(long)clocktime,status,data1,data2);
@@ -2289,27 +2288,27 @@ int WriteToTab(Milliseconds clocktime,MIDI_Event *p_e) {
 	}
 
 void send_note(char* note) {
-    CURL *curl = curl_easy_init();
-    if (!curl) return;
-    char *esc_note = curl_easy_escape(curl, note, 0);
-    if (!esc_note) {
-        curl_easy_cleanup(curl);
-        return;
-    	}
-    char url[2048];
-    snprintf(url, sizeof(url),
-        "%s?note=%s",
-        UrlToPush,
-        esc_note);
-    curl_easy_setopt(curl, CURLOPT_URL, url);
-    curl_easy_setopt(curl, CURLOPT_HTTPGET, 1L);
-    curl_easy_setopt(curl, CURLOPT_TIMEOUT_MS,2000L);
-    CURLcode res = curl_easy_perform(curl);
-    if (res != CURLE_OK) {
-        BPPrintMessage(0, odError,
-            "send_note() GET failed: %s\n",
-            curl_easy_strerror(res));
-    	}
-    curl_free(esc_note);
-    curl_easy_cleanup(curl);
+	CURL *curl = curl_easy_init();
+	if(!curl) return;
+	char *esc_note = curl_easy_escape(curl, note, 0);
+	if(!esc_note) {
+		curl_easy_cleanup(curl);
+		return;
+		}
+	char url[2048];
+	snprintf(url, sizeof(url),
+		"%s?note=%s",
+		UrlToPush,
+		esc_note);
+	curl_easy_setopt(curl, CURLOPT_URL, url);
+	curl_easy_setopt(curl, CURLOPT_HTTPGET, 1L);
+	curl_easy_setopt(curl, CURLOPT_TIMEOUT_MS,2000L);
+	CURLcode res = curl_easy_perform(curl);
+	if(res != CURLE_OK) {
+		BPPrintMessage(0, odError,
+			"send_note() GET failed: %s\n",
+			curl_easy_strerror(res));
+		}
+	curl_free(esc_note);
+	curl_easy_cleanup(curl);
 	}

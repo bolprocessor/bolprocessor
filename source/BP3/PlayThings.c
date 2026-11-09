@@ -186,18 +186,18 @@ int PlaySelection(int w, int all) {
 			if((r = ProduceItems(w,FALSE,FALSE,NULL)) != OK) goto END;
 			}
 		else {
-	NOVARIABLE:
-			if(r == OK) {
-			//	BPPrintMessage(1,odInfo,"@@@ PlayBuffer\n");
-				r = PlayBuffer(&p_a,NO);	/* HERE WE DO IT */
-				if(r != OK) goto END;
-				}
-		//	MyDisposeHandle((Handle*)&p_a);
-			/* Could already be NULL because of PolyExpand() */
-			if(r == ABORT || r == EXIT) {
-				if(Panic) return ABORT;
-				break;
-				}
+			NOVARIABLE:
+					if(r == OK) {
+					//	BPPrintMessage(1,odInfo,"@@@ PlayBuffer\n");
+						r = PlayBuffer(&p_a,NO);	/* HERE WE DO IT */
+						if(r != OK) goto END;
+						}
+				//	MyDisposeHandle((Handle*)&p_a);
+					/* Could already be NULL because of PolyExpand() */
+					if(r == ABORT || r == EXIT) {
+						if(Panic) return ABORT;
+						break;
+						}
 			}
 		if(LastChunk) break;
 		origin = next_origin + 1;
@@ -291,7 +291,7 @@ int PlayBuffer1(tokenbyte ***pp_buff,int onlypianoroll) {
 		MaxDeriv = MAXDERIV;
 		if((result=MakeComputeSpace(MaxDeriv)) != OK) goto SORTIR;
 		DisplayProduce = ShowMessages = UseBufferLimit = finish = repeat = FALSE;
-        if(MaxConsoleTime > 0L)
+		if(MaxConsoleTime > 0L)
 			time_end_compute = getClockTime() + (MaxConsoleTime * 1000000);
 		else time_end_compute = 0L;
 		
@@ -425,126 +425,125 @@ int PlayBuffer1(tokenbyte ***pp_buff,int onlypianoroll) {
 	}
 
 
-int PlayHandle(char** p_line,int onlypianoroll)
-{
-tokenbyte **p_ti;
-char c,*p1,*p2;
-int i,i0,im,ch,r,improvize,meta=0,asked,askedvariables,derivevariables;
-p_context *p_plx,*p_prx,plx,prx;
-long x,tr;
+int PlayHandle(char** p_line,int onlypianoroll) {
+	tokenbyte **p_ti;
+	char c,*p1,*p2;
+	int i,i0,im,ch,r,improvize,meta=0,asked,askedvariables,derivevariables;
+	p_context *p_plx,*p_prx,plx,prx;
+	long x,tr;
 
-if(p_line == NULL) {
-	BPPrintMessage(0,odError,"=> Err. PlayHandle(). p_line == NULL");
-	return(OK);
-	}
-if((*p_line)[0] == '\0') return(OK);
-
-if(!rtMIDI && !OutCsound && !onlypianoroll) {
-	BPPrintMessage(0,odError,"Both MIDI and Csound outputs are inactive. Item can't be played");
-	BPActivateWindow(SLOW,wSettingsBottom);
-	return(MISSED);
-	}
-
-r = MISSED;
-asked = FALSE;
-
-if(!CompiledAl || (!CompiledGr && (AddBolsInGrammar() > BolsInGrammar))) {
-	CompiledAl = FALSE;
-	if((r=CompileAlphabet()) != OK) return(r);
-	}
-if(!onlypianoroll) {
-	if(CompileRegressions() != OK) return(r);
-	if(ResetControllers) {
-		for(ch=0; ch < MAXCHAN; ch++) {
-			(*p_Oldvalue)[ch].volume = -1;
-			(*p_Oldvalue)[ch].panoramic = -1;
-			(*p_Oldvalue)[ch].pressure = -1;
-			(*p_Oldvalue)[ch].pitchbend = -1;
-			(*p_Oldvalue)[ch].modulation = -1;
-			}
-		// if(ResetControllers) ResetMIDIControllers(NO,NO,YES);
+	if(p_line == NULL) {
+		BPPrintMessage(0,odError,"=> Err. PlayHandle(). p_line == NULL");
+		return(OK);
 		}
-	}
+	if((*p_line)[0] == '\0') return(OK);
 
-// if(WillRandomize) ReseedOrShuffle(RANDOMIZE);
+	if(!rtMIDI && !OutCsound && !onlypianoroll) {
+		BPPrintMessage(0,odError,"Both MIDI and Csound outputs are inactive. Item can't be played");
+		BPActivateWindow(SLOW,wSettingsBottom);
+		return(MISSED);
+		}
+
+	r = MISSED;
+	asked = FALSE;
+
+	if(!CompiledAl || (!CompiledGr && (AddBolsInGrammar() > BolsInGrammar))) {
+		CompiledAl = FALSE;
+		if((r=CompileAlphabet()) != OK) return(r);
+		}
+	if(!onlypianoroll) {
+		if(CompileRegressions() != OK) return(r);
+		if(ResetControllers) {
+			for(ch=0; ch < MAXCHAN; ch++) {
+				(*p_Oldvalue)[ch].volume = -1;
+				(*p_Oldvalue)[ch].panoramic = -1;
+				(*p_Oldvalue)[ch].pressure = -1;
+				(*p_Oldvalue)[ch].pitchbend = -1;
+				(*p_Oldvalue)[ch].modulation = -1;
+				}
+			// if(ResetControllers) ResetMIDIControllers(NO,NO,YES);
+			}
+		}
+
+	// if(WillRandomize) ReseedOrShuffle(RANDOMIZE);
 	
-r = MISSED; p_ti = NULL;
-i = 0; im = MyHandleLen(p_line);
-askedvariables = derivevariables = FALSE;
+	r = MISSED; p_ti = NULL;
+	i = 0; im = MyHandleLen(p_line);
+	askedvariables = derivevariables = FALSE;
 
-while(TRUE) {
-	SaidTooComplex = ShownBufferSize = FALSE;
-	if((r=stop(0,"PlayHandle")) != OK) return ABORT;
-	while(i < im && (isspace(c=(*p_line)[i]) || c == '\0')) i++;
-	i0 = i;
-	if(i >= im) break;
+	while(TRUE) {
+		SaidTooComplex = ShownBufferSize = FALSE;
+		if((r=stop(0,"PlayHandle")) != OK) return ABORT;
+		while(i < im && (isspace(c=(*p_line)[i]) || c == '\0')) i++;
+		i0 = i;
+		if(i >= im) break;
 ENCODE:
-	if(c == '/' && i < (im-1) && (*p_line)[i+1] == '/') {	/* Skip C-like remarks */
+		if(c == '/' && i < (im-1) && (*p_line)[i+1] == '/') {	/* Skip C-like remarks */
+			while(i < im && (*p_line)[i] != '\r' && (*p_line)[i] != '\n' && (*p_line)[i] != '\0')
+				i++;
+			continue;
+			}
+		p1 = &((*p_line)[i]);
 		while(i < im && (*p_line)[i] != '\r' && (*p_line)[i] != '\n' && (*p_line)[i] != '\0')
 			i++;
-		continue;
-		}
-	p1 = &((*p_line)[i]);
-	while(i < im && (*p_line)[i] != '\r' && (*p_line)[i] != '\n' && (*p_line)[i] != '\0')
+		p2 = &((*p_line)[i-1]);
 		i++;
-	p2 = &((*p_line)[i-1]);
-	i++;
-	p_plx = &plx; p_prx = &prx;
-	*p_plx = *p_prx = NULL;
-//	BPPrintMessage(1,odInfo,"@@@ Encode\n");
-	p_ti = Encode(&Gram,FALSE,TRUE,0,0,&p1,&p2,p_plx,p_prx,&meta,0,NULL,FALSE,&r);
-	if(p_ti == NULL) {
-		if(r != OK) {
-			MyDisposeHandle((Handle*)&p_ti);
-			Panic = TRUE;
-			return(r);
-			}
-		continue;
-		}
-	else {
-		if(TRUE || NoVariable(&p_ti)) { // 2026-03-20
-NOVARIABLE:
-	//		BPPrintMessage(1,odInfo,"@@@ onlypianoroll = %d\n",onlypianoroll);
-			r = PlayBuffer(&p_ti,onlypianoroll);
+		p_plx = &plx; p_prx = &prx;
+		*p_plx = *p_prx = NULL;
+	//	BPPrintMessage(1,odInfo,"@@@ Encode\n");
+		p_ti = Encode(&Gram,FALSE,TRUE,0,0,&p1,&p2,p_plx,p_prx,&meta,0,NULL,FALSE,&r);
+		if(p_ti == NULL) {
+			if(r != OK) {
+				MyDisposeHandle((Handle*)&p_ti);
+				Panic = TRUE;
+				return(r);
+				}
+			continue;
 			}
 		else {
-			if(!askedvariables) {
-				r = Answer("Selection contains variables. Use grammar to derive them",'Y');
-				askedvariables = TRUE;
-				if(r == ABORT) {
-					r = OK;
-					MyDisposeHandle((Handle*)&p_ti);
-					break;
-					}
-				derivevariables = r;
+			if(TRUE || NoVariable(&p_ti)) { // 2026-03-20
+NOVARIABLE:
+		//		BPPrintMessage(1,odInfo,"@@@ onlypianoroll = %d\n",onlypianoroll);
+				r = PlayBuffer(&p_ti,onlypianoroll);
 				}
-			if(!derivevariables) goto NOVARIABLE;
-			if(!CompiledGr) {
-				MyDisposeHandle((Handle*)&p_ti);
-			//	if(PlaySelectionOn > 0) PlaySelectionOn--; // Fixed by BB 2021-02-17
-				if((r=CompileCheck()) != OK) break;
-				i = i0;
-				goto ENCODE;
-				}
-			if(!AllowRandomize) ResetRandom();
 			else {
-				if(UsedRandom && !ScriptExecOn && !AllItems && !AEventOn && !asked) {
-					if((r=Answer("Reset random sequence",'N')) == OK) ResetRandom();
-					UsedRandom = FALSE;
-					asked = TRUE;
+				if(!askedvariables) {
+					r = Answer("Selection contains variables. Use grammar to derive them",'Y');
+					askedvariables = TRUE;
+					if(r == ABORT) {
+						r = OK;
+						MyDisposeHandle((Handle*)&p_ti);
+						break;
+						}
+					derivevariables = r;
 					}
+				if(!derivevariables) goto NOVARIABLE;
+				if(!CompiledGr) {
+					MyDisposeHandle((Handle*)&p_ti);
+				//	if(PlaySelectionOn > 0) PlaySelectionOn--; // Fixed by BB 2021-02-17
+					if((r=CompileCheck()) != OK) break;
+					i = i0;
+					goto ENCODE;
+					}
+				if(!AllowRandomize) ResetRandom();
+				else {
+					if(UsedRandom && !ScriptExecOn && !AllItems && !AEventOn && !asked) {
+						if((r=Answer("Reset random sequence",'N')) == OK) ResetRandom();
+						UsedRandom = FALSE;
+						asked = TRUE;
+						}
+					}
+				r = ProduceItems(0,FALSE,FALSE,&p_ti);
 				}
-			r = ProduceItems(0,FALSE,FALSE,&p_ti);
-			}
-	//	if(PlaySelectionOn > 0) PlaySelectionOn--; // Fixed by BB 2021-02-17
+		//	if(PlaySelectionOn > 0) PlaySelectionOn--; // Fixed by BB 2021-02-17
 		
-		if(!onlypianoroll) ResetMIDIfile();
+			if(!onlypianoroll) ResetMIDIfile();
+			}
+		MyDisposeHandle((Handle*)&p_ti);
+		if(r == ABORT || r == EXIT) break;
 		}
-	MyDisposeHandle((Handle*)&p_ti);
-	if(r == ABORT || r == EXIT) break;
+	return(r);
 	}
-return(r);
-}
 
 
 int TextToMIDIstream(int w) {
@@ -720,85 +719,81 @@ int PasteStreamToPrototype(int j, int what) {
 	}
 
 
-int UndoPasteSelection(int j)
-{
-long i;
-int longerCsound;
+int UndoPasteSelection(int j) {
+	long i;
+	int longerCsound;
 
-for(i=((*p_Ifrom)[j]+Stream.imax); i < (*p_MIDIsize)[j]; i++) {
-	(*((*pp_MIDIcode)[j]))[i-Stream.imax] = (*((*pp_MIDIcode)[j]))[i];
+	for(i=((*p_Ifrom)[j]+Stream.imax); i < (*p_MIDIsize)[j]; i++) {
+		(*((*pp_MIDIcode)[j]))[i-Stream.imax] = (*((*pp_MIDIcode)[j]))[i];
+		}
+	(*p_MIDIsize)[j] -= Stream.imax;
+	SetPrototypeDuration(j,&longerCsound);
+	return(OK);
 	}
-(*p_MIDIsize)[j] -= Stream.imax;
-SetPrototypeDuration(j,&longerCsound);
-return(OK);
-}
 
 
-int ChangedProtoType(int j)
-{
-(*p_PasteDone)[j] = FALSE;
-return(OK);
-}
+int ChangedProtoType(int j) {
+	(*p_PasteDone)[j] = FALSE;
+	return(OK);
+	}
 
 
-long FindGoodInsertPoint(int j,long i)
-{
-long k,oldk;
-int c,status;
-Milliseconds date;
+long FindGoodInsertPoint(int j,long i) {
+	long k,oldk;
+	int c,status;
+	Milliseconds date;
 
-if(j < 2 || j >= Jbol) return(i);
-date = (*((*pp_MIDIcode)[j]))[i].time;	/* We're in "point" representation */
-for(k=oldk=i; k < (*p_MIDIsize)[j]; k++) {
-	c = (*((*pp_MIDIcode)[j]))[k].byte;
-	if((*((*pp_MIDIcode)[j]))[k].time != date) {
-		k = oldk;
+	if(j < 2 || j >= Jbol) return(i);
+	date = (*((*pp_MIDIcode)[j]))[i].time;	/* We're in "point" representation */
+	for(k=oldk=i; k < (*p_MIDIsize)[j]; k++) {
+		c = (*((*pp_MIDIcode)[j]))[k].byte;
+		if((*((*pp_MIDIcode)[j]))[k].time != date) {
+			k = oldk;
+			break;
+			}
+		status = c - (c % 16);
+		if(status == NoteOff || (status == NoteOn && (*((*pp_MIDIcode)[j]))[k+2].byte == 0)) {
+			oldk = k;
+			k += 2;
+			continue;
+			}
 		break;
 		}
-	status = c - (c % 16);
-	if(status == NoteOff || (status == NoteOn && (*((*pp_MIDIcode)[j]))[k+2].byte == 0)) {
-		oldk = k;
-		k += 2;
-		continue;
+	return(k);
+	}
+
+
+int CaptureCodes(int j) {
+	long i,maxcodes;
+
+	if(Answer("Capture the MIDI stream of this sound-object prototype to paste it later to another prototype",'Y')
+		!= OK) return(OK);
+	if(Stream.imax > ZERO) {
+		if(Answer("This will delete currently captured codes. Proceed anyway",'N') != OK) return(OK);
 		}
-	break;
-	}
-return(k);
-}
+	PleaseWait();
+	maxcodes = (*p_MIDIsize)[j];
+	if(Stream.code == NULL) {
+		if((Stream.code = (MIDIcode**) GiveSpace((Size)maxcodes * sizeof(MIDIcode))) == NULL)
+			return(ABORT);
+		}
+	else {
+		MySetHandleSize((Handle*)&(Stream.code),(Size)maxcodes * sizeof(MIDIcode));
+		}
+	Stream.imax = maxcodes;
+	Stream.pclock = (*p_Tref)[j];
+	Stream.qclock = 1000L;
+	Stream.period = ZERO;
+	Stream.cyclic = FALSE;
 
+	if(DurationToPoint(pp_MIDIcode,NULL,p_MIDIsize,j) != OK) return(ABORT);
 
-int CaptureCodes(int j)
-{
-long i,maxcodes;
-
-if(Answer("Capture the MIDI stream of this sound-object prototype to paste it later to another prototype",'Y')
-	!= OK) return(OK);
-if(Stream.imax > ZERO) {
-	if(Answer("This will delete currently captured codes. Proceed anyway",'N') != OK) return(OK);
+	for(i=0; i < maxcodes; i++) {
+		(*Stream.code)[i] = (*((*pp_MIDIcode)[j]))[i];
+		}
+	if(PointToDuration(pp_MIDIcode,NULL,p_MIDIsize,j) != OK) return(ABORT);
+	return(OK);
 	}
-PleaseWait();
-maxcodes = (*p_MIDIsize)[j];
-if(Stream.code == NULL) {
-	if((Stream.code = (MIDIcode**) GiveSpace((Size)maxcodes * sizeof(MIDIcode))) == NULL)
-		return(ABORT);
-	}
-else {
-	MySetHandleSize((Handle*)&(Stream.code),(Size)maxcodes * sizeof(MIDIcode));
-	}
-Stream.imax = maxcodes;
-Stream.pclock = (*p_Tref)[j];
-Stream.qclock = 1000L;
-Stream.period = ZERO;
-Stream.cyclic = FALSE;
-
-if(DurationToPoint(pp_MIDIcode,NULL,p_MIDIsize,j) != OK) return(ABORT);
-
-for(i=0; i < maxcodes; i++) {
-	(*Stream.code)[i] = (*((*pp_MIDIcode)[j]))[i];
-	}
-if(PointToDuration(pp_MIDIcode,NULL,p_MIDIsize,j) != OK) return(ABORT);
-return(OK);
-}
 
 
 int ExpandSelection(int w) {
@@ -866,65 +861,64 @@ int ExpandSelection(int w) {
 	}
 
 
-int ShowPeriods(int w)
-// Not used any more
-{
-int r,finish,ifunc,hastabs;
-tokenbyte **p_a;
-long origin,end,oldorigin,neworigin,oldend,newend,dummy,length;
-double maxseq;
+int ShowPeriods(int w) {
+	// Not used any more
+	int r,finish,ifunc,hastabs;
+	tokenbyte **p_a;
+	long origin,end,oldorigin,neworigin,oldend,newend,dummy,length;
+	double maxseq;
 
-if(CheckEmergency() != OK) return(ABORT);
-if(w < 0 || w >= WMAX) {
-	BPPrintMessage(0,odError,"=> Err. ShowPeriods(). Incorrect window index");
-	return(MISSED);
-	}
-if(w != LastEditWindow && Editable[w]) LastEditWindow = w;
-w = LastEditWindow;
-TextGetSelection(&origin, &end, TEH[w]);
-if(origin >= end) return(MISSED);
-if(!CompiledAl  || (!CompiledGr && (AddBolsInGrammar() > BolsInGrammar))) {
-	CompiledAl = FALSE;
-	if((r=CompileAlphabet()) != OK) return(r);
-	}
-newend = end;
-p_a = NULL;
-while(origin < end) {
-	SetSelect(origin,end,TEH[w]);
-	oldorigin = origin;
-	if((r = SelectionToBuffer(FALSE,FALSE,w,&p_a,&origin,PROD)) != OK) {
+	if(CheckEmergency() != OK) return(ABORT);
+	if(w < 0 || w >= WMAX) {
+		BPPrintMessage(0,odError,"=> Err. ShowPeriods(). Incorrect window index");
+		return(MISSED);
+		}
+	if(w != LastEditWindow && Editable[w]) LastEditWindow = w;
+	w = LastEditWindow;
+	TextGetSelection(&origin, &end, TEH[w]);
+	if(origin >= end) return(MISSED);
+	if(!CompiledAl  || (!CompiledGr && (AddBolsInGrammar() > BolsInGrammar))) {
+		CompiledAl = FALSE;
+		if((r=CompileAlphabet()) != OK) return(r);
+		}
+	newend = end;
+	p_a = NULL;
+	while(origin < end) {
+		SetSelect(origin,end,TEH[w]);
+		oldorigin = origin;
+		if((r = SelectionToBuffer(FALSE,FALSE,w,&p_a,&origin,PROD)) != OK) {
+			MyDisposeHandle((Handle*)&p_a);
+			/* Could be NULL because of PolyExpand() */
+			return(r);
+			}
+		if(LengthOf(&p_a) > 0) {
+			oldend = origin - 1;
+			while(isspace(GetTextChar(w,oldend))) oldend--;
+			oldend++;
+			SetSelect(oldorigin,oldend,TEH[w]);
+			LastAction = SPACESELECTION;
+			UndoWindow = w;
+			TextGetSelection(&UndoPos, &dummy, TEH[w]);
+			TextDelete(w);
+			while((r=PolyMake(&p_a,&maxseq,NO)) == AGAIN);
+			if(r == ABORT || r == EXIT) goto BAD;
+			int datamode = DisplayMode(&p_a,&ifunc,&hastabs);
+			r = PrintArg(datamode,FALSE,FALSE,TRUE,FALSE,FALSE,stdout,w,pp_Scrap,&p_a);
+			if(r != OK) goto BAD;
+			TextGetSelection(&dummy, &newend, TEH[w]);
+			end += newend - oldend;
+			origin += newend - oldend;
+			}
 		MyDisposeHandle((Handle*)&p_a);
 		/* Could be NULL because of PolyExpand() */
-		return(r);
 		}
-	if(LengthOf(&p_a) > 0) {
-		oldend = origin - 1;
-		while(isspace(GetTextChar(w,oldend))) oldend--;
-		oldend++;
-		SetSelect(oldorigin,oldend,TEH[w]);
-		LastAction = SPACESELECTION;
-		UndoWindow = w;
-		TextGetSelection(&UndoPos, &dummy, TEH[w]);
-		TextDelete(w);
-		while((r=PolyMake(&p_a,&maxseq,NO)) == AGAIN);
-		if(r == ABORT || r == EXIT) goto BAD;
-		int datamode = DisplayMode(&p_a,&ifunc,&hastabs);
-		r = PrintArg(datamode,FALSE,FALSE,TRUE,FALSE,FALSE,stdout,w,pp_Scrap,&p_a);
-		if(r != OK) goto BAD;
-		TextGetSelection(&dummy, &newend, TEH[w]);
-		end += newend - oldend;
-		origin += newend - oldend;
-		}
-	MyDisposeHandle((Handle*)&p_a);
-	/* Could be NULL because of PolyExpand() */
-	}
-ShowSelect(CENTRE,w);
-return(r);
+	ShowSelect(CENTRE,w);
+	return(r);
 
 BAD:
-MyDisposeHandle((Handle*)&p_a);
-return(r);
-}
+	MyDisposeHandle((Handle*)&p_a);
+	return(r);
+	}
 
 long LengthOf(tokenbyte ***pp_X) {          
 	if(pp_X == NULL || *pp_X == NULL) {
@@ -1141,7 +1135,7 @@ int ReadToBuff(int nocomment,int noreturn,int w,long *p_i,long im,char ***pp_buf
 		}
 	for(j=*p_i,k=0; j < im; j++) {
 		c = GetTextChar(w,j);
-		if (len < MAXLIN - 1) Message[len++] = c;
+		if(len < MAXLIN - 1) Message[len++] = c;
 		if(nocomment && c == '*' && oldc == '/') {
 			/* Skip C-type remark */
 			oldc = '\0'; j++; k--;
@@ -1204,47 +1198,47 @@ int ReadToBuff(int nocomment,int noreturn,int w,long *p_i,long im,char ***pp_buf
 void Create_unit_tab_tsv_files() {
 	char thename[MAXNAME];
 	const char *base = PathToMidiFile;
-    size_t base_len = strlen(base);
+	size_t base_len = strlen(base);
 	if(UnitfilePtr != NULL) return;
 	SetMidiFileNr++;
 	snprintf(thename,sizeof(thename),"%d.txt",SetMidiFileNr);
 	// BPPrintMessage(1,odInfo,"@@ SetMidiFileNr = %d\n",SetMidiFileNr);
-    int need_slash = (base_len > 0 && base[base_len - 1] == '/') ? 0 : 1;
-    size_t total = base_len + (need_slash ? 1 : 0) + strlen(thename) + 1;
-    char *path_unit = (char *)malloc(total);
-    char *p_unit = path_unit;
-    memcpy(p_unit, base, base_len); p_unit += base_len;
-    if (need_slash) *p_unit++ = '/';
-    memcpy(p_unit,thename,strlen(thename) + 1); // includes '\0'
+	int need_slash = (base_len > 0 && base[base_len - 1] == '/') ? 0 : 1;
+	size_t total = base_len + (need_slash ? 1 : 0) + strlen(thename) + 1;
+	char *path_unit = (char *)malloc(total);
+	char *p_unit = path_unit;
+	memcpy(p_unit, base, base_len); p_unit += base_len;
+	if(need_slash) *p_unit++ = '/';
+	memcpy(p_unit,thename,strlen(thename) + 1); // includes '\0'
 	// BPPrintMessage(1,odInfo,"\npath = %s\n",path_unit);
 	UnitfilePtr = fopen(path_unit, "w");
-    if(UnitfilePtr == NULL) {
-		 BPPrintMessage(0,odError,"=> Error creating %s: %s\n", path_unit, strerror(errno));
-        return;
-    	}
+	if(UnitfilePtr == NULL) {
+		BPPrintMessage(0,odError,"=> Error creating %s: %s\n", path_unit, strerror(errno));
+	   return;
+		}
 	else if(SetMidiFileNr == 1) BPPrintMessage(1,odInfo,"Copying polymetric expressions to files, starting with %s\n",path_unit);
 
 	// Create the tab file
 	snprintf(thename,sizeof(thename),"%d.tab",SetMidiFileNr);
-    size_t total_tab = base_len + (need_slash ? 1 : 0) + strlen(thename) + 1;
-    char *path_tab = (char *)malloc(total_tab);
-    char *p_tab = path_tab;
-    memcpy(p_tab, base, base_len);
+	size_t total_tab = base_len + (need_slash ? 1 : 0) + strlen(thename) + 1;
+	char *path_tab = (char *)malloc(total_tab);
+	char *p_tab = path_tab;
+	memcpy(p_tab, base, base_len);
 	p_tab += base_len;
-    if (need_slash) *p_tab++ = '/';
-    memcpy(p_tab,thename,strlen(thename) + 1); // includes '\0'
+	if(need_slash) *p_tab++ = '/';
+	memcpy(p_tab,thename,strlen(thename) + 1); // includes '\0'
 	// BPPrintMessage(1,odInfo,"\npath_tab = %s\n",path_tab);
 	TabfilePtr = fopen(path_tab, "w");
 
 	// Create the tsv file
 	snprintf(thename,sizeof(thename),"%d.tsv",SetMidiFileNr);
-    size_t total_tsv = base_len + (need_slash ? 1 : 0) + strlen(thename) + 1;
-    char *path_tsv = (char *)malloc(total_tsv);
-    char *p_tsv = path_tsv;
-    memcpy(p_tsv, base, base_len);
+	size_t total_tsv = base_len + (need_slash ? 1 : 0) + strlen(thename) + 1;
+	char *path_tsv = (char *)malloc(total_tsv);
+	char *p_tsv = path_tsv;
+	memcpy(p_tsv, base, base_len);
 	p_tsv += base_len;
-    if (need_slash) *p_tsv++ = '/';
-    memcpy(p_tsv,thename,strlen(thename) + 1); // includes '\0'
+	if(need_slash) *p_tsv++ = '/';
+	memcpy(p_tsv,thename,strlen(thename) + 1); // includes '\0'
 	TsvFilePtr = fopen(path_tsv, "w");
 	fprintf(TsvFilePtr, "time\tnote\tevent\tsize\tsource\tstatus\tdata1\tdata2\tchannel\n");
 	TabfileStart = -1L;
