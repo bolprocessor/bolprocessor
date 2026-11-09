@@ -385,6 +385,11 @@ int MakeCsoundFunctionTable(int onoffline,double **scorearg,double alpha1,double
 		return(MISSED);
 		}
 	if(trace_write_score) BPPrintMessage(0,odInfo,"onoffline = %d, alpha1 = %.2f, alpha2 = %.2f, imax = %ld\n",onoffline,alpha1,alpha2,imax);
+	// 2026-11-08: rounding errors are tolerated, as in GetPartOfTable(). An object starting exactly
+	// at the start of the variation could get alpha1 = -1e-16 (e.g. "Cello /32 _pitchcont _pitchbend(+200) re4 ..."
+	// in -da.checkControls), and no table was made - fixed by Claude
+	if(alpha1 < 0. && alpha1 > -0.01) alpha1 = 0.;
+	if(alpha2 > 1. && alpha2 < 1.01) alpha2 = 1.;
 	if(alpha1 < 0. || alpha2 > 1. || (alpha1 >= alpha2)) return(MISSED);
 
 	r = ABORT;

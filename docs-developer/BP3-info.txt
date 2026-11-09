@@ -31,8 +31,8 @@ T0 18 & (following terminal or variable)
 T0 19 & (preceding terminal or variable)
 T0 20 ! (pattern marker)
 T0 21 T1 x T1 y  * scale up ((TOKBASE * x) + y) times
-T0 22 | (temporary { bracket, in polymetric evaluation and Zouleb only)
-T0 23 | (temporary } bracket, in polymetric evaluation and Zouleb only)
+T0 22 | (temporary { bracket, in polymetric evaluation and Zouleb only, currently not used)
+T0 23 | (temporary } bracket, in polymetric evaluation and Zouleb only, currently not used)
 T0 24 T1 x T1 y  ** scale down ((TOKBASE * x) + y) times
 T0 25 T1 x T1 y \ speed down ((TOKBASE * x) + y) times
 

@@ -21,29 +21,14 @@ Various issues
 --------------
 
 - In the 'Event list' output format, introduce parameters and tables similar to those used in Csound.
-- Fix continous volume change in real-time MIDI.
-- Delete occurrences of ConvertMIDItoCsound as it is (probably) obsolete.
 - Design an example demonstrating properties "Allow gap" in sound-objects.
 - Pianoroll is not drawn if there are negative dates (due to pivot and preroll).
-- Check the handling of _fixed() in SetObjectFeatures.c
-- When playing -da.Beethoven-fuge-b-flat-major using PLAY safe (7 chunks) there is a time error between two chunks. Check the chunking on data.php
 - Try to make sense of 'truebracket' and 'imbedded' in Polymetric.c
 - Templates can't be created with rules containing integers as silences. This can be solved in MakeTemplate().
 - Currently, the console crashes if the list of TEMPLATES in a grammar is not terminated with a solid line "-----". However, the interface prevents this by adding the missing terminating line.
 - Problem tracing the production of an item containing structural patterns.
-- Errors of duration occur when playing some polymetric structures with tied notes that miss their target. Examples are stored in -da.checkBadDurations.
-- Check why tempo(3/2) {C4& {3,&C4 _rest D4}} does not produce the same pattern as {C4& {3,&C4 _rest D4}} 
-- Check delete_orphan_ties() in data.php, as it still keeps erratic ties which are difficult to predict.
-- Check why istart = 4 in Compute.c when running -gr.koto3. If not checked, it crashes on the remote right context of gram #2 rule #12. Therefore, if(istart > i) return(FALSE) has been added on 2025-03-15.
 - Check that scripts can be attached to out-time objects.
 - In Linux, when the STOP or PANIC button is clicked during a "wait" event, the trace file is empty. Maybe a problem flushing it and closing it.
-- Check quadratic adjustment of _vel and _volume.
-
-
-Inference engine
-----------------
-
-- Treat performance controls as meta information attached to the neighbouring terminal or variable.
 
 
 Live coding
@@ -63,7 +48,6 @@ Microtonal scales and tuning systems
 ------------------------------------
 
 - Tuning the MIDI device to diapason A4 ≠ 440 Hz does not work or makes a mess (e.g. Windows 10, Microsoft GS Wavetable Synth).
-- Check that setting pitchbend range to ± 200 cents on all channels works.
 - Include values for optional stretching of octaves.
 - Implement a performance control to set the A4 frequency (diapason) in the score.
 

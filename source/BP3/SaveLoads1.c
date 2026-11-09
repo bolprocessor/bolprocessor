@@ -569,6 +569,7 @@ int LoadSettings(const char *filename, int startup) {
 	VolumeController = VOLUMECONTROL;
 	DeftVelocity = DEFTVELOCITY;
 	DeftPanoramic = DEFTPANORAMIC;
+	DeftPitchbendRange = 0;	// 2026-11-09: setting "DeftPitchbendRange" (cents), 0 = raw pitchbend values - added by Claude
 	PanoramicController = PANORAMICCONTROL;
 	SamplingRate = SAMPLINGRATE;
 	DefaultBlockKey = 60;
@@ -696,6 +697,10 @@ int LoadSettings(const char *filename, int startup) {
 		else if(strcmp(key,"VolumeController") == 0) VolumeController = intvalue;
 		else if(strcmp(key,"DeftVelocity") == 0) DeftVelocity = intvalue;
 		else if(strcmp(key,"DeftPanoramic") == 0) DeftPanoramic = intvalue;
+		else if(strcmp(key,"DeftPitchbendRange") == 0) {	// 2026-11-09 - added by Claude
+			DeftPitchbendRange = intvalue;
+			if(DeftPitchbendRange < 0) DeftPitchbendRange = 0;
+			}
 		else if(strcmp(key,"PanoramicController") == 0) PanoramicController = intvalue;
 		else if(strcmp(key,"SamplingRate") == 0) SamplingRate = intvalue;
 		else if(strcmp(key,"StopPauseContinue") == 0) StopPauseContinue = intvalue;

@@ -1509,11 +1509,19 @@ long FindArg(tokenbyte ***pp_a,int grtype,tokenbyte **p_arg,int reset,
 	long *p_length,tokenbyte meta[],tokenbyte instan[],t_rule rule,int mode,unsigned long time_end_compute) {
 	// Search left/rightmost pattern position in A[]
 	long pos;
-	long startpos,istart,jstart,lenc1;
-	int dir;
+	long startpos,istart,jstart,lenc1,i;
+	int dir,lenc;
 	tokenbyte meta1[MAXMETA2];
 
 	if(ChangedGrammar || ChangedSettings) return(-1);
+
+	if(reset) lenc = rule.leftnegcontext; // Argument of the rule
+	else {
+		// 2026-11-09: remote context, e.g. "#({)" or "#(})" in gram#2[12] of -gr.koto3. Its number of leading negative contexts
+		// is its own, not rule.leftnegcontext which belongs to the argument of the rule ("#a b"). Found() was called with lenc = 1
+		// on "{" and got istart = 4, past the end of the context - fixed by Claude
+		for(i = lenc = 0; (*p_arg)[i] == T0 && (*p_arg)[i+1] == 2; lenc++, i += 4);
+		}
 
 	switch(mode) {
 		case TEMP:
@@ -1533,7 +1541,7 @@ long FindArg(tokenbyte ***pp_a,int grtype,tokenbyte **p_arg,int reset,
 	for(pos=startpos; pos >= 0 && ((**pp_a)[pos] != TEND || (**pp_a)[pos+1] != TEND);
 			pos += dir) {	
 		if(CheckEmergency() != OK) return(ABORT);
-		if(Found(-7,pp_a,grtype,p_arg,0,rule.leftnegcontext,&lenc1,pos,reset,instan,meta,
+		if(Found(-7,pp_a,grtype,p_arg,0,lenc,&lenc1,pos,reset,instan,meta,
 			meta1,&istart,&jstart,p_length,rule.ismeta,time_end_compute)) {
 			// The "-7" is just for trace
 			if(reset) {
@@ -1594,7 +1602,7 @@ int Found(int irul,tokenbyte ***pp_a,int grtype,tokenbyte **p_arg,long offset,in
 	(*p_lenc1) = lenc - (istart / 4);	/* Used only for SUB */
 	if(jstart < 0) return(FALSE);	/* Not found */
 	(*p_istart) = istart; (*p_jstart) = jstart;
-	if(istart > 0) { // 2025-03-15
+	if(istart > 0) { // 2025-03-15. Safety check: since 2026-11-09, FindArg() passes the right lenc for remote contexts, which was the cause of istart > i
 //		BPPrintMessage(0,odInfo,"Found() irul = %d, istart = %d jstart = %d, p_arg = %p, pp_a = %p, lenc = %d pos = %d offset = %d\n",irul,istart,jstart,p_arg,*pp_a,lenc,pos,offset);
 		for(i=0; (*p_arg)[i] != TEND || (*p_arg)[i+1] != TEND; i+=2) {
 //			printf("%d.%d ",(*p_arg)[i],(*p_arg)[i+1]);

@@ -231,6 +231,8 @@ int SetObjectParams(int part_of_score,int level,int nseq,long k,int j,CurrentPar
 					}
 				((*h_table)[paramindex].offset)--;
 				}
+			// 2026-11-08: tables saved for other channels also wait for an object counted among all channels - fixed by Claude
+			if(part_of_score) DecrementSavedTableOffsets(paramindex);
 			
 			// BPPrintMessage(0,odInfo,"SetObjectFeatures k = %ld mode = %ld ?\n",(long)k,(*currentinstancevalues)[paramindex].mode);
 			if((*((*p_contparameters)[level].values))[paramindex].v0 == (*((*p_contparameters)[level].values))[paramindex].v1 && (*h_table)[paramindex].point == NULL) {
@@ -366,7 +368,7 @@ int SetVariation(tokenbyte targettoken,CurrentParameters **p_deftcurrentparamete
 		foundendconcatenation,levelmem,seqmem,foundtarget,imap,
 		paramindex,maketable,tableisbeingbuilt,tablemade,iobjmem,
 		okincrease,objectsfound,nonemptyfound,nonemptyobject,chan,instrument,part,targettokenfoundafterobject,
-		forgetmakingtable,followedwithgap,result,chanorg,instrorg,partorg,
+		forgetmakingtable,followedwithgap,result,chanorg,instrorg,partorg,startedatmidivalue,
 		blockkey,scale,scaleorg,blockkeyorg,newval,newkeyval;
 	KeyNumberMap vmap;
 	unsigned long i,tablesize;
@@ -399,8 +401,12 @@ int SetVariation(tokenbyte targettoken,CurrentParameters **p_deftcurrentparamete
 	speed = orgspeed;
 	scaling = orgscaling;
 	if(scaling != 0.) {
-	//	tempo = speed / scaling;
-		tempo = speed; // 2025-01-21
+		tempo = speed / scaling;
+	//	tempo = speed; // 2025-01-21
+		// 2026-11-08: back to speed / scaling, as in the loop below and in GetSymbolicDuration(). The callers in FillPhaseDiagram()
+		// pass 'speed' and 'scale', so with "tempo = speed" a variation in a scaled polymetric field (e.g. "{..., _pitchbend(-200)
+		// _pitchcont sol4 ___ _pitchbend(+200)}") was counted in other units than the duration of its objects, and values went out
+		// of range (item #29 of -da.checkControls). AssignValue(), which passed the tempo, now passes tempo * scaling - fixed by Claude
 		prodtempo = (Prod / tempo);
 		}
 	else tempo = prodtempo = 0.;
@@ -416,7 +422,16 @@ int SetVariation(tokenbyte targettoken,CurrentParameters **p_deftcurrentparamete
 	if(targettoken == -1) targettoken = IndexToToken(paramindex_org);
 	// This will be required for FindValue()
 
+	// 2026-11-08: TRUE if the scan starts at a value of a MIDI parameter (see _chan() below) - fixed by Claude
+	startedatmidivalue = (paramindex_org >= 0 && paramindex_org <= IPANORAMIC && ((*p_buff)[id] == targettoken || (*p_buff)[id] == T35));
+
 	if(trace_set_variation) BPPrintMessage(0,odInfo,"@@ Start SetVariation() targettoken = %ld, paramindex_org = %ld, id = %ld, Prod = %.2f speed = %.2f scaling = %.2f tempo = %.2f prodtempo = %.2f, endvalue = %.2f\n",(long)targettoken,(long)paramindex_org,(long)id,Prod,speed,scaling,tempo,prodtempo,(*p_endvalue));
+
+	// 2026-11-08: set before "goto RECORDVALUES" below, which leads to STORECHAN: for a fixed value such as "_volume(30)", the
+	// channel of the parameter was set to the uninitialized 'chanorg', e.g. 24928 in an AddressSanitizer build - fixed by Claude
+	chan = chanorg = p_currentparameters->currchan;
+	instrument = instrorg = p_currentparameters->currinstr;
+	part = partorg = p_currentparameters->currpart;
 
 	if(paramindex_org > -1) {
 		maketable = TRUE;
@@ -798,7 +813,11 @@ int SetVariation(tokenbyte targettoken,CurrentParameters **p_deftcurrentparamete
 				if(objectsfound > 0 && paramindex_org >= 0 && paramindex_org <= IPANORAMIC) okincrease = FALSE;
 				// BPPrintMessage(0,odInfo,"_chan() chan = %d\n",x);
 				chan = (int) x;
-				if(maxbeats == 0.) chanorg = chan;
+				// 2026-11-08: when the scan starts at a value of a MIDI parameter, this value belongs to the channel current at its token,
+				// even if a _chan() follows before the next object: in "_chan(2) ... sol4__ _pitchbend(150) _chan(4) do4" the 150 is for
+				// channel 2. Otherwise (e.g. at the start of a polymetric field) the variation goes to the channel of the next objects,
+				// as in "_volumecont _volume(0) C4 {B3 A3, _chan(2) D4 E4} F4 _volume(127)" (-da.checkContControl) - fixed by Claude
+				if(maxbeats == 0. && !startedatmidivalue) chanorg = chan;
 				}
 			continue;
 			}
@@ -1572,7 +1591,8 @@ int AssignValue(int index,double value,int p,int level,long* p_kmx,
 	else
 		(*((*p_contparameters)[level].values))[index].control = p - 128;
 		
-	if(SetVariation(-1,p_deftcurrentparameters,p_currentparameters,p_contparameters,level,index,id,*pp_buff,tempo,scaling,&endval,&mapendvalue,&maxbeats,h_table) != OK) return(ABORT);
+	// 2026-11-08: SetVariation() expects the speed, from which it calculates tempo = speed / scaling - fixed by Claude
+	if(SetVariation(-1,p_deftcurrentparameters,p_currentparameters,p_contparameters,level,index,id,*pp_buff,tempo * scaling,scaling,&endval,&mapendvalue,&maxbeats,h_table) != OK) return(ABORT);
 	if(trace_set_variation) BPPrintMessage(0,odInfo,"AssignValue() endval = %d maxbeats = %.2f\n",(long)endval,maxbeats);
 	(*((*p_contparameters)[level].values))[index].v1
 		= endval;
@@ -1689,8 +1709,9 @@ double GetSymbolicDuration(int ignoreconcat,tokenbyte **p_buff,
 	int level,instrument,part,channel;
 	double tempo,tempomax,prodtempo,objectduration,speed,tick_start,tick_end,this_end,this_point,
 		s,scaling,**p_duration_of_field,**p_duration_org;
-	char tie_is_open,foundendconcatenation,found_beginning,justfinishedconcatenation;
+	char tie_is_open,foundendconcatenation,found_beginning,justfinishedconcatenation,tie_closed;
 
+	tie_is_open = found_beginning = tie_closed = FALSE;
 	if(trace_get_duration)
 		BPPrintMessage(1,odInfo,"GetSymbolicDuration()\n");
 	if(m_org != T3 && m_org != T47 && m_org != T25 && m_org != T9) {
@@ -1852,20 +1873,20 @@ double GetSymbolicDuration(int ignoreconcat,tokenbyte **p_buff,
 					break;
 				case 12:	// '{'
 				case 22:
-					if(ignoreconcat || justfinishedconcatenation) goto SORTIR; // fixed 2025-12-01
+					if(ignoreconcat || justfinishedconcatenation || tie_closed) goto SORTIR; // fixed 2025-12-01
 					(*p_duration_org)[level+1] = (*p_duration_of_field)[level+1] = (*p_duration_of_field)[level];
 					level++;
 					if(trace_get_duration) BPPrintMessage(1,odInfo,"{ (%ld)\n",(long)(*p_duration_of_field)[level]);
 					break;
 				case 13:	// '}'
 				case 23:
-					if(ignoreconcat || justfinishedconcatenation) goto SORTIR; // fixed 2025-12-01
+					if(ignoreconcat || justfinishedconcatenation || tie_closed) goto SORTIR; // fixed 2025-12-01
 					level--;
 					(*p_duration_of_field)[level] = (*p_duration_of_field)[level+1];
 					if(trace_get_duration) BPPrintMessage(1,odInfo,"} (%ld)\n",(long)(*p_duration_of_field)[level]);
 					break;
 				case 14:	// comma
-					if(ignoreconcat || justfinishedconcatenation) goto SORTIR; // Added 2025-01-21  fixed 2025-12-01
+					if(ignoreconcat || justfinishedconcatenation || tie_closed) goto SORTIR; // Added 2025-01-21  fixed 2025-12-01
 					(*p_duration_of_field)[level] = (*p_duration_org)[level];
 					if(trace_get_duration) BPPrintMessage(1,odInfo,", (%ld)\n",(long)(*p_duration_of_field)[level]);
 					(*p_duration_of_field)[level] = (*p_duration_org)[level];
@@ -1888,6 +1909,7 @@ double GetSymbolicDuration(int ignoreconcat,tokenbyte **p_buff,
 						if(trace_get_duration)
 							BPPrintMessage(1,odInfo,"• Starting tie: %ld|%ld location %.2f\n",(long)old_m,(long)old_p,tick_start);
 						tie_is_open = TRUE;
+						tie_closed = FALSE; // The tie continues: "C4& &C4& &C4"
 						}
 					justfinishedconcatenation = FALSE;
 					break;
@@ -1927,6 +1949,11 @@ double GetSymbolicDuration(int ignoreconcat,tokenbyte **p_buff,
 			continue;
 			}
 		if(m == T3 || m == T47 || m == T25 || m == T4) {  // 2026-03-20
+			// 2026-11-08: without a tie, the duration of the object is that of its own prolongations '_'.
+			// Any following object ends it, even on another channel, instrument or part. Otherwise the prolongations
+			// of the following objects were added, e.g. in "_chan(4) do4_____ _chan(2) sol4__" the duration of do4 was 8
+			// instead of 6, and continuous parameters went out of range (item #30 of -da.checkControls) - fixed by Claude
+			if(ignoreconcat) break;
 			(*p_duration_of_field)[level] += prodtempo;
 			if(trace_get_duration) {
 				BPPrintMessage(0,odInfo,"<%ld|%ld> (%ld)\n",m,p,(long)(*p_duration_of_field)[level]);
@@ -1936,12 +1963,14 @@ double GetSymbolicDuration(int ignoreconcat,tokenbyte **p_buff,
 					BPPrintMessage(0,odInfo,"foundendconcatenation\n");
 				tick_end = this_end;
 				tie_is_open = FALSE;
+				tie_closed = TRUE;
 				if(justfinishedconcatenation) break; // 2026-11-01
 				justfinishedconcatenation = TRUE;
 				if(trace_get_duration)
 					BPPrintMessage(1,odInfo,"Perhaps end of tie: <%d|%d> i = %ld tick_start = %.2f this_end = %.2f found_beginning = %d\n",m,p,(long)i,tick_start,this_end,(int)found_beginning);
 				continue;
 				}
+			if(tie_closed) break; // 2026-11-09: the tie is closed, any following object ends it (item "bad 0.733" of -da.checkBadDurations) - fixed by Claude
 		//	if((!tie_is_open) && !foundendconcatenation && !justfinishedconcatenation && p > 0 && this_end >= tick_start  && instrument == instrument_org && part == part_org && channel == channel_org ) {
 			if(!tie_is_open && !foundendconcatenation && p > 0 && instrument == instrument_org && part == part_org && channel == channel_org) {
 				// 2026-11-01 check with -da.Beethoven-fuge-flat-major
@@ -1958,9 +1987,13 @@ double GetSymbolicDuration(int ignoreconcat,tokenbyte **p_buff,
 	if(!ignoreconcat && trace_get_duration)
 		BPPrintMessage(1,odInfo,"Duration of expression = %.2f\n",(*p_duration_of_field)[level]);
 
-	if(tick_start >= 0. && tick_end >= 0. && tick_end >= tick_start)
+	// 2026-11-09: a tie that was never closed is unbound. Its tick_end had accumulated the prolongations '_' of the following
+	// fields, e.g. on another channel, and FillPhaseDiagram() then extended the line (item "bad 0.787" of -da.checkBadDurations) - fixed by Claude
+	if(!ignoreconcat && found_beginning && tie_is_open) objectduration = -1.;
+	else if(tick_start >= 0. && tick_end >= 0. && tick_end >= tick_start)
 		objectduration = tick_end - tick_start;
-	else {
+	else objectduration = -1.;
+	if(objectduration < 0.) {
 		objectduration = 0.;
 		if(!ignoreconcat && (m_org == T3 || m_org == T47)) {
 			if(trace_get_duration) BPPrintMessage(1,odError,"\n=> An unbound tied object was ignored\n");

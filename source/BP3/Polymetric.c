@@ -813,10 +813,10 @@ int PolyExpand(tokenbyte **p_b,tokenbyte ***pp_a,unsigned long idorg,unsigned lo
 
 	tokenbyte m,p,****pp_c,**p_e,**ptr;
 	char xf,useful,**ptr_fixtempo,**p_firstistempo,**p_empty,**p_useful,
-		foundtokens,toobigitem,truebracket,space,forceshowtempo;
+		foundtokens,toobigitem,space,forceshowtempo;
 	int gr,k,kk,kmax,a,a0,a1,result,r,tempomark,fixlength,dirtymem,sign,isequal,
 		singlegap,newg,newh,just_fill_gap,restart,comma,period,overflow,imbedded,
-		compiledmem,firstistempo,**p_vargap;
+		compiledmem,firstistempo,**p_vargap,noduration;
 	double L,M,lcm,Q,**p_p,**p_q,**p_pp,**p_r,pmax,qmax,**p_pgap,**p_qgap,xp,xq,ss,x,y,t,
 		speed,speedbeforegap,scalebeforegap,s,mm,scalegap,scaleup,scaledown,rescale,
 		mgap,approxduration,rescalesubstructure,scaling,prevscale,prevspeed;
@@ -843,7 +843,7 @@ int PolyExpand(tokenbyte **p_b,tokenbyte ***pp_a,unsigned long idorg,unsigned lo
 		int notrailing;
 		/* All scalar locals */
 		tokenbyte m_save, p_save;
-		char xf, useful, foundtokens, toobigitem, truebracket, space, forceshowtempo;
+		char xf, useful, foundtokens, toobigitem, space, forceshowtempo;
 		int gr, k, kk, kmax, a, a0, a1, result, r, tempomark, fixlength, dirtymem, sign, isequal;
 		int singlegap, newg, newh, just_fill_gap, restart, comma, period, overflow, imbedded;
 		int compiledmem, firstistempo;
@@ -1352,8 +1352,6 @@ int PolyExpand(tokenbyte **p_b,tokenbyte ***pp_a,unsigned long idorg,unsigned lo
 			continue;
 			}
 		if(m == T0 && (p == 12 || p == 22)) { 			/* '{' or '|' */
-			if(p == 12) truebracket = TRUE; // '{'
-			else truebracket = FALSE; // '|'
 			firstistempo = FALSE;
 			i += 2L;
 			xp = (*p_p)[a];
@@ -1392,7 +1390,7 @@ int PolyExpand(tokenbyte **p_b,tokenbyte ***pp_a,unsigned long idorg,unsigned lo
 			/* Save all scalar locals */
 			_sf->m_save = m; _sf->p_save = p;
 			_sf->xf = xf; _sf->useful = useful; _sf->foundtokens = foundtokens;
-			_sf->toobigitem = toobigitem; _sf->truebracket = truebracket;
+			_sf->toobigitem = toobigitem;
 			_sf->space = space; _sf->forceshowtempo = forceshowtempo;
 			_sf->gr = gr; _sf->k = k; _sf->kk = kk; _sf->kmax = kmax;
 			_sf->a = a; _sf->a0 = a0; _sf->a1 = a1;
@@ -1448,7 +1446,7 @@ int PolyExpand(tokenbyte **p_b,tokenbyte ***pp_a,unsigned long idorg,unsigned lo
 				(*p_p)[a] = xp;
 				(*p_q)[a] = xq;
 				
-				if(r != IMBEDDED && truebracket) {
+				if(r != IMBEDDED) {
 					(*((*pp_c)[a]))[ic++] = T0;
 					(*((*pp_c)[a]))[ic++] = 12;	/* '{' */
 					}
@@ -1468,11 +1466,8 @@ int PolyExpand(tokenbyte **p_b,tokenbyte ***pp_a,unsigned long idorg,unsigned lo
 				/* Now, substructure has been copied. */
 				
 				if(r != IMBEDDED) {
-					if(truebracket) {
-						(*((*pp_c)[a]))[ic++] = T0;
-						(*((*pp_c)[a]))[ic++] = 13;	/* '}' */
-						}
-					else imbedded = FALSE;
+					(*((*pp_c)[a]))[ic++] = T0;
+					(*((*pp_c)[a]))[ic++] = 13;	/* '}' */
 					}
 				if(scaling >= 1. || scaling == 0.) {
 					y = modf((scaling / (double)TOKBASE),&x); 
@@ -1735,6 +1730,7 @@ int PolyExpand(tokenbyte **p_b,tokenbyte ***pp_a,unsigned long idorg,unsigned lo
 			}
 		}
 		
+	noduration = (a0 == -1);
 	if(a0 == -1) {
 		a0 = 0;
 		(*p_r)[a0] = 1.;
@@ -1803,7 +1799,12 @@ int PolyExpand(tokenbyte **p_b,tokenbyte ***pp_a,unsigned long idorg,unsigned lo
 
 	/* Calculate duration of structure */
 
-	if(comma) {
+	if(noduration) {
+		// 2026-11-09: no field has a duration, e.g. "{_tempo(4/3) _vel(85)}" containing only performance controls.
+		// The structure takes no time, as in FillPhaseDiagram(). The default pmax = 1 gave it 1 beat,
+		// which yielded a wrong correction factor (item "bad 1.112" of -da.checkBadDurations) - fixed by Claude
+		}
+	else if(comma) {
 		if(Add((*p_P),(*p_Q),pmax,qmax,&xp,&xq,&overflow) != OK) {
 			BPPrintMessage(0,odError,"Unexpected overflow in polymetric formula (case 7). You should send this item to the designers...");
 			result = ABORT; goto SORTIR;
@@ -2121,7 +2122,7 @@ int PolyExpand(tokenbyte **p_b,tokenbyte ***pp_a,unsigned long idorg,unsigned lo
 		/* Restore all scalar locals */
 		m = _sf->m_save; p = _sf->p_save;
 		xf = _sf->xf; useful = _sf->useful; foundtokens = _sf->foundtokens;
-		toobigitem = _sf->toobigitem; truebracket = _sf->truebracket;
+		toobigitem = _sf->toobigitem;
 		space = _sf->space; forceshowtempo = _sf->forceshowtempo;
 		gr = _sf->gr; k = _sf->k; kk = _sf->kk; kmax = _sf->kmax;
 		a = _sf->a; a0 = _sf->a0; a1 = _sf->a1;

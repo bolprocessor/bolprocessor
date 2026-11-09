@@ -47,6 +47,150 @@ int trace_make_silent = 0;
 int trace_done_special = 0;
 int trace_parameters = 0;
 
+// 2026-11-08: Variations of MIDI parameters (pitchbend, volume, modulation, pressure, panoramic) on each channel.
+// A level has a single storage per parameter in 'p_contparameters', so that a value on another channel replaced
+// the current variation, e.g. in "_chan(4) _pitchbend(+200) _pitchcont do4_____ _chan(2) _pitchbend(-150) sol4__
+// _pitchbend(150) _chan(4) do4______ do4______ _pitchbend(-200)" the second do4 did not continue the variation
+// that started on the first do4. The variation of the channel that loses the storage is saved here, it keeps
+// counting beats in IncrementParameter(), and it is restored at the next object or value on its channel - fixed by Claude
+static ContParameterSpecs **p_SavedChanParam = NULL, **p_SavedChanParamDeft = NULL;
+static char **p_SavedChanValid = NULL, **p_SavedChanValidDeft = NULL;
+static int SavedChanLevels = 0;
+// The table waiting in 'h_table' for an object on the channel (see SetObjectParams()) is saved with the variation.
+// 'h_table' has a single entry per parameter, independent of the level, so these are saved per channel only.
+static Table **p_SavedChanTable = NULL;
+#define SAVEDTABLEINDEX(chan,i) (((long)(chan)) * (IPANORAMIC + 1) + (i))
+#define SAVEDCHANINDEX(level,chan,i) ((((long)(level)) * (MAXCHAN + 1) + (chan)) * (IPANORAMIC + 1) + (i))
+
+int AllocateSavedChannelParameters(void) {
+	Size n;
+	long i;
+	SavedChanLevels = Maxlevel + 1;
+	n = (Size) SavedChanLevels * (MAXCHAN + 1) * (IPANORAMIC + 1);
+	if((p_SavedChanParam = (ContParameterSpecs**) GiveSpace(n * sizeof(ContParameterSpecs))) == NULL) return(ABORT);
+	if((p_SavedChanParamDeft = (ContParameterSpecs**) GiveSpace(n * sizeof(ContParameterSpecs))) == NULL) return(ABORT);
+	if((p_SavedChanValid = (char**) GiveSpace(n * sizeof(char))) == NULL) return(ABORT);
+	if((p_SavedChanValidDeft = (char**) GiveSpace(n * sizeof(char))) == NULL) return(ABORT);
+	for(i = 0; i < (long) n; i++) (*p_SavedChanValid)[i] = (*p_SavedChanValidDeft)[i] = FALSE;
+	n = (Size) (MAXCHAN + 1) * (IPANORAMIC + 1);
+	if((p_SavedChanTable = (Table**) GiveSpace(n * sizeof(Table))) == NULL) return(ABORT);
+	for(i = 0; i < (long) n; i++) {
+		(*p_SavedChanTable)[i].point = NULL;
+		(*p_SavedChanTable)[i].imax = ZERO;
+		(*p_SavedChanTable)[i].offset = 0;
+		}
+	return(OK);
+	}
+
+// Called by SetObjectParams() for each object: a saved table waits for an object counted among all channels
+void DecrementSavedTableOffsets(int i) {
+	int chan;
+	Table *t;
+	if(p_SavedChanTable == NULL || i < 0 || i > IPANORAMIC) return;
+	for(chan = 1; chan <= MAXCHAN; chan++) {
+		t = &((*p_SavedChanTable)[SAVEDTABLEINDEX(chan,i)]);
+		if(t->point != NULL && t->offset > 0) (t->offset)--;
+		}
+	}
+
+void DisposeSavedChannelParameters(void) {
+	long i,n;
+	Coordinates **ptr;
+	if(p_SavedChanTable != NULL) {
+		n = (long) (MAXCHAN + 1) * (IPANORAMIC + 1);
+		for(i = 0; i < n; i++) {
+			ptr = (*p_SavedChanTable)[i].point;
+			if(ptr != NULL) MyDisposeHandle((Handle*)&ptr);
+			}
+		MyDisposeHandle((Handle*)&p_SavedChanTable);
+		}
+	MyDisposeHandle((Handle*)&p_SavedChanParam);
+	MyDisposeHandle((Handle*)&p_SavedChanParamDeft);
+	MyDisposeHandle((Handle*)&p_SavedChanValid);
+	MyDisposeHandle((Handle*)&p_SavedChanValidDeft);
+	SavedChanLevels = 0;
+	}
+
+// Gives the storage of MIDI parameter 'i' at 'level' to channel 'chan' (1..MAXCHAN): the variation of the channel
+// holding it is saved, and the saved variation of 'chan', if any, is restored.
+// 'forvalue' is TRUE before a value of 'chan' is written: then the variation of the other channel is always saved.
+// Before an object, the switch only occurs if 'chan' has a saved variation: otherwise the object shares the current
+// variation, as in "_volumecont _volume(0) C4 {B3 A3, _chan(2) D4 E4} F4 _volume(127)" (-da.checkContControl).
+void SwitchParameterChannel(ContParameters **p_contparameters,int level,int i,int chan,Table **h_table,int forvalue) {
+	ContParameterSpecs **values;
+	int slotchan;
+	long is;
+	Table *t;
+	Coordinates **ptr;
+
+	if(p_SavedChanValid == NULL || level < 0 || level >= SavedChanLevels) return;
+	if(i < 0 || i > IPANORAMIC || chan < 1 || chan > MAXCHAN) return;
+	values = (*p_contparameters)[level].values;
+	if(values == NULL || i >= (*p_contparameters)[level].number) return;
+	slotchan = (*values)[i].channel;
+	if(slotchan == chan) {
+		if(forvalue) (*p_SavedChanValid)[SAVEDCHANINDEX(level,chan,i)] = FALSE;	// A new value replaces it
+		return;
+		}
+	if(slotchan < 1 || slotchan > MAXCHAN) return;
+	if(!(*values)[i].known) return;
+	if(!forvalue && !(*p_SavedChanValid)[SAVEDCHANINDEX(level,chan,i)]) return;
+	is = SAVEDCHANINDEX(level,slotchan,i);
+	(*p_SavedChanParam)[is] = (*values)[i];
+	(*p_SavedChanParam)[is].point = NULL;
+	(*p_SavedChanValid)[is] = TRUE;
+	if(h_table != NULL && p_SavedChanTable != NULL) {
+		// The table waiting for an object of 'slotchan' is saved, and the one of 'chan', if any, is restored
+		t = &((*p_SavedChanTable)[SAVEDTABLEINDEX(slotchan,i)]);
+		if(t->point != NULL) {
+			ptr = t->point;
+			MyDisposeHandle((Handle*)&ptr);
+			}
+		*t = (*h_table)[i];
+		(*h_table)[i].point = NULL;
+		(*h_table)[i].imax = ZERO;
+		(*h_table)[i].offset = 0;
+		t = &((*p_SavedChanTable)[SAVEDTABLEINDEX(chan,i)]);
+		if(t->point != NULL) {
+			(*h_table)[i] = *t;
+			t->point = NULL;
+			t->imax = ZERO;
+			t->offset = 0;
+			}
+		}
+	is = SAVEDCHANINDEX(level,chan,i);
+	if((*p_SavedChanValid)[is]) {
+		(*values)[i] = (*p_SavedChanParam)[is];
+		(*p_SavedChanValid)[is] = FALSE;
+		if(trace_parameters) BPPrintMessage(1,odInfo,"SwitchParameterChannel() level %d param %d: channel %d saved, channel %d restored, ibeats = %.2f maxbeats = %.2f\n",level,i,slotchan,chan,(*values)[i].ibeats,(*values)[i].maxbeats);
+		}
+	}
+
+void SwitchAllParametersChannel(ContParameters **p_contparameters,int level,int chan,Table **h_table) {
+	int i;
+	for(i = 0; i <= IPANORAMIC; i++) SwitchParameterChannel(p_contparameters,level,i,chan,h_table,FALSE);
+	}
+
+// Copies the saved variations of level 'la' (or its default copy) to level 'lb' (or its default copy)
+void CopySavedChannelParameters(int la,int fromdeft,int lb,int todeft) {
+	int chan,i;
+	long ia,ib;
+	if(p_SavedChanValid == NULL || la < 0 || la >= SavedChanLevels || lb < 0 || lb >= SavedChanLevels) return;
+	for(chan = 0; chan <= MAXCHAN; chan++) {
+		for(i = 0; i <= IPANORAMIC; i++) {
+			ia = SAVEDCHANINDEX(la,chan,i); ib = SAVEDCHANINDEX(lb,chan,i);
+			if(todeft) {
+				(*p_SavedChanParamDeft)[ib] = fromdeft ? (*p_SavedChanParamDeft)[ia] : (*p_SavedChanParam)[ia];
+				(*p_SavedChanValidDeft)[ib] = fromdeft ? (*p_SavedChanValidDeft)[ia] : (*p_SavedChanValid)[ia];
+				}
+			else {
+				(*p_SavedChanParam)[ib] = fromdeft ? (*p_SavedChanParamDeft)[ia] : (*p_SavedChanParam)[ia];
+				(*p_SavedChanValid)[ib] = fromdeft ? (*p_SavedChanValidDeft)[ia] : (*p_SavedChanValid)[ia];
+				}
+			}
+		}
+	}
+
 // int new_thing = 1; // This change should be confirmed (BB 2022-02-17)
 
 int FillPhaseDiagram(tokenbyte ***pp_buff,long* p_numberobjects,unsigned long *p_maxseq,
@@ -116,6 +260,8 @@ int FillPhaseDiagram(tokenbyte ***pp_buff,long* p_numberobjects,unsigned long *p
 
 	if((h_table = (Table**) GiveSpace((Size)MAXSTRINGCONSTANTS*sizeof(Table))) == NULL)
 		return(ABORT);
+	DisposeSavedChannelParameters();
+	if(AllocateSavedChannelParameters() != OK) return(ABORT);
 	for(i=0; i < MAXSTRINGCONSTANTS; i++) {
 		(*h_table)[i].point = NULL;
 		(*h_table)[i].imax = ZERO;
@@ -395,6 +541,7 @@ int FillPhaseDiagram(tokenbyte ***pp_buff,long* p_numberobjects,unsigned long *p
 			//	BPPrintMessage(0,odInfo,"#&## paramnameindex = %d, instrument = %d, kobj = %d\n",paramnameindex,instrument,kobj);
 				if(instrument >= 0) currentparameters.currinstr = instrument;
 			//	(*p_Instance)[kobj].instrument = instrument;
+				SwitchParameterChannel(p_contparameters,level,paramindex,currentparameters.currchan,h_table,TRUE);	// 2026-11-08 - fixed by Claude
 				UpdateParameter(paramindex,p_contparameters,level,ZERO);
 				if(m == T33) (*((*p_contparameters)[level].values))[paramindex].mode = STEPWISE;
 				else (*((*p_contparameters)[level].values))[paramindex].mode = CONTINUOUS;
@@ -411,6 +558,7 @@ int FillPhaseDiagram(tokenbyte ***pp_buff,long* p_numberobjects,unsigned long *p
 			if(paramindex >= 0) {
 			//	BPPrintMessage(0,odInfo,"#&## paramnameindex = %d, instrument = %d, kobj = %d\n",paramnameindex,instrument,kobj);
 				if(instrument >= 0) currentparameters.currinstr = instrument;
+				SwitchParameterChannel(p_contparameters,level,paramindex,currentparameters.currchan,h_table,TRUE);	// 2026-11-08 - fixed by Claude
 				UpdateParameter(paramindex,p_contparameters,level,ZERO);
 				(*((*p_contparameters)[level].values))[paramindex].ibeats = 0.;
 				(*((*p_contparameters)[level].values))[paramindex].maxbeats = 1.;
@@ -439,6 +587,7 @@ int FillPhaseDiagram(tokenbyte ***pp_buff,long* p_numberobjects,unsigned long *p
 				case 2:	/* _modstep */
 				case 3: /* _modcont */
 					paramindex = IMODULATION;
+					SwitchParameterChannel(p_contparameters,level,paramindex,currentparameters.currchan,h_table,TRUE);	// 2026-11-08 - fixed by Claude
 					UpdateParameter(paramindex,p_contparameters,level,ZERO);
 					if(p == 2) (*((*p_contparameters)[level].values))[paramindex].mode = STEPWISE;
 					else (*((*p_contparameters)[level].values))[paramindex].mode = CONTINUOUS;
@@ -449,6 +598,7 @@ int FillPhaseDiagram(tokenbyte ***pp_buff,long* p_numberobjects,unsigned long *p
 				case 4:	/* _pitchstep */
 				case 5:	/* _pitchcont */
 					paramindex = IPITCHBEND;
+					SwitchParameterChannel(p_contparameters,level,paramindex,currentparameters.currchan,h_table,TRUE);	// 2026-11-08 - fixed by Claude
 					UpdateParameter(paramindex,p_contparameters,level,ZERO);
 					if(p == 4) {
 						(*((*p_contparameters)[level].values))[paramindex].mode = STEPWISE;
@@ -466,6 +616,7 @@ int FillPhaseDiagram(tokenbyte ***pp_buff,long* p_numberobjects,unsigned long *p
 				case 6:	/* _presstep */
 				case 7:	/* _presscont */
 					paramindex = IPRESSURE;
+					SwitchParameterChannel(p_contparameters,level,paramindex,currentparameters.currchan,h_table,TRUE);	// 2026-11-08 - fixed by Claude
 					UpdateParameter(paramindex,p_contparameters,level,ZERO);
 					if(p == 6) (*((*p_contparameters)[level].values))[paramindex].mode = STEPWISE;
 					else (*((*p_contparameters)[level].values))[paramindex].mode = CONTINUOUS;
@@ -476,6 +627,7 @@ int FillPhaseDiagram(tokenbyte ***pp_buff,long* p_numberobjects,unsigned long *p
 				case 8: /* _volumestep */
 				case 9: /* _volumecont */
 					paramindex = IVOLUME;
+					SwitchParameterChannel(p_contparameters,level,paramindex,currentparameters.currchan,h_table,TRUE);	// 2026-11-08 - fixed by Claude
 					UpdateParameter(paramindex,p_contparameters,level,ZERO);
 					if(p == 8) (*((*p_contparameters)[level].values))[paramindex].mode = STEPWISE;
 					else (*((*p_contparameters)[level].values))[paramindex].mode = CONTINUOUS;
@@ -508,6 +660,7 @@ int FillPhaseDiagram(tokenbyte ***pp_buff,long* p_numberobjects,unsigned long *p
 					break;
 				case 13: /* _modfixed */
 					paramindex = IMODULATION;
+					SwitchParameterChannel(p_contparameters,level,paramindex,currentparameters.currchan,h_table,TRUE);	// 2026-11-08 - fixed by Claude
 					UpdateParameter(paramindex,p_contparameters,level,ZERO);
 					(*((*p_contparameters)[level].values))[paramindex].ibeats = 0.;
 					(*((*p_contparameters)[level].values))[paramindex].maxbeats = 1.;
@@ -518,6 +671,7 @@ int FillPhaseDiagram(tokenbyte ***pp_buff,long* p_numberobjects,unsigned long *p
 					break;
 				case 14: /* _pitchfixed */
 					paramindex = IPITCHBEND;
+					SwitchParameterChannel(p_contparameters,level,paramindex,currentparameters.currchan,h_table,TRUE);	// 2026-11-08 - fixed by Claude
 					UpdateParameter(paramindex,p_contparameters,level,ZERO);
 					(*((*p_contparameters)[level].values))[paramindex].ibeats = 0.;
 					(*((*p_contparameters)[level].values))[paramindex].maxbeats = 1.;
@@ -528,6 +682,7 @@ int FillPhaseDiagram(tokenbyte ***pp_buff,long* p_numberobjects,unsigned long *p
 					break;
 				case 15: /* _pressfixed */
 					paramindex = IPRESSURE;
+					SwitchParameterChannel(p_contparameters,level,paramindex,currentparameters.currchan,h_table,TRUE);	// 2026-11-08 - fixed by Claude
 					UpdateParameter(paramindex,p_contparameters,level,ZERO);
 					(*((*p_contparameters)[level].values))[paramindex].ibeats = 0.;
 					(*((*p_contparameters)[level].values))[paramindex].maxbeats = 1.;
@@ -538,6 +693,7 @@ int FillPhaseDiagram(tokenbyte ***pp_buff,long* p_numberobjects,unsigned long *p
 					break;
 				case 16: /* _volumefixed */
 					paramindex = IVOLUME;
+					SwitchParameterChannel(p_contparameters,level,paramindex,currentparameters.currchan,h_table,TRUE);	// 2026-11-08 - fixed by Claude
 					UpdateParameter(paramindex,p_contparameters,level,ZERO);
 					(*((*p_contparameters)[level].values))[paramindex].ibeats = 0.;
 					(*((*p_contparameters)[level].values))[paramindex].maxbeats = 1.;
@@ -554,6 +710,7 @@ int FillPhaseDiagram(tokenbyte ***pp_buff,long* p_numberobjects,unsigned long *p
 					break;
 				case 18: /* _panfixed */
 					paramindex = IPANORAMIC;
+					SwitchParameterChannel(p_contparameters,level,paramindex,currentparameters.currchan,h_table,TRUE);	// 2026-11-08 - fixed by Claude
 					UpdateParameter(paramindex,p_contparameters,level,ZERO);
 					(*((*p_contparameters)[level].values))[paramindex].ibeats = 0.;
 					(*((*p_contparameters)[level].values))[paramindex].maxbeats = 1.;
@@ -565,6 +722,7 @@ int FillPhaseDiagram(tokenbyte ***pp_buff,long* p_numberobjects,unsigned long *p
 				case 19: /* _panstep */
 				case 20: /* _pancont */
 					paramindex = IPANORAMIC;
+					SwitchParameterChannel(p_contparameters,level,paramindex,currentparameters.currchan,h_table,TRUE);	// 2026-11-08 - fixed by Claude
 					UpdateParameter(paramindex,p_contparameters,level,ZERO);
 					if(p == 19) (*((*p_contparameters)[level].values))[paramindex].mode = STEPWISE;
 					else (*((*p_contparameters)[level].values))[paramindex].mode = CONTINUOUS;
@@ -680,7 +838,7 @@ int FillPhaseDiagram(tokenbyte ***pp_buff,long* p_numberobjects,unsigned long *p
 				if(trace_diagram || trace_toofast)
 					BPPrintMessage(1,odInfo,"With foundendconcatenation <%d|%d> last object = %d\n",m,p,(int)kobj);
 				if(m == T25) (*(p_Tie_note[channel]))[p] = FALSE;
-				else if(instrument >= 0 && (m == T3 || m == T47)) (*(p_Tie_event[instrument]))[p] = FALSE;		
+				else if(instrument >= 0 && (m == T3 || m == T47)) (*(p_Tie_event[instrument]))[p] = FALSE;
 				if(Plot(INTIME,&nseqplot,&iplot,&overstrike,FALSE,p_nmax,p_maxcol,p_im,p_Seq,
 					&nseq,maxseqapprox,ip,1) != OK) goto ENDDIAGRAM;
 				oldm = m; oldp = p;
@@ -698,6 +856,8 @@ int FillPhaseDiagram(tokenbyte ***pp_buff,long* p_numberobjects,unsigned long *p
 				if(p > 0) {
 					oldm = m; oldp = p;
 					skipzeros = FALSE;
+					// 2026-11-08: the object uses the MIDI parameters of its channel - fixed by Claude
+					SwitchAllParametersChannel(p_contparameters,level,currentparameters.currchan,h_table);
 					if((*p_contparameters)[level].number > 0) {
 						for(i = 0; i < (*p_contparameters)[level].number; i++) {
 							if(trace_toofast)
@@ -842,6 +1002,14 @@ int FillPhaseDiagram(tokenbyte ***pp_buff,long* p_numberobjects,unsigned long *p
 					}
 				else {
 					ip = Class((*p_im)[nseq]);
+					if(foundendconcatenation && p > 1 && (*p_maxcol)[nseq] < ip) {
+						// 2026-11-09: an end tie without its start, such as "&E4" in "C4 D4 &E4", is ignored but keeps its time slot.
+						// Otherwise its column was lost at the end of the line, and a correction factor of 1.5 was applied
+						// (items #4, #5 and #6 of -da.checkTies). Nothing is plotted, because the pairing of ties in this function
+						// may wrongly take a bound end tie for an orphan, and a silence plotted at ip could cut the prolongation
+						// of another note (C3 in -gr.Watch_What_Happens) - fixed by Claude
+						(*p_maxcol)[nseq] = ip;
+						}
 					if(p == 1 && ((*p_waitlist)[nseq] != NULL || (*p_scriptlist)[nseq] != NULL || newswitch || isMIDIcontinuous)) {
 						// Silence becomes a specific object because it has attached info
 						kobj++;
@@ -1017,7 +1185,9 @@ int FillPhaseDiagram(tokenbyte ***pp_buff,long* p_numberobjects,unsigned long *p
 							BPPrintMessage(1,odError,"=> Err. FillPhaseDiagram(). level >= Maxlevel");
 							goto ENDDIAGRAM;
 							}	
-						if(CopyContinuousParameters(p_contparameters,level,p_deftcontparameters,level) != OK) goto ENDDIAGRAM;					
+						if(CopyContinuousParameters(p_contparameters,level,p_deftcontparameters,level) != OK) goto ENDDIAGRAM;
+						CopySavedChannelParameters(level-1,FALSE,level,FALSE);	// 2026-11-08 - fixed by Claude
+						CopySavedChannelParameters(level,FALSE,level,TRUE);
 						(*p_deftvelincrement)[level] = velincrement;
 						(*p_deftstartvel)[level] = startvel;
 						(*p_deftrndvel)[level] = rndvel;
@@ -1172,7 +1342,8 @@ int FillPhaseDiagram(tokenbyte ***pp_buff,long* p_numberobjects,unsigned long *p
 						currentparameters = (*p_deftcurrentparameters)[level];
 						
 						CopyContinuousParameters(p_deftcontparameters,level,p_contparameters,level);
-						
+						CopySavedChannelParameters(level,TRUE,level,FALSE);	// 2026-11-08 - fixed by Claude
+
 						velincrement = (*p_deftvelincrement)[level];
 						startvel = (*p_deftstartvel)[level];
 						rndvel = (*p_deftrndvel)[level];
@@ -1446,6 +1617,7 @@ int FillPhaseDiagram(tokenbyte ***pp_buff,long* p_numberobjects,unsigned long *p
 				if(i >= 0) {
 					value = FindValue(m,p,currentparameters.currchan);
 					if(value == Infpos) goto ENDDIAGRAM;
+					SwitchParameterChannel(p_contparameters,level,i,currentparameters.currchan,h_table,TRUE);	// 2026-11-08 - fixed by Claude
 					if(AssignValue(i,value,0,level,p_numberobjects,p_deftcurrentparameters,&currentparameters,p_contparameters,id,pp_buff,tempo,scale,h_table) != OK)
 							goto ENDDIAGRAM;
 					}
@@ -1468,6 +1640,7 @@ int FillPhaseDiagram(tokenbyte ***pp_buff,long* p_numberobjects,unsigned long *p
 					value = FindValue(m,p,currentparameters.currchan);
 					if(trace_diagram) 
 						BPPrintMessage(1,odInfo, "_value() paramnameindex = %d, paramindex = %d, value = %.3f\n",paramnameindex,paramindex,value);
+					SwitchParameterChannel(p_contparameters,level,paramindex,currentparameters.currchan,h_table,TRUE);	// 2026-11-08 - fixed by Claude
 					if(AssignValue(paramindex,value,0,level,p_numberobjects,p_deftcurrentparameters,&currentparameters,p_contparameters,id,pp_buff,tempo,scale,h_table) != OK)
 							goto ENDDIAGRAM;
 					}
@@ -1481,6 +1654,7 @@ int FillPhaseDiagram(tokenbyte ***pp_buff,long* p_numberobjects,unsigned long *p
 					if(trace_diagram || trace_toofast) 
 						BPPrintMessage(1,odInfo, "_pitchbend() i = %d value = %.3f\n",i,value);
 					if(value == Infpos) goto ENDDIAGRAM;
+					SwitchParameterChannel(p_contparameters,level,i,currentparameters.currchan,h_table,TRUE);	// 2026-11-08 - fixed by Claude
 					if(AssignValue(i,value,0,level,p_numberobjects,p_deftcurrentparameters,&currentparameters,
 						p_contparameters,id,pp_buff,tempo,scale,h_table) != OK)
 							goto ENDDIAGRAM;
@@ -1493,6 +1667,7 @@ int FillPhaseDiagram(tokenbyte ***pp_buff,long* p_numberobjects,unsigned long *p
 				if(i >= 0) {
 					value = FindValue(m,p,currentparameters.currchan);
 					if(value == Infpos) goto ENDDIAGRAM;
+					SwitchParameterChannel(p_contparameters,level,i,currentparameters.currchan,h_table,TRUE);	// 2026-11-08 - fixed by Claude
 					if(AssignValue(i,value,0,level,p_numberobjects,p_deftcurrentparameters,&currentparameters,
 						p_contparameters,id,pp_buff,tempo,scale,h_table) != OK)
 							goto ENDDIAGRAM;
@@ -1506,6 +1681,7 @@ int FillPhaseDiagram(tokenbyte ***pp_buff,long* p_numberobjects,unsigned long *p
 					value = FindValue(m,p,currentparameters.currchan);
 					if(value == Infpos) goto ENDDIAGRAM;
 				//	BPPrintMessage(0,odInfo,"@## VOLUME = %.2F\n",value);
+					SwitchParameterChannel(p_contparameters,level,i,currentparameters.currchan,h_table,TRUE);	// 2026-11-08 - fixed by Claude
 					if(AssignValue(i,value,p,level,p_numberobjects,p_deftcurrentparameters,&currentparameters,
 						p_contparameters,id,pp_buff,tempo,scale,h_table) != OK)
 							goto ENDDIAGRAM;
@@ -1518,6 +1694,7 @@ int FillPhaseDiagram(tokenbyte ***pp_buff,long* p_numberobjects,unsigned long *p
 				if(i >= 0) {
 					value = FindValue(m,p,currentparameters.currchan);
 					if(value == Infpos) goto ENDDIAGRAM;
+					SwitchParameterChannel(p_contparameters,level,i,currentparameters.currchan,h_table,TRUE);	// 2026-11-08 - fixed by Claude
 					if(AssignValue(i,value,p,level,p_numberobjects,p_deftcurrentparameters,&currentparameters,
 						p_contparameters,id,pp_buff,tempo,scale,h_table) != OK)
 							goto ENDDIAGRAM;
@@ -1862,6 +2039,7 @@ int FillPhaseDiagram(tokenbyte ***pp_buff,long* p_numberobjects,unsigned long *p
 		MyDisposeHandle(&h);
 		}
 	MyDisposeHandle((Handle*)&h_table);
+	DisposeSavedChannelParameters();
 	MyDisposeHandle((Handle*)&p_origin);
 	MyDisposeHandle((Handle*)&p_waitlist);
 	MyDisposeHandle((Handle*)&p_scriptlist);
@@ -2303,6 +2481,26 @@ if(i < 0 || i >= imax) {
 	return(ABORT);
 	}
 if(level >= Maxlevel) return(ABORT);
+
+// 2026-11-08: saved variations of other channels go on counting beats, even if the current one is not active - fixed by Claude
+if(i <= IPANORAMIC && p_SavedChanValid != NULL && level >= 0 && level < SavedChanLevels) {
+	int chan;
+	long is;
+	ContParameterSpecs *s;
+	for(chan = 1; chan <= MAXCHAN; chan++) {
+		is = SAVEDCHANINDEX(level,chan,i);
+		if(!(*p_SavedChanValid)[is]) continue;
+		s = &((*p_SavedChanParam)[is]);
+		if(!s->active) continue;
+		s->ibeats += addbeats;
+		if(s->ibeats >= s->maxbeats) {	// The variation is over: keep its end value
+			s->start = s->start + s->increment;
+			s->v0 = s->v1 = s->start;
+			s->increment = 0.;
+			s->active = FALSE;
+			}
+		}
+	}
 
 if(!(*((*p_contparameters)[level].values))[i].active) return(OK);
 

@@ -120,7 +120,8 @@ int TimeSet(tokenbyte ***pp_buff,long* p_kmx,long *p_tmin,long *p_tmax,unsigned 
 	for(j = 0; j <= MAXCHAN; j++) {
 		for(i = 0; i < 128; i++) {
 			if((*(p_Missed_tie_note[j]))[i] > 0) {
-				BPPrintMessage(0,odError,"=> Missed tied note key #%d (%d occurrences MIDI channel %d)\n",i,(*(p_Missed_tie_note[j]))[i],j);
+				PrintThisNote(-1,i,-1,-1,Message);
+				BPPrintMessage(0,odError,"=> Missed tied note %s, %d occurrence(s) MIDI channel %d\n",Message,(*(p_Missed_tie_note[j]))[i],(j+1));
 				missed_ties++;
 				}
 			}

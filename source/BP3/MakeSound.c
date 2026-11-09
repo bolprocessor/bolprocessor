@@ -1175,6 +1175,15 @@ int MakeSound(long *p_kmax,unsigned long imaxstreak,int maxnsequences,long tmin,
 						(*params)[index].point = (*currentinstancevalues)[index].point;
 						if((index == IPANORAMIC && j < Jbol && !(*p_OkPan)[j]) || (index == IVOLUME && j < Jbol && !(*p_OkVolume)[j]))
 							(*params)[index].active = FALSE;
+						// 2026-11-08: continuous variations of MIDI parameters (pitchbend, volume, modulation, pressure, panoramic) apply
+						// to the channel on which they were set, as in real-time MIDI and MIDI files (see 'stream' below). In
+						// "_chan(4) _pitchbend(+200) _pitchcont do4 _chan(2) sol4 ..." sol4 received the pitchbend of channel 4 in the
+						// Csound score. A fixed value applies to the channel of the object, as in MIDI, e.g. "_volume(80) _chan(4) do4" - fixed by Claude
+						else if(index <= IPANORAMIC && (*currentinstancevalues)[index].mode == CONTINUOUS
+								&& (*currentinstancevalues)[index].channel > 0
+								&& (*p_Instance)[kcurrentinstance].channel > 0
+								&& (*currentinstancevalues)[index].channel != (*p_Instance)[kcurrentinstance].channel)
+							(*params)[index].active = FALSE;
 						else
 							(*params)[index].active = TRUE;
 					//	BPPrintMessage(0,odInfo,"• index = %d, maxparam = %d, imax = %d, j = %d, active = %d, startvalue = %.2f, endvalue = %.2f, dur = %ld, mode = %d\n",index,maxparam,(*params)[index].imax,j,(*params)[index].active,(*params)[index].startvalue,(*params)[index].endvalue,(*params)[index].dur,(*params)[index].mode);

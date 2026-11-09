@@ -51,6 +51,7 @@ int CscoreWrite(Milliseconds cut_the_end,Rect* p_graphrect,int leftoffset,int to
 	char line[MAXLIN],line2[MAXLIN];
 	long imax,pivloc,trbeg,starttime;
 	double time,x,xx,cents_base,cents_add1,cents_add2,deltakey,dur,**scorearg,alpha1,alpha2,startvalue,endvalue,ratio,oldtime_on;
+	double pitchbend_end;
 	PerfParameters **perf;
 	ParameterStatus **params,**paramscopy;
 	Handle h;
@@ -374,6 +375,7 @@ int CscoreWrite(Milliseconds cut_the_end,Rect* p_graphrect,int leftoffset,int to
 			else x = startvalue;
 			}
 		else x = DEFTPITCHBEND;
+		pitchbend_end = x;	// Raw pitchbend, used for the comment if no end value is calculated
 		if(trace_cs_scoremake) BPPrintMessage(0,odInfo,"&&& PITCHBEND start iarg = %d, (*scorearg)[iarg] = %.2f, x = %.2f, startvalue = %.2f\n",iarg,(*scorearg)[iarg],x,startvalue);
 		if(onoffline == LINE) {
 			if((*p_CsInstrument)[ins].rPitchBend.islogx)
@@ -401,14 +403,16 @@ int CscoreWrite(Milliseconds cut_the_end,Rect* p_graphrect,int leftoffset,int to
 		if((*params)[IPITCHBEND].active && (*params)[IPITCHBEND].mode == CONTINUOUS) {
 			if(alpha2 > -0.1 && alpha2 < 1.1) {
 				x = GetTableValue(alpha2,imax,(*params)[IPITCHBEND].point,startvalue,endvalue);
+				pitchbend_end = x;
 				if(onoffline == LINE) x = (*scorearg)[iarg] + x - DEFTPITCHBEND;
 				x = Remap(x,ins,IPITCHBEND,&overflow);
 				if(overflow) goto SORTIR;
 				}
 			}
 		(*scorearg)[iarg] = x;
-		cents_add2 = x;
-	//	cents_add2 = (x - DEFTPITCHBEND) * (*p_CsInstrument)[ins].pitchbendrange / DEFTPITCHBEND;
+		// 2026-11-08: the comment shows cents, calculated like cents_add1 from the raw pitchbend.
+		// Previously "cents_add2 = x" displayed the remapped value, which is only in cents if the instrument's pitchbend fields are in cents (e.g. 15564 instead of 180 cents for an instrument whose pitchbend fields range 0..16383) - fixed by Claude
+		cents_add2 = (pitchbend_end - DEFTPITCHBEND) * (*p_CsInstrument)[ins].pitchbendrange / DEFTPITCHBEND;
 		}
 	else cents_add2 = 0.;
 
@@ -772,19 +776,30 @@ WRITECSCORELINE:
 		strcpy(line,"; ");
 		PrintThisNote(i_scale,key,0,-1,LineBuff);
 		strcat(line,LineBuff);
+		// 2026-11-08: values are rounded to the nearest cent instead of truncated, so that 149.99 and 150.006 both display 150.
+		// The start of the pitchbend is displayed if the end is not zero (e.g. "-> 0 to -50"), and the end is displayed
+		// whenever the instrument has an end field, including 0 (e.g. "-> + 49 to 0") - fixed by Claude
+		{
+		int cb = (int) lround(cents_base), c1 = (int) lround(cents_add1), c2 = (int) lround(cents_add2);
+		int hasend = ((*p_CsPitchBendEndIndex)[ins] > 0);
 		strcpy(LineBuff,"");
-		if(cents_base > 0.) my_sprintf(LineBuff," + %d",(int)cents_base);
-		if(cents_base < 0.) my_sprintf(LineBuff," %d",(int)cents_base);
+		if(cb > 0) my_sprintf(LineBuff," + %d",cb);
+		if(cb < 0) my_sprintf(LineBuff," %d",cb);
 		strcat(line,LineBuff);
 		strcpy(LineBuff,"");
-		if(cents_add1 > 0.) my_sprintf(LineBuff," -> + %d",(int)cents_add1);
-		if(cents_add1 < 0.) my_sprintf(LineBuff," -> %d",(int)cents_add1);
-		strcat(line,LineBuff);
-		strcpy(LineBuff,"");
-		if(cents_add2 > 0.) my_sprintf(LineBuff," to + %d",(int)cents_add2);
-		if(cents_add2 < 0.) my_sprintf(LineBuff," to %d",(int)cents_add2);
+		if(c1 != 0 || (hasend && c2 != 0)) {
+			if(c1 > 0) my_sprintf(LineBuff," -> + %d",c1);
+			else my_sprintf(LineBuff," -> %d",c1);
+			strcat(line,LineBuff);
+			strcpy(LineBuff,"");
+			if(hasend) {
+				if(c2 > 0) my_sprintf(LineBuff," to + %d",c2);
+				else my_sprintf(LineBuff," to %d",c2);
+				}
+			}
 		strcat(LineBuff," cents");
-		if(cents_base != 0. || cents_add1 != 0.) strcat(line,LineBuff);
+		if(cb != 0 || c1 != 0 || (hasend && c2 != 0)) strcat(line,LineBuff);
+		}
 		strcat(Message,line);
 		}
 	else line[0] = '\0';
