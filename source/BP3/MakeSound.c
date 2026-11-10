@@ -627,7 +627,8 @@ int MakeSound(long *p_kmax,unsigned long imaxstreak,int maxnsequences,long tmin,
 			(*ptrperf)->startparams[key] = NULL;
 			}
 		(*ptrperf)->transpose = 0;
-		
+		(*ptrperf)->paramsinstance = 0;
+
 		maxparam = (*ptrperf)->numberparams;
 	//	BPPrintMessage(0,odInfo,"\nMakeSound() nseq = %d number = %d maxparam = %d\n",nseq,(*p_control)[nseq].number,maxparam);
 	//	BPPrintMessage(0,odInfo,"active = FALSE (3) with maxparam = %d\n",maxparam);
@@ -944,7 +945,22 @@ int MakeSound(long *p_kmax,unsigned long imaxstreak,int maxnsequences,long tmin,
 				t3 = (*p_Instance)[kcurrentinstance].endtime = objectstarttime;
 				objectduration = ZERO;
 				}
-			
+			// 2026-11-10: each Csound event follows the variations of parameters (volume, pitchbend, etc.) of its own object.
+			// Parameters are stored per sequence, so an object starting later on the same sequence replaced them.
+			// In "_volumecont _volume(30) a C4 ... _volume(127)", if 'a' lasts longer than its time slot, its events
+			// after the start of 'C4' took the variation of 'C4'. They are now restored when the object resumes - fixed by Claude
+			if(cswrite && (*p_onoff)[kcurrentinstance] && kcurrentinstance > 1
+					&& (*((*pp_currentparams)[nseq]))->paramsinstance > 1
+					&& (*((*pp_currentparams)[nseq]))->paramsinstance != kcurrentinstance
+					&& (*p_Instance)[kcurrentinstance].contparameters.number > 0
+					&& currentinstancevalues != NULL && params != NULL) {
+				int numberparams = (*((*pp_currentparams)[nseq]))->numberparams;
+				if((*p_Instance)[kcurrentinstance].contparameters.number < numberparams)
+					numberparams = (*p_Instance)[kcurrentinstance].contparameters.number;
+				SetObjectParameters(params,currentinstancevalues,numberparams,kcurrentinstance,j,t0,objectduration);
+				(*((*pp_currentparams)[nseq]))->paramsinstance = kcurrentinstance;
+				}
+
 			ievent = (*p_inext)[kcurrentinstance];
 			beta = (*p_Instance)[kcurrentinstance].beta;
 
@@ -1165,29 +1181,8 @@ int MakeSound(long *p_kmax,unsigned long imaxstreak,int maxnsequences,long tmin,
 						}
 					(*((*pp_currentparams)[nseq]))->numberparams = maxparam;
 					(*p_Instance)[kcurrentinstance].contparameters.number = maxparam;
-					for(index = 0; index < maxparam; index++) {
-						(*params)[index].startvalue = (*currentinstancevalues)[index].v0;
-						(*params)[index].endvalue = (*currentinstancevalues)[index].v1;
-						(*params)[index].imax = (*currentinstancevalues)[index].imax;
-						(*params)[index].dur = objectduration;
-						(*params)[index].starttime = t0 + (*p_Instance)[kcurrentinstance].starttime;
-						(*params)[index].mode = (*currentinstancevalues)[index].mode;
-						(*params)[index].point = (*currentinstancevalues)[index].point;
-						if((index == IPANORAMIC && j < Jbol && !(*p_OkPan)[j]) || (index == IVOLUME && j < Jbol && !(*p_OkVolume)[j]))
-							(*params)[index].active = FALSE;
-						// 2026-11-08: continuous variations of MIDI parameters (pitchbend, volume, modulation, pressure, panoramic) apply
-						// to the channel on which they were set, as in real-time MIDI and MIDI files (see 'stream' below). In
-						// "_chan(4) _pitchbend(+200) _pitchcont do4 _chan(2) sol4 ..." sol4 received the pitchbend of channel 4 in the
-						// Csound score. A fixed value applies to the channel of the object, as in MIDI, e.g. "_volume(80) _chan(4) do4" - fixed by Claude
-						else if(index <= IPANORAMIC && (*currentinstancevalues)[index].mode == CONTINUOUS
-								&& (*currentinstancevalues)[index].channel > 0
-								&& (*p_Instance)[kcurrentinstance].channel > 0
-								&& (*currentinstancevalues)[index].channel != (*p_Instance)[kcurrentinstance].channel)
-							(*params)[index].active = FALSE;
-						else
-							(*params)[index].active = TRUE;
-					//	BPPrintMessage(0,odInfo,"• index = %d, maxparam = %d, imax = %d, j = %d, active = %d, startvalue = %.2f, endvalue = %.2f, dur = %ld, mode = %d\n",index,maxparam,(*params)[index].imax,j,(*params)[index].active,(*params)[index].startvalue,(*params)[index].endvalue,(*params)[index].dur,(*params)[index].mode);
-						}
+					SetObjectParameters(params,currentinstancevalues,maxparam,kcurrentinstance,j,t0,objectduration);
+					(*((*pp_currentparams)[nseq]))->paramsinstance = kcurrentinstance;
 					}
 	FORGETIT:
 				if(kcurrentinstance > 1) { 
@@ -2684,4 +2679,34 @@ long Find_im(int cswrite,int j) {
 	if(PlayMIDIcode(j)) im = (*p_MIDIsize)[j];
 	if(PlayCsoundLine(cswrite,j)) im = (*p_CsoundSize)[j];
 	return im;
+	}
+void SetObjectParameters(ParameterStatus **params,ParameterSpecs **currentinstancevalues,int maxparam,int kcurrentinstance,int j,Milliseconds t0,unsigned long objectduration) {
+	// Copy the variations of parameters of instance 'kcurrentinstance' to 'params', used by CscoreWrite()
+	// Moved out of MakeSound() so that they can be restored when the object resumes (2026-11-10) - fixed by Claude
+	int index;
+	for(index = 0; index < maxparam; index++) {
+		(*params)[index].startvalue = (*currentinstancevalues)[index].v0;
+		(*params)[index].endvalue = (*currentinstancevalues)[index].v1;
+		(*params)[index].imax = (*currentinstancevalues)[index].imax;
+		(*params)[index].dur = objectduration;
+		(*params)[index].starttime = t0 + (*p_Instance)[kcurrentinstance].starttime;
+		(*params)[index].mode = (*currentinstancevalues)[index].mode;
+		(*params)[index].point = (*currentinstancevalues)[index].point;
+		if((index == IPANORAMIC && j < Jbol && !(*p_OkPan)[j]) || (index == IVOLUME && j < Jbol && !(*p_OkVolume)[j]))
+			(*params)[index].active = FALSE;
+		// 2026-11-10: an additional parameter without a value is inactive, so that CscoreWrite() uses its default value - fixed by Claude
+		else if(index > IPANORAMIC && !(*currentinstancevalues)[index].known)
+			(*params)[index].active = FALSE;
+		// 2026-11-08: continuous variations of MIDI parameters (pitchbend, volume, modulation, pressure, panoramic) apply
+		// to the channel on which they were set, as in real-time MIDI and MIDI files (see 'stream' in MakeSound()). In
+		// "_chan(4) _pitchbend(+200) _pitchcont do4 _chan(2) sol4 ..." sol4 received the pitchbend of channel 4 in the
+		// Csound score. A fixed value applies to the channel of the object, as in MIDI, e.g. "_volume(80) _chan(4) do4" - fixed by Claude
+		else if(index <= IPANORAMIC && (*currentinstancevalues)[index].mode == CONTINUOUS
+				&& (*currentinstancevalues)[index].channel > 0
+				&& (*p_Instance)[kcurrentinstance].channel > 0
+				&& (*currentinstancevalues)[index].channel != (*p_Instance)[kcurrentinstance].channel)
+			(*params)[index].active = FALSE;
+		else
+			(*params)[index].active = TRUE;
+		}
 	}

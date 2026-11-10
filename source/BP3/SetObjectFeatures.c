@@ -200,6 +200,10 @@ int SetObjectParams(int part_of_score,int level,int nseq,long k,int j,CurrentPar
 			(*currentinstancevalues)[paramindex].v0 = v0;
 			(*currentinstancevalues)[paramindex].v1 = v1;
 			(*currentinstancevalues)[paramindex].mode = mode;
+			// 2026-11-10: an additional parameter (e.g. "oops") that was never assigned a value takes the default value
+			// of the instrument in CscoreWrite(). Its v0 and v1 were 0, which was combined with the values of the score - fixed by Claude
+			if(paramindex <= IPANORAMIC) (*currentinstancevalues)[paramindex].known = TRUE;
+			else (*currentinstancevalues)[paramindex].known = (*((*p_contparameters)[level].values))[paramindex].known;
 			if(trace_set_variation) BPPrintMessage(0,odInfo,"-> start value v0 = %.2f, end value v1 = %.2f, mode = %d, paramindex = %d\n",v0,v1,mode,paramindex);
 			(*currentinstancevalues)[paramindex].control = (*((*p_contparameters)[level].values))[paramindex].control;
 			(*currentinstancevalues)[paramindex].channel = chan;

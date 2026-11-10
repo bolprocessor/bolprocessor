@@ -437,7 +437,10 @@ int CscoreWrite(Milliseconds cut_the_end,Rect* p_graphrect,int leftoffset,int to
 			}
 		else x = DeftVolume;
 	//	BPPrintMessage(0,odInfo,"++1 x = %.2f (*scorearg)[2] %.3f, DeftVolume = %d, alpha1 = %.2f, alpha2 = %.2f\n",x,(*scorearg)[2],DeftVolume,alpha1,alpha2);
-		if(onoffline == LINE) x = (*scorearg)[iarg] + x - DeftVolume;
+		// 2026-11-10: the volume of the event in the object's score is combined with the volume of the performance
+		// like pitchbend: added on a logarithmic scale, multiplied on a linear scale. It was added on all scales,
+		// giving 62 + 112.45 - 90 = 84.45 instead of 62 * 112.45 / 90 = 77.47 - fixed by Claude
+		if(onoffline == LINE) x = CombineVolume((*scorearg)[iarg],x,ins);
 		x = Remap(x,ins,IVOLUME,&overflow);
 	//	BPPrintMessage(0,odInfo,"--- x = %.2f @ %.3f\n",x,(*scorearg)[2]);
 		if(overflow) goto SORTIR;
@@ -462,7 +465,7 @@ int CscoreWrite(Milliseconds cut_the_end,Rect* p_graphrect,int leftoffset,int to
 		if((*params)[IVOLUME].active && (*params)[IVOLUME].mode == CONTINUOUS) {
 			if(alpha2 > -0.1 && alpha2 < 1.1) {
 				x = GetTableValue(alpha2,imax,(*params)[IVOLUME].point,startvalue,endvalue);
-				if(onoffline == LINE) x = (*scorearg)[iarg] + x - DeftVolume;
+				if(onoffline == LINE) x = CombineVolume((*scorearg)[iarg],x,ins);
 				x = Remap(x,ins,IVOLUME,&overflow);
 				if(overflow) goto SORTIR;
 				}
@@ -698,27 +701,29 @@ int CscoreWrite(Milliseconds cut_the_end,Rect* p_graphrect,int leftoffset,int to
 			iarg = (*instrparamlist)[ip].endindex;
 			if(iarg < 0) continue;
 
+			// 2026-11-10: the value of the score is also combined with the default value if the parameter is inactive,
+			// as for the start value. Otherwise the default value replaced the end value of the score - fixed by Claude
 			if((*params)[paramindex].active) {
 				if(alpha2 > -0.1 && alpha2 < 1.1)
 					x = GetTableValue(alpha2,imax,(*params)[paramindex].point,startvalue,
 						endvalue);
 				else x = endvalue;
-				if(onoffline == LINE) {
-					switch((*instrparamlist)[ip].combinationtype) {
-						case MULT:
-							if(trace_cs_scoremake) BPPrintMessage(0,odInfo,"MULT iarg = %ld, x = %.3f, (*scorearg)[iarg] = %.3f, (*instrparamlist)[ip].defaultvalue = %.3f\n",(long)iarg,x,(*scorearg)[iarg],(*instrparamlist)[ip].defaultvalue);
-							x = x * (*scorearg)[iarg] / (*instrparamlist)[ip].defaultvalue;
-							break;
-						case ADD:
-							if(trace_cs_scoremake) BPPrintMessage(0,odInfo,"ADD paramindex = %d, iarg = %ld, x = %.3f, (*scorearg)[iarg] = %.3f, (*instrparamlist)[ip].defaultvalue = %.3f\n",paramindex,(long)iarg,x,(*scorearg)[iarg],(*instrparamlist)[ip].defaultvalue);
-							x = x + (*scorearg)[iarg] - (*instrparamlist)[ip].defaultvalue;
-							break;
-						default:
-							break;
-						}
-					}
 				}
 			else x = (*instrparamlist)[ip].defaultvalue;
+			if(onoffline == LINE) {
+				switch((*instrparamlist)[ip].combinationtype) {
+					case MULT:
+						if(trace_cs_scoremake) BPPrintMessage(0,odInfo,"MULT iarg = %ld, x = %.3f, (*scorearg)[iarg] = %.3f, (*instrparamlist)[ip].defaultvalue = %.3f\n",(long)iarg,x,(*scorearg)[iarg],(*instrparamlist)[ip].defaultvalue);
+						x = x * (*scorearg)[iarg] / (*instrparamlist)[ip].defaultvalue;
+						break;
+					case ADD:
+						if(trace_cs_scoremake) BPPrintMessage(0,odInfo,"ADD paramindex = %d, iarg = %ld, x = %.3f, (*scorearg)[iarg] = %.3f, (*instrparamlist)[ip].defaultvalue = %.3f\n",paramindex,(long)iarg,x,(*scorearg)[iarg],(*instrparamlist)[ip].defaultvalue);
+						x = x + (*scorearg)[iarg] - (*instrparamlist)[ip].defaultvalue;
+						break;
+					default:
+						break;
+					}
+				}
 			(*scorearg)[iarg] = x;
 			}
 		}
@@ -829,3 +834,11 @@ int ParamIndexToParamNameIndex(int paramindex) {
 	return(-1);
 	}
 
+
+double CombineVolume(double scorevolume,double x,int ins) {
+	// Combine the volume 'scorevolume' of an event in a sound-object's Csound score with the volume 'x' of the performance
+	// Added on a logarithmic scale, multiplied on a linear scale, as pitchbend in CscoreWrite() (2026-11-10) - fixed by Claude
+	if((*p_CsInstrument)[ins].rVolume.islogx || DeftVolume <= 0)
+		return(scorevolume + x - DeftVolume);
+	return(scorevolume * x / DeftVolume);
+	}

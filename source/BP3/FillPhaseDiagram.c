@@ -882,9 +882,11 @@ int FillPhaseDiagram(tokenbyte ***pp_buff,long* p_numberobjects,unsigned long *p
 							}
 						}
 					}
-				if((m == T25 || m == T9 || m == T4 || ((m == T3 || m == T47) && p > 1) || objectduration > 1. || isMIDIcontinuous) && !foundendconcatenation) {
+				if((m == T25 || m == T9 || m == T4 || ((m == T3 || m == T47) && (p > 1 || (p == 1 && ShowAllObjects))) || objectduration > 1. || isMIDIcontinuous) && !foundendconcatenation) {
 					// Non-empty sound-object or time pattern or variable or simple note
 					// p > 1 implies that silences won't be played as objects except if isMIDIcontinuous  2026-03-20
+					// 2026-11-10: in "Show all objects" mode, a silence is an object again, so that DrawItem() shows it on the objects graphic.
+					// It is inaudible, and the outputs are unchanged (item #1 "C4 - D4" of -da.bad_graphic) - fixed by Claude
 					skipzeros = FALSE;
 					add_zeros = TRUE; // 2025-01-16
 					kobj++; (*p_numberobjects) = kobj;

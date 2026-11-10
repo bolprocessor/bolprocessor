@@ -293,10 +293,10 @@ CHECK:
 
 	if(TraceTimeSet) {
 		if(j < 16384)
-			my_sprintf(Message,"\nCol#%ld side %ld  Ts=%ld t1=%ld  t2=%ld  \"%s\" ",
+			my_sprintf(Message,"\nCol #%ld, side = %ld, Ts = %ld, t1 = %ld,  t2 = %ld, \"%s\" ",
 				(long)i,1L,(long)(*p_Ts)[i],(long)(*p_tp1)[i],(long)(*p_tp2)[i],*((*p_Bol)[j]));
 		else
-			my_sprintf(Message,"\nCol#%ld side %ld  Ts=%ld t1=%ld  t2=%ld  \"%s\" ",
+			my_sprintf(Message,"\nCol #%ld, side = %ld, Ts = %ld, t1 = %ld,  t2 = %ld, \"%s\" ",
 				(long)i,1L,(long)(*p_Ts)[i],(long)(*p_tp1)[i],(long)(*p_tp2)[i],
 				*((*(p_NoteName[NoteConvention]))[j-16384]));
 		Print(wTrace,Message);
@@ -861,14 +861,14 @@ int Next_choice(solset sol_set, int nseq, int i, int i0, int j, Milliseconds ts,
 	if(TraceTimeSet) {
 		if(j < 16384) {
 			if(j < Jbol)
-				my_sprintf(Message,"\nCol#%ld nseq = %ld side = %ld ts = %ld  t1 = %ld  t2 = %ld \"%s\" \n",
+				my_sprintf(Message,"\nCol #%ld, nseq = %ld, side = %ld, ts = %ld,  t1 = %ld,  t2 = %ld \"%s\" \n",
 				(long)i,(long)nseq,(long)side,(long)ts,(long)t1,(long)t2,*((*p_Bol)[j]));
 			else
-				my_sprintf(Message,"\nCol#%ld nseq = %ld side = %ld ts = %ld  t1 = %ld  t2 = %ld \"%s\" \n",
+				my_sprintf(Message,"\nCol #%ld, nseq = %ld, side = %ld, ts = %ld,  t1 = %ld,  t2 = %ld \"%s\" \n",
 				(long)i,(long)nseq,(long)side,(long)ts,(long)t1,(long)t2,*((*p_Patt)[j-Jbol]));
 			}
 		else
-			my_sprintf(Message,"\nCol#%ld nseq = %ld side = %ld ts = %ld  t1 = %ld  t2 = %ld \"%s\" \n",
+			my_sprintf(Message,"\nCol #%ld, nseq = %ld, side = %ld, ts = %ld,  t1 = %ld,  t2 = %ld \"%s\" \n",
 				(long)i,(long)nseq,(long)side,(long)ts,(long)t1,(long)t2,
 				*((*(p_NoteName[NoteConvention]))[j-16384]));
 		Print(wTrace,Message);

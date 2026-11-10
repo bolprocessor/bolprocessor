@@ -456,6 +456,8 @@ int CheckSize(unsigned long,unsigned long*,tokenbyte***);
 int ReadTemplate(int,long,long*,tokenbyte***,long,int*);
 int DeleteTemplates(void);
 int MakeSound(long*,unsigned long,int,long,long,Milliseconds**);
+void SetObjectParameters(ParameterStatus**,ParameterSpecs**,int,int,int,Milliseconds,unsigned long);
+double CombineVolume(double,double,int);
 int SendControl(ContinuousControl**,Milliseconds,int,int,int,int,int,int*,char***,
 	Milliseconds***,int***,MIDIcontrolstatus**,PerfParameters****);
 int InterruptSound(void);
@@ -633,7 +635,7 @@ int AssignValue(int,double,int,int,long*,CurrentParameters**,CurrentParameters*,
 long LocalPeriod(long*,long*,long);
 int DrawItem(int,SoundObjectInstanceParameters**,Milliseconds**,Milliseconds**,long,long,long,unsigned long,
 	int,int,unsigned long**,int,int,Milliseconds**);
-int DrawObject(int,char*,int,double,int,int,int,int,long,long,long,long,long,int*,long*,long*,long,long);
+int DrawObject(int,char*,int,int,double,int,int,int,int,long,long,long,long,long,int*,long*,long*,long,long);
 int DrawSequence(int,SoundObjectInstanceParameters**,Milliseconds**,Milliseconds**,long,unsigned long,
 	unsigned long**,int,long**,long**,long**);
 int DrawPrototype(int,int,Rect*);

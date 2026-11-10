@@ -1304,6 +1304,7 @@ typedef struct s_ParameterStatus ParameterStatus;
 
 struct s_PerfParameters {
 	int numberparams;
+	int paramsinstance;	// Instance whose parameters are in 'params' (2026-11-10)
 	ParameterStatus **params,**startparams[MAXKEY];
 	short xpandkey,xpandval;
 	char transposefirst;
@@ -1342,6 +1343,7 @@ typedef struct s_CurrentParameters CurrentParameters;
 struct s_ParameterSpecs {
 	double v0,v1;
 	short index,mode,channel,control;
+	char known;	// FALSE if an additional (non-MIDI) parameter has no value (2026-11-10)
 	int scale,blockkey;
 	long imax;
 	Coordinates **point;

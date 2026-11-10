@@ -58,7 +58,7 @@ int DrawItem(int w,SoundObjectInstanceParameters **p_object,Milliseconds **p_t1,
 	Milliseconds **p_delta) {
 	int linenum,old_linenum,linemax,maxlines,hrect,htext,morespace,**p_morespace,
 		nseq,leftoffset,topoffset,rep,maxslideh,maxslidev,linemin,tab,key,
-		edge,foundone,overflow,xc,scale,i_scale,result,moved_up;
+		edge,foundone,overflow,xc,scale,i_scale,result,moved_up,moved;
 	long pivloc,t1,tt1,t2,endxmax,endymax,endx,y,i,j,k,yruler,preroll,postroll,
 		**p_endx,endy,**p_endy,**p_top,trbeg,trend;
 	Rect r, r2;
@@ -162,6 +162,14 @@ int DrawItem(int w,SoundObjectInstanceParameters **p_object,Milliseconds **p_t1,
 					}
 				t1 = (*p_object)[k].starttime;
 				t2 = (*p_object)[k].endtime;
+				if(ShowAllObjects && (*p_Instance)[k].object == 1 && t2 == t1 && p_T != NULL) {
+					// 2026-11-10: a silence has a null duration in the time-setting, which must not change. Only for the display,
+					// it lasts until the next object of its line (item #1 "C4 - D4" of -da.bad_graphic) - fixed by Claude
+					long inext = i;
+					while(inext < (*p_imaxseq)[nseq] && (*((*p_Seq)[nseq]))[++inext] == 0);
+					if(inext <= (*p_imaxseq)[nseq] && (*((*p_Seq)[nseq]))[inext] > 0)
+						t2 = t1 + ((*p_T)[inext] - (*p_T)[i]) / CorrectionFactor;
+					}
 				}
 			else {
 				if(trace_graphic) BPPrintMessage(0,odInfo,"kmode = FALSE\n");
@@ -329,7 +337,25 @@ int DrawItem(int w,SoundObjectInstanceParameters **p_object,Milliseconds **p_t1,
 			if(trace_graphic) 
 				BPPrintMessage(0,odInfo,"\nRunning DrawObject(%s) for t1 = %ld t2= %ld linenum = %ld, endx = %ld morespace = %ld, top = %ld\n",label,(long)t1,(long)t2,(long)linenum,(long)endx,(long)morespace,(long)(*p_top)[linenum]);
 					
-			if(DrawObject(j,label,moved_up,(*p_Instance)[k].beta,(*p_top)[linenum],hrect,htext,leftoffset,pivloc,t1,t2,trbeg,trend,&morespace,&endx,&endy,preroll,postroll) == ABORT) {
+			// 2026-11-10: has the time-setting moved the object, e.g. because of its continuity property? The pivot
+			// of an object that has not moved is at the time of its column (*p_T)[i]. Random time (_rndtime) is not counted.
+			// Below 2 ms, the difference comes from roundings (item #4 of -da.bad_graphic) - fixed by Claude
+			moved = 0;
+			if(kmode && p_T != NULL && j > 1 && j < Jbol && (*p_Instance)[k].randomtime == 0) {
+				double pivms,pre,shift;
+				if((*p_PivMode)[j] == FIXVALUE) pivms = (*p_PivPos)[j];
+				else pivms = (*p_Instance)[k].beta * (*p_PivPos)[j] * (*p_Dur)[j] / 100.;
+				if((*p_PreRollMode)[j] == FIXVALUE) pre = (*p_PreRoll)[j];
+				else pre = (*p_Instance)[k].beta * (*p_PreRoll)[j];
+				if((*p_Instance)[k].beta == 0.) pre = 0.;
+				if(pre < 0.) pivms -= pre;
+				pivms -= (*p_Instance)[k].truncbeg;
+				shift = (*p_Instance)[k].starttime + pivms - (*p_T)[i];
+				if(shift <= -2.) moved = -1;
+				else if(shift >= 2.) moved = 1;
+				if(trace_graphic) BPPrintMessage(0,odInfo,"k = %ld j = %ld T = %ld starttime = %ld shift = %.1f ms\n",(long)k,(long)j,(long)(*p_T)[i],(long)(*p_Instance)[k].starttime,shift);
+				}
+			if(DrawObject(j,label,moved_up,moved,(*p_Instance)[k].beta,(*p_top)[linenum],hrect,htext,leftoffset,pivloc,t1,t2,trbeg,trend,&morespace,&endx,&endy,preroll,postroll) == ABORT) {
 				rep = OK;
 				goto ENDGRAPH;
 				}
@@ -389,7 +415,7 @@ int DrawItem(int w,SoundObjectInstanceParameters **p_object,Milliseconds **p_t1,
 	}
 
 
-int DrawObject(int j, char *label, int moved_up, double beta, int top, int hrect, int htext, int leftoffset, long pivloc, long t1, long t2, long trbeg, long trend, int *p_morespace, long *p_endx, long *p_endy, long preroll, long postroll) {
+int DrawObject(int j, char *label, int moved_up, int moved, double beta, int top, int hrect, int htext, int leftoffset, long pivloc, long t1, long t2, long trbeg, long trend, int *p_morespace, long *p_endx, long *p_endy, long preroll, long postroll) {
 	// Pattern pat;
 	Rect r,r1,r2,r3;
 	int tab,rep,x_startpivot,y_startpivot;
@@ -432,7 +458,8 @@ int DrawObject(int j, char *label, int moved_up, double beta, int top, int hrect
 		fill_rect(&r2,"LightCyan");
 		}
 	else {
-		if(j < 16384 && (*p_MIDIsize)[j] == ZERO && (*p_CsoundSize)[j] == ZERO) // Empty object
+		// 2026-11-10: the silence '-' (j = 1) is filled like a note, not hatched as an empty object - fixed by Claude
+		if(j > 1 && j < 16384 && (*p_MIDIsize)[j] == ZERO && (*p_CsoundSize)[j] == ZERO) // Empty object
 			fill_rect_hatched(&r2,"Cornsilk");
 		else fill_rect(&r2,"Cornsilk");
 		}
@@ -525,6 +552,13 @@ int DrawObject(int j, char *label, int moved_up, double beta, int top, int hrect
 		y_startpivot += 5;
 		draw_line(x_startpivot,y_startpivot,(x_startpivot-2),(y_startpivot - 2),"");
 		draw_line(x_startpivot,y_startpivot,(x_startpivot+2),(y_startpivot - 2),"");
+
+		// 2026-11-10: short line above the pivot if the time-setting has moved the object. It points
+		// to where the object would have been: to the right if it was moved to the left, and vice-versa - fixed by Claude
+		if(moved != 0) {
+			y_startpivot = r.top - 6; // Just above the triangle of the pivot
+			draw_line(x_startpivot,y_startpivot,(x_startpivot - 6 * moved),y_startpivot,"round");
+			}
 		pen_size(1,0);
 		
 		// The following is a line connecting the pivot to the object if needed
