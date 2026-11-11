@@ -55,7 +55,7 @@ int MakeSound(long *p_kmax,unsigned long imaxstreak,int maxnsequences,long tmin,
 		compiledmem,ifunc,interruptedonce,strikeagain,onoff,icont,chancont,minkey,maxkey,
 		idummy,lsb,msb,rs,localchan,localvelocity,outtime,foundfirsteventinperiod,maxparam,index,overflow,
 		foundlasteventinperiod,foundfirstevent,cswrite,nextisobject,
-		okvolume,okpanoramic,okpitchbend,okpressure,okmodulation,hrect,htext,leftoffset,topoffset,
+		okvolume,okpanoramic,okpitchbend,okpressure,okmodulation,hrect,htext,leftoffset,noteoffset,topoffset,
 		contchan,volume,panoramic,modulation,pressure,**p_seqcont[MAXCHAN+1],
 		octave,pitchclass,time_pattern,showpianoroll;
 	double pitchbend;
@@ -451,12 +451,14 @@ int MakeSound(long *p_kmax,unsigned long imaxstreak,int maxnsequences,long tmin,
 		if(minkey > maxkey)  minkey = maxkey = 60;
 		hrect = 3;
 		htext = 14;
+		// Start the pianoroll at date 0, or earlier if a pivot or a pre-roll creates negative dates.
+		// Starting at a positive 'tmin' would make 'leftoffset' negative and hide the ruler.
+		if(tmin > ZERO) tmin = ZERO;
 		leftoffset = 13 + 30 - (tmin * GraphicScaleP) / GraphicScaleQ / 10;
 		topoffset = (3 * htext) + 6;
 		tmax = tmin + Nplay * (tmax - tmin);
 		// BPPrintMessage(0,odInfo,"+++ tmin = %ld, tmax = %ld\n",tmin,tmax);
-		endxmax = 50 + ((tmax - tmin) * GraphicScaleP) / GraphicScaleQ / 10;
-		if(leftoffset > 0) endxmax += leftoffset;
+		endxmax = 50 + 13 + 30 + ((tmax - tmin) * GraphicScaleP) / GraphicScaleQ / 10;
 		// BPPrintMessage(1,odInfo,"\nendxmax = %ld, WidthMax = %ld\n",endxmax,WidthMax);
 		if(endxmax < 100) endxmax = 100;
 		endymax = topoffset + ((maxkey - minkey) * hrect) + 10;
@@ -780,6 +782,7 @@ int MakeSound(long *p_kmax,unsigned long imaxstreak,int maxnsequences,long tmin,
 		
 		torigin = t0 + t1;
 		
+		noteoffset = leftoffset;
 		if((Improvize || PlayAllChunks || AllItems) && (LastTime > ZERO)) {
 			PianorollShift = LastTime;
 		//	BPPrintMessage(1,odInfo,"(Tcurr * Time_res) = %ld ms, LastTime = %ld ms, currenttime = %ld ms\n",(long)Tcurr * Time_res,(long)LastTime,(long)currenttime);
@@ -793,6 +796,10 @@ int MakeSound(long *p_kmax,unsigned long imaxstreak,int maxnsequences,long tmin,
 				PianorollShift = MIDIsetUpTime;
 			//	BPPrintMessage(1,odInfo,"PianorollShift(2) = %ld, LastTime = %ld\n",(long)PianorollShift,(long)LastTime);
 				}
+			if(showpianoroll && t1 < ZERO)
+				// All dates have been shifted by -t1 to avoid negative dates (pivot or pre-roll). The pianoroll's
+				// 'leftoffset' already places date 'tmin' at the left margin, so notes must be shifted back.
+				noteoffset = leftoffset + (t1 * GraphicScaleP) / GraphicScaleQ / 10;
 			}
 		
 		if(trace_makesound)
@@ -1386,7 +1393,7 @@ int MakeSound(long *p_kmax,unsigned long imaxstreak,int maxnsequences,long tmin,
 									if(showpianoroll) {
 										if(trace_makesound) 
 											BPPrintMessage(1,odInfo,"* DrawPianoNote(4) start = %ld end = %ld leftoffset = %ld nseq = %d\n",(*p_last_timeon[localchan])[key],(t0 + t1),leftoffset,nseq);
-										result = DrawPianoNote("midi",key,localchan,(*p_last_timeon[localchan])[key],(t0 + t1),leftoffset,topoffset,hrect,minkey,maxkey,&graphrect);
+										result = DrawPianoNote("midi",key,localchan,(*p_last_timeon[localchan])[key],(t0 + t1),noteoffset,topoffset,hrect,minkey,maxkey,&graphrect);
 											(*p_last_timeon[localchan])[key] = 0L;
 										if(result != OK || overflow) goto OVER;
 										}
@@ -1396,7 +1403,7 @@ int MakeSound(long *p_kmax,unsigned long imaxstreak,int maxnsequences,long tmin,
 									if(trace_makesound)
 										BPPrintMessage(0,odInfo,"Before CscoreWrite(1) kcurrentinstance = %ld j = %ld beta = %.2f t0 = %ld t1 = %ld c1 = %ld c2 = %ld, localchan = %d instrument = %d\n",(long)kcurrentinstance,(long)j,beta,(long)t0,(long)t1,(long)key,(long)c2,localchan,instrument);
 									if((result =
-			CscoreWrite(ZERO,&graphrect,leftoffset,topoffset,hrect,minkey,maxkey,strikeagain,OFF,beta,(t0 + t1),-1,key,0,localchan,instrument,
+			CscoreWrite(ZERO,&graphrect,noteoffset,topoffset,hrect,minkey,maxkey,strikeagain,OFF,beta,(t0 + t1),-1,key,0,localchan,instrument,
 				j,nseq,kcurrentinstance,pp_currentparams,scale,blockkey)) == ABORT)
 											goto OVER;
 									}
@@ -1432,7 +1439,7 @@ int MakeSound(long *p_kmax,unsigned long imaxstreak,int maxnsequences,long tmin,
 						else startsilence = end_this_event = ZERO;
 						if(trace_makesound) 
 							BPPrintMessage(0,odInfo,"Before CscoreWrite(2) kcurrentinstance = %ld, j = %ld, beta = %.2f, t0 = %ld, t1 = %ld, t2 = %ld, t3 = %ld, c1 = %ld, c2 = %ld, localchan = %d instrument = %d\n",(long)kcurrentinstance,(long)j,beta,(long)t0,(long)t1,t2,t3,(long)c1,(long)c2,localchan,instrument);
-						if((result=CscoreWrite(cut_the_end,&graphrect,leftoffset,topoffset,hrect,minkey,maxkey,strikeagain,LINE,beta,(t0 + t1),ievent,0,0,localchan,instrument,j,nseq,kcurrentinstance,pp_currentparams,scale,blockkey)) == ABORT) goto OVER;
+						if((result=CscoreWrite(cut_the_end,&graphrect,noteoffset,topoffset,hrect,minkey,maxkey,strikeagain,LINE,beta,(t0 + t1),ievent,0,0,localchan,instrument,j,nseq,kcurrentinstance,pp_currentparams,scale,blockkey)) == ABORT) goto OVER;
 						}
 					goto NEWPERIOD;
 					}
@@ -1513,7 +1520,7 @@ SENDNOTEOFF:
 										if(showpianoroll) {
 											if(trace_makesound) 
 												BPPrintMessage(1,odInfo,"* DrawPianoNote(1) start = %ld end = %ld leftoffset = %ld nseq = %d\n",(*p_last_timeon[localchan])[c1],(t0 + t1),leftoffset,nseq);
-											result = DrawPianoNote("midi",c1,localchan,(*p_last_timeon[localchan])[c1],(t0 + t1),leftoffset,topoffset,hrect,minkey,maxkey,&graphrect);
+											result = DrawPianoNote("midi",c1,localchan,(*p_last_timeon[localchan])[c1],(t0 + t1),noteoffset,topoffset,hrect,minkey,maxkey,&graphrect);
 											if(result != OK || overflow) goto OVER;
 											(*p_last_timeon[localchan])[c1] = 0L;
 											}
@@ -1529,7 +1536,7 @@ SENDNOTEOFF:
 											if(trace_makesound)
 												BPPrintMessage(0,odInfo,"Before CscoreWrite(3) NoteOff kcurrentinstance = %ld j = %ld, ievent = %ld, beta = %.2f t0 = %ld t1 = %ld c1 = %ld c2 = %ld, localchan = %d instrument = %d\n",(long)kcurrentinstance,(long)j,ievent,beta,(long)t0,(long)t1,(long)c1,(long)c2,localchan,instrument);
 											if((result =
-				CscoreWrite(ZERO,&graphrect,leftoffset,topoffset,hrect,minkey,maxkey,strikeagain,OFF,beta,(t0 + t1),-1,c1,c2,localchan,instrument,
+				CscoreWrite(ZERO,&graphrect,noteoffset,topoffset,hrect,minkey,maxkey,strikeagain,OFF,beta,(t0 + t1),-1,c1,c2,localchan,instrument,
 					j,nseq,kcurrentinstance,pp_currentparams,scale,blockkey)) == ABORT)
 												goto OVER;
 											}
@@ -1583,7 +1590,7 @@ SENDNOTEOFF:
 											if(showpianoroll) {
 												if(trace_makesound)
 													BPPrintMessage(1,odInfo,"* DrawPianoNote(2) start = %ld end = %ld leftoffset = %ld nseq = %d\n",(*p_last_timeon[localchan])[c1],(t0 + t1),leftoffset,nseq);
-												result = DrawPianoNote("midi",c1,localchan,(*p_last_timeon[localchan])[c1],(t0 + t1),leftoffset,topoffset,hrect,minkey,maxkey,&graphrect);
+												result = DrawPianoNote("midi",c1,localchan,(*p_last_timeon[localchan])[c1],(t0 + t1),noteoffset,topoffset,hrect,minkey,maxkey,&graphrect);
 												if(result != OK || overflow) goto OVER;
 												}
 											}
@@ -1623,7 +1630,7 @@ SENDNOTEOFF:
 												BPPrintMessage(0,odInfo,"Before CscoreWrite(4) NoteOn kcurrentinstance = %ld, j = %ld, ievent = %d, beta = %.2f t0 = %ld t1 = %ld c1 = %ld c2 = %ld, localchan = %d instrument = %d instr_index = %d\n",(long)kcurrentinstance,(long)j,ievent,beta,(long)t0,(long)t1,(long)c1,(long)c2,localchan,instrument,instr_index);
 											((*p_keyinstrument[instr_index])[c1])++;
 											if((result =
-					CscoreWrite(ZERO,&graphrect,leftoffset,topoffset,hrect,minkey,maxkey,strikeagain,ON,beta,(t0 + t1),-1,c1,c2,localchan,instrument,
+					CscoreWrite(ZERO,&graphrect,noteoffset,topoffset,hrect,minkey,maxkey,strikeagain,ON,beta,(t0 + t1),-1,c1,c2,localchan,instrument,
 						j,nseq,kcurrentinstance,pp_currentparams,scale,blockkey)) == ABORT)
 												goto OVER;
 											}
@@ -1632,7 +1639,7 @@ SENDNOTEOFF:
 												BPPrintMessage(1,odInfo,"* DrawPianoNote(3) start = %ld end = %ld leftoffset = %ld nseq = %d\n",(*p_last_timeon[localchan])[c1],(t0 + t1),leftoffset,nseq);
 											result = OK;
 											if(!cswrite)  // 2026-03-31
-												result = DrawPianoNote("midi",c1,localchan,(*p_last_timeon[localchan])[c1],(t0 + t1),leftoffset,topoffset,hrect,minkey,maxkey,&graphrect);
+												result = DrawPianoNote("midi",c1,localchan,(*p_last_timeon[localchan])[c1],(t0 + t1),noteoffset,topoffset,hrect,minkey,maxkey,&graphrect);
 											if(result != OK || overflow) goto OVER;
 											}
 										(*((*pp_currentparams)[nseq]))->starttime[c1] = (t0 + t1) / 1000.;

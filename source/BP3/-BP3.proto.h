@@ -452,6 +452,8 @@ int NoVariable(tokenbyte***);
 int MakeTemplate(tokenbyte***);
 int WriteTemplate(t_gram*,int,tokenbyte***);
 int ClearMarkers(tokenbyte***,int);
+int ExpandIntegerSilences(tokenbyte***);
+long IntegerSilence(tokenbyte**,unsigned long);
 int CheckSize(unsigned long,unsigned long*,tokenbyte***);
 int ReadTemplate(int,long,long*,tokenbyte***,long,int*);
 int DeleteTemplates(void);

@@ -1084,7 +1084,7 @@ int DrawItemBackground(Rect *p_r,unsigned long imax,int htext,int hrect,int left
 	int interruptok,Milliseconds **p_delta,long *p_yruler,int topoffset,int *p_overflow,char* type) {
 	int result;
 	double x,xscale,p,rr,period,shift;
-	long i,j,k,t1,t2,y,tmem1,tmem2,tmem3,xmax,ymax,y_curr;
+	long i,j,k,t1,t2,y,tmem1,tmem2,tmem3,xmax,xleft,ymax,y_curr;
 	char line[BOLSIZE+5],showsmalldivisions,line_image[200];
 	Str255 label;
 
@@ -1143,13 +1143,37 @@ int DrawItemBackground(Rect *p_r,unsigned long imax,int htext,int hrect,int left
 	if(Nature_of_time == SMOOTH) while(imax > 1L && (*p_T)[imax] == ZERO) imax--;
 	t2 = ((double)(*p_T)[imax] * GraphicScaleP) / GraphicScaleQ / 10. + leftoffset;
 
+	// Left margin of the image. The ruler is extended to it when dates are negative (pivot or pre-roll)
+	if(strcmp(type,"pianoroll") == 0) xleft = 13 + 30;
+	else if(leftoffset > 20) xleft = hrect; // Negative dates, see DrawItem()
+	else xleft = leftoffset;
+	if(xleft > leftoffset) xleft = leftoffset;
+	if(xleft < 0) xleft = 0;
+
 	y = (*p_yruler) = p_r->top + htext + 6;
 	pen_size(1,0);
-	draw_line(leftoffset,y,xmax,y,"");
+	draw_line(xleft,y,xmax,y,"");
 	if(trace_graphic)
-		BPPrintMessage(0,odInfo,"leftoffset = %d, y = %d, xmax = %d\n",leftoffset,y,xmax);
+		BPPrintMessage(0,odInfo,"leftoffset = %d, xleft = %d, y = %d, xmax = %d\n",leftoffset,xleft,y,xmax);
 
 	p = 50. / x;
+	for(i = -1; ; i--) { // Ticks for negative dates
+		t1 = leftoffset + (int) Round(i * p);
+		if(t1 < xleft) break;
+		j = ((i % 10) + 10) % 10;
+		if(j == 0) {
+			pen_size(4,0);
+			draw_line(t1,y,t1,y+6,"");
+			}
+		else if(j == 5) {
+			pen_size(1,0);
+			draw_line(t1,y,t1,y+5,"");
+			}
+		else {
+			pen_size(1,0);
+			draw_line(t1,y,t1,y+3,"");
+			}
+		}
 	for(i = j = 0; ; i++,j++) {
 		t1 = leftoffset + (int) Round(i * p);
 		if(t1 > xmax) break;
@@ -1175,6 +1199,17 @@ int DrawItemBackground(Rect *p_r,unsigned long imax,int htext,int hrect,int left
 	else my_sprintf(line,"%.2fs",shift / 1000.);
 	fill_text(line,leftoffset - 6,y);
 	k = 10; if((k * p) > 400) k = 1;
+	tmem2 = leftoffset - 6; // Left end of label "0"
+	for(i = -1; ; i--) { // Labels of negative dates
+		if(k == 10) my_sprintf(line,"%.2fs",(double)i * xscale * k / 10. + shift / 1000.);
+		if(k == 1) my_sprintf(line,"%.3fs",(double)i * xscale * k / 10. + shift / 1000.);
+		t1 = leftoffset + Round(k * i * p) - 14;
+		if(t1 < 0 || (t1 + 6) < xleft) break;
+		if((t1 + 7 * (long) strlen(line)) < tmem2) {
+			fill_text(line,t1,y);
+			tmem2 = t1;
+			}
+		}
 	tmem2 = - Infpos;
 	for(i = 1; ; i++) {
 		if(k == 10) my_sprintf(line,"%.2fs",(double)i * xscale * k / 10. + shift / 1000.);

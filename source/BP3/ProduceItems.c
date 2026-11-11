@@ -1149,7 +1149,7 @@ int NoVariable(tokenbyte ***pp_a) {
 
 int MakeTemplate(tokenbyte ***pp_a) {
 	unsigned long i;
-	tokenbyte m,p;
+	tokenbyte m,p,q;
 
 	ClearMarkers(pp_a,TRUE);
 	for(i=ZERO; ((m=(**pp_a)[i]) != TEND || (**pp_a)[i+1] != TEND); i+=2L) {
@@ -1161,8 +1161,14 @@ int MakeTemplate(tokenbyte ***pp_a) {
 				}
 			}
 		if(m == T1) {
-			BPPrintMessage(0,odError,"=> Can't write template with silences as number\n");
-			return(NO);
+			// Integer silence, or numerator/denominator of a fractional silence: kept in the template 2026-11-10
+			// ClearMarkers() has removed the speed markers '/n' and the initial setting section
+			if(i >= 2L && (**pp_a)[i-2] == T0 && ((q=(**pp_a)[i-1]) == 21 || q == 24 || q == 25)) {
+				BPPrintMessage(0,odError,"=> Can't write template with scaling or speed marker '*', '**' or '\\' followed by a number\n");
+				return(NO);
+				}
+			i += 2L; // A number takes two T1 tokens
+			continue;
 			}
 		if(m == T4) return(NO); // Variable
 		if(m == T0 && p == 10) return(NO); // 'S'
@@ -1174,23 +1180,23 @@ int MakeTemplate(tokenbyte ***pp_a) {
 
 int ClearMarkers(tokenbyte ***pp_a,int isgrammar) {
 // Suppress tempo markers
-	unsigned long i,k;
-	tokenbyte m,p;
+	unsigned long i,j,k;
+	tokenbyte m,p,q;
 	int setting_sections;
 
 	if(pp_a == NULL || (*pp_a) == NULL || (**pp_a) == NULL) {
 		BPPrintMessage(0,odError,"=> Err. ClearMarkers(). pp_a == NULL || (*pp_a) == NULL || (**pp_a) == NULL");
 		return(OK);
 		}
-	setting_sections = TRUE;
 	// BPPrintMessage(1,odInfo,"@@ Clearing markers\n");
-	if(isgrammar) {
-		// BPPrintMessage(1,odInfo,"@@@ Clearing markers\n");
-		setting_sections = FALSE;
-		m = (**pp_a)[ZERO]; p = (**pp_a)[1L];
-		if(m == T1) setting_sections = TRUE;
-		if(m == T0 && p == 21) setting_sections = TRUE;
-		// Grammar argument does not start with a number
+	setting_sections = FALSE;
+	m = (**pp_a)[ZERO]; p = (**pp_a)[1L];
+	if(m == T0 && p == 21) setting_sections = TRUE;
+	if(m == T1) {
+		// Initial numbers are a setting section, e.g. "4+4/6", if followed by '+' or '/', as in PolyMake(). Otherwise they are silences. 2026-11-10
+		for(j=ZERO; (m=(**pp_a)[j]) == T1 || (m == T0 && (**pp_a)[j+1] == 3); j+=2L)
+			if(m == T0) setting_sections = TRUE; // '+'
+		if(m == T0 && (**pp_a)[j+1] == 11) setting_sections = TRUE; // '/'
 		}
 	for(i=k=ZERO; ;) {
 		m = (**pp_a)[i+k]; p = (**pp_a)[i+k+1L];
@@ -1204,8 +1210,17 @@ int ClearMarkers(tokenbyte ***pp_a,int isgrammar) {
 		if(setting_sections && m == T0 && p == 3)	{ // '+'
 			k += 2; continue;
 			}
+		if(m == T43 && i == ZERO) { // _tempo() before anything else, like a setting section. Otherwise it is kept, it belongs to templates 2026-11-10
+			k += 2; continue;
+			}
 		if(m == T0 && p == 11)	{ // '/'
-			k += 6; continue;
+			if(!setting_sections && i >= 4L && (**pp_a)[i-4] == T1 && (**pp_a)[i-2] == T1
+					&& (i < 6L || (**pp_a)[i-6] != T0 || ((q=(**pp_a)[i-5]) != 21 && q != 24 && q != 25 && q != 11))) {
+				// Fractional silence, e.g. "3/2": keep it 2026-11-10
+				}
+			else {
+				k += 6; continue;
+				}
 			}
 		switch(m) {
 			case T11: // _vel()
@@ -1236,7 +1251,7 @@ int ClearMarkers(tokenbyte ***pp_a,int isgrammar) {
 			case T38: // _rndvel()
 			case T41: // _rndtime()
 			case T42: // _srand()
-			case T43: // _tempo()
+		//	case T43: // _tempo(), see above
 			case T44: // _scale()
 			case T45: // _capture()
 			case T46: // _part()
@@ -1260,7 +1275,75 @@ int ClearMarkers(tokenbyte ***pp_a,int isgrammar) {
 		i += 2L;
 		if(m == TEND && p == TEND) break;
 		}
+	return(ExpandIntegerSilences(pp_a));
+	}
+
+
+int ExpandIntegerSilences(tokenbyte ***pp_a) {
+// Replace integer silence 'n' with '-' followed by n-1 '_', as PolyMake() does, so that rules, items and templates are compared in the same form during analysis 2026-11-10
+// Not changed: fractional silences, e.g. "3/2", numbers following '*', '**', '' or '/', and ratios followed by ',' in polymetric expressions, e.g. "{2, A B}"
+	unsigned long i,j,length,newlength;
+	long n;
+	tokenbyte m,q,**p_b;
+	int found;
+
+	if(pp_a == NULL || (*pp_a) == NULL || (**pp_a) == NULL) return(OK);
+	length = newlength = ZERO; found = FALSE;
+	for(i=ZERO; ; i+=2L) {
+		m = (**pp_a)[i];
+		if(m == TEND && (**pp_a)[i+1] == TEND) break;
+		if(m == T1 && (**pp_a)[i+2] == T1) {
+			if((n = IntegerSilence(*pp_a,i)) > 0) {
+				newlength += 2L * n; found = TRUE;
+				}
+			else newlength += 4L;
+			i += 2L; continue;
+			}
+		newlength += 2L;
+		}
+	if(!found) return(OK);
+	length = i + 2L;
+	newlength += 2L;
+	if((p_b = (tokenbyte**) GiveSpace((Size)((newlength + 2L) * sizeof(tokenbyte)))) == NULL) return(ABORT);
+	for(i=j=ZERO; i < length; i+=2L) {
+		m = (**pp_a)[i]; q = (**pp_a)[i+1];
+		if(m == T1 && (**pp_a)[i+2] == T1) {
+			if((n = IntegerSilence(*pp_a,i)) > 0) {
+				(*p_b)[j++] = T3; (*p_b)[j++] = 1;	/* '-' */
+				for(n--; n > 0; n--) {
+					(*p_b)[j++] = T3; (*p_b)[j++] = 0;	/* '_' */
+					}
+				}
+			else {
+				(*p_b)[j++] = m; (*p_b)[j++] = q;
+				(*p_b)[j++] = (**pp_a)[i+2]; (*p_b)[j++] = (**pp_a)[i+3];
+				}
+			i += 2L; continue;
+			}
+		(*p_b)[j++] = m; (*p_b)[j++] = q;
+		}
+	if(MyGetHandleSize((Handle)*pp_a) < (Size)(j * sizeof(tokenbyte))) {
+		if(MySetHandleSize((Handle*)pp_a,(Size)(j * sizeof(tokenbyte))) != OK) {
+			MyDisposeHandle((Handle*)&p_b);
+			return(ABORT);
+			}
+		}
+	for(i=ZERO; i < j; i++) (**pp_a)[i] = (*p_b)[i];
+	MyDisposeHandle((Handle*)&p_b);
 	return(OK);
+	}
+
+
+long IntegerSilence(tokenbyte **p_a,unsigned long i) {
+// Returns the value of the number starting at (*p_a)[i] if it is an integer silence, otherwise 0
+	tokenbyte q;
+	long n;
+
+	if(i >= 2L && (*p_a)[i-2] == T0 && ((q=(*p_a)[i-1]) == 11 || q == 21 || q == 24 || q == 25)) return(0L);	/* After '/', '*', '**' or '\' */
+	if((*p_a)[i+4] == T0 && ((q=(*p_a)[i+5]) == 11 || q == 14)) return(0L); /* Followed by '/' or ',' */
+	n = ((long) TOKBASE * (*p_a)[i+1]) + (*p_a)[i+3];
+	if(n < 1L || n > 1000L) return(0L);
+	return(n);
 	}
 
 
@@ -1311,7 +1394,7 @@ TAKEIT:
 			case T1:	/* Number */
 				my_sprintf(line,"%.0f",(double)(((double)TOKBASE * p) + (**pp_a)[i+3]));
 				Print(w,line);
-				if(!setting_section && ((**pp_a)[i+4] != T0 || (**pp_a)[i+5] != 11))
+				if((**pp_a)[i+4] != T0 || (**pp_a)[i+5] != 11) // Not followed by '/' of a fractional silence 2026-11-10
 					Print(w," ");
 				i += 2;
 				break;
@@ -1356,11 +1439,13 @@ int ReadTemplate(int w,long pos,long *p_posend,tokenbyte ***pp_a,long posmax,int
 	tokenbyte **ptr;
 	KeyNumberMap map;
 
+	BP_NOT_USED(posmax);
 	(*p_posend) = pos;
 	if(*pp_a == NULL) {
 		BPPrintMessage(0,odError,"=> Err. ReadTemplate(). *pp_a = NULL");
 		return(ABORT);
 		}
+	if(pos >= GetTextLength(w)) return(MISSED); // End of text: the list of templates may lack its terminating line '-----' 2026-11-10
 	h = WindowTextHandle(TEH[w]);
 	im = (long) MyGetHandleSize((Handle)*pp_a);
 	im = (long) (im / sizeof(tokenbyte)) - 6L;
@@ -1369,6 +1454,7 @@ int ReadTemplate(int w,long pos,long *p_posend,tokenbyte ***pp_a,long posmax,int
 		if(c == '[') {
 			(*p_i) = 0;
 			while((c=GetTextChar(w,++pos)) != ']') {
+				if(c == '\0' || c == '\n' || c == '\r') return(MISSED);
 				c -= '0';
 				if(c < 0 || c > 9) {
 					BPPrintMessage(0,odError,"=> Err. ReadTemplate(). Wrong number");
@@ -1411,7 +1497,7 @@ int ReadTemplate(int w,long pos,long *p_posend,tokenbyte ***pp_a,long posmax,int
 				if(j == 61) {	/* _tempo */
 					(**pp_a)[i++] = T43; (**pp_a)[i++] = (tokenbyte) u;
 					(**pp_a)[i++] = T43; (**pp_a)[i++] = (tokenbyte) v;
-					while((c=GetTextChar(w,pos)) != ')') pos++;
+					while((c=GetTextChar(w,pos)) != ')' && c != '\0') pos++;
 					continue;
 					}
 				}
@@ -1419,7 +1505,7 @@ int ReadTemplate(int w,long pos,long *p_posend,tokenbyte ***pp_a,long posmax,int
 			(**pp_a)[i++] = (tokenbyte) 0; continue;
 			}
 		
-		 if(pos >= posmax  || c == '-') {	// Separating line below templates
+		 if(c == '-') {	// Separating line below templates
 			 return(MISSED);
 			 }
 	
