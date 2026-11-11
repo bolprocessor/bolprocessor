@@ -120,16 +120,379 @@ ERREUR:
 
 
 int LoadCsoundInstruments(int checkversion,int tryname) {
+	// 2026-11-12 Csound resource files ("-cs") are in JSON format. A file in the former format is still read, with a warning.
+	char line[MAXLIN];
+	char *json_data,*p;
+	FILE* csfile;
+	int result;
+
+	if(trace_load_csound_instruments) BPPrintMessage(0,odInfo, "LoadCsoundInstruments(%d,%d)\n",checkversion,tryname);
+	if(LoadedCsoundInstruments) {
+		if(trace_load_csound_instruments) BPPrintMessage(0,odInfo,"Csound instruments file has already been loaded\n");
+		return(OK);
+		}
+	// Check whether file is being saved
+	my_sprintf(line,"%s_lock",FileName[wCsoundResources]);
+	csfile = my_fopen(0,line,"r");
+	if(csfile != NULL) {
+		my_fclose(csfile);
+		BPPrintMessage(0,odError,"\n=> As the Csound instruments file was locked I waited for 3 seconds...\n");
+		delay(3);
+		}
+	csfile = my_fopen(0,FileName[wCsoundResources],"r");
+	if(csfile == NULL) return(LoadCsoundInstrumentsOldFormat(checkversion,tryname)); // Reports the error
+	my_fclose(csfile);
+	json_data = read_file(FileName[wCsoundResources]);
+	if(json_data == NULL) return(LoadCsoundInstrumentsOldFormat(checkversion,tryname));
+	p = json_data;
+	if((unsigned char)p[0] == 0xEF && (unsigned char)p[1] == 0xBB && (unsigned char)p[2] == 0xBF) p += 3; // UTF-8 byte order mark
+	while(isspace((unsigned char)(*p))) p++;
+	if(*p != '{') {
+		free(json_data);
+		BPPrintMessage(0,odError,"=> Csound resource file ‘%s’ is in the old format. It will be converted to JSON when any page of the PHP interface is opened, if it is in the ‘csound_resources’ folder\n",FileName[wCsoundResources]);
+		return(LoadCsoundInstrumentsOldFormat(checkversion,tryname));
+		}
+	result = LoadCsoundInstrumentsJSON(p);
+	free(json_data);
+	return(result);
+	}
+
+
+static cJSON *CsJsonValue(cJSON*,const char*);
+static int CsJsonNumber(cJSON*,const char*,double*);
+static const char *CsJsonString(cJSON*,const char*);
+static int CsStringToHandle(char***,const char*);
+
+static cJSON *CsJsonValue(cJSON *object,const char *key) {
+	// Returns the "value" of the item of 'object' whose "key" is 'key', or NULL. Labels are ignored.
+	cJSON *item,*itemkey;
+	if(object == NULL) return(NULL);
+	cJSON_ArrayForEach(item,object) {
+		if(!cJSON_IsObject(item)) continue;
+		itemkey = cJSON_GetObjectItem(item,"key");
+		if(cJSON_IsString(itemkey) && strcmp(itemkey->valuestring,key) == 0)
+			return(cJSON_GetObjectItem(item,"value"));
+		}
+	return(NULL);
+	}
+
+static int CsJsonNumber(cJSON *object,const char *key,double *p_x) {
+	// Sets *p_x if 'key' has a numeric value, and returns OK. Otherwise *p_x is unchanged and MISSED is returned.
+	cJSON *value;
+	char *end;
+	double x;
+	value = CsJsonValue(object,key);
+	if(cJSON_IsNumber(value)) {
+		(*p_x) = value->valuedouble;
+		return(OK);
+		}
+	if(cJSON_IsString(value) && value->valuestring[0] != '\0') {
+		x = strtod(value->valuestring,&end);
+		if(end != value->valuestring) {
+			(*p_x) = x;
+			return(OK);
+			}
+		}
+	return(MISSED);
+	}
+
+static const char *CsJsonString(cJSON *object,const char *key) {
+	// Returns the string value of 'key', or NULL
+	cJSON *value;
+	value = CsJsonValue(object,key);
+	if(cJSON_IsString(value)) return(value->valuestring);
+	return(NULL);
+	}
+
+static int CsStringToHandle(char ***p_handle,const char *s) {
+	// Copies 's' to the handle, which is resized or created
+	char **ptr;
+	ptr = (*p_handle);
+	if(MySetHandleSize((Handle*)&ptr,(Size)(1L + strlen(s)) * sizeof(char)) != OK) return(ABORT);
+	strcpy((*ptr),s);
+	(*p_handle) = ptr;
+	return(OK);
+	}
+
+/* Values that are not found keep the defaults set by ResetCsoundInstrument() */
+#define CS_JSON_INT(object,key,target) if(CsJsonNumber(object,key,&x) == OK) target = (int) x
+#define CS_JSON_FLOAT(object,key,target) if(CsJsonNumber(object,key,&x) == OK) target = x
+
+int LoadCsoundInstrumentsJSON(const char *json_text) {
+	// Reads a Csound resource file in JSON format. Values are found by their "key". Called by LoadCsoundInstruments()
+	int i,ip,j,k,max_ins,chan,ins,ins2,result,length,i_table,ipmax,paramindex,paramnameindex;
+	char **ptr;
+	char key[MAXNAME];
+	const char *s;
+	CsoundParam **ptr3;
+	cJSON *json,*instruments,*instrument;
+	double x;
+	char name[MAXLIN];
+	const char *control[] = {"PitchBend","Volume","Pressure","Modulation","Panoramic"};
+
+	json = NULL;
+	iCsoundInstrument = 0;
+	LoadOn++;
+	CompiledRegressions = CompiledCsObjects = 0;
+	result = MISSED;
+	ptr = NULL;
+	BPPrintMessage(0,odInfo,"Loading: %s\n",FileName[wCsoundResources]);
+	json = cJSON_Parse(json_text);
+	if(json == NULL) {
+		BPPrintMessage(0,odError,"=> Could not parse JSON in Csound instruments file, near: %.40s\n",cJSON_GetErrorPtr());
+		goto ERR;
+		}
+	for(chan = 1; chan <= MAXCHAN; chan++) {
+		WhichCsoundInstrument[chan] = -1;
+		my_sprintf(key,"WhichCsoundInstrument[%d]",chan);
+		CS_JSON_INT(json,key,WhichCsoundInstrument[chan]);
+		}
+	s = CsJsonString(json,"CsoundOrchestraName");
+	if(s == NULL) s = "";
+	snprintf(CsoundOrchestraName,sizeof(CsoundOrchestraName),"%s",s);
+	if(trace_load_csound_instruments) BPPrintMessage(0,odInfo,"CsoundOrchestraName = %s\n",CsoundOrchestraName);
+
+	instruments = CsJsonValue(json,"CsInstruments");
+	if(instruments != NULL && !cJSON_IsArray(instruments)) {
+		BPPrintMessage(0,odError,"=> The list of Csound instruments should be an array\n");
+		goto ERR;
+		}
+	max_ins = cJSON_GetArraySize(instruments); // 0 if instruments is NULL
+	if(trace_load_csound_instruments) BPPrintMessage(0,odInfo,"max_ins = %d\n",max_ins);
+	if(max_ins >= MAXINSTRUMENTS) {
+		BPPrintMessage(0,odError,"=> Too many Csound instruments (%d)\n",max_ins);
+		result = ABORT;
+		goto QUIT;
+		}
+	if(max_ins > 0 && (result=ResizeCsoundInstrumentsSpace(max_ins)) != OK) goto ERR;
+	result = MISSED;
+
+	MaxParameters = 0;
+	ins = 0;
+	cJSON_ArrayForEach(instrument,instruments) {
+		ResetCsoundInstrument(ins,YES,YES);
+		s = CsJsonString(instrument,"CsInstrumentName");
+		if(s == NULL) s = "";
+		ptr = (*pp_CsInstrumentName)[ins];
+		if(CsStringToHandle(&ptr,s) != OK) goto ERR;
+		(*pp_CsInstrumentName)[ins] = ptr;
+		if(trace_load_csound_instruments)
+			BPPrintMessage(0,odInfo,"Loading Csound instrument %d = \"%s\" out of %d\n",(ins+1),(*((*pp_CsInstrumentName)[ins])),max_ins);
+		s = CsJsonString(instrument,"CsInstrumentComment");
+		if(s == NULL) s = "";
+		ptr = (*pp_CsInstrumentComment)[ins];
+		if(CsStringToHandle(&ptr,s) != OK) goto ERR;
+		(*pp_CsInstrumentComment)[ins] = ptr;
+
+		CS_JSON_INT(instrument,"iargmax",(*p_CsInstrument)[ins].iargmax);
+		CS_JSON_INT(instrument,"CsInstrumentIndex",(*p_CsInstrumentIndex)[ins]);
+		CS_JSON_INT(instrument,"CsDilationRatioIndex",(*p_CsDilationRatioIndex)[ins]);
+		CS_JSON_INT(instrument,"CsAttackVelocityIndex",(*p_CsAttackVelocityIndex)[ins]);
+		CS_JSON_INT(instrument,"CsReleaseVelocityIndex",(*p_CsReleaseVelocityIndex)[ins]);
+		CS_JSON_INT(instrument,"CsPitchIndex",(*p_CsPitchIndex)[ins]);
+		s = CsJsonString(instrument,"CsPitchFormat");
+		if(s != NULL) {
+			if(strcmp(s,"OPPC") == 0) (*p_CsPitchFormat)[ins] = OPPC;
+			else if(strcmp(s,"OPD") == 0) (*p_CsPitchFormat)[ins] = OPD;
+			else if(strcmp(s,"CPS") == 0) (*p_CsPitchFormat)[ins] = CPS;
+			else if(strcmp(s,"IGNORER") == 0) (*p_CsPitchFormat)[ins] = IGNORER;
+			else BPPrintMessage(0,odError,"=> Unknown pitch format ‘%s’ in Csound instrument ‘%s’\n",s,(*((*pp_CsInstrumentName)[ins])));
+			}
+		else CS_JSON_INT(instrument,"CsPitchFormat",(*p_CsPitchFormat)[ins]);
+		CS_JSON_FLOAT(instrument,"pitchbendrange",(*p_CsInstrument)[ins].pitchbendrange);
+		if((*p_CsInstrument)[ins].pitchbendrange == -1.) (*p_CsInstrument)[ins].pitchbendrange = (float) DeftPitchbendRange;
+		if(trace_load_csound_instruments) BPPrintMessage(0,odInfo,"pitchbendrange = %.3f for instrument index = %d\n",(*p_CsInstrument)[ins].pitchbendrange,ins);
+
+		CS_JSON_INT(instrument,"rPitchBend.islogx",(*p_CsInstrument)[ins].rPitchBend.islogx);
+		CS_JSON_INT(instrument,"rPitchBend.islogy",(*p_CsInstrument)[ins].rPitchBend.islogy);
+		CS_JSON_INT(instrument,"rVolume.islogx",(*p_CsInstrument)[ins].rVolume.islogx);
+		CS_JSON_INT(instrument,"rVolume.islogy",(*p_CsInstrument)[ins].rVolume.islogy);
+		CS_JSON_INT(instrument,"rPressure.islogx",(*p_CsInstrument)[ins].rPressure.islogx);
+		CS_JSON_INT(instrument,"rPressure.islogy",(*p_CsInstrument)[ins].rPressure.islogy);
+		CS_JSON_INT(instrument,"rModulation.islogx",(*p_CsInstrument)[ins].rModulation.islogx);
+		CS_JSON_INT(instrument,"rModulation.islogy",(*p_CsInstrument)[ins].rModulation.islogy);
+		CS_JSON_INT(instrument,"rPanoramic.islogx",(*p_CsInstrument)[ins].rPanoramic.islogx);
+		CS_JSON_INT(instrument,"rPanoramic.islogy",(*p_CsInstrument)[ins].rPanoramic.islogy);
+
+		CS_JSON_INT(instrument,"CsPitchBendStartIndex",(*p_CsPitchBendStartIndex)[ins]);
+		CS_JSON_INT(instrument,"CsVolumeStartIndex",(*p_CsVolumeStartIndex)[ins]);
+		CS_JSON_INT(instrument,"CsPressureStartIndex",(*p_CsPressureStartIndex)[ins]);
+		CS_JSON_INT(instrument,"CsModulationStartIndex",(*p_CsModulationStartIndex)[ins]);
+		CS_JSON_INT(instrument,"CsPanoramicStartIndex",(*p_CsPanoramicStartIndex)[ins]);
+		CS_JSON_INT(instrument,"CsPitchBendEndIndex",(*p_CsPitchBendEndIndex)[ins]);
+		CS_JSON_INT(instrument,"CsVolumeEndIndex",(*p_CsVolumeEndIndex)[ins]);
+		CS_JSON_INT(instrument,"CsPressureEndIndex",(*p_CsPressureEndIndex)[ins]);
+		CS_JSON_INT(instrument,"CsModulationEndIndex",(*p_CsModulationEndIndex)[ins]);
+		CS_JSON_INT(instrument,"CsPanoramicEndIndex",(*p_CsPanoramicEndIndex)[ins]);
+
+		CS_JSON_INT(instrument,"pitchbendtable",(*p_CsInstrument)[ins].pitchbendtable);
+		CS_JSON_INT(instrument,"volumetable",(*p_CsInstrument)[ins].volumetable);
+		CS_JSON_INT(instrument,"pressuretable",(*p_CsInstrument)[ins].pressuretable);
+		CS_JSON_INT(instrument,"modulationtable",(*p_CsInstrument)[ins].modulationtable);
+		CS_JSON_INT(instrument,"panoramictable",(*p_CsInstrument)[ins].panoramictable);
+
+		CS_JSON_INT(instrument,"pitchbendGEN",(*p_CsInstrument)[ins].pitchbendGEN);
+		CS_JSON_INT(instrument,"volumeGEN",(*p_CsInstrument)[ins].volumeGEN);
+		CS_JSON_INT(instrument,"pressureGEN",(*p_CsInstrument)[ins].pressureGEN);
+		CS_JSON_INT(instrument,"modulationGEN",(*p_CsInstrument)[ins].modulationGEN);
+		CS_JSON_INT(instrument,"panoramicGEN",(*p_CsInstrument)[ins].panoramicGEN);
+
+		/* MIDI -> Csound mapping points: [0..2] MIDI values, [3..5] Csound values */
+		for(k = 0; k < 6; k++) {
+			my_sprintf(key,"Cs%s[%d]",control[0],k);
+			CS_JSON_FLOAT(instrument,key,(*(p_CsPitchBend[k]))[ins]);
+			my_sprintf(key,"Cs%s[%d]",control[1],k);
+			CS_JSON_FLOAT(instrument,key,(*(p_CsVolume[k]))[ins]);
+			my_sprintf(key,"Cs%s[%d]",control[2],k);
+			CS_JSON_FLOAT(instrument,key,(*(p_CsPressure[k]))[ins]);
+			my_sprintf(key,"Cs%s[%d]",control[3],k);
+			CS_JSON_FLOAT(instrument,key,(*(p_CsModulation[k]))[ins]);
+			my_sprintf(key,"Cs%s[%d]",control[4],k);
+			CS_JSON_FLOAT(instrument,key,(*(p_CsPanoramic[k]))[ins]);
+			}
+		/* Additional parameters. ResetCsoundInstrument() has set paramlist = NULL and ipmax = 0 */
+		ipmax = 0;
+		CS_JSON_INT(instrument,"ipmax",ipmax);
+		if(trace_load_csound_instruments) BPPrintMessage(0,odInfo,"ipmax = %d ins = %d\n",ipmax,ins);
+		if(ipmax < 1) {
+			ins++;
+			continue;
+			}
+		if((ptr3=(CsoundParam**) GiveSpace((Size)(ipmax * sizeof(CsoundParam)))) == NULL) goto ERR;
+		(*p_CsInstrument)[ins].paramlist = ptr3;
+		(*p_CsInstrument)[ins].ipmax = ipmax;
+		for(ip = 0; ip < ipmax; ip++) {
+			(*((*p_CsInstrument)[ins].paramlist))[ip].name = NULL;
+			(*((*p_CsInstrument)[ins].paramlist))[ip].comment = NULL;
+			ResetMoreParameter(ins,ip);
+			}
+		for(ip = 0; ip < ipmax; ip++) {
+			my_sprintf(key,"paramlist[%d].name",ip);
+			s = CsJsonString(instrument,key);
+			if(s == NULL || s[0] == '\0') {
+				BPPrintMessage(0,odError,"=> Error loading Csound instruments: the name of an additional parameter is missing\n");
+				goto ERR;
+				}
+			if(trace_load_csound_instruments)
+				BPPrintMessage(0,odInfo,"-> Name: \"%s\", instrument index = %d\n",s,ins);
+			ptr = NULL;
+			if(CsStringToHandle(&ptr,s) != OK) goto ERR;
+			(*((*p_CsInstrument)[ins].paramlist))[ip].name = ptr;
+			snprintf(name,sizeof(name),"%s",s); // FixStringConstant() modifies its argument
+			paramnameindex = FixStringConstant(name);
+			if(paramnameindex >= 0) {
+				for(j = 0; j < MAXPARAMS; j++) {
+					ins2 = ParamNameIndexToInstrument[j];
+					if(ins2 < 0) continue;
+					if((paramnameindex == j) && (ins2 != ins)) {
+						BPPrintMessage(0,odError,"=> Additional parameter « %s » was used by Csound instrument « %s ». We'll now attribute it to « %s ».\n",s,(*((*pp_CsInstrumentName)[ins2])),(*((*pp_CsInstrumentName)[ins])));
+						break;
+						}
+					}
+				(*((*p_CsInstrument)[ins].paramlist))[ip].nameindex = paramnameindex;
+				ParamNameIndexToInstrument[paramnameindex] = (*p_CsInstrumentIndex)[ins];
+				MaxParameters++;
+				paramindex = MaxParameters + IPANORAMIC;
+				ParamNameIndexToParameter[paramnameindex] = paramindex;
+				ParamIndexToIp[MaxParameters + IPANORAMIC] = ip;
+				if(trace_load_csound_instruments) BPPrintMessage(0,odInfo,"@@@ ip = %d, paramnameindex = %d, paramindex = %d, MaxParameters = %d\n",ip,paramnameindex,paramindex,MaxParameters);
+				}
+			else BPPrintMessage(0,odError,"=> Error loading Csound instruments: the name of an additional parameter « %s » could not be attributed to Csound instrument « %s »\n",s,(*((*pp_CsInstrumentName)[ins])));
+			my_sprintf(key,"paramlist[%d].comment",ip);
+			s = CsJsonString(instrument,key);
+			if(s == NULL || s[0] == '\0') s = " "; // As in the former format
+			ptr = NULL;
+			if(CsStringToHandle(&ptr,s) != OK) goto ERR;
+			(*((*p_CsInstrument)[ins].paramlist))[ip].comment = ptr;
+			// Values not found keep the defaults set by ResetMoreParameter()
+			my_sprintf(key,"paramlist[%d].startindex",ip);
+			CS_JSON_INT(instrument,key,(*((*p_CsInstrument)[ins].paramlist))[ip].startindex);
+			my_sprintf(key,"paramlist[%d].endindex",ip);
+			CS_JSON_INT(instrument,key,(*((*p_CsInstrument)[ins].paramlist))[ip].endindex);
+			my_sprintf(key,"paramlist[%d].table",ip);
+			CS_JSON_INT(instrument,key,(*((*p_CsInstrument)[ins].paramlist))[ip].table);
+			my_sprintf(key,"paramlist[%d].defaultvalue",ip);
+			CS_JSON_FLOAT(instrument,key,(*((*p_CsInstrument)[ins].paramlist))[ip].defaultvalue);
+			my_sprintf(key,"paramlist[%d].GENtype",ip);
+			CS_JSON_INT(instrument,key,(*((*p_CsInstrument)[ins].paramlist))[ip].GENtype);
+			my_sprintf(key,"paramlist[%d].combinationtype",ip);
+			s = CsJsonString(instrument,key);
+			if(s != NULL) (*((*p_CsInstrument)[ins].paramlist))[ip].combinationtype = (strcmp(s,"MULT") == 0) ? MULT : ADD;
+			else CS_JSON_INT(instrument,key,(*((*p_CsInstrument)[ins].paramlist))[ip].combinationtype);
+			if((*((*p_CsInstrument)[ins].paramlist))[ip].combinationtype == MULT
+					&& fabs((*((*p_CsInstrument)[ins].paramlist))[ip].defaultvalue) < 0.01) {
+				BPPrintMessage(0,odError,"=> In instrument %ld a default parameter value '%.3f' was replaced with '1' because its combination mode is multiplicative",(long)(*p_CsInstrumentIndex)[ins],(*((*p_CsInstrument)[ins].paramlist))[ip].defaultvalue);
+				(*((*p_CsInstrument)[ins].paramlist))[ip].defaultvalue = 1.;
+				}
+			}
+		ins++;
+		}
+	if(ins > 0) BPPrintMessage(0,odInfo,"%d Csound instrument(s) found\n",ins);
+	else BPPrintMessage(0,odInfo,"No Csound instrument was found. The default one will be used.\n");
+
+	/* Csound tables, put on top of Csound scores */
+	result = OK;
+	i_table = 0;
+	for(k = 0; ; k++) {
+		my_sprintf(key,"CsoundTables[%d]",k);
+		s = CsJsonString(json,key);
+		if(s == NULL) break;
+		while(isspace((unsigned char)(*s))) s++;
+		length = strlen(s);
+		while(length > 0 && isspace((unsigned char)s[length - 1])) length--;
+		if(length == 0) continue;
+		if(trace_load_csound_instruments) BPPrintMessage(0,odInfo, "table line = [%.*s]\n",length,s);
+		if(i_table >= MaxCsoundTables) {
+			p_CsoundTables = (char****) IncreaseSpace((Handle)p_CsoundTables);
+			MaxCsoundTables = (MyGetHandleSize((Handle)p_CsoundTables) / sizeof(char**));
+			for(i = i_table; i < MaxCsoundTables; i++) (*p_CsoundTables)[i] = NULL;
+			}
+		if((ptr=(char**) GiveSpace((Size)((1L + length) * sizeof(char)))) == NULL) {
+			result = MISSED;
+			goto ERR;
+			}
+		memcpy((*ptr),s,length);
+		(*ptr)[length] = '\0';
+		(*p_CsoundTables)[i_table] = ptr;
+		i_table++;
+		}
+	goto QUIT;
+
+ERR:
+	result = MISSED;
+	BPPrintMessage(0,odError,"=> Error reading Csound instruments file:  %s\n",FileName[wCsoundResources]);
+
+QUIT:
+	if(json != NULL) cJSON_Delete(json);
+	if(result == OK) {
+		Created[wCsoundResources] = TRUE;
+		LoadedCsoundInstruments = TRUE;
+		DefaultScaleParam = -1; // Don't use scales until the _scale() instruction has been found
+		}
+	else {
+		Created[wCsoundResources] = FALSE;
+		BPPrintMessage(0,odError, "=> Error reading Csound instruments file:  %s\n", FileName[wCsoundResources]);
+		EmergencyExit = TRUE;
+		}
+	if(iCsoundInstrument >= Jinstr) iCsoundInstrument = 0;
+	LoadOn--;
+	return(result);
+	}
+
+#undef CS_JSON_INT
+#undef CS_JSON_FLOAT
+
+
+int LoadCsoundInstrumentsOldFormat(int checkversion,int tryname) {
+	// Reads a Csound resource file in the former line format. Called by LoadCsoundInstruments()
 	int i,iv,ip,j,max_ins,max_chan,chan,ins,ins2,result,length,i_table,ipmax,paramindex,paramnameindex;
 	char **ptr;
-	char line[MAXLIN];
 	CsoundParam **ptr3;
 	long pos,x;
 	char **p_line,**p_completeline;
 	double r;
 	FILE* csfile;
 
-	if(trace_load_csound_instruments) BPPrintMessage(0,odInfo, "LoadCsoundInstruments(%d,%d)\n",checkversion,tryname);
 	if(LoadedCsoundInstruments) {
 		if(trace_load_csound_instruments) BPPrintMessage(0,odInfo,"Csound instruments file has already been loaded\n");
 		return(OK);
@@ -139,16 +502,9 @@ int LoadCsoundInstruments(int checkversion,int tryname) {
 	pos = ZERO;
 	CompiledRegressions = CompiledCsObjects = 0;
 	p_line = p_completeline = ptr = NULL;
+	result = MISSED;
 
 	if(trace_load_csound_instruments) BPPrintMessage(0,odInfo,"Opening Csound instruments file: %s\n",FileName[wCsoundResources]);
-
-	// Check whether file is being saved
-	my_sprintf(line,"%s_lock",FileName[wCsoundResources]);
-	csfile = my_fopen(0,line,"r");
-	if(csfile != NULL) {
-		BPPrintMessage(0,odError,"\n=> As the Csound instruments file was locked I waited for 3 seconds...\n");
-		delay(3);
-		}
 
 	csfile = my_fopen(1,FileName[wCsoundResources],"r");
 	if(csfile == NULL) {
@@ -407,7 +763,8 @@ int LoadCsoundInstruments(int checkversion,int tryname) {
 			if((ptr=(char**) GiveSpace((Size)((1L + length) * sizeof(char)))) == NULL) goto ERR;
 			if(length > 0) {
 				Strip(*p_completeline);
-				(*((*p_CsInstrument)[ins].paramlist))[ip].comment = p_completeline;
+				MystrcpyHandleToHandle(0,&ptr,p_completeline);
+				(*((*p_CsInstrument)[ins].paramlist))[ip].comment = ptr;
 				}
 			else {
 				MystrcpyStringToHandle(&ptr," ");

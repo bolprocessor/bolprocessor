@@ -11,6 +11,7 @@ Many corrections have been done at a deep level, solving problems in (uncommon) 
 The timing during a real-time MIDI performance is displayed.
 Csound resource (-cs), sound-objects (-so) and tonality (-to) files are protected against a failure if their related folders in the 'temp_bolprocessor' folder have been deleted by mistake.
 Templates in grammars now accept integers and integer ratios (silences), as well as _tempo() statements.
+Csound resource files (-cs) are now stored in JSON format. Old files are automatically converted to the new format when found by the interface in the 'csound_resources' folder.
 
 Don't forget to update the PHP interface:
 https://github.com/bolprocessor/php-frontend/

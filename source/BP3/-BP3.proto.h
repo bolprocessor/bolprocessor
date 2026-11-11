@@ -548,6 +548,8 @@ void strip_newline(char*);
 // int mOMS(int);
 void adjust_prefix(char*);
 int LoadCsoundInstruments(int,int);
+int LoadCsoundInstrumentsJSON(const char*);
+int LoadCsoundInstrumentsOldFormat(int,int);
 int LoadTonality(void);
 int MIDItoPrototype(int,int,int,MIDIcode**,long);
 char* read_file(const char*);
