@@ -62,6 +62,8 @@ long GramSelStart,GramSelEnd;
 
 long eventCount,eventCountMax;
 UInt64 initTime;
+long ExpectedEndTime;
+long ChunkEndTime; // Date (ms) of the end of the previous chunk, where the next chunk of the item starts // Expected date (ms) of the end of the real-time MIDI performance, -1 if unknown
 unsigned long FirstEventTime;
 MIDI_Event* eventStack;
 size_t MaxMIDIMessages;

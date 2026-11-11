@@ -327,6 +327,12 @@ int CscoreWrite(Milliseconds cut_the_end,Rect* p_graphrect,int leftoffset,int to
 				x = GetPitchWithScale(i_scale,kcurrentinstance,key,cents_add1,blockkey);
 				if(x == Infpos) return(ABORT);
 				pitch_format = IGNORER;
+				// 2026-11-11: the deviation of the scale from equal temperament (same key, same A4freq) is displayed
+				// in the comment of the score line, excluding the pitchbend already shown as "-> ..." - fixed by Claude
+				if(x > 0.) {
+					xx = A4freq * exp((((double)key) - ((double)C4key + 9.)) / 12. * log(2.));
+					cents_base = 1200. * log(x / xx) / log(2.) - cents_add1;
+					}
 				}
 			}
 		switch(pitch_format) {

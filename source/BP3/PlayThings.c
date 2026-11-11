@@ -380,8 +380,16 @@ int PlayBuffer1(tokenbyte ***pp_buff,int onlypianoroll) {
 					BPPrintMessage(1,odInfo,"Calling MakeSound() [2]\n");
 		/*		PianorollShift = MIDIsetUpTime;
 				Tcurr = LastTime / Time_res; */
-				result = MakeSound(&kmax,maxseq,nmax+1,tmin,tmax,NULL);
-				if(result == OK) result = DrawItem(wGraphic,p_Instance,NULL,NULL,kmax,tmin,tmax,maxseq,0,nmax,p_imaxseq,TRUE,TRUE,NULL);
+				if(rtMIDI && !onlypianoroll && !Improvize && !PlayAllChunks) {
+					// 2026-11-11 In real time, draw the object graph before playing, so that it is complete if the performance is stopped.
+					// Not with improvize or chunks, because the time shift of their object graphs is set when drawing the pianoroll - fixed by Claude
+					result = DrawItem(wGraphic,p_Instance,NULL,NULL,kmax,tmin,tmax,maxseq,0,nmax,p_imaxseq,TRUE,TRUE,NULL);
+					if(result == OK) result = MakeSound(&kmax,maxseq,nmax+1,tmin,tmax,NULL);
+					}
+				else {
+					result = MakeSound(&kmax,maxseq,nmax+1,tmin,tmax,NULL);
+					if(result == OK) result = DrawItem(wGraphic,p_Instance,NULL,NULL,kmax,tmin,tmax,maxseq,0,nmax,p_imaxseq,TRUE,TRUE,NULL);
+					}
 				}
 			}
 		else if(OutCsound || WriteMIDIfile || EventListOn || rtMIDI || OutBPdata) {

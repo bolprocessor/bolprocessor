@@ -64,7 +64,7 @@ int MakeSound(long *p_kmax,unsigned long imaxstreak,int maxnsequences,long tmin,
 	Handle h;
 	char **p_keychannel[MAXCHAN+1],**p_keyinstrument[MAXINS+1],**p_silence,**p_onoff,**p_line,**p_active[MAXCHAN+1],line[4],line_image[200],label_note[15];
 	long **p_inext,**p_inext1,**p_last_timeon[MAXCHAN+1],timeleft,formertime,size,istreak,posmin,localperiod,endxmax,endymax,oldtcurr,this_date,the_end,
-		i1,i2,oldi2,imap,gap,maxmapped,i,im,ievent,yruler,max_endtime_event,max_endtime,add_time;
+		i1,i2,oldi2,imap,gap,maxmapped,i,im,ievent,yruler,max_endtime_event,max_endtime,add_time,expected_end;
 	unsigned long oldtime,drivertime,t3,objectstarttime,objectduration,delta_timeon;
 	unsigned int currswitchstate[MAXCHAN+1],seed;
 	int scale,blockkey,send_more;
@@ -777,6 +777,14 @@ int MakeSound(long *p_kmax,unsigned long imaxstreak,int maxnsequences,long tmin,
 
 		// BPPrintMessage(1,odInfo,"@@@ Tcurr = %ld, currenttime = %ld, drivertime = %ld, LastTime = %ld\n",Tcurr,currenttime,drivertime,LastTime);
 
+		if(occurrence == 0 && Chunk_number > 1 && !cswrite && !Improvize && !PlayAllChunks && !AllItems && ChunkEndTime > ZERO) {
+			// 2026-11-11 The chunks of an item played line by line start at the end of the previous chunk.
+			// They restarted at MIDIsetUpTime when the pianoroll was displayed, because Tcurr is restored at the end of MakeSound():
+			// real-time MIDI sent the next chunk at once, and MIDI files squeezed it. Without the pianoroll, the next chunk started
+			// at the date of the last event of the previous one plus MIDIsetUpTime - fixed by Claude
+			currenttime = ChunkEndTime;
+			}
+
 		if(t1 < ZERO) t0 = currenttime - t1;
 		else t0 = currenttime;
 		
@@ -802,6 +810,20 @@ int MakeSound(long *p_kmax,unsigned long imaxstreak,int maxnsequences,long tmin,
 				noteoffset = leftoffset + (t1 * GraphicScaleP) / GraphicScaleQ / 10;
 			}
 		
+		if(occurrence == 0 && !cswrite) {
+			// End of this chunk (dates start at t0)
+			if(showpianoroll) ChunkEndTime = t0 + tmax; // 'tmax' already includes the Nplay repetitions
+			else ChunkEndTime = t0 + tmax + (Nplay - 1) * (tmax - tmin);
+			}
+		if(rtMIDI && occurrence == 0) {
+			// Expected date of the end of this item on the clock displayed by produce.php (see WriteTimeFile())
+			// Several items (Improvize, all items, chunks): this is the end of the current item
+			if(SynchroSignal == PLAYFOREVER) ExpectedEndTime = -1L;
+			else if(ExpectedEndTime >= 0L) {
+				expected_end = ChunkEndTime - MIDIsetUpTime;
+				if(expected_end > ExpectedEndTime) ExpectedEndTime = expected_end;
+				}
+			}
 		if(trace_makesound)
 			BPPrintMessage(0,odInfo,"Tcurr = %ld, occurrence = %d, t0 = %ld (ms), t1 = %ld (ms), Time_res = %ld\n\n",(long)Tcurr,occurrence,(long)t0,(long)t1,(long)Time_res);
 			

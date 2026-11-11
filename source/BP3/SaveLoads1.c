@@ -732,7 +732,7 @@ int LoadSettings(const char *filename, int startup) {
 		else if(strcmp(key,"UrlToPush") == 0) {
 			strncpy(UrlToPush,string_value,sizeof(UrlToPush) - 1);
 			UrlToPush[sizeof(UrlToPush) - 1] = '\0';
-			BPPrintMessage(0,odInfo,"UrlToPush = %s\n",UrlToPush);
+			BPPrintMessage(0,odInfo,"UrlToPush: %s\n",UrlToPush);
 			}
 		}
 	if(TraceDetail && (Improvize || Analyzing)) {

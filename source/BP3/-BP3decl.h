@@ -397,6 +397,7 @@ extern size_t MaxMIDIMessages;
 extern MIDI_Event* eventStack;
 extern long eventCount, eventCountMax;
 extern UInt64 initTime;
+extern long ExpectedEndTime,ChunkEndTime;
 extern unsigned long FirstEventTime;
 extern int FirstNoteOn;
 extern int ToldPitchbend, ToldStop;

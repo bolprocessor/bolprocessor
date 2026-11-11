@@ -49,6 +49,7 @@ char PanicfileName[500] = {0};
 char PausefileName[500] = {0};
 char ContinuefileName[500] = {0};
 char TimefileName[500] = {0};
+int KeepTimeFile = FALSE; // Set when the performance is stopped, so that produce.php can display its date
 
 // function prototypes
 void ConsoleInit(BPConsoleOpts* opts);
@@ -162,6 +163,7 @@ int main (int argc, char* args[]) {
 	eventCount = 0L;
 	eventCountMax = MaxMIDIMessages - 50L;
 	initTime = FirstEventTime = 0L; // microseconds
+	ExpectedEndTime = ChunkEndTime = 0L;
 	FirstGrammar = TRUE;
 	InitOn = FALSE;
 	Analyzing = FALSE;
@@ -355,7 +357,7 @@ CLEANUP:
 		if(!Analyzing && current_time > SessionStartTime && !Panic) BPPrintMessage(0,odInfo, "Total computation time: %ld seconds\n",(long)(current_time-SessionStartTime));
 		}
 //	else BPPrintMessage(0,odError, "=> result was: %d\n",result);
-	if(strlen(TimefileName) > 0) remove(TimefileName);
+	if(strlen(TimefileName) > 0 && !KeepTimeFile) remove(TimefileName);
 	CreateDoneFile();
 	free(eventStack);
 	return EXIT_SUCCESS;
@@ -488,16 +490,18 @@ FILE* CreateCaptureFile(FILE* oldptr) {
 	return NULL;
 	}
 
-void WriteTimeFile(void) {
+void WriteTimeFile(int force) {
 	// Write the current date of the real-time MIDI performance (milliseconds) to the "_time" file
 	// The page of produce.php polls this file (via time_poll.php) to display a clock
+	// With 'force', write it now: this is the date at which the performance was stopped
+	// The second number is the expected date of the end (ExpectedEndTime), 0 or -1 if unknown
 	static unsigned long next_write = 0L;
 	unsigned long now, elapsed;
 	long date;
 	FILE* ptr;
 	if(!rtMIDI || FirstNoteOn || StopPlay || PausePlay || strlen(TimefileName) == 0) return;
 	now = getClockTime(); // microseconds
-	if(now < next_write) return;
+	if(!force && now < next_write) return;
 	next_write = now + 200000L; // Every 200 ms
 	elapsed = now - initTime;
 	if(elapsed > TimeStopped) date = (long)((elapsed - TimeStopped) / 1000L) - MIDIsetUpTime; // milliseconds
@@ -505,7 +509,7 @@ void WriteTimeFile(void) {
 	if(date < 0L) date = 0L;
 	ptr = my_fopen(0,TimefileName,"w");
 	if(ptr == NULL) return;
-	fprintf(ptr,"%ld\n",date);
+	fprintf(ptr,"%ld %ld\n",date,ExpectedEndTime);
 	my_fclose(ptr);
 	return;
 	}
@@ -515,13 +519,15 @@ int stop(int now,char* where) {
 	int r;
 	if(Panic || EmergencyExit) return ABORT;
 	if((r = ListenToEvents()) != OK) return r;
-	WriteTimeFile();
+	WriteTimeFile(FALSE);
 	unsigned long current_time = getClockTime(); // microseconds
 	if(!now && (current_time < NextStop)) return(OK); // We only check _stop and _panic every 500 ms, in all modes: opening these files at each call slows down production considerably
 	NextStop = current_time + 500000L; // microseconds
 	if(strlen(StopfileName) == 0) return OK;
 	ptr = my_fopen(0,StopfileName,"r");
 	if(ptr) {
+		WriteTimeFile(TRUE);
+		KeepTimeFile = TRUE;
 		Improvize = PlayAllChunks = FALSE;
 		my_sprintf(Message,"Found 'stop' file (during “%s”): %s",where,StopfileName);
 		Notify(Message,0);
@@ -553,6 +559,8 @@ int stop(int now,char* where) {
 	if(strlen(PanicfileName) > 0) {
 		ptr = my_fopen(0,PanicfileName,"r");
 		if(ptr) {
+			WriteTimeFile(TRUE);
+			KeepTimeFile = TRUE;
 			Improvize = PlayAllChunks = FALSE;
 			BPPrintMessage(0,odError,"👉 Found 'panic' file: %s\n",PanicfileName);
 			my_fclose(ptr);

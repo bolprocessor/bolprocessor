@@ -58,7 +58,7 @@ int DrawItem(int w,SoundObjectInstanceParameters **p_object,Milliseconds **p_t1,
 	Milliseconds **p_delta) {
 	int linenum,old_linenum,linemax,maxlines,hrect,htext,morespace,**p_morespace,
 		nseq,leftoffset,topoffset,rep,maxslideh,maxslidev,linemin,tab,key,
-		edge,foundone,overflow,xc,scale,i_scale,result,moved_up,moved;
+		edge,foundone,overflow,xc,scale,i_scale,result,moved_up,moved,linepitch,jj;
 	long pivloc,t1,tt1,t2,endxmax,endymax,endx,y,i,j,k,yruler,preroll,postroll,
 		**p_endx,endy,**p_endy,**p_top,trbeg,trend;
 	Rect r, r2;
@@ -102,6 +102,18 @@ int DrawItem(int w,SoundObjectInstanceParameters **p_object,Milliseconds **p_t1,
 		
 	hrect = 13;
 	htext = 13;
+	// 2026-11-11 Constant vertical distance between lines: room for the object and its label underneath,
+	// plus room for pivots above sound-objects. Previously it depended on 'morespace' of the line above,
+	// which can change after objects of the next line have been drawn - fixed by Claude
+	linepitch = hrect + htext + 6;
+	for(k = 2; k <= kmax; k++) {
+		jj = (*p_Instance)[k].object;
+		if(jj < 0) jj = -jj;
+		if(try_pivots || (jj > 1 && jj < Jbol)) {
+			linepitch += 8;
+			break;
+			}
+		}
 	leftoffset = hrect - (tmin * GraphicScaleP) / GraphicScaleQ / 10;
 	// BPPrintMessage(0,odInfo,"hrect = %d, tmin = %ld, leftoffset = %d\n",hrect,(long)tmin,leftoffset);
 	if(leftoffset < 20) {
@@ -301,7 +313,7 @@ int DrawItem(int w,SoundObjectInstanceParameters **p_object,Milliseconds **p_t1,
 				}
 			else moved_up = FALSE;
 			if(linenum > 0) {
-				(*p_top)[linenum] = (*p_top)[linenum-1] + hrect + htext * (2 + (*p_morespace)[linenum-1]); // 2026-11-04  (2 +
+				(*p_top)[linenum] = (*p_top)[linenum-1] + linepitch; // 2026-11-11 was hrect + htext * (2 + (*p_morespace)[linenum-1])
 			//	if(!moved_up) (*p_morespace)[linenum] = (*p_morespace)[linenum-1];  // Fixed by BB 2021-01-31
 			//	if(!moved_up) (*p_morespace)[linenum] = 0;  // Fixed by BB 2021-01-31
 				}
@@ -1295,7 +1307,7 @@ int DrawItemBackground(Rect *p_r,unsigned long imax,int htext,int hrect,int left
 
 int DrawPianoNote(char* type,int key,int chan, Milliseconds timeon, Milliseconds timeoff,
 	int leftoffset,int topoffset,int hrect,int minkey,int maxkey,Rect *p_r) {
-	int x1, x2, y;
+	int x1, x2, xlimit, y;
 	Rect r;
 	char* word;
 	int length;
@@ -1333,6 +1345,11 @@ int DrawPianoNote(char* type,int key,int chan, Milliseconds timeon, Milliseconds
 		if(strcmp(type,"midi") == 0) x1 -= 1;
 		}
 	Lastx2[key] = x2;
+	// Don't draw beyond the note scale, whose names are written at its right end (see DrawNoteScale()).
+	// This happens when the image width has been cropped.
+	xlimit = p_r->right - 28;
+	if(x1 >= xlimit) return(OK);
+	if(x2 > xlimit) x2 = xlimit;
 	pen_size(8,0);
 	if(strcmp(type,"midi") == 0) stroke_style("brown");
 	else if(strcmp(type,"csound") == 0) {

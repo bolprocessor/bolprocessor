@@ -863,7 +863,7 @@ int FindOutputDirectory(void);
 int ClearObjectSpace(void);
 void CreateDoneFile(void);
 void CreateStopFile(void);
-void WriteTimeFile(void);
+void WriteTimeFile(int);
 int stop(int,char*);
 void send_note(char*);
 
