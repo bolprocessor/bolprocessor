@@ -463,6 +463,8 @@ int FillPhaseDiagram(tokenbyte ***pp_buff,long* p_numberobjects,unsigned long *p
 	currentparameters.blockkey = DefaultBlockKey;
 	currentparameters.currinstr = 0;
 	currentparameters.currpart = 0;
+	currentparameters.chanset = currentparameters.insset = FALSE; // 2026-11-12 - fixed by Claude
+	StartRememberedParameters(); // 2026-11-12 - fixed by Claude
 
 	currentparameters.currtranspose = starttranspose = (*p_deftstarttranspose)[0] = 0.;
 	currentparameters.transposefirst = TRUE;
@@ -529,6 +531,7 @@ int FillPhaseDiagram(tokenbyte ***pp_buff,long* p_numberobjects,unsigned long *p
 		if((result=stop(0,"FillPhaseDiagram")) != OK) return(result);
 		if(trace_diagram)
 			BPPrintMessage(1,odInfo,"\n@@@ FillPhaseDiagram() m = %d p = %d level = %ld nseq = %ld id = %ld\n",m,p,(long)level,(long)nseq,(long)id);
+		if(nseq >= 0 && nseq < Maxconc) SetRememberClock((*p_im)[nseq]); // 2026-11-12 - fixed by Claude
 		if((m != T3 && m != T47) || p != 0) part_of_ip = Kpress; // Added by BB 2021-03-25
 
 		if(m == T33 || m == T34) {	/* _step() or _cont() */
@@ -1537,6 +1540,7 @@ int FillPhaseDiagram(tokenbyte ***pp_buff,long* p_numberobjects,unsigned long *p
 			case T10:	/* Channel assignment _chan() */
 				currentparameters.currchan = value = FindValue(m,p,currentparameters.currchan);
 				if(value == Infpos) goto ENDDIAGRAM;
+				currentparameters.chanset = TRUE; // 2026-11-12 - fixed by Claude
 				channel = roundf(value);
 		//		if(trace_capture) BPPrintMessage(1,odInfo,"§§ channel = %d\n",channel);
 				break;
@@ -1544,6 +1548,7 @@ int FillPhaseDiagram(tokenbyte ***pp_buff,long* p_numberobjects,unsigned long *p
 				value = (float) FindValue(m,p,currentparameters.currchan);
 				currentparameters.currinstr = (int) value;
 				if(value == Infpos) goto ENDDIAGRAM;
+				currentparameters.insset = TRUE; // 2026-11-12 - fixed by Claude
 				instrument = roundf(value);
 				// BPPrintMessage(0,odInfo,"@@@ instrument = %d, p = %ld\n",instrument,(long)p);
 				break;
@@ -1695,7 +1700,6 @@ int FillPhaseDiagram(tokenbyte ***pp_buff,long* p_numberobjects,unsigned long *p
 				if(i >= 0) {
 					value = FindValue(m,p,currentparameters.currchan);
 					if(value == Infpos) goto ENDDIAGRAM;
-					RememberPanoramic(currentparameters.currpart,currentparameters.currchan,value); // 2026-11-12 - fixed by Claude
 					SwitchParameterChannel(p_contparameters,level,i,currentparameters.currchan,h_table,TRUE);	// 2026-11-08 - fixed by Claude
 					if(AssignValue(i,value,p,level,p_numberobjects,p_deftcurrentparameters,&currentparameters,
 						p_contparameters,id,pp_buff,tempo,scale,h_table) != OK)
@@ -2552,6 +2556,7 @@ int MakeNewLineInPhaseTable(int nseq,int *p_nmax,double **p_im,double maxseq,
 int CopyContinuousParameters(ContParameters **p_a,int na,ContParameters **p_b,int nb) {
 // Makes a copy of the record except 'imax' and 'point', the pointer to a table
 	int i,j;
+	long n;
 
 	if(na >= Maxlevel) return(OK);
 	if((*p_a)[na].values == NULL) {
@@ -2577,6 +2582,22 @@ int CopyContinuousParameters(ContParameters **p_a,int na,ContParameters **p_b,in
 		(*((*p_b)[nb].values))[i].point = (*((*p_a)[na].values))[i].point;
 		(*((*p_b)[nb].values))[i].v0 = (*((*p_a)[na].values))[i].v0;
 		(*((*p_b)[nb].values))[i].v1 = (*((*p_a)[na].values))[i].v1;
+		}
+	// 2026-11-12 The storage of 'nb' may have more slots than 'na' (additional parameters get their slots when an object
+	// is met, see SetObjectParams()). These slots kept the values of the previous expression or field at the same level,
+	// so that in "{_ins(6) _value(blah,20) E4} {_ins(6) D4}" D4 got 20 and in "{_ins(6) _cont(blah) _value(blah,0) D4
+	// _value(blah,50)} {_ins(6) E4}" E4 got 50, whatever its part. They are now reset to "no value" - fixed by Claude
+	n = ((*p_b)[nb].values == NULL) ? 0 : MyGetHandleSize((Handle)(*p_b)[nb].values) / sizeof(ContParameterSpecs);
+	for(i = (*p_a)[na].number; i < n; i++) {
+		(*((*p_b)[nb].values))[i].mode = FIXMAPMODE;
+		(*((*p_b)[nb].values))[i].active = FALSE;
+		(*((*p_b)[nb].values))[i].known = FALSE;
+		(*((*p_b)[nb].values))[i].control = -1;
+		(*((*p_b)[nb].values))[i].start = (*((*p_b)[nb].values))[i].v0 = (*((*p_b)[nb].values))[i].v1 = 0.;
+		(*((*p_b)[nb].values))[i].increment = 0.;
+		(*((*p_b)[nb].values))[i].ibeats = 0;
+		(*((*p_b)[nb].values))[i].maxbeats = 1.;
+		(*((*p_b)[nb].values))[i].point = NULL;
 		}
 	(*p_b)[nb].number = (*p_a)[na].number;
 //	DoneSpecial = TRUE;

@@ -85,7 +85,7 @@ int PlaySelection(int w, int all) {
 			(*p_Oldvalue)[ch].pitchbend = -1;
 			(*p_Oldvalue)[ch].modulation = -1;
 			}
-		ResetLastPanoramic(); // 2026-11-12 - fixed by Claude
+		ResetRememberedParameters(); // 2026-11-12 - fixed by Claude
 	//	if(ResetControllers) ResetMIDIControllers(NO,NO,YES);
 		}
 	if(InitThere == 1) FirstTime = TRUE;
@@ -192,6 +192,7 @@ int PlaySelection(int w, int all) {
 					//	BPPrintMessage(1,odInfo,"@@@ PlayBuffer\n");
 						r = PlayBuffer(&p_a,NO);	/* HERE WE DO IT */
 						if(r != OK) goto END;
+						CarryRememberedParameters();	// 2026-11-12 The values of this chunk apply to the next ones - fixed by Claude
 						}
 				//	MyDisposeHandle((Handle*)&p_a);
 					/* Could already be NULL because of PolyExpand() */
@@ -470,7 +471,7 @@ int PlayHandle(char** p_line,int onlypianoroll) {
 				(*p_Oldvalue)[ch].pitchbend = -1;
 				(*p_Oldvalue)[ch].modulation = -1;
 				}
-			ResetLastPanoramic(); // 2026-11-12 - fixed by Claude
+			ResetRememberedParameters(); // 2026-11-12 - fixed by Claude
 			// if(ResetControllers) ResetMIDIControllers(NO,NO,YES);
 			}
 		}

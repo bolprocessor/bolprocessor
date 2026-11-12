@@ -1336,6 +1336,7 @@ struct s_CurrentParameters {
 	int currtranspose,randomtime,seed;
 	short xpandkey,xpandval;
 	char velmode,articulmode,mapmode,transposemode,transposefirst;
+	char chanset,insset;	// TRUE once _chan() or _ins() has been given (2026-11-12)
 	KeyNumberMap map0,map1;
 	};
 typedef struct s_CurrentParameters CurrentParameters;

@@ -362,7 +362,7 @@ int Inits(void) {
 	DeftVolume = DEFTVOLUME;
 	DeftVelocity = DEFTVELOCITY;
 	DeftPanoramic = DEFTPANORAMIC;
-	ResetLastPanoramic(); // 2026-11-12 - fixed by Claude
+	ResetRememberedParameters(); // 2026-11-12 - fixed by Claude
 	PanoramicController = PANORAMICCONTROL;
 	VolumeController = VOLUMECONTROL;
 	SamplingRate = SAMPLINGRATE;

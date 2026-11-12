@@ -44,27 +44,190 @@ int trace_set_variation = 0;
 int trace_table = 0;
 int check_limits = 0;
 
-// 2026-11-12 The last value of _pan() is attached to its part, or else to its MIDI channel, so that it applies to the following
-// expressions of the same part (or channel) that have no _pan(), e.g. "{_part(1) _pan(23) C4, _part(2) _pan(48) E4} {_part(1) D4, _part(2) F4}":
-// D4 gets 23 and F4 gets 48 instead of the default value 64. A score can then set the stereo position of each part only once - fixed by Claude
-static double LastPanoramicPart[MAXPARTS+1],LastPanoramicChan[MAXCHAN+1];
+// 2026-11-12 The last fixed value of a parameter (_pitchbend(), _volume(), _mod(), _press(), _pan() or an additional parameter
+// set by _value()) is remembered, so that it applies to the following expressions that do not set it. Each value is attached
+// to the instrument if _ins() was given, or else to the part if _part() was given, or else to the MIDI channel if _chan() was
+// given, or else to the current instrument: the one guessed by _value() for an additional parameter, or else instrument 1, as
+// an item starts with the implicit values _ins(1) _part(1) _chan(1). An instrument guessed by _value() does not count as
+// given, so that the values of parts in "{_part(1) _value(blah,10) C4, _part(2) _value(blah,20) E4}" stay apart. An object without a value
+// of its own takes the most recent value attached to its instrument, its part or its channel (implicit values included).
+// On equal dates, the rank is: instrument given by _ins(), part, channel, implicit or guessed instrument.
+// For example:
+//    "{_part(1) _pan(23) C4, _part(2) _pan(48) E4} {_part(1) D4, _part(2) F4}": D4 gets 23 and F4 gets 48
+//    "{_volume(20) C4} {_chan(2) D4}": D4 gets 20 (attached to the implicit instrument 1)
+//    "{_ins(3) _volume(50) C4} {_ins(3) _part(2) _chan(5) D4}": D4 gets 50 (attached to instrument 3)
+// Only a fixed value is remembered. A value of a continuous or stepwise variation, such as the end of a slide
+// "_pitchcont _pitchbend(0) sa3 _ _pitchbend(100) _pitchfixed", belongs to its expression: it erases the remembered
+// value, so that the following expressions get the default value. Otherwise "-gr.vina3", whose notes are all on
+// channel 1, played notes out of tune after a slide.
+// A value applies only to objects starting after its date (position in the phase diagram). Fields of a polymetric
+// expression are read one after the other, so in "{_volumecont _volume(0) - - _volume(60), C4 D4 E4}" the value 60 is
+// read before C4, which starts earlier. A field starting at the date of the value, such as "C4 D4 E4" with "_volume(0)",
+// does not get it either, otherwise the result would depend on the order of the fields - fixed by Claude
+#define NREMEMBERED (IPANORAMIC + 1 + MAXPARAMS)
+#define MAXREMEMBEREDINS 256
+#define KEYINS 0
+#define KEYPART 1
+#define KEYCHAN 2
+static int KeySize[3] = {MAXREMEMBEREDINS + 1,MAXPARTS + 1,MAXCHAN + 1};
+// Two layers: the values of the phase diagram being built (cleared by StartRememberedParameters() at the start of
+// each diagram, so that separate items and recomputed diagrams are independent), and the values carried over from
+// the previous chunks of the same item (moved there by CarryRememberedParameters() after each chunk), which are
+// older than any value of the current chunk. A value erased by a continuous variation hides the carried value.
+#define NOTHING 0
+#define AVALUE 1
+#define ERASED 2
+static double *RememberedValue[3] = {NULL,NULL,NULL},*RememberedDate[3] = {NULL,NULL,NULL},*CarriedValue[3] = {NULL,NULL,NULL};
+static char *RememberedState[3] = {NULL,NULL,NULL},*IsCarried[3] = {NULL,NULL,NULL};
+// For instruments: TRUE if the value was attached to an instrument given by _ins(), FALSE if attached to the
+// implicit _ins(1) or to an instrument guessed by _value(). On equal dates, the rank is: _ins() given, part,
+// channel, implicit or guessed instrument. In "{_volume(80) C4, _part(2) _volume(30) E4} {_part(2) D4}",
+// D4 gets 30: both values have the date 0, and 80 is attached to the implicit _ins(1)
+static char *RememberedExplicit = NULL,*CarriedExplicit = NULL;
+static double RememberClock = 0.;
 
-void ResetLastPanoramic(void) {
-	int i;
-	for(i = 0; i <= MAXPARTS; i++) LastPanoramicPart[i] = -1.;
-	for(i = 0; i <= MAXCHAN; i++) LastPanoramicChan[i] = -1.;
+void SetRememberClock(double date) {
+	RememberClock = date;
 	}
 
-void RememberPanoramic(int part,int chan,double value) {
-	if(part > 0 && part <= MAXPARTS) LastPanoramicPart[part] = value;
-	else if(chan >= 0 && chan <= MAXCHAN) LastPanoramicChan[chan] = value;
+static int AllocateRememberedParameters(void) {
+	int kind;
+	long n;
+	for(kind = 0; kind < 3; kind++) {
+		if(RememberedState[kind] != NULL) continue;
+		n = (long) NREMEMBERED * KeySize[kind];
+		RememberedValue[kind] = (double*) malloc(n * sizeof(double));
+		RememberedDate[kind] = (double*) malloc(n * sizeof(double));
+		CarriedValue[kind] = (double*) malloc(n * sizeof(double));
+		RememberedState[kind] = (char*) malloc(n * sizeof(char));
+		IsCarried[kind] = (char*) malloc(n * sizeof(char));
+		if(kind == KEYINS) {
+			RememberedExplicit = (char*) malloc(n * sizeof(char));
+			CarriedExplicit = (char*) malloc(n * sizeof(char));
+			}
+		if(RememberedValue[kind] == NULL || RememberedDate[kind] == NULL || CarriedValue[kind] == NULL
+				|| RememberedState[kind] == NULL || IsCarried[kind] == NULL
+				|| (kind == KEYINS && (RememberedExplicit == NULL || CarriedExplicit == NULL))) {
+			BPPrintMessage(0,odError,"=> Err. AllocateRememberedParameters(). Out of memory\n");
+			RememberedState[kind] = NULL;
+			return(ABORT);
+			}
+		}
+	return(OK);
 	}
 
-double RememberedPanoramic(int part,int chan) {
-	// Returns -1 if no value was remembered
-	if(part > 0 && part <= MAXPARTS && LastPanoramicPart[part] > -1.) return(LastPanoramicPart[part]);
-	if(chan >= 0 && chan <= MAXCHAN) return(LastPanoramicChan[chan]);
-	return(-1.);
+void ResetRememberedParameters(void) {
+	// Forget everything, e.g. at the start of a play when controllers are reset
+	int kind;
+	long i,n;
+	if(AllocateRememberedParameters() != OK) return;
+	for(kind = 0; kind < 3; kind++) {
+		n = (long) NREMEMBERED * KeySize[kind];
+		for(i = 0; i < n; i++) {
+			RememberedState[kind][i] = NOTHING;
+			IsCarried[kind][i] = FALSE;
+			}
+		}
+	}
+
+void StartRememberedParameters(void) {
+	// Called at the start of a phase diagram: only the values carried over from previous chunks are kept
+	int kind;
+	long i,n;
+	if(AllocateRememberedParameters() != OK) return;
+	for(kind = 0; kind < 3; kind++) {
+		n = (long) NREMEMBERED * KeySize[kind];
+		for(i = 0; i < n; i++) RememberedState[kind][i] = NOTHING;
+		}
+	}
+
+void CarryRememberedParameters(void) {
+	// Called after a chunk has been played: its values will apply to the following chunks of the item
+	int kind;
+	long i,n;
+	if(AllocateRememberedParameters() != OK) return;
+	for(kind = 0; kind < 3; kind++) {
+		n = (long) NREMEMBERED * KeySize[kind];
+		for(i = 0; i < n; i++) {
+			if(RememberedState[kind][i] == AVALUE) {
+				CarriedValue[kind][i] = RememberedValue[kind][i];
+				if(kind == KEYINS) CarriedExplicit[i] = RememberedExplicit[i];
+				IsCarried[kind][i] = TRUE;
+				}
+			else if(RememberedState[kind][i] == ERASED) IsCarried[kind][i] = FALSE;
+			RememberedState[kind][i] = NOTHING;
+			}
+		}
+	}
+
+static long RememberedSlot(int kind,int key,int index) {
+	// Returns -1 if out of range
+	if(RememberedState[kind] == NULL || index < 0 || index >= NREMEMBERED || key < 0 || key >= KeySize[kind]) return(-1);
+	return((long) index * KeySize[kind] + key);
+	}
+
+void RememberParameter(int index,CurrentParameters *p_currentparameters,double value,int mode) {
+	int kind,key,explicit;
+	long slot;
+
+	// The value is attached to the instrument, part or channel that was given, in this order of priority
+	explicit = FALSE;
+	if(p_currentparameters->insset && p_currentparameters->currinstr > 0) {
+		kind = KEYINS; key = p_currentparameters->currinstr;
+		explicit = TRUE;
+		}
+	else if(p_currentparameters->currpart > 0) {
+		kind = KEYPART; key = p_currentparameters->currpart;
+		}
+	else if(p_currentparameters->chanset) {
+		kind = KEYCHAN; key = p_currentparameters->currchan;
+		}
+	else {
+		// The current instrument: the one guessed by _value() or _cont() for an additional parameter, or else the implicit _ins(1)
+		kind = KEYINS; key = (p_currentparameters->currinstr > 0) ? p_currentparameters->currinstr : 1;
+		}
+	if((slot = RememberedSlot(kind,key,index)) < 0) return;
+	RememberedState[kind][slot] = (mode == FIXMAPMODE) ? AVALUE : ERASED;
+	RememberedValue[kind][slot] = value;
+	RememberedDate[kind][slot] = RememberClock;
+	if(kind == KEYINS) RememberedExplicit[slot] = explicit;
+	}
+
+int RememberedParameter(int index,CurrentParameters *p_currentparameters,double *p_value) {
+	// Returns TRUE and the most recent value attached to the instrument, part or channel of the current object
+	// (implicit values included), set before the current date. On equal dates the rank is: instrument given by _ins(),
+	// part, channel, implicit or guessed instrument. Values carried over from previous chunks are older than those of
+	// the current chunk.
+	int kind,key[3],found,rank,thisrank;
+	long slot;
+	double date,thisdate,thisvalue;
+
+	key[KEYINS] = p_currentparameters->currinstr > 0 ? p_currentparameters->currinstr : 1;
+	key[KEYPART] = p_currentparameters->currpart > 0 ? p_currentparameters->currpart : 1;
+	key[KEYCHAN] = p_currentparameters->currchan;
+	found = FALSE; date = 0.; rank = 0;
+	for(kind = 0; kind < 3; kind++) {
+		if((slot = RememberedSlot(kind,key[kind],index)) < 0) continue;
+		if(RememberedState[kind][slot] != NOTHING && RememberedDate[kind][slot] < RememberClock) {
+			if(RememberedState[kind][slot] == ERASED) continue;
+			thisvalue = RememberedValue[kind][slot];
+			thisdate = RememberedDate[kind][slot];
+			thisrank = (kind == KEYINS) ? (RememberedExplicit[slot] ? 0 : 3) : kind;
+			}
+		else if(IsCarried[kind][slot]) {
+			thisvalue = CarriedValue[kind][slot];
+			thisdate = -1.;
+			thisrank = (kind == KEYINS) ? (CarriedExplicit[slot] ? 0 : 3) : kind;
+			}
+		else continue;
+		if(!found || thisdate > date || (thisdate == date && thisrank < rank)) {
+			*p_value = thisvalue;
+			date = thisdate;
+			rank = thisrank;
+			found = TRUE;
+			}
+		}
+	return(found);
 	}
 
 int SetObjectParams(int part_of_score,int level,int nseq,long k,int j,CurrentParameters *p_currentparameters,ContParameters **p_contparameters,Table **h_table) {
@@ -171,6 +334,18 @@ int SetObjectParams(int part_of_score,int level,int nseq,long k,int j,CurrentPar
 			chan = (*((*p_contparameters)[level].values))[paramindex].channel;
 			scale = (*((*p_contparameters)[level].values))[paramindex].scale;
 			blockkey = (*((*p_contparameters)[level].values))[paramindex].blockkey;
+			if(!(*((*p_contparameters)[level].values))[paramindex].known
+					&& RememberedParameter(paramindex,p_currentparameters,&v0)) {
+				// 2026-11-12 The parameter is not set at this level: it takes the last value of the part (or channel), which is
+				// kept at this level so that the following objects get it too - fixed by Claude
+				(*((*p_contparameters)[level].values))[paramindex].v0
+					= (*((*p_contparameters)[level].values))[paramindex].v1
+					= (*((*p_contparameters)[level].values))[paramindex].start = v0;
+				(*((*p_contparameters)[level].values))[paramindex].mode = FIXMAPMODE;
+				(*((*p_contparameters)[level].values))[paramindex].active = TRUE;
+				(*((*p_contparameters)[level].values))[paramindex].known = TRUE;
+				if(trace_set_variation) BPPrintMessage(1,odInfo,"Remembered value of paramindex = %d: %.2f\n",paramindex,v0);
+				}
 			if(paramindex <= IPANORAMIC && !(*((*p_contparameters)[level].values))[paramindex].known) {
 				if(trace_set_variation) BPPrintMessage(1,odInfo,"NOT known, paramindex = %d\n",paramindex);
 				switch(paramindex) {
@@ -199,8 +374,6 @@ int SetObjectParams(int part_of_score,int level,int nseq,long k,int j,CurrentPar
 							v0 = DeftVolume;
 						break;
 					case IPANORAMIC:
-						if((v0 = RememberedPanoramic(p_currentparameters->currpart,p_currentparameters->currchan)) > -1.)
-							break; // 2026-11-12 - fixed by Claude
 						if(!ResetControllers && (*p_Oldvalue)[chan].panoramic > -1)
 							v0 = (*p_Oldvalue)[chan].panoramic;
 						else
@@ -210,14 +383,6 @@ int SetObjectParams(int part_of_score,int level,int nseq,long k,int j,CurrentPar
 				(*((*p_contparameters)[level].values))[paramindex].known = TRUE;
 				v1 = v0;
 				mode = FIXMAPMODE;
-				if(paramindex == IPANORAMIC) {
-					// 2026-11-12 The value is kept at this level, so that the following objects get it too.
-					// In "{_part(1) _pan(20) C4} {_part(1) G4 A4}", A4 got the default value 64 - fixed by Claude
-					(*((*p_contparameters)[level].values))[paramindex].v0
-						= (*((*p_contparameters)[level].values))[paramindex].v1
-						= (*((*p_contparameters)[level].values))[paramindex].start = v0;
-					(*((*p_contparameters)[level].values))[paramindex].mode = mode;
-					}
 				if(trace_set_variation) BPPrintMessage(1,odInfo,"paramindex1 = %d, v0 = %.2f v1 = %.2f, mode = %d\n",paramindex,(float)v0,(float)v1,mode);
 				}
 			else {
@@ -1616,6 +1781,7 @@ int AssignValue(int index,double value,int p,int level,long* p_kmx,
 		= value;
 	(*((*p_contparameters)[level].values))[index].active = TRUE;
 	(*((*p_contparameters)[level].values))[index].known = TRUE;
+	RememberParameter(index,p_currentparameters,value,(*((*p_contparameters)[level].values))[index].mode); // 2026-11-12 - fixed by Claude
 
 
 	if(trace_set_variation) {

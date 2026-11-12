@@ -15,6 +15,8 @@ Sound-objet prototype files (-so) are now stored in JSON format. Old files are a
 Time-base files (-tb) are now stored in JSON format. Old files are automatically converted to the new format when found by the interface.
 Csound resource files (-cs) are now stored in JSON format. Old files are automatically converted to the new format when found by the interface in the 'csound_resources' folder.
 Csound instruments can now be assigned to 'parts' of a score. For example, try '-da.Beethoven-fugue-b-flat-major', which has four parts associated with four instruments and is rendered by the newly created orchestra file 'Beethoven.orc'. Listen to it in stereo!
+Carrying over controls such as volume, panoramic, etc., over a Bol Processor score follows a set of rules which we have made explicit in a tutorial:
+https://bolprocessor.org/carrying-over-controls
 
 Don't forget to update the PHP interface:
 https://github.com/bolprocessor/php-frontend/
