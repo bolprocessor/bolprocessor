@@ -283,8 +283,9 @@ int AddEventToList(int k) {
 		if((*p_DefaultChannel)[j] != 0) localchan = (*p_DefaultChannel)[j];
 		if((*p_CsoundInstrumentMode)[j] != 0) instrument = (*p_CsoundInstrumentMode)[j];
 		else if(instrument <= 0) {
-			if(WhichCsoundInstrument[localchan] > 0) {
-				instrument = WhichCsoundInstrument[localchan];
+			// 2026-11-12 The assignment of a part takes precedence over that of the channel - fixed by Claude
+			if(CsoundInstrumentForChannelAndPart(localchan,(*p_Instance)[k].part) > 0) {
+				instrument = CsoundInstrumentForChannelAndPart(localchan,(*p_Instance)[k].part);
 				}
 			else instrument = 1;
 			}
@@ -310,7 +311,7 @@ int AddEventToList(int k) {
 
 	if(!sound_object && instrument <= 0) {
 	//	BPPrintMessage(0,odInfo,"@@@ instrument = %d, channel = %d\n",instrument,localchan);
-		if(WhichCsoundInstrument[localchan] > 0) instrument = WhichCsoundInstrument[localchan];
+		if(CsoundInstrumentForChannelAndPart(localchan,(*p_Instance)[k].part) > 0) instrument = CsoundInstrumentForChannelAndPart(localchan,(*p_Instance)[k].part); // 2026-11-12 - fixed by Claude
 		else instrument = 1;
 		}
 	if(instrument > 0 && instrument < MAXINSTRUMENTS) {

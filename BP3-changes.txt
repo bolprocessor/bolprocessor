@@ -11,9 +11,10 @@ Many corrections have been done at a deep level, solving problems in (uncommon) 
 The timing during a real-time MIDI performance and the expected total time are displayed.
 Csound resource (-cs), sound-objects (-so) and tonality (-to) files are protected against a failure if their related folders in the 'temp_bolprocessor' folder have been deleted by mistake.
 Templates in grammars now accept integers and integer ratios (silences), as well as _tempo() statements.
-Csound resource files (-cs) are now stored in JSON format. Old files are automatically converted to the new format when found by the interface in the 'csound_resources' folder.
 Sound-objet prototype files (-so) are now stored in JSON format. Old files are automatically converted to the new format when found by the interface.
 Time-base files (-tb) are now stored in JSON format. Old files are automatically converted to the new format when found by the interface.
+Csound resource files (-cs) are now stored in JSON format. Old files are automatically converted to the new format when found by the interface in the 'csound_resources' folder.
+Csound instruments can now be assigned to 'parts' of a score. For example, try '-da.Beethoven-fugue-b-flat-major', which has four parts associated with four instruments and is rendered by the newly created orchestra file 'Beethoven.orc'. Listen to it in stereo!
 
 Don't forget to update the PHP interface:
 https://github.com/bolprocessor/php-frontend/

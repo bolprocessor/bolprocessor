@@ -415,7 +415,7 @@ static int CsStringToHandle(char ***p_handle,const char *s) {
 
 int LoadCsoundInstrumentsJSON(const char *json_text) {
 	// Reads a Csound resource file in JSON format. Values are found by their "key". Called by LoadCsoundInstruments()
-	int i,ip,j,k,max_ins,chan,ins,ins2,result,length,i_table,ipmax,paramindex,paramnameindex;
+	int i,ip,j,k,max_ins,chan,part,ins,ins2,result,length,i_table,ipmax,paramindex,paramnameindex;
 	char **ptr;
 	char key[MAXNAME];
 	const char *s;
@@ -437,10 +437,18 @@ int LoadCsoundInstrumentsJSON(const char *json_text) {
 		BPPrintMessage(0,odError,"=> Could not parse JSON in Csound instruments file, near: %.40s\n",cJSON_GetErrorPtr());
 		goto ERR;
 		}
+	// 2026-11-12 Channels are saved with key "WhichCsoundInstrumentForChannel[chan]". The former key "WhichCsoundInstrument[chan]" is still accepted. Parts are saved with key "WhichCsoundInstrumentForPart[part]" - fixed by Claude
 	for(chan = 1; chan <= MAXCHAN; chan++) {
-		WhichCsoundInstrument[chan] = -1;
+		WhichCsoundInstrumentForChannel[chan] = -1;
 		my_sprintf(key,"WhichCsoundInstrument[%d]",chan);
-		CS_JSON_INT(json,key,WhichCsoundInstrument[chan]);
+		CS_JSON_INT(json,key,WhichCsoundInstrumentForChannel[chan]);
+		my_sprintf(key,"WhichCsoundInstrumentForChannel[%d]",chan);
+		CS_JSON_INT(json,key,WhichCsoundInstrumentForChannel[chan]);
+		}
+	for(part = 1; part <= MAXPARTS; part++) {
+		WhichCsoundInstrumentForPart[part] = -1;
+		my_sprintf(key,"WhichCsoundInstrumentForPart[%d]",part);
+		CS_JSON_INT(json,key,WhichCsoundInstrumentForPart[part]);
 		}
 	s = CsJsonString(json,"CsoundOrchestraName");
 	if(s == NULL) s = "";
@@ -720,8 +728,9 @@ int LoadCsoundInstrumentsOldFormat(int checkversion,int tryname) {
 		}
 	for(chan = 1; chan <= max_chan; chan++) {
 		if(ReadInteger(csfile,&i,&pos) == MISSED) goto ERR;
-		WhichCsoundInstrument[chan] = i;
+		WhichCsoundInstrumentForChannel[chan] = i;
 		}
+	for(chan = 1; chan <= MAXPARTS; chan++) WhichCsoundInstrumentForPart[chan] = -1; // 2026-11-12 Not in the old format - fixed by Claude
 	if(iv > 11) {
 		if(ReadOne(FALSE,TRUE,FALSE,csfile,TRUE,&p_line,&p_completeline,&pos) == MISSED) goto ERR;
 		MystrcpyHandleToString(MAXNAME,0,CsoundOrchestraName,p_completeline);

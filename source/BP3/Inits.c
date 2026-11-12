@@ -392,7 +392,7 @@ int Inits(void) {
 	NeedAlphabet = FALSE;
 	for(i=0; i < MAXCHAN; i++) {
 		ChangedVolume[i] = ChangedPanoramic[i] = ChangedModulation[i] = ChangedPitchbend[i] = ChangedSwitch[i] = ChangedPressure[i] = FALSE;
-		WhichCsoundInstrument[i+1] = -1;
+		WhichCsoundInstrumentForChannel[i+1] = -1;
 		}
 	PrototypeTickChannel = 1; PrototypeTickKey = 84;
 	TickKey[0] = 96;
@@ -424,7 +424,8 @@ int Inits(void) {
 	if(ResizeCsoundInstrumentsSpace(1) != OK) return(ABORT);
 	iCsoundInstrument = 0;
 	ResetCsoundInstrument(iCsoundInstrument,YES,NO);
-	for(i=1; i <= MAXCHAN; i++) WhichCsoundInstrument[i] = -1;
+	for(i=1; i <= MAXCHAN; i++) WhichCsoundInstrumentForChannel[i] = -1;
+	for(i=1; i <= MAXPARTS; i++) WhichCsoundInstrumentForPart[i] = -1;
 	SetMidiFileNr = 0;
 	return(OK);
 	}

@@ -17,3 +17,5 @@ Bol Processor has been developed thanks to feedback and cooperation of several m
 Thanks to Harm Visser, Jim Ross, Tom Demeyer, Nadaka and Didier, Paul Sheldon, and Sterling Beckwith for musical material, comments, code examples, help in uploading and distributing.  To Otto Laske and Jim Kippen for supporting the underlying research work.  To Srikumar Karaikudi Subramanian for additional development of BP2.  To Barry Vercoe for encouraging work with Csound.  And to the GMEB folks in Bourges for their 1997 award...
 
 MacOS X and Carbon porting by Anthony Kozar
+
+The interface plays MIDI files with SpessaSynth by Spessasus (https://github.com/spessasus/spessasynth_lib, Apache-2.0 licence), using the GeneralUser GS sound bank by S. Christian Collins (https://www.schristiancollins.com). SpessaSynth also relies on fflate by Arjun Barrett (MIT licence) and stb-vorbis (Apache-2.0 licence). Their licences are in "php/spessasynth".

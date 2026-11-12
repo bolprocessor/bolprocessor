@@ -153,7 +153,8 @@ int PitchbendRange[MAXCHAN+1],DeftPitchbendRange,PitchbendRate[MAXCHAN+1],Modula
 	VolumeRate[MAXCHAN+1],VolumeControl[MAXCHAN+1],PanoramicRate[MAXCHAN+1],PanoramicControl[MAXCHAN+1],
 	DeftVolume,DeftVelocity,DeftPanoramic,PanoramicController,VolumeController,SamplingRate;
 char ChangedVolume[MAXCHAN+1],ChangedPanoramic[MAXCHAN+1],ChangedModulation[MAXCHAN+1],ChangedPitchbend[MAXCHAN+1],ChangedSwitch[MAXCHAN+1],
-	ChangedPressure[MAXCHAN+1],WhichCsoundInstrument[MAXCHAN+1];
+	ChangedPressure[MAXCHAN+1];
+int WhichCsoundInstrumentForChannel[MAXCHAN+1],WhichCsoundInstrumentForPart[MAXPARTS+1]; // 2026-11-12 int rather than char, and parts - fixed by Claude
 int Jbol,Jfunc,Jinstr,Jinscript,Joutscript,Maxinscript,Maxoutscript,iProto,Jcontrol,Jpatt,Jvar,Jflag,MaxVar,
 	Jhomo,**p_VarStatus,iCsoundInstrument;
 int FreezeWindows,StartFromOne,rtMIDI,OutCsound,OutBPdata,MustChangeInput,SmartCursor,NotSaidKpress,**p_MemGram,**p_MemRul,SaidChannel;

@@ -47,7 +47,7 @@ int CscoreWrite(Milliseconds cut_the_end,Rect* p_graphrect,int leftoffset,int to
 	// onoffline = OFF -- terminate Csound process as a NoteOff has been encountered, and
 	//    write Csound score line
 
-	int i,jj,k,c,ins,index,paramindex,paramnameindex,this_instrument,iarg,ip,ipitch,iargmax,octave,changedpitch,overflow,comeback,pitchclass,result,maxparam,argtable,pitch_format,i_scale,mode;
+	int i,jj,k,c,ins,index,part,assigned,paramindex,paramnameindex,this_instrument,iarg,ip,ipitch,iargmax,octave,changedpitch,overflow,comeback,pitchclass,result,maxparam,argtable,pitch_format,i_scale,mode;
 	char line[MAXLIN],line2[MAXLIN];
 	long imax,pivloc,trbeg,starttime;
 	double time,x,xx,cents_base,cents_add1,cents_add2,deltakey,dur,**scorearg,alpha1,alpha2,startvalue,endvalue,ratio,oldtime_on;
@@ -71,6 +71,11 @@ int CscoreWrite(Milliseconds cut_the_end,Rect* p_graphrect,int leftoffset,int to
 		
 	perf = (*pp_currentparams)[nseq]; 
 
+	// 2026-11-12 The assignment of a part to an instrument takes precedence over that of the MIDI channel - fixed by Claude
+	part = 0;
+	if(kcurrentinstance >= 0) part = (*p_Instance)[kcurrentinstance].part;
+	assigned = CsoundInstrumentForChannelAndPart(chan + 1,part);
+
 	if(trace_cs_scoremake)
 		BPPrintMessage(0,odInfo,"instrument = %d, chan = %d\n",instrument,chan);
 
@@ -80,7 +85,7 @@ int CscoreWrite(Milliseconds cut_the_end,Rect* p_graphrect,int leftoffset,int to
 		if(mode > 0) instrument = (*p_CsoundInstr)[j];
 		else if(mode == LOCAL_CS) instrument = (*((*pp_CsoundScore)[j]))[iline].instrument;
 		else if(instrument <= 0) {
-			if(WhichCsoundInstrument[chan+1] > 0) instrument = WhichCsoundInstrument[chan+1];
+			if(assigned > 0) instrument = assigned; // 2026-11-12 Part or channel assignment - fixed by Claude
 			else instrument = 1;
 			}
 		}
@@ -123,7 +128,7 @@ int CscoreWrite(Milliseconds cut_the_end,Rect* p_graphrect,int leftoffset,int to
 		else {
 			if(instrument > 0) index = instrument;
 			else if(j < Jbol && (*p_CsoundInstrumentMode)[j] >= 0) index = (*p_CsoundInstrumentMode)[j];
-			else if(WhichCsoundInstrument[chan+1] >= 0) index = WhichCsoundInstrument[chan+1];
+			else if(assigned >= 0) index = assigned; // 2026-11-12 Part or channel assignment - fixed by Claude
 			else index = 0;
 			}
 		for(ins = 0; ins < Jinstr; ins++) {

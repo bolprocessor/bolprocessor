@@ -116,7 +116,8 @@ extern int PitchbendRange[MAXCHAN+1],DeftPitchbendRange,PitchbendRate[MAXCHAN+1]
 	VolumeRate[MAXCHAN+1],VolumeControl[MAXCHAN+1],PanoramicRate[MAXCHAN+1],PanoramicControl[MAXCHAN+1],
 	DeftVolume,DeftVelocity,DeftPanoramic,PanoramicController,VolumeController,SamplingRate;
 extern char ChangedVolume[MAXCHAN+1],ChangedPanoramic[MAXCHAN+1],ChangedModulation[MAXCHAN+1],ChangedPitchbend[MAXCHAN+1],ChangedSwitch[MAXCHAN+1],
-	ChangedPressure[MAXCHAN+1],WhichCsoundInstrument[MAXCHAN+1];
+	ChangedPressure[MAXCHAN+1];
+extern int WhichCsoundInstrumentForChannel[MAXCHAN+1],WhichCsoundInstrumentForPart[MAXPARTS+1];
 extern int Jbol,Jinstr,Jfunc,Jinscript,Joutscript,Maxinscript,Maxoutscript,iProto,Jcontrol,Jpatt,Jvar,Jflag,
 	MaxVar,Jhomo,**p_VarStatus,iCsoundInstrument;
 extern int FreezeWindows,StartFromOne,rtMIDI,OutCsound,OutBPdata,MustChangeInput,

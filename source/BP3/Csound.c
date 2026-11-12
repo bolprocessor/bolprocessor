@@ -58,10 +58,14 @@ int ResetCsoundInstrument(int j,int all, int newinstr) {
 			return(MISSED);
 			}
 		for(channel=1; channel <= MAXCHAN; channel++) {
-			if(WhichCsoundInstrument[channel] == (*p_CsInstrumentIndex)[j]) {
-				WhichCsoundInstrument[channel] = -1;
+			if(WhichCsoundInstrumentForChannel[channel] == (*p_CsInstrumentIndex)[j]) {
+				WhichCsoundInstrumentForChannel[channel] = -1;
 				break;
 				}
+			}
+		for(i = 1; i <= MAXPARTS; i++) {
+			if(WhichCsoundInstrumentForPart[i] == (*p_CsInstrumentIndex)[j])
+				WhichCsoundInstrumentForPart[i] = -1;
 			}
 		}
 	if(all || newinstr) {
@@ -969,9 +973,18 @@ static const char *JsonLabel(const char *description,const char *fallback) {
 	} while(0)
 
 
+int CsoundInstrumentForChannelAndPart(int chan,int part) {
+	// 2026-11-12 Returns the Csound instrument assigned to 'part' (1..MAXPARTS), or else to MIDI channel 'chan' (1..MAXCHAN), or -1 if none.
+	// The assignment of a part takes precedence over that of a channel - fixed by Claude
+	if(part > 0 && part <= MAXPARTS && WhichCsoundInstrumentForPart[part] > 0)
+		return(WhichCsoundInstrumentForPart[part]);
+	if(chan > 0 && chan <= MAXCHAN && WhichCsoundInstrumentForChannel[chan] > 0)
+		return(WhichCsoundInstrumentForChannel[chan]);
+	return(-1);
+	}
 
 int ExportJsonCsoundInstrument(int instrument) {
-	int i,j,k,ipmax,chan;
+	int i,j,k,ipmax,chan,part;
 	CsoundParam **params;
 	FILE *csjson;
 	char instrument_path[1024],label[MAXNAME],label2[MAXNAME];
@@ -1020,12 +1033,19 @@ int ExportJsonCsoundInstrument(int instrument) {
 	SAVE_INSTR_INT(iargmax,"","Number of arguments");
 
 	for(chan = 1; chan <= MAXCHAN; chan++) {
-		if(WhichCsoundInstrument[chan] > 0) {
-			if(WhichCsoundInstrument[chan] == instrument) {
-				my_sprintf(label,"WhichCsoundInstrument[%d]",chan);
+		if(WhichCsoundInstrumentForChannel[chan] > 0) {
+			if(WhichCsoundInstrumentForChannel[chan] == instrument) {
+				my_sprintf(label,"WhichCsoundInstrumentForChannel[%d]",chan);
 				my_sprintf(label2,"%d",chan);
 				SaveEscapedStringAsJson(csjson,label,"","MIDI channel associated with this instrument",label2);
 				}
+			}
+		}
+	for(part = 1; part <= MAXPARTS; part++) { // 2026-11-12 - fixed by Claude
+		if(WhichCsoundInstrumentForPart[part] > 0 && WhichCsoundInstrumentForPart[part] == instrument) {
+			my_sprintf(label,"WhichCsoundInstrumentForPart[%d]",part);
+			my_sprintf(label2,"%d",part);
+			SaveEscapedStringAsJson(csjson,label,"","Part associated with this instrument",label2);
 			}
 		}
 
