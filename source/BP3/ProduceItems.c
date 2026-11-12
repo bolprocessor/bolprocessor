@@ -95,6 +95,7 @@ int ProduceItems(int w,int repeat,int template,tokenbyte ***pp_start) {
 			(*p_Oldvalue)[ch].pitchbend = -1.;
 			(*p_Oldvalue)[ch].modulation = -1;
 			}
+		ResetLastPanoramic(); // 2026-11-12 - fixed by Claude
 		}
 	// if(!PlaySelectionOn && ResetControllers) ResetMIDIControllers(YES,YES,NO);
 	if(!PlaySelectionOn && (InitThere == 2)) {

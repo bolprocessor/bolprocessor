@@ -85,6 +85,7 @@ int PlaySelection(int w, int all) {
 			(*p_Oldvalue)[ch].pitchbend = -1;
 			(*p_Oldvalue)[ch].modulation = -1;
 			}
+		ResetLastPanoramic(); // 2026-11-12 - fixed by Claude
 	//	if(ResetControllers) ResetMIDIControllers(NO,NO,YES);
 		}
 	if(InitThere == 1) FirstTime = TRUE;
@@ -469,6 +470,7 @@ int PlayHandle(char** p_line,int onlypianoroll) {
 				(*p_Oldvalue)[ch].pitchbend = -1;
 				(*p_Oldvalue)[ch].modulation = -1;
 				}
+			ResetLastPanoramic(); // 2026-11-12 - fixed by Claude
 			// if(ResetControllers) ResetMIDIControllers(NO,NO,YES);
 			}
 		}

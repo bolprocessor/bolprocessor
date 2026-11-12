@@ -44,6 +44,29 @@ int trace_set_variation = 0;
 int trace_table = 0;
 int check_limits = 0;
 
+// 2026-11-12 The last value of _pan() is attached to its part, or else to its MIDI channel, so that it applies to the following
+// expressions of the same part (or channel) that have no _pan(), e.g. "{_part(1) _pan(23) C4, _part(2) _pan(48) E4} {_part(1) D4, _part(2) F4}":
+// D4 gets 23 and F4 gets 48 instead of the default value 64. A score can then set the stereo position of each part only once - fixed by Claude
+static double LastPanoramicPart[MAXPARTS+1],LastPanoramicChan[MAXCHAN+1];
+
+void ResetLastPanoramic(void) {
+	int i;
+	for(i = 0; i <= MAXPARTS; i++) LastPanoramicPart[i] = -1.;
+	for(i = 0; i <= MAXCHAN; i++) LastPanoramicChan[i] = -1.;
+	}
+
+void RememberPanoramic(int part,int chan,double value) {
+	if(part > 0 && part <= MAXPARTS) LastPanoramicPart[part] = value;
+	else if(chan >= 0 && chan <= MAXCHAN) LastPanoramicChan[chan] = value;
+	}
+
+double RememberedPanoramic(int part,int chan) {
+	// Returns -1 if no value was remembered
+	if(part > 0 && part <= MAXPARTS && LastPanoramicPart[part] > -1.) return(LastPanoramicPart[part]);
+	if(chan >= 0 && chan <= MAXCHAN) return(LastPanoramicChan[chan]);
+	return(-1.);
+	}
+
 int SetObjectParams(int part_of_score,int level,int nseq,long k,int j,CurrentParameters *p_currentparameters,ContParameters **p_contparameters,Table **h_table) {
 
 	ParameterSpecs **currentinstancevalues;
@@ -176,6 +199,8 @@ int SetObjectParams(int part_of_score,int level,int nseq,long k,int j,CurrentPar
 							v0 = DeftVolume;
 						break;
 					case IPANORAMIC:
+						if((v0 = RememberedPanoramic(p_currentparameters->currpart,p_currentparameters->currchan)) > -1.)
+							break; // 2026-11-12 - fixed by Claude
 						if(!ResetControllers && (*p_Oldvalue)[chan].panoramic > -1)
 							v0 = (*p_Oldvalue)[chan].panoramic;
 						else
@@ -185,6 +210,14 @@ int SetObjectParams(int part_of_score,int level,int nseq,long k,int j,CurrentPar
 				(*((*p_contparameters)[level].values))[paramindex].known = TRUE;
 				v1 = v0;
 				mode = FIXMAPMODE;
+				if(paramindex == IPANORAMIC) {
+					// 2026-11-12 The value is kept at this level, so that the following objects get it too.
+					// In "{_part(1) _pan(20) C4} {_part(1) G4 A4}", A4 got the default value 64 - fixed by Claude
+					(*((*p_contparameters)[level].values))[paramindex].v0
+						= (*((*p_contparameters)[level].values))[paramindex].v1
+						= (*((*p_contparameters)[level].values))[paramindex].start = v0;
+					(*((*p_contparameters)[level].values))[paramindex].mode = mode;
+					}
 				if(trace_set_variation) BPPrintMessage(1,odInfo,"paramindex1 = %d, v0 = %.2f v1 = %.2f, mode = %d\n",paramindex,(float)v0,(float)v1,mode);
 				}
 			else {

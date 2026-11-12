@@ -1695,6 +1695,7 @@ int FillPhaseDiagram(tokenbyte ***pp_buff,long* p_numberobjects,unsigned long *p
 				if(i >= 0) {
 					value = FindValue(m,p,currentparameters.currchan);
 					if(value == Infpos) goto ENDDIAGRAM;
+					RememberPanoramic(currentparameters.currpart,currentparameters.currchan,value); // 2026-11-12 - fixed by Claude
 					SwitchParameterChannel(p_contparameters,level,i,currentparameters.currchan,h_table,TRUE);	// 2026-11-08 - fixed by Claude
 					if(AssignValue(i,value,p,level,p_numberobjects,p_deftcurrentparameters,&currentparameters,
 						p_contparameters,id,pp_buff,tempo,scale,h_table) != OK)
