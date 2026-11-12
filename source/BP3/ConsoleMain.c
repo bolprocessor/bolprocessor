@@ -348,6 +348,7 @@ CLEANUP:
 	Handle ptr = (Handle) p_Instance;
 	MyDisposeHandle(&ptr);
 	my_fclose(CapturePtr);
+	CapturePtr = NULL;
 	p_Instance = NULL;
 	if(result == OK) {
 		time(&current_time);
@@ -535,6 +536,8 @@ int stop(int now,char* where) {
 		Panic = EmergencyExit = TRUE;
 		my_fclose(ptr);
 		my_fclose(CapturePtr);
+		CapturePtr = NULL; // 2026-11-11: otherwise sendMIDIEvent() writes to the closed file and main() closes it again, which crashes on Linux - fixed by Claude
+		fflush(NULL); // Save stdout and the trace before the MIDI cleanup
 		return ABORT;
 		}
 	if(strlen(ContinuefileName) > 0) {
@@ -566,6 +569,8 @@ int stop(int now,char* where) {
 			my_fclose(ptr);
 			Panic = EmergencyExit = TRUE;
 			my_fclose(CapturePtr);
+			CapturePtr = NULL; // 2026-11-11: see above
+			fflush(NULL);
 			return ABORT;
 			}
 		}

@@ -44,7 +44,175 @@ int trace_load_csound_instruments = 0;
 int trace_load_scales = 0;
 
 
+static char *ReadWholeFile(const char*);
+static cJSON *CsJsonValue(cJSON*,const char*);
+static int CsJsonNumber(cJSON*,const char*,double*);
+static const char *CsJsonString(cJSON*,const char*);
+
 int LoadTonality(void) {
+	// 2026-11-12 Tonality resource files ("-to") are in JSON format. A file in the former format is still read, with a warning.
+	char line[MAXLIN];
+	char *json_data,*p;
+	FILE *tofile;
+	int result;
+
+	// Check whether file is being saved
+	my_sprintf(line,"%s_lock",FileName[wTonality]);
+	tofile = my_fopen(0,line,"r");
+	if(tofile != NULL) {
+		my_fclose(tofile);
+		BPPrintMessage(0,odError,"\n=> As the tonality file was locked I waited for 3 seconds...\n");
+		delay(3);
+		}
+	json_data = ReadWholeFile(FileName[wTonality]);
+	if(json_data == NULL) return(LoadTonalityOldFormat()); // Reports the error
+	p = json_data;
+	if((unsigned char)p[0] == 0xEF && (unsigned char)p[1] == 0xBB && (unsigned char)p[2] == 0xBF) p += 3; // UTF-8 byte order mark
+	while(isspace((unsigned char)(*p))) p++;
+	if(*p != '{') {
+		free(json_data);
+		BPPrintMessage(0,odError,"=> Tonality file ‘%s’ is in the old format. It will be converted to JSON when any page of the PHP interface is opened, if it is in the ‘tonality_resources’ folder\n",FileName[wTonality]);
+		return(LoadTonalityOldFormat());
+		}
+	result = LoadTonalityJSON(p);
+	free(json_data);
+	return(result);
+	}
+
+
+static int ToAppend(char **p_s,size_t *p_size,const char *text) {
+	// Appends 'text' to the string *p_s allocated with malloc(), whose size is *p_size
+	size_t length,needed;
+	char *s;
+
+	length = ((*p_s) == NULL) ? 0 : strlen(*p_s);
+	needed = length + strlen(text) + 1;
+	if((*p_s) == NULL || needed > (*p_size)) {
+		if((*p_size) < needed) (*p_size) = needed + 256;
+		s = (char*) realloc((*p_s),(*p_size));
+		if(s == NULL) return(ABORT);
+		if((*p_s) == NULL) s[0] = '\0';
+		(*p_s) = s;
+		}
+	strcat((*p_s),text);
+	return(OK);
+	}
+
+static void ToNumberString(double x,char *s,size_t size) {
+	// Shortest text giving the same number when read with strtod()
+	int precision;
+	for(precision = 15; precision <= 17; precision++) {
+		snprintf(s,size,"%.*g",precision,x);
+		if(strtod(s,NULL) == x) return;
+		}
+	}
+
+static int ToArrayString(cJSON *scale,const char *key,const char *open,const char *close,int pairs,char **p_s,size_t *p_size) {
+	// Builds the line of the former format holding the array of 'key', e.g. "/C D E/" for NoteNames. Returns MISSED if 'key' is not found
+	cJSON *array,*item,*sub;
+	char number[64];
+	int first;
+
+	(*p_s)[0] = '\0';
+	array = CsJsonValue(scale,key);
+	if(!cJSON_IsArray(array)) return(MISSED);
+	if(ToAppend(p_s,p_size,open) != OK) return(ABORT);
+	first = TRUE;
+	cJSON_ArrayForEach(item,array) {
+		if(pairs && cJSON_IsArray(item)) { // Fractions [numerator, denominator]
+			cJSON_ArrayForEach(sub,item) {
+				if(!first && ToAppend(p_s,p_size," ") != OK) return(ABORT);
+				first = FALSE;
+				ToNumberString(sub->valuedouble,number,sizeof(number));
+				if(ToAppend(p_s,p_size,number) != OK) return(ABORT);
+				}
+			continue;
+			}
+		if(!first && ToAppend(p_s,p_size," ") != OK) return(ABORT);
+		first = FALSE;
+		if(cJSON_IsString(item)) {
+			if(ToAppend(p_s,p_size,item->valuestring) != OK) return(ABORT);
+			}
+		else {
+			ToNumberString(item->valuedouble,number,sizeof(number));
+			if(ToAppend(p_s,p_size,number) != OK) return(ABORT);
+			}
+		}
+	if(ToAppend(p_s,p_size,close) != OK) return(ABORT);
+	return(OK);
+	}
+
+int LoadTonalityJSON(const char *json_text) {
+	// Reads a tonality resource file in JSON format. Values are found by their "key". Called by LoadTonality()
+	// Each scale is passed to CreateMicrotonalScale() with the strings of the former format, as in LoadTonalityOldFormat()
+	const char *table_keys[] = {"TableNumber","TableStart","TableSize","TableGEN","NumGrades","Interval","BaseFrequency","BaseKey"};
+	char *table,*note_names,*key_numbers,*fractions;
+	size_t table_size,names_size,keys_size,fractions_size;
+	char name[MAXLIN],baseoctave_string[10],number[64];
+	const char *s;
+	cJSON *json,*scales,*scale,*ratios,*item;
+	double x;
+	int i,i_scale,result;
+
+	BPPrintMessage(0,odInfo, "Loading tonality: %s\n", FileName[wTonality]);
+	i_scale = 0;
+	table_size = names_size = keys_size = fractions_size = 256;
+	table = (char*) malloc(table_size);
+	note_names = (char*) malloc(names_size);
+	key_numbers = (char*) malloc(keys_size);
+	fractions = (char*) malloc(fractions_size);
+	json = NULL;
+	if(table == NULL || note_names == NULL || key_numbers == NULL || fractions == NULL) goto QUIT;
+	json = cJSON_Parse(json_text);
+	if(json == NULL) {
+		BPPrintMessage(0,odError,"=> Could not parse JSON in tonality file %s, near: %.40s\n",FileName[wTonality],cJSON_GetErrorPtr());
+		goto QUIT;
+		}
+	scales = CsJsonValue(json,"Scales");
+	if(scales != NULL && !cJSON_IsArray(scales)) {
+		BPPrintMessage(0,odError,"=> The list of tonal scales should be an array\n");
+		goto QUIT;
+		}
+	cJSON_ArrayForEach(scale,scales) {
+		ratios = CsJsonValue(scale,"Ratios");
+		if(!cJSON_IsArray(ratios)) continue; // No table: the scale is ignored, as in the former format
+		s = CsJsonString(scale,"ScaleName");
+		snprintf(name,sizeof(name),"%s",(s == NULL) ? "" : s);
+		if(ToArrayString(scale,"NoteNames","/","/",FALSE,&note_names,&names_size) == ABORT) goto QUIT;
+		if(ToArrayString(scale,"KeyNumbers","k","k",FALSE,&key_numbers,&keys_size) == ABORT) goto QUIT;
+		if(ToArrayString(scale,"Fractions","[","]",TRUE,&fractions,&fractions_size) == ABORT) goto QUIT;
+		baseoctave_string[0] = '\0';
+		if(CsJsonNumber(scale,"BaseOctave",&x) == OK) snprintf(baseoctave_string,sizeof(baseoctave_string),"%d",(int) x);
+		// The GEN51 table line "f2 0 128 -51 numgrades interval basefrequency basekey ratio ratio ..."
+		table[0] = '\0';
+		if(ToAppend(&table,&table_size,"f") != OK) goto QUIT;
+		for(i = 0; i < 8; i++) {
+			x = 0.;
+			CsJsonNumber(scale,table_keys[i],&x);
+			ToNumberString(x,number,sizeof(number));
+			if(i > 0 && ToAppend(&table,&table_size," ") != OK) goto QUIT;
+			if(ToAppend(&table,&table_size,number) != OK) goto QUIT;
+			}
+		cJSON_ArrayForEach(item,ratios) {
+			ToNumberString(item->valuedouble,number,sizeof(number));
+			if(ToAppend(&table,&table_size," ") != OK || ToAppend(&table,&table_size,number) != OK) goto QUIT;
+			}
+		if(trace_load_scales) BPPrintMessage(0,odInfo, "table line = [%s]\n",table);
+		result = CreateMicrotonalScale(table,name,note_names,key_numbers,fractions,baseoctave_string);
+		if(result == OK) i_scale++;
+		}
+	if(i_scale > 0) {
+		BPPrintMessage(0,odInfo,"%d tonal scale(s) found\n\n",i_scale);
+		}
+
+QUIT:
+	cJSON_Delete(json);
+	free(table); free(note_names); free(key_numbers); free(fractions);
+	return OK;
+	}
+
+
+int LoadTonalityOldFormat(void) {
 	int result,length;
 	char name[MAXLIN], note_names[MAXLIN], key_numbers[MAXLIN], fractions[MAXLIN], baseoctave_string[10];
 	char **p_line, **p_completeline;
@@ -119,6 +287,36 @@ ERREUR:
 	}
 
 
+static char *ReadWholeFile(const char*);
+static FILE *OpenPrototypesExport(char*,size_t);
+static void ClosePrototypesExport(FILE*,const char*);
+
+static char *ReadWholeFile(const char *filename) {
+	// Returns the content of a file as a string to be freed, or NULL. Binary mode keeps the size right on Windows with CRLF line endings
+	FILE *file;
+	char *data;
+	long size;
+	size_t n;
+
+	file = fopen(filename,"rb");
+	if(file == NULL) return(NULL);
+	if(fseek(file,0,SEEK_END) != 0 || (size = ftell(file)) < 0) {
+		fclose(file);
+		return(NULL);
+		}
+	rewind(file);
+	data = (char*) malloc((size_t)size + 1);
+	if(data == NULL) {
+		fclose(file);
+		return(NULL);
+		}
+	n = fread(data,1,(size_t)size,file);
+	fclose(file);
+	data[n] = '\0';
+	return(data);
+	}
+
+
 int LoadCsoundInstruments(int checkversion,int tryname) {
 	// 2026-11-12 Csound resource files ("-cs") are in JSON format. A file in the former format is still read, with a warning.
 	char line[MAXLIN];
@@ -139,10 +337,7 @@ int LoadCsoundInstruments(int checkversion,int tryname) {
 		BPPrintMessage(0,odError,"\n=> As the Csound instruments file was locked I waited for 3 seconds...\n");
 		delay(3);
 		}
-	csfile = my_fopen(0,FileName[wCsoundResources],"r");
-	if(csfile == NULL) return(LoadCsoundInstrumentsOldFormat(checkversion,tryname)); // Reports the error
-	my_fclose(csfile);
-	json_data = read_file(FileName[wCsoundResources]);
+	json_data = ReadWholeFile(FileName[wCsoundResources]);
 	if(json_data == NULL) return(LoadCsoundInstrumentsOldFormat(checkversion,tryname));
 	p = json_data;
 	if((unsigned char)p[0] == 0xEF && (unsigned char)p[1] == 0xBB && (unsigned char)p[2] == 0xBF) p += 3; // UTF-8 byte order mark
@@ -504,7 +699,7 @@ int LoadCsoundInstrumentsOldFormat(int checkversion,int tryname) {
 	p_line = p_completeline = ptr = NULL;
 	result = MISSED;
 
-	if(trace_load_csound_instruments) BPPrintMessage(0,odInfo,"Opening Csound instruments file: %s\n",FileName[wCsoundResources]);
+	BPPrintMessage(0,odInfo,"Opening Csound instruments file (old format): %s\n",FileName[wCsoundResources]);
 
 	csfile = my_fopen(1,FileName[wCsoundResources],"r");
 	if(csfile == NULL) {
@@ -1318,6 +1513,411 @@ int ExportPrototypeAsJson(FILE *sojson,int j,int iv,int midicodesize,MIDIcode **
 	}
 
 int LoadObjectPrototypes(int checkversion,int tryname) {
+	// 2026-11-12 Sound-object prototypes files ("-so") are in JSON format. A file in the former format is still read, with a warning.
+	char line[MAXLIN];
+	char *json_data,*p;
+	FILE *sofile;
+	int result;
+
+	// Check whether file is being saved
+	my_sprintf(line,"%s_lock",FileName[iObjects]);
+	sofile = my_fopen(0,line,"r");
+	if(sofile != NULL) {
+		my_fclose(sofile);
+		BPPrintMessage(0,odError,"\n=> As the sound-object prototypes file was locked I waited for 3 seconds...\n");
+		delay(3);
+		}
+	json_data = ReadWholeFile(FileName[iObjects]);
+	if(json_data == NULL) return(LoadObjectPrototypesOldFormat(checkversion,tryname)); // Reports the error
+	p = json_data;
+	if((unsigned char)p[0] == 0xEF && (unsigned char)p[1] == 0xBB && (unsigned char)p[2] == 0xBF) p += 3; // UTF-8 byte order mark
+	while(isspace((unsigned char)(*p))) p++;
+	if(*p != '{') {
+		free(json_data);
+		BPPrintMessage(0,odError,"=> Sound-object prototypes file « %s » is in the old format. It will be converted to JSON when it is opened in the PHP interface\n",FileName[iObjects]);
+		return(LoadObjectPrototypesOldFormat(checkversion,tryname));
+		}
+	result = LoadObjectPrototypesJSON(p);
+	free(json_data);
+	return(result);
+	}
+
+
+static FILE *OpenPrototypesExport(char *json_path,size_t size) {
+	// When EventListOn, prototypes are also exported to "proto-NAME.json" in OutputDir, see ExportPrototypeAsJson()
+	FILE *sojson;
+
+	sojson = NULL;
+	json_path[0] = '\0';
+	if(!EventListOn) return(NULL);
+	const char *path  = FileName[iObjects];
+	const char *slash = strrchr(path, '/');
+	const char *backslash = strrchr(path, '\\');
+	const char *separator;
+	const char *basename;
+	int length;
+
+	// Select the last path separator, whether '/' or '\'
+	if(slash == NULL) separator = backslash;
+	else if(backslash == NULL) separator = slash;
+	else separator = (slash > backslash) ? slash : backslash;
+	basename = (separator != NULL) ? separator + 1 : path;
+
+	if(strncmp(basename, "-so.",4) == 0) {
+		// Keep the directory, remove "-so.", and add "proto-" + ".json"
+		length = snprintf(json_path,size,"%sproto-%s.json", OutputDir, basename + 4);
+		if(length < 0 || (size_t)length >= size) {
+			BPPrintMessage(0, odError,"=> JSON file path is too long: %s\n", path);
+			sojson = NULL;
+			}
+		else sojson = fopen(json_path,"w");
+		}
+	if(sojson == NULL) {
+		int saved_errno = errno;
+		BPPrintMessage(0, odError,"=> Cannot create JSON file of prototypes \"%s\": %s\n",json_path, strerror(saved_errno));
+		}
+	else {
+		fprintf(sojson,"{\n\"header\": \"Bol Processor sound-object prototypes\",\n");
+		fprintf(sojson,"\"Prototypes\": [\n");
+		BPPrintMessage(1,odInfo,"👉 Creating json file of prototypes: %s\n",json_path);
+		}
+	return(sojson);
+	}
+
+
+static void ClosePrototypesExport(FILE *sojson,const char *json_path) {
+	if(sojson == NULL) return;
+	fprintf(sojson,"\n  ]\n}\n");
+	fclose(sojson);
+	BPPrintMessage(1,odInfo,"Closing file: %s\n",json_path);
+	if(chmod(json_path, 0664) != 0)
+		BPPrintMessage(0, odError,"=> Cannot change permissions of %s: %s\n",json_path,strerror(errno));
+	}
+
+
+static int SoJsonEnum(cJSON *object,const char *key,const char *names[],const int values[],int n,int *p_x) {
+	// Sets *p_x to the value of 'key', given as one of 'names' or as a number, and returns OK.
+	// Otherwise *p_x is unchanged and MISSED is returned.
+	cJSON *value;
+	char *end;
+	long x;
+	int i;
+
+	value = CsJsonValue(object,key);
+	if(cJSON_IsNumber(value)) {
+		(*p_x) = (int) value->valuedouble;
+		return(OK);
+		}
+	if(!cJSON_IsString(value)) return(MISSED);
+	for(i = 0; i < n; i++) {
+		if(strcmp(value->valuestring,names[i]) == 0) {
+			(*p_x) = values[i];
+			return(OK);
+			}
+		}
+	x = strtol(value->valuestring,&end,10);
+	if(end != value->valuestring && (*end) == '\0') {
+		(*p_x) = (int) x;
+		return(OK);
+		}
+	BPPrintMessage(0,odError,"=> Unknown value ‘%s’ of ‘%s’ in sound-object prototypes file\n",value->valuestring,key);
+	return(MISSED);
+	}
+
+static const char *SoTypeNames[] = {"SILENT","MIDI_TYPE","CSOUND_TYPE","MIDI_CSOUND_TYPE"};
+static const int SoTypeValues[] = {0,MIDI_TYPE,CSOUND_TYPE,MIDI_CSOUND_TYPE};
+static const char *SoChannelNames[] = {"GLOBAL_CH","LOCAL_CH"};
+static const int SoChannelValues[] = {GLOBAL_CH,LOCAL_CH};
+static const char *SoModeNames[] = {"PERCENT","FIXVALUE","IRRELEVANT"};
+static const int SoModeValues[] = {PERCENT,FIXVALUE,IRRELEVANT};
+static const char *SoPivotNames[] = {"PIVBEG","PIVEND","PIVBEGON","PIVENDOFF","PIVMIDDLE","PIVMIDDLEONOFF","SETPIVOT"};
+static const int SoPivotValues[] = {PIVBEG,PIVEND,PIVBEGON,PIVENDOFF,PIVMIDDLE,PIVMIDDLEONOFF,SETPIVOT};
+static const char *SoRescaleNames[] = {"OK_RESCALE","NEVER_RESCALE","DILATION_RATIO"};
+static const int SoRescaleValues[] = {OK_RESCALE,NEVER_RESCALE,DILATION_RATIO};
+static const char *SoStrikeNames[] = {"ALWAYS","NEVER","DEFAULT"};
+static const int SoStrikeValues[] = {1,0,-1};
+static const char *SoCsoundNames[] = {"LOCAL_CS","GLOBAL_CS"};
+static const int SoCsoundValues[] = {LOCAL_CS,GLOBAL_CS};
+
+/* Values that are not found get the default values of so_prototype_fields() (_basic_tasks.php), which are also those of new prototypes */
+#define SO_JSON_NUMBER(key,target,type,deft) target = (type) ((CsJsonNumber(prototype,key,&x) == OK) ? x : (deft))
+#define SO_JSON_ENUM(key,names,values,target,deft) \
+	if(SoJsonEnum(prototype,key,names,values,(int)(sizeof(values) / sizeof(int)),&s) != OK) s = (deft); \
+	target = s
+/* Modes and rescale modes equal to -2 are fixed as in LoadObjectPrototypesOldFormat() */
+#define SO_JSON_MODE(key,target,deft) \
+	if(SoJsonEnum(prototype,key,SoModeNames,SoModeValues,3,&s) != OK) s = (deft); \
+	if(s == -2) s = 1; \
+	target = s
+
+int LoadObjectPrototypesJSON(const char *json_text) {
+	// Reads a sound-object prototypes file in JSON format. Values are found by their "key".
+	// As in the export by ExportPrototypeAsJson(), "Prototypes", "Csound score", "byte_N", "time_N" and "Comment" have no key.
+	// The steps are those of LoadObjectPrototypesOldFormat(). Called by LoadObjectPrototypes()
+	char **p_name,**ptr;
+	char json_path[MAXNAME],label[MAXNAME];
+	const char *score,*name;
+	MIDIcode **p_b;
+	int i,j,jj,s,maxsounds,oldjbol,newbols,longerCsound,result,rep,first;
+	long imax;
+	double x,byte,time;
+	Handle h;
+	FILE *sojson;
+	cJSON *json,*prototypes,*prototype,*item,*item2;
+
+	if((rep=CompileAlphabet()) != OK) return rep;
+	ObjectMode = ObjectTry = TRUE;
+
+	json = NULL;
+	p_name = NULL;
+	p_b = NULL;
+	j = -1;
+	sojson = OpenPrototypesExport(json_path,sizeof(json_path));
+	rep = MISSED;
+	CompiledCsObjects = 0;
+	newbols = FALSE;
+	LoadOn++;
+
+	json = cJSON_Parse(json_text);
+	if(json == NULL) {
+		BPPrintMessage(0,odError,"=> Could not parse JSON in sound-object prototypes file %s, near: %.40s\n",FileName[iObjects],cJSON_GetErrorPtr());
+		goto SORTIR;
+		}
+	if(CsJsonNumber(json,"PrototypeTickKey",&x) == OK) PrototypeTickKey = (int) x;
+	if(CsJsonNumber(json,"PrototypeTickChannel",&x) == OK) PrototypeTickChannel = (int) x;
+	if(CsJsonNumber(json,"PrototypeTickVelocity",&x) == OK) PrototypeTickVelocity = (int) x;
+	name = CsJsonString(json,"CsoundInstrumentsFile");
+	if(name != NULL && strlen(name) > 5) {
+		// The name contains the path (csound_resources)
+		my_sprintf(Message,"../%s",name);
+		strcpy(FileName[wCsoundResources], Message);
+		BPPrintMessage(0,odInfo, "Trying to load Csound instruments: %s\n", FileName[wCsoundResources]);
+		if((result = LoadCsoundInstruments(0,1)) != OK) {
+			rep = result;
+			goto SORTIR;
+			}
+		}
+	prototypes = cJSON_GetObjectItemCaseSensitive(json,"Prototypes");
+	if(prototypes != NULL && !cJSON_IsArray(prototypes)) {
+		BPPrintMessage(0,odError,"=> The list of sound-object prototypes should be an array\n");
+		goto SORTIR;
+		}
+	maxsounds = cJSON_GetArraySize(prototypes); // 0 if prototypes is NULL
+	if(trace_load_prototypes) BPPrintMessage(0,odInfo, "maxsounds = %d Jbol = %d\n",maxsounds,Jbol);
+	oldjbol = Jbol;
+	Jbol += maxsounds;
+	if(ResizeObjectSpace(YES,Jbol + Jpatt,0) != OK) goto ERR;
+	Jbol = oldjbol; newbols = TRUE;
+	NumberTables = 0;
+	rep = OK;
+	first = TRUE;
+
+	cJSON_ArrayForEach(prototype,prototypes) {
+		PleaseWait(); j = -1;
+		name = CsJsonString(prototype,"Name");
+		if(name == NULL || name[0] == '\0') {
+			BPPrintMessage(0,odError,"=> A sound-object prototype without a name has been ignored\n");
+			continue;
+			}
+		if(CsStringToHandle(&p_name,name) != OK) goto ERR;
+		oldjbol = Jbol;
+		if(Jbol == 0) {
+			Jbol = 2;
+			BPPrintMessage(0,odError,"=> Warning: probable error in CreateBol()\n");
+			GetAlphabetSpace();
+			}
+		if((jj=CreateBol(0,0,p_name,0,0,BOL)) < 0) goto ERR;
+		if(jj >= Jbol) {
+			BPPrintMessage(0,odError,"=> Err. LoadObjectPrototypesJSON(). jj >= Jbol");
+			goto ERR;
+			}
+		j = jj;
+		if(trace_load_prototypes)
+			BPPrintMessage(0,odInfo, "Trying to create sound-object for j = %d named %s\n",j,*p_name);
+		if(sojson != NULL) {
+			if(!first) fprintf(sojson,",\n");
+			first = FALSE;
+			fprintf(sojson,"  {\n");
+			}
+		if(Jbol > oldjbol) {
+			Jbol = oldjbol;
+			BPPrintMessage(0,odInfo,"This sound-object has not been created because it is not in the alphabet: « %s » (%d)\n",*p_name,j);
+			}
+
+		(*p_CsoundSize)[j] = (*p_MIDIsize)[j] = ZERO;
+		(*p_SilentObject)[j] = FALSE;
+		(*p_Dur)[j] = ZERO;
+		SO_JSON_ENUM("Type",SoTypeNames,SoTypeValues,(*p_Type)[j],MIDI_TYPE);
+		SO_JSON_NUMBER("Resolution",(*p_Resolution)[j],int,1);
+		SO_JSON_ENUM("DefaultChannel",SoChannelNames,SoChannelValues,(*p_DefaultChannel)[j],LOCAL_CH);
+		SO_JSON_NUMBER("Tref",(*p_Tref)[j],long,1000);
+		SO_JSON_NUMBER("Quan",(*p_Quan)[j],double,10.);
+		SO_JSON_ENUM("PivType",SoPivotNames,SoPivotValues,(*p_PivType)[j],PIVBEG);
+		SO_JSON_NUMBER("FixScale",(*p_FixScale)[j],int,0);
+		SO_JSON_NUMBER("OkExpand",(*p_OkExpand)[j],int,1);
+		SO_JSON_NUMBER("OkCompress",(*p_OkCompress)[j],int,1);
+		SO_JSON_NUMBER("OkRelocate",(*p_OkRelocate)[j],int,1);
+		SO_JSON_NUMBER("BreakTempo",(*p_BreakTempo)[j],int,1);
+		SO_JSON_NUMBER("ContBeg",(*p_ContBeg)[j],int,0);
+		SO_JSON_NUMBER("ContEnd",(*p_ContEnd)[j],int,0);
+		SO_JSON_NUMBER("CoverBeg",(*p_CoverBeg)[j],int,1);
+		SO_JSON_NUMBER("CoverEnd",(*p_CoverEnd)[j],int,1);
+		SO_JSON_NUMBER("TruncBeg",(*p_TruncBeg)[j],int,1);
+		SO_JSON_NUMBER("TruncEnd",(*p_TruncEnd)[j],int,1);
+		SO_JSON_NUMBER("AlphaCtrl",(*p_AlphaCtrl)[j],int,0);
+		if(SoJsonEnum(prototype,"RescaleMode",SoRescaleNames,SoRescaleValues,3,&s) != OK) s = OK_RESCALE;
+		if(s == -2) s = 1; // Fixing old bug
+		(*p_RescaleMode)[j] = s;
+		if((*p_RescaleMode)[j] == NEVER_RESCALE) (*p_FixScale)[j] = TRUE;
+		if(trace_load_prototypes) BPPrintMessage(0,odInfo,"RescaleMode = %d\n",(*p_RescaleMode)[j]);
+		SO_JSON_NUMBER("AlphaMin",(*p_AlphaMin)[j],double,0.);
+		SO_JSON_NUMBER("AlphaMax",(*p_AlphaMax)[j],double,0.);
+		SO_JSON_MODE("DelayMode",(*p_DelayMode)[j],IRRELEVANT);
+		SO_JSON_NUMBER("MaxDelay",(*p_MaxDelay)[j],long,0);
+		SO_JSON_MODE("ForwardMode",(*p_ForwardMode)[j],IRRELEVANT);
+		SO_JSON_NUMBER("MaxForward",(*p_MaxForward)[j],long,0);
+		SO_JSON_MODE("ContBegMode",(*p_ContBegMode)[j],IRRELEVANT);
+		SO_JSON_NUMBER("MaxBegGap",(*p_MaxBegGap)[j],long,0);
+		SO_JSON_MODE("ContEndMode",(*p_ContEndMode)[j],IRRELEVANT);
+		SO_JSON_NUMBER("MaxEndGap",(*p_MaxEndGap)[j],long,0);
+		SO_JSON_MODE("CoverBegMode",(*p_CoverBegMode)[j],PERCENT);
+		SO_JSON_NUMBER("MaxCoverBeg",(*p_MaxCoverBeg)[j],long,100);
+		SO_JSON_MODE("CoverEndMode",(*p_CoverEndMode)[j],IRRELEVANT);
+		SO_JSON_NUMBER("MaxCoverEnd",(*p_MaxCoverEnd)[j],long,100);
+		SO_JSON_MODE("TruncBegMode",(*p_TruncBegMode)[j],IRRELEVANT);
+		SO_JSON_NUMBER("MaxTruncBeg",(*p_MaxTruncBeg)[j],long,0);
+		SO_JSON_MODE("TruncEndMode",(*p_TruncEndMode)[j],IRRELEVANT);
+		SO_JSON_NUMBER("MaxTruncEnd",(*p_MaxTruncEnd)[j],long,0);
+		SO_JSON_MODE("PivMode",(*p_PivMode)[j],FIXVALUE);
+		SO_JSON_NUMBER("PivPos",(*p_PivPos)[j],float,0.);
+		if(trace_load_prototypes)
+			BPPrintMessage(0,odInfo,"PivPos[%d] = %.2f\n",j,(*p_PivPos)[j]);
+		SO_JSON_NUMBER("AlphaCtrlNr",(*p_AlphaCtrlNr)[j],int,-1);
+		SO_JSON_NUMBER("AlphaCtrlChan",(*p_AlphaCtrlChan)[j],int,0);
+		SO_JSON_NUMBER("OkTransp",(*p_OkTransp)[j],int,1);
+		SO_JSON_NUMBER("OkArticul",(*p_OkArticul)[j],int,1);
+		SO_JSON_NUMBER("OkVolume",(*p_OkVolume)[j],int,1);
+		SO_JSON_NUMBER("OkPan",(*p_OkPan)[j],int,1);
+		SO_JSON_NUMBER("OkMap",(*p_OkMap)[j],int,1);
+		SO_JSON_NUMBER("OkVelocity",(*p_OkVelocity)[j],int,1);
+		SO_JSON_NUMBER("Preroll",(*p_PreRoll)[j],long,0);
+		SO_JSON_NUMBER("Postroll",(*p_PostRoll)[j],long,0);
+		SO_JSON_MODE("PreRollMode",(*p_PreRollMode)[j],FIXVALUE); // Currently, PreRollMode is always FIXVALUE
+		SO_JSON_MODE("PostRollMode",(*p_PostRollMode)[j],FIXVALUE); // Currently, PostRollMode is always FIXVALUE
+		SO_JSON_MODE("CyclicMode",(*p_CyclicMode)[j],IRRELEVANT);
+		SO_JSON_NUMBER("CyclicAfter",(*p_CyclicAfter)[j],float,0.);
+		SO_JSON_NUMBER("ForceIntegerCycles",(*p_ForceIntegerCycles)[j],int,0);
+		SO_JSON_ENUM("StrikeAgain",SoStrikeNames,SoStrikeValues,(*p_StrikeAgain)[j],-1);
+		// The export only gives the instrument when one is specified
+		if(SoJsonEnum(prototype,"CsoundInstrumentMode",SoCsoundNames,SoCsoundValues,2,&s) != OK)
+			s = (CsJsonValue(prototype,"CsoundInstr") != NULL) ? 1 : LOCAL_CS;
+		(*p_CsoundInstrumentMode)[j] = s;
+		SO_JSON_NUMBER("CsoundInstr",(*p_CsoundInstr)[j],int,-1);
+		SO_JSON_NUMBER("Tpict",(*p_Tpict)[j],long,0);
+
+		(*pp_CsoundTime)[j] = NULL;
+		(*p_CompiledCsoundScore)[j] = 0;
+		(*pp_CsoundScore)[j] = NULL;
+		(*pp_CsoundScoreText)[j] = NULL;
+
+		// Csound score, as text "<HTML>line<BR>line<BR></HTML>"
+		item = cJSON_GetObjectItemCaseSensitive(prototype,"Csound score");
+		score = cJSON_IsString(item) ? item->valuestring : "";
+		if(trace_load_prototypes) BPPrintMessage(0,odInfo, "Csound score = %s\n",score);
+		ptr = NULL;
+		if(CsStringToHandle(&ptr,score) != OK) goto ERR;
+		(*pp_CsoundScoreText)[j] = ptr;
+		CompileObjectScore(j,&longerCsound);
+		if(trace_load_prototypes) BPPrintMessage(0,odInfo,"Compiled Csound score\n");
+
+		// MIDI codes
+		s = 0;
+		if(CsJsonNumber(prototype,"MIDIcodesize",&x) == OK) s = (int) x;
+		if(trace_load_prototypes) BPPrintMessage(0,odInfo, "Size of MIDI code = %d\n",s);
+		imax = s;
+		p_b = NULL;
+		(*p_PasteDone)[j] = FALSE;
+		(*p_MIDIsize)[j] = (*p_Ifrom)[j] = ZERO;
+		(*pp_MIDIcode)[j] = NULL;
+		(*p_SilentObject)[j] = FALSE;
+		if(imax > 0) {
+			if((p_b = (MIDIcode**) GiveSpace((Size)sizeof(MIDIcode)*(imax+1))) == NULL) goto ERR;
+			}
+		if((*p_CsoundSize)[j] == 0) (*p_Dur)[j] = ZERO;
+		if(imax > 0) {
+			for(i=0; i < imax; i++) {
+				my_sprintf(label,"byte_%d",(i + 1));
+				item = cJSON_GetObjectItemCaseSensitive(prototype,label);
+				my_sprintf(label,"time_%d",(i + 1));
+				item2 = cJSON_GetObjectItemCaseSensitive(prototype,label);
+				if(!cJSON_IsNumber(item) || !cJSON_IsNumber(item2)) {
+					BPPrintMessage(0,odError,"=> MIDI code #%d is missing\n",(i + 1));
+					goto ERR;
+					}
+				byte = item->valuedouble;
+				time = item2->valuedouble;
+				(*p_b)[i].byte = (int) byte;
+				(*p_b)[i].time = (Milliseconds) time;
+				}
+			if(trace_load_prototypes) BPPrintMessage(0,odInfo, "imax = %ld\n",imax);
+			if(MIDItoPrototype(FALSE,FALSE,j,p_b,imax) != OK) goto ERR;
+			}
+		if(CheckConsistency(j,TRUE) != OK) {
+			BPPrintMessage(0,odError,"=> Inconsistency found in '%s'\n",*((*p_Bol)[j]));
+			goto ERR;
+			}
+		if(trace_load_prototypes)
+			BPPrintMessage(0,odInfo, "CheckConsistency is OK for j = %d\n",j);
+
+		if(ExportPrototypeAsJson(sojson,j,0,(int)imax,p_b,score) != OK) goto ERR;
+		if(p_b != NULL && MyDisposeHandle((Handle*)&p_b) != OK) goto ERR;
+
+		// Comment
+		item = cJSON_GetObjectItemCaseSensitive(prototype,"Comment");
+		name = cJSON_IsString(item) ? item->valuestring : "";
+		s = strlen(name);
+		if(s > MAXFIELDCONTENT) s = MAXFIELDCONTENT;
+		if((h = (Handle) GiveSpace((Size)(1+s) * sizeof(char))) == NULL) goto ERR;
+		(*pp_Comment)[j] = (char**) h;
+		strncpy((*((*pp_Comment)[j])),name,s);
+		(*((*pp_Comment)[j]))[s] = '\0';
+		if(sojson != NULL) {
+			fputs("    \"Comment\": ", sojson);
+			WriteJsonString(sojson,(*((*pp_Comment)[j])));
+			fprintf(sojson,"\n  }");
+			}
+		if(trace_load_prototypes) BPPrintMessage(0,odInfo,"Comment for %d = %s\n\n",j,(*((*pp_Comment)[j])));
+		}
+	goto SORTIR;
+
+	ERR:
+	if(p_b != NULL) MyDisposeHandle((Handle*)&p_b);
+	if(j > 1 && j < Jbol && (*p_Tref)[j] == ZERO) ResetPrototype(j);
+	if(CheckEmergency() == OK) {
+		BPPrintMessage(0,odInfo,"The sound-object file may be incomplete or in some unknown format. ");
+		if(j > 1 && j < Jbol) {
+			BPPrintMessage(0,odError,"An error occured while reading « %s »\n",*((*p_Bol)[j]));
+			}
+		else BPPrintMessage(0,odError,"Probably you created a new sound-object which is still empty\n");
+		}
+	else rep = ABORT;
+
+	SORTIR:
+	LoadOn--;
+	MyDisposeHandle((Handle*)&p_name);
+	cJSON_Delete(json);
+	ClosePrototypesExport(sojson,json_path);
+	if(check_memory_use) BPPrintMessage(0,odInfo,"MemoryUsed end LoadObjectPrototypesJSON = %ld i_ptr = %d\n",(long)MemoryUsed,i_ptr);
+	if(rep == OK) {
+		if(newbols) ResizeObjectSpace(NO,Jbol + Jpatt,0);
+		}
+	CompiledCsObjects = TRUE;
+	PrototypesLoaded = TRUE;
+	return(rep);
+	}
+
+
+int LoadObjectPrototypesOldFormat(int checkversion,int tryname) {
 	char c,date[80],*newp,*name_of_file = NULL, *final_name = NULL;
 	MIDIcode **p_b;
 	char **p_line,**p_completeline,line[MAXLIN],line2[MAXLIN],this_score[MAXSCORELENGTH];
@@ -1346,40 +1946,7 @@ int LoadObjectPrototypes(int checkversion,int tryname) {
 	if((rep=CompileAlphabet()) != OK) return rep;
 	ObjectMode = ObjectTry = TRUE;
 
-	json_path[0] = '\0';
-	if(EventListOn) {
-		const char *path  = FileName[iObjects];
-		const char *slash = strrchr(path, '/');
-		const char *backslash = strrchr(path, '\\');
-		const char *separator;
-		const char *basename;
-		int length;
-
-		// Select the last path separator, whether '/' or '\'
-		if(slash == NULL) separator = backslash;
-		else if(backslash == NULL) separator = slash;
-		else separator = (slash > backslash) ? slash : backslash;
-		basename = (separator != NULL) ? separator + 1 : path;
-
-		if(strncmp(basename, "-so.",4) == 0) {
-			// Keep the directory, remove "-so.", and add "proto-" + ".json"
-			length = snprintf(json_path, sizeof json_path,"%sproto-%s.json", OutputDir, basename + 4);
-			if(length < 0 || (size_t)length >= sizeof json_path) {
-				BPPrintMessage(0, odError,"=> JSON file path is too long: %s\n", path);
-				sojson = NULL;
-				}
-			else sojson = fopen(json_path,"w");
-			}
-		if(sojson == NULL) {
-			int saved_errno = errno;
-			BPPrintMessage(0, odError,"=> Cannot create JSON file of prototypes \"%s\": %s\n",json_path, strerror(saved_errno));
-			}
-		else {
-			fprintf(sojson,"{\n\"header\": \"Bol Processor sound-object prototypes\",\n");
-			fprintf(sojson,"\"Prototypes\": [\n");
-			BPPrintMessage(1,odInfo,"👉 Creating json file of prototypes: %s\n",json_path);
-			}
-		}
+	sojson = OpenPrototypesExport(json_path,sizeof(json_path));
 	rep = MISSED;
 	newinstruments = CompiledCsObjects = 0;
 	pos = 0L;
@@ -1388,9 +1955,12 @@ int LoadObjectPrototypes(int checkversion,int tryname) {
 
 	LoadOn++;
 
+	j = -1;
 	sofile = my_fopen(1,FileName[iObjects],"r");
 	if(sofile == NULL) {
 		BPPrintMessage(0,odError,"=> Could not open prototypes file %s\n",FileName[iObjects]);
+		LoadOn--;
+		ClosePrototypesExport(sojson,json_path);
 		return ABORT;
 		}
 
@@ -1787,13 +2357,7 @@ NEXTBOL:
 	LoadOn--;
 	MyDisposeHandle((Handle*)&p_line); MyDisposeHandle((Handle*)&p_completeline);
 	my_fclose(sofile);
-	if(sojson != NULL) {
-		fprintf(sojson,"\n  ]\n}\n");
-		fclose(sojson);
-		BPPrintMessage(1,odInfo,"Closing file: %s\n",json_path);
-		if(chmod(json_path, 0664) != 0) 
-			BPPrintMessage(0, odError,"=> Cannot change permissions of %s: %s\n",json_path,strerror(errno));
-		}
+	ClosePrototypesExport(sojson,json_path);
 
 	if(check_memory_use) BPPrintMessage(0,odInfo,"MemoryUsed end LoadObjectPrototypes = %ld i_ptr = %d\n",(long)MemoryUsed,i_ptr);
 

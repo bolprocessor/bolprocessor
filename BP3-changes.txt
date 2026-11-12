@@ -6,12 +6,14 @@ https://github.com/bolprocessor/bolprocessor/blob/graphics-for-BP3/BP3-changes.t
 Geeks can also read the "to-do" file:
 https://raw.githubusercontent.com/bolprocessor/bolprocessor/graphics-for-BP3/BP3-To-Do.txt
 
-2026-11-09 -> 2026-11-11 (version 3.6.0)
+2026-11-09 -> 2026-11-12 (version 3.6.0)
 Many corrections have been done at a deep level, solving problems in (uncommon) cases.
-The timing during a real-time MIDI performance is displayed.
+The timing during a real-time MIDI performance and the expected total time are displayed.
 Csound resource (-cs), sound-objects (-so) and tonality (-to) files are protected against a failure if their related folders in the 'temp_bolprocessor' folder have been deleted by mistake.
 Templates in grammars now accept integers and integer ratios (silences), as well as _tempo() statements.
 Csound resource files (-cs) are now stored in JSON format. Old files are automatically converted to the new format when found by the interface in the 'csound_resources' folder.
+Sound-objet prototype files (-so) are now stored in JSON format. Old files are automatically converted to the new format when found by the interface.
+Time-base files (-tb) are now stored in JSON format. Old files are automatically converted to the new format when found by the interface.
 
 Don't forget to update the PHP interface:
 https://github.com/bolprocessor/php-frontend/

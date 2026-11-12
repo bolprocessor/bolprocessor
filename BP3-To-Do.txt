@@ -24,7 +24,7 @@ Various issues
 - Design an example demonstrating properties "Allow gap" in sound-objects.
 - Problem tracing the production of an item containing structural patterns.
 - Check that scripts can be attached to out-time objects.
-- In Linux, when the STOP or PANIC button is clicked during a "wait" event, the trace file is empty. Maybe a problem flushing it and closing it.
+- On Linux, STOP or PANIC during a wait left the trace empty. It probably has been fixed. Test: with a MIDI input connected, play the _capture + wait forever item from -da.tryCapture and click STOP, then PANIC. Console messages must show in the browser and the _done file must be created. If an item without _capture still fails: check whether _done appears and whether the console messages are displayed. An empty trace_….txt on its own is normal for these items.
 
 
 Live coding
@@ -54,10 +54,10 @@ Capture (in progress)
 - Use the captured incoming NoteOn/Noteoff events to build a polymetric structure that reproduces the stream. The difficulty lies in the design of the most significant polymetric structure - for which AI tools are on the agenda.
 
 
-Csound orchestra
+Csound
 ----------------
 
-- Check whether it is worth upgrading from 6?.18 to 7.0. (Claude will take care of this!)
+- Check upgrading from 6.18 to 7.0.
 - New instruments are needed in the styles of:
  + pipe organ
  + flute
@@ -70,7 +70,6 @@ Csound orchestra
  + drums
 - Study how BP could produce score instructions modifying parameters in some instruments.
 - Find an instrument that would create a switched bandpass filter with either a sound file or another instrument as input. The idea is to reproduce the effect of sympathetic strings and use it to add partials to other instruments (much like the Indian tanpura). These devices had been successfully wired as "switch filters" in the Shruti Harmonium.
-- Modify "new-vina.orc" to produce lower frequencies, minimum "C2".
 
 
 MIDI input
