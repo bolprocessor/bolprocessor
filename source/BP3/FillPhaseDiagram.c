@@ -510,7 +510,11 @@ int FillPhaseDiagram(tokenbyte ***pp_buff,long* p_numberobjects,unsigned long *p
 	nseqplot = Minconc + 1;
 	iplot = ZERO;
 
-	instrument = part = channel = 0;
+	instrument = part = 0;
+	// 2026-11-12: 'channel' (used for ties) starts at 1 like currentparameters.currchan, so that a note without _chan()
+	// and a note after _chan(1) have the same channel. Otherwise "C4& _chan(1) &C4" was a missed tie,
+	// and "Missed tied note" displayed channel + 1 after _chan() - fixed by Claude
+	channel = 1;
 	part_of_ip = Kpress;
 
 	/* for(id=ZERO; ;id += 2) {

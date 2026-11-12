@@ -6,7 +6,7 @@ https://github.com/bolprocessor/bolprocessor/blob/graphics-for-BP3/BP3-changes.t
 Geeks can also read the "to-do" file:
 https://raw.githubusercontent.com/bolprocessor/bolprocessor/graphics-for-BP3/BP3-To-Do.txt
 
-2026-11-09 -> 2026-11-12 (version 3.6.0)
+2026-11-09 -> 2026-11-13 (version 3.6.0)
 Many corrections have been done at a deep level, solving problems in (uncommon) cases.
 The timing during a real-time MIDI performance and the expected total time are displayed.
 Csound resource (-cs), sound-objects (-so) and tonality (-to) files are protected against a failure if their related folders in the 'temp_bolprocessor' folder have been deleted by mistake.
@@ -15,7 +15,8 @@ Sound-objet prototype files (-so) are now stored in JSON format. Old files are a
 Time-base files (-tb) are now stored in JSON format. Old files are automatically converted to the new format when found by the interface.
 Csound resource files (-cs) are now stored in JSON format. Old files are automatically converted to the new format when found by the interface in the 'csound_resources' folder.
 Csound instruments can now be assigned to 'parts' of a score. For example, try '-da.Beethoven-fugue-b-flat-major', which has four parts associated with four instruments and is rendered by the newly created orchestra file 'Beethoven.orc'. Listen to it in stereo!
-Carrying over controls such as volume, panoramic, etc., over a Bol Processor score follows a set of rules which we have made explicit in a tutorial:
+Errors in importing MusicXML scores have been fixed, some of which occurred when errors in the scores were being corrected!
+Carrying over controls such as volume, panoramic, etc., over a Bol Processor score follows a set of rules which have been revised and made explicit in a tutorial:
 https://bolprocessor.org/carrying-over-controls
 
 Don't forget to update the PHP interface:

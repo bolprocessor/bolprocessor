@@ -2145,7 +2145,10 @@ double GetSymbolicDuration(int ignoreconcat,tokenbyte **p_buff,
 		if((m == T3 || m == T47) && p == 0) {
 			if(trace_get_duration) BPPrintMessage(1,odInfo,"_\n");
 			(*p_duration_of_field)[level] += prodtempo;
-			tick_end += prodtempo; // 2025-01-21
+			// 2026-11-12: count the prolongations only from the object itself. The scan of a tied object starts at the beginning
+			// of the buffer, so the prolongations of earlier objects were counted, and the tied object got their duration
+			// (oversized or shortened ties in -da.Beethoven-fugue-b-flat-major) - fixed by Claude
+			if(found_beginning || ignoreconcat) tick_end += prodtempo; // 2025-01-21
 			continue;
 			}
 		if(m == T3 || m == T47 || m == T25 || m == T4) {  // 2026-03-20
@@ -2170,9 +2173,14 @@ double GetSymbolicDuration(int ignoreconcat,tokenbyte **p_buff,
 					BPPrintMessage(1,odInfo,"Perhaps end of tie: <%d|%d> i = %ld tick_start = %.2f this_end = %.2f found_beginning = %d\n",m,p,(long)i,tick_start,this_end,(int)found_beginning);
 				continue;
 				}
+			// 2026-11-12: a new attack of the same key while the tie is open breaks the tie, which is then unbound.
+			// Otherwise a later '&' of this key closed it, e.g. in "B3& Bb3 C4& &C4 - Cb4& &Cb4" B3 lasted until the end of &Cb4 - fixed by Claude
+			if(found_beginning && tie_is_open && m == m_org && p == p_org && instrument == instrument_org && part == part_org && channel == channel_org)
+				goto SORTIR;
 			if(tie_closed) break; // 2026-11-09: the tie is closed, any following object ends it (item "bad 0.733" of -da.checkBadDurations) - fixed by Claude
 		//	if((!tie_is_open) && !foundendconcatenation && !justfinishedconcatenation && p > 0 && this_end >= tick_start  && instrument == instrument_org && part == part_org && channel == channel_org ) {
-			if(!tie_is_open && !foundendconcatenation && p > 0 && instrument == instrument_org && part == part_org && channel == channel_org) {
+			// 2026-11-12: only after the beginning of the tied object, otherwise the scan stopped before reaching it - fixed by Claude
+			if(found_beginning && !tie_is_open && !foundendconcatenation && p > 0 && instrument == instrument_org && part == part_org && channel == channel_org) {
 				// 2026-11-01 check with -da.Beethoven-fuge-flat-major
 				if(tick_end > 0.) break;
 				continue;
