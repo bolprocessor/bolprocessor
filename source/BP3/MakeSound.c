@@ -1593,7 +1593,12 @@ SENDNOTEOFF:
 								PrintThisNote(-1,c1,0,-1,this_note);
 								BPPrintMessage(1,odInfo,"? %s channel %d at = %ld ms, last = %ld, delta = %ld > %ld ms ¿\n",this_note,(localchan + 1),(long)(Tcurr * Time_res - MIDIsetUpTime),(*p_last_timeon[localchan])[c1] - MIDIsetUpTime,delta_timeon,MaxDeltaTime);
 								}
-							if(cswrite || (delta_timeon > MaxDeltaTime)) { // 2025-01-11
+							// 2026-11-13: a NoteOn closer than MaxDeltaTime to the previous NoteOn of the same key is only skipped if
+							// this key is still sounding (onoff > 0), so that both are merged. If the key had been released, the NoteOn was
+							// skipped as well, and the note was lost, e.g. G4 and A4 trills in two parts of Beethoven's Grosse Fuge, m.10.
+							// Since the skipped note was counted as sounding, the next NoteOn of this key sent a NoteOff for it,
+							// which found no channel in MPE ("No channel available") - fixed by Claude
+							if(cswrite || (delta_timeon > MaxDeltaTime) || onoff == 0) { // 2025-01-11
 								if(!time_pattern && (onoff > 0)) {
 									if(strikeagain) {
 										// First send NoteOff
