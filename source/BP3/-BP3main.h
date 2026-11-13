@@ -213,7 +213,8 @@ long MidiLen_pos,**p_Tref,**p_Tpict;
 dword MIDItracklength,Midi_msg;
 Milliseconds OldMIDIfileTime;
 unsigned long LapWait,WhenItStarted;
-int ****p_Image,****p_NoteImage,MaxGram,MaxRul,SplitTimeObjects,SplitVariables,SplitLines,Token,Step,SpaceOn,
+long long MaxOutputFileSize = DEFTMAXOUTPUTFILESIZE * 1000000LL; // bytes, set by "MaxOutputFileSize" (MB) in the settings. 2026-11-13
+int ****p_Image,****p_NoteImage,MaxGram,MaxRul,SplitTimeObjects,SplitVariables,SplitLines,ExpandExpressions,Token,Step,SpaceOn,
 	VariableOn,N_err,nstore,NumberTables,OkShowExpand,Improvize,Analyzing,ComputeWhilePlay,TransposeInput,
 	TransposeValue,Varweight,MIDIcapture,Flagthere,ResetDone,BolsInGrammar,NoAlphabet,PointCsound,PointMIDI,
 	**p_Ifrom,**p_Resolution,**p_CsoundInstr,**p_CsoundInstrumentMode;

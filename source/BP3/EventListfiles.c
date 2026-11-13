@@ -52,6 +52,7 @@ int MakeEventListFile(OutFileInfo* finfo) {
 		return MISSED;
 		}
 	else EventListPtr = fout;
+	ResetOutputSize(odEventList); // 2026-11-13
 	BPPrintMessage(0,odInfo,"👉 An event list file has been created\n");
 	WriteToEventListFile("event,item,k,id proto,label,start time,end time,MIDI channel,Csound instrument(s),random time,velocity,random velocity,trunc beg,trunc end,dilation ratio beta (actual),dilation ratio alpha (declared),cyclic,cyclic after (ms or percent),force integer number of cycles,articul,preroll (ms),postroll (ms),transposition,transpose first,expand value,expand key,keymap mode,keymap0 p1,keymap0 q1,keymap0 p2,keymap0 q2,keymap1 p1,keymap1 q1,keymap1 p2,keymap1 q2,volume start,volume end,volume channel,volume mode,modulation start,modulation end,modulation channel,modulation mode,panoramic start,panoramic end,panoramic channel,panoramic mode,pressure start,pressure end,pressure channel, pressure mode,pitchbend start,pitchbend end,pitchbend channel,pitchbend mode,tonal scale,block key");
 	return result;
@@ -74,6 +75,7 @@ int WriteToEventListFile(const char *line) {
 	if(EventListPtr == NULL || line == NULL) {
 		return MISSED;
 		}
+	if(CheckOutputSize(odEventList,strlen(line) + 2) != OK) return MISSED; // 2026-11-13
 	if(fputs(line, EventListPtr) == EOF || fputs("\r\n", EventListPtr) == EOF) {
 		BPPrintMessage(0,odError,"=> Could not write to event list file\n");
 		return MISSED;

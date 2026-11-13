@@ -1092,10 +1092,20 @@ int DrawPrototype(int j,int w,Rect *p_frame) { // THIS IS NOT (YET?) USED becaus
 	return(rep);
 	}
 
+static long StreakDate(long i,unsigned long imax,double lastperiod,Milliseconds **p_delta) {
+	// Date of time streak 'i', in milliseconds. Beyond 'imax', the end of the phase diagram, it is extrapolated with 'lastperiod'. 2026-11-14
+	long j,t;
+	j = i;
+	if(j > (long) imax) j = imax;
+	t = (*p_T)[j] / CorrectionFactor + (i - j) * lastperiod;
+	if(p_delta != NULL) t += (*p_delta)[j];
+	return t;
+	}
+
 int DrawItemBackground(Rect *p_r,unsigned long imax,int htext,int hrect,int leftoffset,
 	int interruptok,Milliseconds **p_delta,long *p_yruler,int topoffset,int *p_overflow,char* type) {
 	int result;
-	double x,xscale,p,rr,period,shift;
+	double x,xscale,p,rr,period,shift,lastperiod;
 	long i,j,k,t1,t2,y,tmem1,tmem2,tmem3,xmax,xleft,ymax,y_curr;
 	char line[BOLSIZE+5],showsmalldivisions,line_image[200];
 	Str255 label;
@@ -1250,13 +1260,17 @@ int DrawItemBackground(Rect *p_r,unsigned long imax,int htext,int hrect,int left
 	stroke_style("blue");
 	fill_style("blue");
 
+	// The phase diagram ends at column 'imax', but the sound may last longer, for instance when an object is longer than its time slot. In striated time, streaks are extended up to the right edge of the image with the period of the last column. 2026-11-14
+	lastperiod = 0.;
+	if(Nature_of_time == STRIATED && imax > 1L && (*p_T)[imax] > (*p_T)[imax-1])
+		lastperiod = ((double)(*p_T)[imax] - (*p_T)[imax-1]) / CorrectionFactor;
+
 	// Subdivisional time streaks
 	// showsmalldivisions = TRUE;
-	for(i=1L,rr=Ratio,k=0; i < imax; i++, rr += Kpress) {
-		t1 = (*p_T)[i] / CorrectionFactor;
-		// BPPrintMessage(0,odInfo, " %ld",(long) t1);
-		if(p_delta != NULL) t1 += (*p_delta)[i];
-		t1 = leftoffset + Round(t1 * p);
+	for(i=1L,rr=Ratio,k=0; ; i++, rr += Kpress) {
+		if(i >= (long) imax && lastperiod <= 0.) break;
+		t1 = leftoffset + Round(StreakDate(i,imax,lastperiod,p_delta) * p);
+		if(i >= (long) imax && t1 >= xmax) break;
 		if((t1 > tmem1 && showsmalldivisions && t1 < xmax) || tmem1 == -Infpos) {
 			pen_size(1,0);
 			draw_line(t1,y,t1,ymax,"");
@@ -1277,10 +1291,10 @@ int DrawItemBackground(Rect *p_r,unsigned long imax,int htext,int hrect,int left
 	pen_size(1,0);
 	stroke_style("blue");
 	text_style(10,"arial");
-	for(i=1L,rr=Ratio,k=0; i < imax; i++, rr += Kpress) {
-		t1 = (*p_T)[i] / CorrectionFactor;
-		if(p_delta != NULL) t1 += (*p_delta)[i];
-		t1 = leftoffset + Round(t1 * p);
+	for(i=1L,rr=Ratio,k=0; ; i++, rr += Kpress) {
+		if(i >= (long) imax && lastperiod <= 0.) break;
+		t1 = leftoffset + Round(StreakDate(i,imax,lastperiod,p_delta) * p);
+		if(i >= (long) imax && t1 >= xmax) break;
 		if(rr >= Ratio) {
 			rr -= Ratio;
 			if(t1 > tmem2  && t1 < xmax) {
@@ -1657,4 +1671,144 @@ void resize_rect(Rect* p_r,int w,int h) {
 		p_r->top = p_r->top - h;
 		p_r->bottom = p_r->bottom + h;
 		}
+	}
+
+// note 5
+int PreparePianoroll(long kmax,int cswrite,long *p_tmin,long *p_tmax,unsigned long imaxstreak,Milliseconds **p_delta,PianoRoll *p_roll,int *p_overflow) {
+	// Compute the limits in time and pitch of the pianoroll of the item, then draw its background and note scale.
+	// '*p_tmin' and '*p_tmax' are the limits in time (ms), updated to those of the pianoroll.
+	// Moved from MakeSound() (2026-11-13)
+	int j,k,key,minkey,maxkey,trans,objectchannel,c0,c1,htext,hrect,leftoffset,topoffset,instr_index,result,w;
+	long i,tmin,tmax,the_end,endxmax,endymax,yruler;
+	double beta,postroll,pivotloc,howmuch;
+	Rect graphrect;
+
+	w = wGraphic;
+	result = OK;
+	howmuch = 0.;
+	minkey = 127; maxkey = 0;
+	tmin = *p_tmin;
+	tmax = ZERO;
+	for(k = 2; k <= kmax; k++) {
+		j = (*p_Instance)[k].object;
+		if(j < 0) j = -j;
+		// 2026-11-13: 'pivotloc' was not reset for simple notes and time patterns, so they inherited the pivot of the previous sound-object - fixed by Claude
+		postroll = pivotloc = 0.;
+		if(j > 1 && j < Jbol) {
+			beta = (*p_Instance)[k].beta;
+			postroll = ObjectPostRoll(j,beta);
+			pivotloc = ObjectPivot(j,beta);
+			}
+		the_end = (*p_Instance)[k].endtime;
+		if(postroll > 0.) the_end += (long) postroll;
+		if(pivotloc < 0.) the_end -= (long) pivotloc;
+		if(tmax < the_end) tmax = the_end;
+		trans = (*p_Instance)[k].transposition;
+		objectchannel = 0; // OK for pianoroll
+		if(j < 16384) { // Sound-object
+			if(j < 2 || j >= Jbol) continue;
+			// Keys of the NoteOns in its MIDI codes
+			for(i = 0; i < (*p_MIDIsize)[j]; i++) {
+				c0 = (*((*pp_MIDIcode)[j]))[i].byte;
+				if(c0 < NoteOff) continue;
+				MIDIchannel(cswrite,j,objectchannel,&c0);
+				if(ThreeByteChannelEvent(c0)) {
+					if(c0 == NoteOn) {
+						c1 = (*((*pp_MIDIcode)[j]))[i+1].byte;	// key number
+						TransposeAndExpand(k,&c1,trans);
+						key = MapThisKey(c1,howmuch,(*p_Instance)[k].mapmode,&((*p_Instance)[k].map0),&((*p_Instance)[k].map1));
+						if(key < minkey) minkey = key;
+						if(key > maxkey) maxkey = key;
+						}
+					i += 2;
+					}
+				else if(ThreeByteEvent(c0)) i += 2;
+				else if(TwoByteEvent(c0)) i += 1;
+				else i += 3;
+				}
+			// Keys of the events in its Csound score
+			if(PlayCsoundLine(cswrite,j)) {
+				for(i = 0; i < (*p_CsoundSize)[j]; i++) {
+					ThisInstrument(cswrite,k,i,&instr_index);
+					key = CsoundPitchToKey((*((*((*pp_CsoundScore)[j]))[i].h_param))[0],(*p_CsPitchFormat)[instr_index]);
+					if(key < minkey) minkey = key;
+					if(key > maxkey) maxkey = key;
+					}
+				}
+			}
+		else { // Simple note
+			key = GoodKey(j);
+			TransposeAndExpand(k,&key,trans);
+			key = MapThisKey(key,howmuch,(*p_Instance)[k].mapmode,&((*p_Instance)[k].map0),&((*p_Instance)[k].map1));
+			if(key < minkey) minkey = key;
+			if(key > maxkey) maxkey = key;
+			}
+		}
+	minkey = (minkey / 6) * 6;
+	maxkey = 6 + ((maxkey / 6) * 6);
+	if(minkey > maxkey)  minkey = maxkey = 60;
+	hrect = 3;
+	htext = 14;
+	// Start the pianoroll at date 0, or earlier if a pivot or a pre-roll creates negative dates.
+	// Starting at a positive 'tmin' would make 'leftoffset' negative and hide the ruler.
+	if(tmin > ZERO) tmin = ZERO;
+	leftoffset = 13 + 30 - (tmin * GraphicScaleP) / GraphicScaleQ / 10;
+	topoffset = (3 * htext) + 6;
+	tmax = tmin + Nplay * (tmax - tmin);
+	endxmax = 50 + 13 + 30 + ((tmax - tmin) * GraphicScaleP) / GraphicScaleQ / 10;
+	if(endxmax < 100) endxmax = 100;
+	endymax = topoffset + ((maxkey - minkey) * hrect) + 10;
+	if(WidthMax < 32000 && WidthMax < (2 * endxmax + 40)) WidthMax = 2 * endxmax + 40;
+	if(WidthMax > 32000) {
+		BPPrintMessage(0,odInfo,"\nImage width %d was too large: it has been cropped to 32000\n",WidthMax);
+		WidthMax = endxmax = 32000;
+		}
+	endxmax = (WidthMax - 40) / 2;
+	graphrect.top = graphrect.left = 0;
+	graphrect.bottom = graphrect.top + endymax;
+	graphrect.right = graphrect.left + endxmax;
+
+	*p_tmin = tmin;
+	*p_tmax = tmax;
+	p_roll->leftoffset = p_roll->noteoffset = leftoffset;
+	p_roll->hrect = hrect;
+	p_roll->minkey = minkey;
+	p_roll->maxkey = maxkey;
+	p_roll->topoffset = topoffset;
+
+	if(ShowGraphic) {
+		result = DrawItemBackground(&graphrect,imaxstreak,htext,hrect,leftoffset,NO,p_delta,&yruler,topoffset,p_overflow,"pianoroll");
+		p_roll->graphrect = graphrect;
+		if(result != OK || *p_overflow) return(result);
+		DrawNoteScale(&graphrect,w,minkey,maxkey,hrect,leftoffset,topoffset);
+		}
+	p_roll->graphrect = graphrect;
+	p_roll->topoffset = topoffset + 3;
+	Hmin[w] = Hmax[w] = 0;
+	Hzero[w] = Vzero[w] = 0;
+	Vmin[w] = Vmax[w] = 0;
+	return(result);
+	}
+
+// note 5
+int CsoundPitchToKey(double pitch,int format) {
+	// Convert the pitch field (p4) of a Csound score line to a key number for the pianoroll
+	int octave,pitchclass;
+	double deltakey;
+
+	switch(format) {
+		case OPPC:
+			octave = MyInt(pitch);
+			pitchclass = MyInt(100. * (pitch - octave));
+			deltakey = 12. * (octave - 3.) + pitchclass;
+			break;
+		case OPD:
+			deltakey = (pitch - 3.) * 12.;
+			break;
+		case CPS:
+		default:
+			deltakey = (C4key + 9.) + 12. * (log(pitch/A4freq) / log(2.));
+			break;
+		}
+	return MyInt(deltakey);
 	}

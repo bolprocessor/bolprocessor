@@ -397,6 +397,9 @@ int PrintArgSub(PrintargType *p_printarg,unsigned long *p_maxib,TextHandle th,
 	// BPPrintMessage(1,odInfo,"@@ PrintArgSub()\n");
 
 	for(i=ia; ; i+=2L) {
+		if(EmergencyExit) { // 2026-11-13 For instance an output file has reached MaxOutputFileSize
+			r = ABORT; goto SORTIR;
+			}
 		m = (int)(**pp_a)[i]; p = (int)(**pp_a)[i+1];
 	//	BPPrintMessage(0,odInfo,"@++ m = %d, p = %d\n",m,p);
 		if(m == TEND && p == TEND) break;
@@ -1803,6 +1806,7 @@ int Display(char thechar,int nhomo,int levpar,int* homoname,int* depth,unsigned 
 			BPPrintMessage(1,odInfo,"@@  Display %s\n",s);
 			}
 		}
+	if(EmergencyExit) return(ABORT); // 2026-11-13 For instance an output file has reached MaxOutputFileSize
 	return(OK);
 	}
 

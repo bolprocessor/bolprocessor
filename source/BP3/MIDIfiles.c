@@ -105,6 +105,7 @@ int MakeMIDIFile(OutFileInfo* finfo) {
 		return MISSED;
 		}
 	else {
+		ResetOutputSize(odMIDIfile); // 2026-11-13
 		OpenMIDIfilePtr = fout;
 		MIDIfileOpened = MIDIfileTrackEmpty = TRUE;
 		MIDIfileTrackNumber = 0;
@@ -329,6 +330,21 @@ int WriteMIDIbyte(Milliseconds time,byte midi_byte) {
 	MIDIfileTrackEmpty = FALSE;
 
 	if(midi_byte & 0x80) {  /* MSBit of MIDI byte is 1 */
+		// 2026-11-13 Count the bytes about to be written: the previous message and the delta time (variable length, 1 to 4 bytes).
+		// Beyond MaxOutputFileSize, events are dropped and the work is stopped, but the file can still be closed correctly.
+		Milliseconds lasttime = OldMIDIfileTime;
+		size_t numbytes;
+		dword delta;
+		if(lasttime == -1L || time < lasttime) lasttime = time;
+		delta = (dword)(time - lasttime);
+		numbytes = (size_t)(MIDIbytestate > 0 ? MIDIbytestate : 0) + 1;
+		if(delta >= 0x80) numbytes++;
+		if(delta >= 0x4000) numbytes++;
+		if(delta >= 0x200000) numbytes++;
+		if(CheckOutputSize(odMIDIfile,numbytes) != OK) {
+			MIDIbytestate = 0;
+			return(OK);
+			}
 		if(MIDIbytestate > 0) {	/* Write out the accumulated message. */
 			if(Writedword(OpenMIDIfilePtr, Midi_msg, MIDIbytestate) != OK) goto BAD;
 			MIDItracklength += MIDIbytestate;

@@ -823,6 +823,11 @@ int DisplayMode(tokenbyte ***pp_a,int *p_ifunc,int *p_hastabs) {
 					setting_section = FALSE;
 					continue;
 					break;
+				case 12: /* '{' */
+				case 22:
+					setting_section = FALSE; // 2026-11-13 A fraction inside a polymetric expression is not a tempo setting
+					continue;
+					break;
 				default:
 					continue;
 				}

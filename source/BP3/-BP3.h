@@ -157,6 +157,8 @@ typedef struct {
 #define odWarning	32		// warning messages
 #define odError		64		// error messages
 #define odUserInt	128		// interactive messages to which a response is expected
+#define odMIDIfile	512		// MIDI file: only used to count its size, see CheckOutputSize()
+#define odEventList	1024	// event list file: only used to count its size, see CheckOutputSize()
 
 /* Control/Status codes 
  * These codes are common for both A & B ports */
@@ -559,6 +561,7 @@ enum {
 #define MAXDIAL 25	/* number of dialogs */
 #define WMAX 40		/* number of windows = MAXDIAL + MAXWIND */
 #define MAXMESSAGES 50000 // Maximum number of messsages (0 if unlimited)
+#define DEFTMAXOUTPUTFILESIZE 500 // Default value (MB) of MaxOutputFileSize, the maximum size of each output file: MIDI file, Csound score, event list, data, trace and weights. Work stops when it is reached. 2026-11-13
 
 // Strings ID's
 #define DialogStringsBaseID 300
@@ -1574,6 +1577,16 @@ typedef struct {
 	long        order;  /* original position, for a stable sort            */
 	int         is_i;   /* 1 if this is a sortable i-statement             */
 	} ScoreLine;
+
+// Layout of the pianoroll of an item, computed by PreparePianoroll() (Graphic.c) and used by MakeSound()
+typedef struct {
+	Rect graphrect;		// Size of the image (pixels)
+	int leftoffset;		// x position of date 'tmin'
+	int noteoffset;		// x position used to draw notes, set by MakeSound() for each performance
+	int topoffset;		// y position of the top of the note scale
+	int hrect;			// Height of one key (pixels)
+	int minkey,maxkey;	// Range of keys displayed
+	} PianoRoll;
 
 
 #include "-BP3.proto.h"

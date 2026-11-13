@@ -304,6 +304,7 @@ int ProduceItems(int w,int repeat,int template,tokenbyte ***pp_start) {
 		if(!PlaySelectionOn && DisplayItems) {
 			if(NumberCharsData < MAXCHARDATA) {
 				datamode = DisplayMode(pp_a,&ifunc,&hastabs);
+				if(!ExpandExpressions) hastabs = FALSE; // 2026-11-13 BP data output is expanded only with the "Expand expressions" setting (or the EXPAND buttons of the Data page)
 				// BPPrintMessage(1,odInfo,"@@ Display? OutputWindow = %d, datamode = %d, hastabs = %d\n",OutputWindow,datamode,hastabs);
 				if((r=PrintWorkString(datamode && hastabs,OutputWindow,hastabs,ifunc,pp_a)) != OK) goto QUIT;
 				// BPPrintMessage(1,odInfo,"@@@ Display? OutputWindow = %d, datamode = %d, hastabs = %d\n",OutputWindow,datamode,hastabs); $$$$
@@ -352,6 +353,7 @@ int ProduceItems(int w,int repeat,int template,tokenbyte ***pp_start) {
 		if(NumberCharsData < MAXCHARDATA) {
 			SetSelect(DataOrigin,DataOrigin,TEH[OutputWindow]);
 			datamode = DisplayMode(pp_a,&ifunc,&hastabs);
+			if(!ExpandExpressions) hastabs = FALSE; // 2026-11-13 BP data output is expanded only with the "Expand expressions" setting (or the EXPAND buttons of the Data page)
 		//	BPPrintMessage(0,odInfo, "\nBol Processor score:\n");
 			if((r=PrintWorkString(datamode && hastabs,OutputWindow,hastabs,ifunc,pp_a)) != OK) goto QUIT;
 			Print(OutputWindow,"\n");

@@ -826,7 +826,8 @@ WRITECSCORELINE:
 SORTIR:
 	MyDisposeHandle((Handle*)&scorearg);
 	if(result == OK && onoffline == OFF) {
-		MyDisposeHandle((Handle*)&params);	// This had been created while onoffline == ON
+		MyDisposeHandle((Handle*)&params);
+		// This had been created while onoffline == ON
 		}
 
 	if(result == OK && comeback) {

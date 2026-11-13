@@ -176,7 +176,8 @@ extern long MidiLen_pos,**p_Tref,**p_Tpict;
 extern dword MIDItracklength,Midi_msg;
 extern Milliseconds OldMIDIfileTime;
 extern unsigned long LapWait,WhenItStarted;
-extern int ****p_Image,****p_NoteImage,MaxGram,MaxRul,SplitTimeObjects,SplitVariables,SplitLines,Token,Step,
+extern long long MaxOutputFileSize;
+extern int ****p_Image,****p_NoteImage,MaxGram,MaxRul,SplitTimeObjects,SplitVariables,SplitLines,ExpandExpressions,Token,Step,
 	SpaceOn,
 	VariableOn,N_err,nstore,NumberTables,OkShowExpand,Improvize,Analyzing,ComputeWhilePlay,Varweight,MIDIcapture,
 	TransposeInput,TransposeValue,

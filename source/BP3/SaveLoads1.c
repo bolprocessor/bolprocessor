@@ -1148,6 +1148,8 @@ int LoadSettings(const char *filename, int startup) {
 	FileSaveMode = ALLSAME;
 	FileWriteMode = NOW;
 	SplitLines = FALSE;
+	ExpandExpressions = FALSE; // 2026-11-13
+	MaxOutputFileSize = DEFTMAXOUTPUTFILESIZE * 1000000LL; // 2026-11-13
 	ProgNrFrom = 1;
 	NotSaidKpress = TRUE;
 	NeverResetWeights = FALSE;
@@ -1238,6 +1240,11 @@ int LoadSettings(const char *filename, int startup) {
 		else if(strcmp(key,"SplitTimeObjects") == 0) SplitTimeObjects = intvalue;
 		else if(strcmp(key,"Split_|SplitVariables|") == 0) SplitVariables = intvalue;
 		else if(strcmp(key,"SplitLines") == 0) SplitLines = intvalue;
+		else if(strcmp(key,"ExpandExpressions") == 0) ExpandExpressions = intvalue; // 2026-11-13
+		else if(strcmp(key,"MaxOutputFileSize") == 0) { // MB 2026-11-13
+			if(intvalue < 1) intvalue = 1;
+			MaxOutputFileSize = (long long) intvalue * 1000000LL;
+			}
 		else if(strcmp(key,"DeftBufferSize") == 0) DeftBufferSize = (long) intvalue;
 		else if(strcmp(key,"MaxConsoleTime") == 0) MaxConsoleTime = (long) intvalue;
 		else if(strcmp(key,"Seed") == 0) {

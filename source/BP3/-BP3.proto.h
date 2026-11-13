@@ -458,6 +458,26 @@ int CheckSize(unsigned long,unsigned long*,tokenbyte***);
 int ReadTemplate(int,long,long*,tokenbyte***,long,int*);
 int DeleteTemplates(void);
 int MakeSound(long*,unsigned long,int,long,long,Milliseconds**);
+int SendMIDIevent(int,int,int,int,int,int,int,Milliseconds,int,int*);
+int SendControlChange(int,int,int,Milliseconds,int,int*);
+int SendNoteOffAndDraw(int,int,int,int,int,Milliseconds,int,int*,int,PianoRoll*,long**,int);
+int SendInitialControls(int,int,int,int,int,ContinuousControl**,char***,int,Milliseconds,int*);
+int SendSwitches(int,unsigned int*,int,Milliseconds,int,int*);
+int SendDilationRatio(int,double,int,int,Milliseconds,int,int*);
+int ReleaseKeysAndSwitches(char***,unsigned int*,int*);
+void TuneMIDIdevice(int*);
+void SetUpMPEreceiver(int*);
+int WriteCsoundTempo(Milliseconds);
+double ObjectPreRoll(int,double);
+double ObjectPostRoll(int,double);
+double ObjectPivot(int,double);
+int StrikeAgainOf(int);
+Milliseconds EventDelay(int,int,long);
+long FirstEventAfterTruncation(int,int,int,double,Milliseconds*);
+int NextInstance(long,Milliseconds**,char**,int,Milliseconds*);
+int NextControlDate(char***,Milliseconds***,Milliseconds*,int*,int*);
+int PreparePianoroll(long,int,long*,long*,unsigned long,Milliseconds**,PianoRoll*,int*);
+int CsoundPitchToKey(double,int);
 void SetObjectParameters(ParameterStatus**,ParameterSpecs**,int,int,int,Milliseconds,unsigned long);
 double CombineVolume(double,double,int);
 int SendControl(ContinuousControl**,Milliseconds,int,int,int,int,int,int*,char***,
@@ -474,7 +494,6 @@ int MakeCsoundFunctionTable(int,double**,double,double,long,Coordinates**,int,in
 double CombineScoreValues(double,double,double,double,double,int,int,int);
 int GetGENtype(int,int,int);
 double Remap(double,int,int,int*);
-int WaitForEmptyBuffer(void);
 int PrepareCsFile(void);
 int PrepareMIDIFile(void);
 int ReadMIDIfile(int*);
@@ -488,7 +507,6 @@ int ChannelConvert(int);
 int TransposeKey(int*,int);
 int AllNotesOffAllChannels(int);
 int AllControlsOffAllChannels(int);
-int WaitForLastSounds(long);
 int CheckLoadedPrototypes(void);
 int HandleInputEvent(const MIDIPacket*,MIDI_Event*,int);
 int TextToMIDIstream(int);
@@ -902,6 +920,8 @@ void CloseOutputFile(OutFileInfo* finfo);
 
 void ConsoleMessagesInit(void);
 void SetOutputDestinations(int dest, FILE* file);
+int CheckOutputSize(int dest, size_t numbytes);
+void ResetOutputSize(int dest);
 
 int BPSetMessageCallback(bp_message_callback_t func);
 

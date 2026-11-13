@@ -183,6 +183,7 @@ static int MakeCsoundScoreFile(OutFileInfo* finfo) {
 	
 	// set up Csound score output
 	SetOutputDestinations(odCsScore, fout);
+	ResetOutputSize(odCsScore); // 2026-11-13
 	CsRefNum = odCsScore;
 	CsScoreOpened = YES;
 	if(WriteToFile(NO,CsoundFileFormat,"; Csound score",CsRefNum) != OK) {
