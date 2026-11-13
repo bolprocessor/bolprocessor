@@ -130,8 +130,8 @@ int TimeSet(tokenbyte ***pp_buff,long* p_kmx,long *p_tmin,long *p_tmax,unsigned 
 		}
 	if(missed_ties > 0) {
 		if(!PlayChunks)
-			BPPrintMessage(0,odError,"=> Total %d tied note(s) have been missed\n\n",missed_ties);
-		else BPPrintMessage(0,odError,"=> Total %d tied note(s) have been missed in chunk #%d\n\n",missed_ties,Chunk_number);
+			BPPrintMessage(0,odError,"=> Total %d note(s) with missed ties\n\n",missed_ties); // 2026-11-13: missed_ties counts notes, not occurrences - fixed by Claude
+		else BPPrintMessage(0,odError,"=> Total %d note(s) with missed ties in chunk #%d\n\n",missed_ties,Chunk_number);
 		}
 
 	missed_ties = 0;

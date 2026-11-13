@@ -844,8 +844,12 @@ int FillPhaseDiagram(tokenbyte ***pp_buff,long* p_numberobjects,unsigned long *p
 			if(foundendconcatenation && tie) {
 				if(trace_diagram || trace_toofast)
 					BPPrintMessage(1,odInfo,"With foundendconcatenation <%d|%d> last object = %d\n",m,p,(int)kobj);
-				if(m == T25) (*(p_Tie_note[channel]))[p] = FALSE;
-				else if(instrument >= 0 && (m == T3 || m == T47)) (*(p_Tie_event[instrument]))[p] = FALSE;
+				// 2026-11-13: p_Tie_note and p_Tie_event count the open ties of each key, instead of being TRUE or FALSE.
+				// With a flag, two parallel ties of the same key on the same channel, e.g. cello and double bass playing "E2& ... &E2"
+				// on channel 16, set it once: the second "&E2" was taken for an orphan end tie and skipped, so the preceding object
+				// of its line was prolonged over its time slot (oboe F4 in m.25 of -da.Prelude-to-a-Tragedy) - fixed by Claude
+				if(m == T25) (*(p_Tie_note[channel]))[p]--;
+				else if(instrument >= 0 && (m == T3 || m == T47)) (*(p_Tie_event[instrument]))[p]--;
 				if(Plot(INTIME,&nseqplot,&iplot,&overstrike,FALSE,p_nmax,p_maxcol,p_im,p_Seq,
 					&nseq,maxseqapprox,ip,1) != OK) goto ENDDIAGRAM;
 				oldm = m; oldp = p;
@@ -1502,11 +1506,12 @@ int FillPhaseDiagram(tokenbyte ***pp_buff,long* p_numberobjects,unsigned long *p
 						if(PutZeros(nseq,toofast,p_im,p_maxcol,maxseqapprox,numberzeros,p_nmax,0) != OK) goto ENDDIAGRAM; // 2025-01-16
 						
 						if(oldm == T25) {
-							(*(p_Tie_note[channel]))[oldp] = TRUE; // Added by BB 2021-02-07 
+							if((*(p_Tie_note[channel]))[oldp] < 100) (*(p_Tie_note[channel]))[oldp]++; // Added by BB 2021-02-07, counter since 2026-11-13
 							if(trace_toofast) BPPrintMessage(1,odInfo,"Found tied note p = %d\n",(int)oldp);
 							}
-						else if(instrument >= 0 && instrument < MAXINSTRUMENTS && (oldm == T3 || oldm == T47))
-							(*(p_Tie_event[instrument]))[oldp] = TRUE;
+						else if(instrument >= 0 && instrument < MAXINSTRUMENTS && (oldm == T3 || oldm == T47)) {
+							if((*(p_Tie_event[instrument]))[oldp] < 100) (*(p_Tie_event[instrument]))[oldp]++; // Counter since 2026-11-13
+							}
 					
 						while((++nseq) <= (*p_nmax) && (*p_maxcol)[nseq] > classofinext);
 						if(nseq >= Minconc) {

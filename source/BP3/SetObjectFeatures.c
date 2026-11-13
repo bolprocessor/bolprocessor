@@ -1910,6 +1910,7 @@ double GetSymbolicDuration(int ignoreconcat,tokenbyte **p_buff,
 	double tempo,tempomax,prodtempo,objectduration,speed,tick_start,tick_end,this_end,this_point,
 		s,scaling,**p_duration_of_field,**p_duration_org;
 	char tie_is_open,foundendconcatenation,found_beginning,justfinishedconcatenation,tie_closed;
+	double reattack = -1.; // Date of the first later attack of the same key while the tie is open (2026-11-13)
 
 	tie_is_open = found_beginning = tie_closed = FALSE;
 	if(trace_get_duration)
@@ -2164,6 +2165,8 @@ double GetSymbolicDuration(int ignoreconcat,tokenbyte **p_buff,
 			if(found_beginning && tie_is_open && foundendconcatenation && m == m_org && p == p_org && instrument == instrument_org && part == part_org && channel == channel_org && this_end >= tick_start) {
 				if(trace_get_duration) 
 					BPPrintMessage(0,odInfo,"foundendconcatenation\n");
+				// 2026-11-13: the tie is broken if this end tie starts after a new attack of the same key - fixed by Claude
+				if(reattack >= 0. && (this_end - prodtempo - reattack) > (0.001 * prodtempo)) goto SORTIR;
 				tick_end = this_end;
 				tie_is_open = FALSE;
 				tie_closed = TRUE;
@@ -2175,8 +2178,13 @@ double GetSymbolicDuration(int ignoreconcat,tokenbyte **p_buff,
 				}
 			// 2026-11-12: a new attack of the same key while the tie is open breaks the tie, which is then unbound.
 			// Otherwise a later '&' of this key closed it, e.g. in "B3& Bb3 C4& &C4 - Cb4& &Cb4" B3 lasted until the end of &Cb4 - fixed by Claude
-			if(found_beginning && tie_is_open && m == m_org && p == p_org && instrument == instrument_org && part == part_org && channel == channel_org)
-				goto SORTIR;
+			// 2026-11-13: only an attack that starts after the tied object (the same key at the same date in another field is a parallel
+			// note, e.g. cello and double bass on the same channel without _part() in -da.Prelude-to-a-Tragedy). And the scan follows the
+			// order of the buffer, not of time: in "{E5&,...} {{1,C#5 G5 E5 G5}...,{1,&E5 D5}...}" the E5 of the first field is read before
+			// "&E5" but starts when it ends (-da.Goldberg_5). So only its date is recorded, and the end tie decides - fixed by Claude
+			if(found_beginning && tie_is_open && m == m_org && p == p_org && instrument == instrument_org && part == part_org && channel == channel_org
+					&& reattack < 0. && ((*p_duration_of_field)[level] - prodtempo - tick_start) > (0.001 * prodtempo))
+				reattack = (*p_duration_of_field)[level] - prodtempo;
 			if(tie_closed) break; // 2026-11-09: the tie is closed, any following object ends it (item "bad 0.733" of -da.checkBadDurations) - fixed by Claude
 		//	if((!tie_is_open) && !foundendconcatenation && !justfinishedconcatenation && p > 0 && this_end >= tick_start  && instrument == instrument_org && part == part_org && channel == channel_org ) {
 			// 2026-11-12: only after the beginning of the tied object, otherwise the scan stopped before reaching it - fixed by Claude
