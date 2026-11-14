@@ -1383,7 +1383,8 @@ void sendMIDIEvent(int kcurrentinstance,int i_scale,int direction,int blockkey,u
 	// This is real time, unlike SendToDriver() which sends events to eventStack
 	// Here we deal with both output and input events (see "direction") even if the latter are not sent to the output because PassInEvent() is not true.
 	int key,this_note,status,value,improvize,index,channel,part,sensitivity,channel_org,capture,note2_done,ctrl2_done,pb2_done, press2_done;
-	unsigned long clocktime, time_now;
+	unsigned long clocktime;
+	UInt64 time_now;
 	int correction = 0;
 	status = midiData[0];
 	unsigned int pitchBendValue;
@@ -1725,20 +1726,23 @@ void sendMIDIEvent(int kcurrentinstance,int i_scale,int direction,int blockkey,u
 
 // GET CLOCK TIME
 
-unsigned long getClockTime(void) {  // Microseconds
-	unsigned long the_time;
+UInt64 getClockTime(void) {  // Microseconds
+	// 2026-11-14: UInt64 instead of unsigned long, which has only 32 bits on Windows: the clock wrapped around every 71.6 minutes,
+	// and a time limit computed near the wrap (e.g. MaxConsoleTime) appeared to be exceeded at once
+	UInt64 the_time;
     #if defined(_WIN64)
 		LARGE_INTEGER freq, count;
 		QueryPerformanceFrequency(&freq); // Get the frequency of the high-resolution performance counter
 		QueryPerformanceCounter(&count);  // Get the current value of the performance counter
-		the_time = (unsigned long)((count.QuadPart * 1000000) / freq.QuadPart);
+		// Seconds and remainder are converted separately: count * 1000000 would overflow after about 10 days of uptime
+		the_time = (UInt64)(count.QuadPart / freq.QuadPart) * 1000000
+			+ (UInt64)((count.QuadPart % freq.QuadPart) * 1000000 / freq.QuadPart);
     #elif defined(__APPLE__)
-		the_time = (unsigned long) clock_gettime_nsec_np(CLOCK_UPTIME_RAW_APPROX) / 1000L;
+		the_time = (UInt64) clock_gettime_nsec_np(CLOCK_UPTIME_RAW_APPROX) / 1000;
     #elif defined(__linux__)
 		struct timespec ts;
 		clock_gettime(CLOCK_MONOTONIC, &ts); // CLOCK_MONOTONIC provides uptime, not affected by system time changes
-	//  the_time = (uint64_t)ts.tv_sec * 1000000 + ts.tv_nsec / 1000;
-		the_time = (unsigned long)ts.tv_sec * 1000000 + ts.tv_nsec / 1000;
+		the_time = (UInt64)ts.tv_sec * 1000000 + ts.tv_nsec / 1000;
     #endif
-	return(the_time); 
+	return(the_time);
 	}

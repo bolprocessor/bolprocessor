@@ -44,7 +44,8 @@ int ProduceItems(int w,int repeat,int template,tokenbyte ***pp_start) {
 	tokenbyte **p_buff,***pp_buff,**p_a,***pp_a;
 	int i,ifunc,j,ch,splitmem,r,undefined,datamode,weightloss,hastabs,maxsounds,check,changed;
 	long endofselection,size,lengthA,ichunk;
-	unsigned long time_end_compute,ilimit,pos_init,endprocess;
+	UInt64 time_end_compute;
+	unsigned long ilimit,pos_init,endprocess;
 
 	ComputeOn++;
 	if(MaxConsoleTime > 0L) BPPrintMessage(1,odInfo,"Maximum computation time allowed = %ld seconds\n",MaxConsoleTime);
@@ -73,7 +74,7 @@ int ProduceItems(int w,int repeat,int template,tokenbyte ***pp_start) {
 
 	STARTFROMSCRATCH:
 	if(MaxConsoleTime > 0L)
-			time_end_compute = getClockTime() + (MaxConsoleTime * 1000000);
+			time_end_compute = getClockTime() + ((UInt64) MaxConsoleTime * 1000000);
 	else time_end_compute = 0L;
 
 	p_a = NULL; pp_a = &p_a;
@@ -660,7 +661,7 @@ int ProduceAll(t_gram *p_gram,tokenbyte ***pp_a,int template) {
 	long maxdepth,length,****p_flag,****p_weight;
 	tokenbyte ****p_stack;
 	OSErr io;
-	unsigned long time_end_compute;
+	UInt64 time_end_compute;
 
 // DisplayGrammar(&Gram,wData,TRUE,TRUE,FALSE);
 	if(template && ShowNotBP(p_gram) != OK) return(OK);
@@ -670,7 +671,7 @@ int ProduceAll(t_gram *p_gram,tokenbyte ***pp_a,int template) {
 	maxdepth = 20L;
 	ProduceStackIndex = DisplayStackIndex = SkipFlag = FALSE;
 	if(MaxConsoleTime > 0L)
-			time_end_compute = getClockTime() + (MaxConsoleTime * 1000000);
+			time_end_compute = getClockTime() + ((UInt64) MaxConsoleTime * 1000000);
 	else time_end_compute = 0L;
 	HideMessages = TRUE;
 
@@ -749,7 +750,7 @@ END:
 
 int AllFollowingItems(t_gram *p_gram,tokenbyte ***pp_a,long ****p_weight,long ****p_flag,
 	long *p_length,int igram,int irul,int irep,int all,int template,int endgram,tokenbyte ****p_stack,
-	int *p_depth,long *p_maxdepth,int mode,unsigned long time_end_compute) {
+	int *p_depth,long *p_maxdepth,int mode,UInt64 time_end_compute) {
 	int icandidate,r,w,repeat,changed,grtype,nrep,old_gram,old_rul,new_gram,new_rul,force;
 	static int try_number = 1;
 	long leftpos,lastpos,incmark,new_pos;
@@ -977,7 +978,7 @@ int LastGrammarWanted(int igram) {
 	}
 
 int DeriveMore(tokenbyte ***pp_a,long *p_length,int *p_igram,int *p_irul,
-	long *p_ipos,int *p_icandidate,int mode,unsigned long time_end_compute) {
+	long *p_ipos,int *p_icandidate,int mode,UInt64 time_end_compute) {
 	int r,repeat,changed,grtype;
 	long leftpos,lastpos,incmark;
 	repeat = TRUE;
@@ -993,7 +994,7 @@ int DeriveMore(tokenbyte ***pp_a,long *p_length,int *p_igram,int *p_irul,
 	}
 
 int NextDerivation(tokenbyte ***pp_a,long *p_length,int *p_igram,int *p_irul,
-	long *p_ipos,int *p_icandidate,int mode,unsigned long time_end_compute) {
+	long *p_ipos,int *p_icandidate,int mode,UInt64 time_end_compute) {
 	int r,nb_candidates,**p_prefrule,**p_candidate,maxpref,freedom,equalweight,maxrul,
 		repeat;
 	tokenbyte instan[MAXLIN],meta[MAXMETA2],meta1[MAXMETA2];
@@ -1671,7 +1672,7 @@ int Analyze(tokenbyte ***pp_a,long *p_lengthA,int *p_repeat,int learn,int templa
 	long posend,lastbyte, posmax;
 	tokenbyte m,p,**p_b,***pp_b,**p_c,***pp_c,**p_d,***pp_d;
 	double maxseqapprox;
-	unsigned long time_end_compute;
+	UInt64 time_end_compute;
 
 	ProduceStackDepth = itemp = 0; posend = pos; foundone = good = again = FALSE;
 	p_b = p_c = p_d = NULL;

@@ -85,7 +85,7 @@ extern int InitThere,FirstTime,FirstGrammar,MaxScriptInstructions,KeyboardType,C
 	CurrentMIDIprogram[MAXCHAN+1],DefaultBlockKey;
 extern double A4freq;
 extern time_t ProductionTime,ProductionStartTime,SessionStartTime,PhaseDiagramTime,TimeSettingTime;
-extern unsigned long NextStop;
+extern UInt64 NextStop,ComputeStart;
 extern char FindString[256],ReplaceString[256];
 extern t_gram Gram,Gram_compile,GlossGram;
 extern int RunningStatus,StrikeAgainSettings,PedalReleaseDefault,StopPauseContinue,MIDImicrotonality;
@@ -127,7 +127,7 @@ extern FILE* CapturePtr;
 extern Milliseconds TabfileStart;
 extern long ProduceStackDepth,ProduceStackIndex,DisplayStackIndex,
 	**p_LastStackIndex,**p_MemPos;
-extern long **p_ItemStart,**p_ItemEnd,CompileDate,ComputeStart,MaxComputeTime,
+extern long **p_ItemStart,**p_ItemEnd,CompileDate,MaxComputeTime,
 	ComputeTime,ItemNumber,EventNumber,TemplateNumber,Interrupted,MaxDeriv,Sel1,Sel2,AssignedTempoCsoundFile;
 extern int Nplay,SynchroSignal,Quantize,IgnoreCase,
 	MatchWords,TargetWindow,GraphicScaleP,GraphicScaleQ;
@@ -335,6 +335,7 @@ extern char FileName[WMAX][MAXNAME+1],CsFileName[MAXNAME+1],MIDIfileName[MAXNAME
 extern int MinPeriod;
 // extern FSSpec MIDIfileSpec;
 extern float EndFadeOut,AdvanceTime;
+extern double CsScoreEnd;
 extern int CurrentVolume[MAXCHAN+1];
 extern char FilePrefix[WMAX][5];
 extern char FileOldPrefix[WMAX][5];
@@ -400,7 +401,7 @@ extern MIDI_Event* eventStack;
 extern long eventCount, eventCountMax;
 extern UInt64 initTime;
 extern long ExpectedEndTime,ChunkEndTime;
-extern unsigned long FirstEventTime;
+extern UInt64 FirstEventTime;
 extern int FirstNoteOn;
 extern int ToldPitchbend, ToldStop;
 

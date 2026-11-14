@@ -496,8 +496,8 @@ void WriteTimeFile(int force) {
 	// The page of produce.php polls this file (via time_poll.php) to display a clock
 	// With 'force', write it now: this is the date at which the performance was stopped
 	// The second number is the expected date of the end (ExpectedEndTime), 0 or -1 if unknown
-	static unsigned long next_write = 0L;
-	unsigned long now, elapsed;
+	static UInt64 next_write = 0L;
+	UInt64 now, elapsed;
 	long date;
 	FILE* ptr;
 	if(!rtMIDI || FirstNoteOn || StopPlay || PausePlay || strlen(TimefileName) == 0) return;
@@ -521,7 +521,7 @@ int stop(int now,char* where) {
 	if(Panic || EmergencyExit) return ABORT;
 	if((r = ListenToEvents()) != OK) return r;
 	WriteTimeFile(FALSE);
-	unsigned long current_time = getClockTime(); // microseconds
+	UInt64 current_time = getClockTime(); // microseconds
 	if(!now && (current_time < NextStop)) return(OK); // We only check _stop and _panic every 500 ms, in all modes: opening these files at each call slows down production considerably
 	NextStop = current_time + 500000L; // microseconds
 	if(strlen(StopfileName) == 0) return OK;

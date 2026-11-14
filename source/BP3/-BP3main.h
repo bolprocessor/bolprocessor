@@ -64,7 +64,7 @@ long eventCount,eventCountMax;
 UInt64 initTime;
 long ExpectedEndTime;
 long ChunkEndTime; // Date (ms) of the end of the previous chunk, where the next chunk of the item starts // Expected date (ms) of the end of the real-time MIDI performance, -1 if unknown
-unsigned long FirstEventTime;
+UInt64 FirstEventTime;
 MIDI_Event* eventStack;
 size_t MaxMIDIMessages;
 
@@ -123,7 +123,7 @@ int InitThere,FirstTime,FirstGrammar,MaxScriptInstructions,KeyboardType,C4key,Pr
 	CurrentMIDIprogram[MAXCHAN+1],DefaultBlockKey;
 double A4freq;
 time_t ProductionTime,ProductionStartTime,SessionStartTime,PhaseDiagramTime,TimeSettingTime;
-unsigned long NextStop;
+UInt64 NextStop,ComputeStart; // Microseconds (getClockTime)
 char FindString[256],ReplaceString[256];
 char OutFileName[MAXLIN];
 int RunningStatus,StrikeAgainSettings,PedalReleaseDefault,StopPauseContinue,MIDImicrotonality;
@@ -163,7 +163,7 @@ FILE* CapturePtr;
 Milliseconds TabfileStart;
 long ProduceStackDepth,ProduceStackIndex,DisplayStackIndex,
 	**p_LastStackIndex,**p_MemPos;
-long **p_ItemStart,**p_ItemEnd,CompileDate,ComputeStart,MaxComputeTime,
+long **p_ItemStart,**p_ItemEnd,CompileDate,MaxComputeTime,
 	ComputeTime,ItemNumber,EventNumber,TemplateNumber,Interrupted,MaxDeriv,Sel1,Sel2,AssignedTempoCsoundFile;
 int Nplay,SynchroSignal,Quantize,IgnoreCase,MatchWords,
 	TargetWindow,GraphicScaleP,GraphicScaleQ;
@@ -407,6 +407,7 @@ char FileName[WMAX][MAXNAME+1],CsFileName[MAXNAME+1],MIDIfileName[MAXNAME+1],
 int MinPeriod;
 // FSSpec MIDIfileSpec;
 float EndFadeOut,AdvanceTime;
+double CsScoreEnd = 0.; // End (seconds) of the last note written to the Csound score, used when CSOUND_SECTIONS is 0
 int CurrentVolume[MAXCHAN+1];
 long WindowParID[WMAX],ParIDstartup,ParIDbp2;
 // Str255 DeftVolName;

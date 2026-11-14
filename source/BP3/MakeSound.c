@@ -85,7 +85,8 @@ int MakeSound(long *p_kmax,unsigned long imaxstreak,int maxnsequences,long tmin,
 	// Time
 	Milliseconds torigin,t0,t1,t11,t2,t2obj,t22,date1,computetime,currenttime,this_gap;
 	long oldtcurr,max_endtime_event,max_endtime,add_time,expected_end;
-	unsigned long oldtime,drivertime;
+	unsigned long oldtime;
+	UInt64 drivertime;
 
 	int occurrence,result,overflow,cswrite,showpianoroll;
 	char this_note[20];
@@ -1404,14 +1405,18 @@ GETOUT:
 			my_sprintf(Message,"i1 %.3f %.3f 0.00 0 0 ; silence",((LastTime + max_endtime_event) /1000.),add_time /1000.);
 		//	my_sprintf(Message,"s %.3f ; silence",add_time /1000.); // Doesn't work: too long?
 			WriteToFile(NO,CsoundFileFormat,Message,CsRefNum);
+			if(((LastTime + max_endtime_event) + add_time) / 1000. > CsScoreEnd)
+				CsScoreEnd = ((LastTime + max_endtime_event) + add_time) / 1000.;
 			}
 		}
 OVER2:
 	// note 40
 	if(cswrite) LastTime += max_endtime;
 
+#if CSOUND_SECTIONS
 	if(cswrite && result == OK && !Improvize && !PlayAllChunks && !ConvertMIDItoCsound && !AllItems) // ConvertMIDItoCsound is always false in the console version
 		WriteToFile(NO,CsoundFileFormat,"s",CsRefNum); // This line will automatically be deleted if this score belongs to a sound-object prototype — see function fix_csound_score() in prototype.php
+#endif
 
 	if(cswrite) {
 		WriteToFile(NO,CsoundFileFormat,";",CsRefNum);
@@ -1740,7 +1745,8 @@ int WriteCsoundTempo(Milliseconds torigin) {
 			}
 		if(CsoundTrace) ShowMessage(TRUE,wMessage,Message);
 		// With several items, only the first one gets a tempo statement
-		if((Improvize || PlayAllChunks || AllItems) && AssignedTempoCsoundFile) return(OK); // Fixed !PlayAllChunks 2024-05-20
+		// Without sections (CSOUND_SECTIONS = 0), the score gets a single tempo statement
+		if((!CSOUND_SECTIONS || Improvize || PlayAllChunks || AllItems) && AssignedTempoCsoundFile) return(OK); // Fixed !PlayAllChunks 2024-05-20
 		AssignedTempoCsoundFile = TRUE;
 		if(WriteToFile(NO,CsoundFileFormat,Message,CsRefNum) == OK) return(OK);
 		BPPrintMessage(0,odError,"=> Couldn't write to the Csound score. Maybe it has been closed by another application\n");

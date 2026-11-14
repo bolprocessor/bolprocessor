@@ -819,7 +819,12 @@ WRITECSCORELINE:
 		}
 	else line[0] = '\0';
 	if(ConvertMIDItoCsound) Println(wPrototype7,Message);
-	else WriteToFile(NO,CsoundFileFormat,line,CsRefNum);
+	else {
+		WriteToFile(NO,CsoundFileFormat,line,CsRefNum);
+		// End of the last note, for the final "e" statement (see CSOUND_SECTIONS in -BP3.h)
+		if((*scorearg)[3] >= 0. && ((*scorearg)[2] + (*scorearg)[3]) > CsScoreEnd)
+			CsScoreEnd = (*scorearg)[2] + (*scorearg)[3];
+		}
 	result = OK;
 	if(trace_cs_scoremake) BPPrintMessage(0,odInfo,"line = %s\n",line);
 	strcpy(Message,"");

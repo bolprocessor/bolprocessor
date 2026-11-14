@@ -260,7 +260,7 @@ int PlayBuffer(tokenbyte ***pp_buff,int onlypianoroll) {
 int PlayBuffer1(tokenbyte ***pp_buff,int onlypianoroll) {
 	int result,i,j,nmax,dummy,finish,repeat,displayProducemem,
 		showmessagesmem,usebufferlimitmem,again,store,a,b;
-	clock_t time_end_compute;
+	UInt64 time_end_compute;
 	long tmin,tmax,length,kmax;
 	unsigned long maxseq;
 	double maxseqapprox;
@@ -294,7 +294,7 @@ int PlayBuffer1(tokenbyte ***pp_buff,int onlypianoroll) {
 		if((result=MakeComputeSpace(MaxDeriv)) != OK) goto SORTIR;
 		DisplayProduce = ShowMessages = UseBufferLimit = finish = repeat = FALSE;
 		if(MaxConsoleTime > 0L)
-			time_end_compute = getClockTime() + (MaxConsoleTime * 1000000);
+			time_end_compute = getClockTime() + ((UInt64) MaxConsoleTime * 1000000);
 		else time_end_compute = 0L;
 		
 		//////  Make derivation (unique substitution) with glossary ///////

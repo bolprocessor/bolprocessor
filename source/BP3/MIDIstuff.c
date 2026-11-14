@@ -234,7 +234,7 @@ char* longToBinary(int totalBits,unsigned long num) {
 	}
 
 int MIDIflush(int quick, int now) {
-	unsigned long current_time,time_now;
+	UInt64 current_time,time_now;
 	long i,j;
 	int kcurrentinstance,i_scale,changed;
 	long time;
@@ -341,7 +341,8 @@ int MIDIflush(int quick, int now) {
 
 
 int MaybeWait(unsigned long current_time) {
-	unsigned long time,time_now,i;
+	unsigned long time,i;
+	UInt64 time_now;
 	int result;
 	if(FirstNoteOn) time = 0L;
 	else time = current_time;
@@ -1987,7 +1988,7 @@ return OK;
 	}
 
 int CleanUpBuffer(void) {
-	unsigned long time_now;
+	UInt64 time_now;
 	int r = OK;
 	static long half;
 	half = eventCountMax / 2L;

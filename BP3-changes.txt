@@ -6,7 +6,28 @@ https://github.com/bolprocessor/bolprocessor/blob/graphics-for-BP3/BP3-changes.t
 Geeks can also read the "to-do" file:
 https://raw.githubusercontent.com/bolprocessor/bolprocessor/graphics-for-BP3/BP3-To-Do.txt
 
-2026-11-09 -> 2026-11-14 (version 3.6.0)
+2026-11-14 (version 3.6.1)
+The Bol Processor now works with Csound version 7, which replaces version 6.18. The interface has been updated to accommodate this change. If your installation is running Csound 6.18, the interface will tell you to install 7.0 and it will supply the link to the official download page.
+
+Please note:
+
+- Csound 7.0.0 hangs on Csound scores with several sections when the orchestra starts an instrument with an unlimited duration, as 0-default.orc does. We reported this bug to the Csound developers (https://github.com/csound/csound/issues/3651). It has already been fixed in their development version and will be included in the next release of Csound.
+- Until it is fixed, Csound scores are written as a single section: no s statements, a single tempo statement, and a final e statement giving the end of the performance (end of the last note + fade-out time). The previous format will be restored once the bug is fixed.
+- Consequences: the lines of a data item are played one after another without gaps, as in MIDI output. Productions of several items or chunks now end with the fade-out time set in the settings. The sound files are otherwise identical to those produced by Csound 6.18.
+
+A new variable 'MaxOutputFileSize' can be modified in the settings. This declares the maximum size of any file produced by the console. The default value is 500 MB.
+A new MIDI file player (SpessaSynth) has been installed and set as the default option in MacOS, Windows and Linux. Consequently, the Bol Processor now runs entirely offline (no internet connection required).
+
+Don't forget to update the PHP interface:
+https://github.com/bolprocessor/php-frontend/
+Also reload the set of examples:
+https://github.com/bolprocessor/bp3-ctests/archive/main.zip
+
+=> Running an installer (MacOS/Windows) or a script (Linux) performs all operations in a single step:
+https://bolprocessor.org/install/
+
+-----
+2026-11-09 -> 2026-11-13 (version 3.6.0)
 Many corrections have been done at a deep level, solving problems in (uncommon) cases.
 The timing during a real-time MIDI performance and the expected total time are displayed.
 Csound resource (-cs), sound-objects (-so) and tonality (-to) files are protected against a failure if their related folders in the 'temp_bolprocessor' folder have been deleted by mistake.
@@ -18,11 +39,6 @@ Csound instruments can now be assigned to 'parts' of a score. For example, try '
 Errors in importing MusicXML scores have been fixed, some of which occurred when errors in the scores were being corrected!
 Carrying over controls such as volume, panoramic, etc., over a Bol Processor score follows a set of rules which have been revised and made explicit in a tutorial:
 https://bolprocessor.org/carrying-over-controls
-
-Don't forget to update the PHP interface:
-https://github.com/bolprocessor/php-frontend/
-Also reload the set of examples:
-https://github.com/bolprocessor/bp3-ctests/archive/main.zip
 
 -----
 2026-10-07 -> 2026-11-08 (version 3.5.6)

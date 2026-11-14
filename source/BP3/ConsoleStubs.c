@@ -186,6 +186,7 @@ static int MakeCsoundScoreFile(OutFileInfo* finfo) {
 	ResetOutputSize(odCsScore); // 2026-11-13
 	CsRefNum = odCsScore;
 	CsScoreOpened = YES;
+	CsScoreEnd = 0.;
 	if(WriteToFile(NO,CsoundFileFormat,"; Csound score",CsRefNum) != OK) {
 		ShowMessage(TRUE,wMessage,"Can't write to Csound score file. Unknown error 1");
 		CloseCsScore();
@@ -211,10 +212,20 @@ int CloseCsScore(void) {
 	char line[MAXLIN];
 	
 	if(!CsScoreOpened) return(OK);
+	// The "e" line will automatically be deleted if this score belongs to a sound-object prototype — see function fix_csound_score() in prototype.php
+#if CSOUND_SECTIONS
+	// After the final "s", "e" adds an empty section of EndFadeOut seconds
 	if(EndFadeOut > 0.) {
-		my_sprintf(line,"e %.3f",EndFadeOut); // This line will automatically be deleted if this score belongs to a sound-objectt prototype — see function fix_csound_score() in prototype.php
+		my_sprintf(line,"e %.3f",EndFadeOut);
 		}
 	else strcpy(line,"e");
+#else
+	// Single section: "e" gives the end of the score, EndFadeOut seconds after the end of the last note
+	if(CsScoreEnd + EndFadeOut > 0.) {
+		my_sprintf(line,"e %.3f",CsScoreEnd + EndFadeOut);
+		}
+	else strcpy(line,"e");
+#endif
 	// 'e' terminates a Csound score
 	if(!ConvertMIDItoCsound) WriteToFile(NO,CsoundFileFormat,line,CsRefNum);
 	Date(line);

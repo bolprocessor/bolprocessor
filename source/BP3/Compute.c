@@ -38,11 +38,11 @@
 
 #include "-BP3decl.h"
 
-long Tstart;
+UInt64 Tstart;
 int trace_compute = 0;
 int trace_weights = 0;
 
-int Compute(tokenbyte ***pp_a,int fromigram,int toigram,long *p_length,int *p_repeat,unsigned long time_end_compute) {
+int Compute(tokenbyte ***pp_a,int fromigram,int toigram,long *p_length,int *p_repeat,UInt64 time_end_compute) {
 	int r,igram,inrul,finish,again,outgram,outrul,displayproducemem,level;
 	unsigned long ix;
 	char** string;
@@ -148,7 +148,7 @@ int Compute(tokenbyte ***pp_a,int fromigram,int toigram,long *p_length,int *p_re
 
 int ComputeInGram(tokenbyte ***pp_a,t_gram *p_gram,int igram,int inrul,long *p_length,
 	int *p_finish,int *p_repeat,int mode,int learn,int *p_outgram,
-	int *p_outrul, unsigned long time_end_compute) {
+	int *p_outrul, UInt64 time_end_compute) {
 
 	char c;
 	int rep,datamode,ifunc,ig,ir,j,jj,irul,irep,nrep,**p_candidate,foundone,
@@ -1110,7 +1110,7 @@ long NextPos(tokenbyte ***pp_a,tokenbyte ***pp_b,long *p_lastpos,long *p_incmark
 int FindCandidateRules(tokenbyte ***pp_a,t_gram *p_gram,int startfrom,int igram,int grtype,
 	int **p_candidate,long **p_totwght,long **p_pos,int **p_prefrule,
 	long leftpos,int *p_maxpref,int *p_freedom,int repeat,int mode,
-	int *p_equalweight,int learn,unsigned long time_end_compute) {
+	int *p_equalweight,int learn,UInt64 time_end_compute) {
 	
 // Does this grammar contain candidate rules ?
 // enlist them in *p_candidate[], store their cumulated weights
@@ -1468,7 +1468,7 @@ int FindCandidateRules(tokenbyte ***pp_a,t_gram *p_gram,int startfrom,int igram,
 
 
 int OkContext(tokenbyte ***pp_a,int grtype,t_rule rule,long pos,long length,
-	tokenbyte meta[],tokenbyte instan[],int mode,unsigned long time_end_compute) {
+	tokenbyte meta[],tokenbyte instan[],int mode,UInt64 time_end_compute) {
 	// Check remote context
 	int sign;
 	long pos1,pos2,length1;
@@ -1505,7 +1505,7 @@ int OkContext(tokenbyte ***pp_a,int grtype,t_rule rule,long pos,long length,
 
 
 long FindArg(tokenbyte ***pp_a,int grtype,tokenbyte **p_arg,int reset,
-	long *p_length,tokenbyte meta[],tokenbyte instan[],t_rule rule,int mode,unsigned long time_end_compute) {
+	long *p_length,tokenbyte meta[],tokenbyte instan[],t_rule rule,int mode,UInt64 time_end_compute) {
 	// Search left/rightmost pattern position in A[]
 	long pos;
 	long startpos,istart,jstart,lenc1,i;
@@ -1557,7 +1557,7 @@ long FindArg(tokenbyte ***pp_a,int grtype,tokenbyte **p_arg,int reset,
 
 int Found(int irul,tokenbyte ***pp_a,int grtype,tokenbyte **p_arg,long offset,int lenc,
 	long *p_lenc1,long pos,int reset,tokenbyte instan[],tokenbyte meta[],
-	tokenbyte meta1[],long *p_istart,long *p_jstart,long *p_length,int ismeta,unsigned long time_end_compute){
+	tokenbyte meta1[],long *p_istart,long *p_jstart,long *p_length,int ismeta,UInt64 time_end_compute){
 	// irul is not relevant, only in trace_compute
 
 	int i,j,i1,i2,j1,j2,xi,istart,jstart;
@@ -1776,7 +1776,7 @@ int Found(int irul,tokenbyte ***pp_a,int grtype,tokenbyte **p_arg,long offset,in
 long Derive(tokenbyte ***pp_a,t_gram *p_gram,tokenbyte ***pp_b,long *p_length,int igram,
 	int irul,
 	long pos,long *p_leftpos,int grtype,int repeat,int *p_changed,long *p_lastpos,
-	long *p_incmark,int mode,unsigned long time_end_compute) {
+	long *p_incmark,int mode,UInt64 time_end_compute) {
 /* Apply rule 'irul' of gram 'igram'. */
 /* 'pos' is the leftmost occurrence of the left argument in a[] */
 	tokenbyte **p_arg1,**p_arg2;
@@ -1849,7 +1849,7 @@ void ExpandBufferLimit(long requiredSize) {
 long Insert(int grtype,tokenbyte ***pp_origin,tokenbyte ***pp_dest,t_rule rule,long pos,
 	long offset,long dif,tokenbyte **p_arg1,tokenbyte **p_arg2,long *p_lengthorigin,
 	long *p_leftpos,int imode,long inmark,long *p_lastpos,long *p_incmark,
-	int repeat,int mode,unsigned long time_end_compute) {
+	int repeat,int mode,UInt64 time_end_compute) {
 
 	int randomnumber;
 	tokenbyte m,p;

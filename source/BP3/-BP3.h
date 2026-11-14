@@ -36,12 +36,24 @@
 #ifndef _H_BP3
 #define _H_BP3
 
-#define SHORT_VERSION "3.6.0"
+#define SHORT_VERSION "3.6.1"
 #define IDSTRING ( "Version " SHORT_VERSION " (" __DATE__ " - " __TIME__ ")")
 #define MAXVERSION 31
 
 #ifndef __POWERPC
 #define __POWERPC
+#endif
+
+// Structure of Csound scores (2026-11-14)
+// 1: each item, or each line of a data item, ends with an "s" statement, and the score ends with
+//    "s" then "e <EndFadeOut>", which adds an empty section of EndFadeOut seconds for the fade-out.
+// 0: the score is a single section, without "s" statements, with a single tempo statement, and it ends with
+//    "e <end of the last note + EndFadeOut>".
+// Csound 7.0.0 never ends a score with several sections when the orchestra starts an instrument with
+// "schedule ..., 0, -1", as 0-default.orc and Beethoven.orc do (Csound 6.18 was fine). Set this back to 1
+// once the bug has been fixed in Csound.
+#ifndef CSOUND_SECTIONS
+#define CSOUND_SECTIONS 0
 #endif
 
 // 1 for debugging memory, 0 otherwise
