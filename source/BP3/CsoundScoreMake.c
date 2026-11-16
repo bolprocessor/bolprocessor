@@ -31,6 +31,8 @@
     POSSIBILITY OF SUCH DAMAGE.
 */
 
+// Comments "// note N (microtonality)" in this file refer to the numbered notes of the technical description of this algorithm: https://bolprocessor.org/tech-analysis-of-microtonality/s
+
 
 #ifndef _H_BP3
 #include "-BP3.h"
@@ -327,6 +329,7 @@ int CscoreWrite(Milliseconds cut_the_end,Rect* p_graphrect,int leftoffset,int to
 			else {
 				i_scale = FindScale(scale);
 				}
+			// note 4 (microtonality)
 			if(i_scale > 0 && i_scale <= NumberScales) { 
 			//	BPPrintMessage(0,odInfo,"blockkey = %d\n",blockkey);
 				x = GetPitchWithScale(i_scale,kcurrentinstance,key,cents_add1,blockkey);

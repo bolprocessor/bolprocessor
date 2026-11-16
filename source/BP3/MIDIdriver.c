@@ -31,6 +31,8 @@
     POSSIBILITY OF SUCH DAMAGE.
 */
 
+// Comments "// note N (microtonality)" in this file refer to the numbered notes of the technical description of this algorithm: https://bolprocessor.org/tech-analysis-of-microtonality/
+
 #include "-BP3.h"
 #include "-BP3decl.h"
 
@@ -66,7 +68,53 @@ int trace_messages = 0;
 		// Return true if the device is online (offline == 0)
 		return(offline == 0);
 		}
+	#include <pthread.h>
+	#include <mach/mach.h>
+	#include <mach/thread_policy.h>
 #endif
+
+int SetRealTimeThread(int on) {
+	// 2026-11-16: started by the web server, the console runs with a low priority, and the system groups its wake-ups:
+	// WaitABit(10) lasted 40 to 60 ms in real-time MIDI, so events came late. During its sleeps, mysleep() gives the thread
+	// the time-constraint policy of audio and MIDI applications, which makes wake-ups punctual (10 ms ± 1), then restores
+	// the standard policy, so that computations never run with a real-time priority that could disturb a synthesiser.
+	#if defined(__APPLE__)
+	static uint32_t period = 0, computation, constraint;
+	static int failed = FALSE;
+	kern_return_t result;
+	if(failed) return(MISSED);
+	if(on) {
+		thread_time_constraint_policy_data_t policy;
+		if(period == 0) {
+			mach_timebase_info_data_t timebase;
+			double ticks_per_ms;
+			mach_timebase_info(&timebase);
+			ticks_per_ms = 1000000. * (double) timebase.denom / (double) timebase.numer;
+			period = (uint32_t) (10. * ticks_per_ms);
+			computation = (uint32_t) (2. * ticks_per_ms);
+			constraint = (uint32_t) (5. * ticks_per_ms);
+			}
+		policy.period = period;
+		policy.computation = computation;
+		policy.constraint = constraint;
+		policy.preemptible = TRUE;
+		result = thread_policy_set(pthread_mach_thread_np(pthread_self()),THREAD_TIME_CONSTRAINT_POLICY,
+			(thread_policy_t) &policy,THREAD_TIME_CONSTRAINT_POLICY_COUNT);
+		}
+	else {
+		thread_standard_policy_data_t standard;
+		standard.no_data = 0;
+		result = thread_policy_set(pthread_mach_thread_np(pthread_self()),THREAD_STANDARD_POLICY,
+			(thread_policy_t) &standard,THREAD_STANDARD_POLICY_COUNT);
+		}
+	if(result != KERN_SUCCESS) {
+		failed = TRUE;
+		BPPrintMessage(0,odWarning,"=> Could not set the priority of real-time MIDI (error %d): timing may be less accurate\n",(int) result);
+		return(MISSED);
+		}
+	#endif
+	return(OK);
+	}
 
 // OPEN MIDI SYSTEM
 
@@ -1408,6 +1456,7 @@ void sendMIDIEvent(int kcurrentinstance,int i_scale,int direction,int blockkey,u
 		PrintThisNote(i_scale,key,0,-1,this_key);
 		//  BPPrintMessage(0,odInfo,"§§ sendMIDIEvent %d %d %d, channel %d, i_scale = %d\n",midiData[0],midiData[1],midiData[2],(channel + 1),i_scale);
 		//  BPPrintMessage(0,odInfo,"§§ Note %d channel %d i_scale = %d\n",key,channel,i_scale);
+		// note 11 (microtonality)
 		if(MIDImicrotonality && (status == NoteOn || status == NoteOff) && i_scale <= NumberScales && i_scale > 0 && direction == INmidi) {
 			// This is only used for input events because microtonal corrections are done by SendToDriver() otherwise.
 			int numnotes = (*Scale)[i_scale].numnotes;
@@ -1583,6 +1632,7 @@ void sendMIDIEvent(int kcurrentinstance,int i_scale,int direction,int blockkey,u
 		if(packet) {
 			for(index = 0; index < MaxOutputPorts; index++) {
 				// Here use filters to decide which port(s) this event should be sent to.
+				// note 12 (microtonality)
 				if(!MIDImicrotonality && channel >= 0 && channel < MAXCHAN && MIDIchannelFilter[index][channel] == '0') continue;
 				if(part > 0 && MIDIpartFilter[index][part - 1] == '0') continue;
 				if(!MIDImicrotonality && !PassOutEvent(status,index)) continue;
@@ -1610,6 +1660,7 @@ void sendMIDIEvent(int kcurrentinstance,int i_scale,int direction,int blockkey,u
 		for (index = 0; index < MaxOutputPorts; index++) {
 			if(hMIDIout[MIDIoutput[index]] == NULL) continue;
  // BPPrintMessage(0,odInfo,"1) MIDI event time = %ld ms, %ld %ld %ld channel = %d\n",(long)time/1000L,(long)midiData[0],(long)midiData[1],(long)midiData[2],channel);
+			// note 12 (microtonality)
 			if(!MIDImicrotonality && channel >= 0 && channel < MAXCHAN && MIDIchannelFilter[index][channel] == '0') continue;
 // BPPrintMessage(0,odInfo,"2) MIDI event time = %ld ms, status = %ld, key %ld, velocity = %ld channel = %d\n",(long)time/1000L,(long)status,(long)key,(long)value,channel);
 			if(part > 0 && MIDIpartFilter[index][part - 1] == '0') continue;
@@ -1695,6 +1746,7 @@ void sendMIDIEvent(int kcurrentinstance,int i_scale,int direction,int blockkey,u
 		for (int index = 0; index < MaxOutputPorts; index++) {
 			// Retrieve the port number for the given client
 			int client = MIDIoutput[index];
+			// note 12 (microtonality)
 			if(!MIDImicrotonality && channel >= 0 && channel < MAXCHAN && MIDIchannelFilter[index][channel] == '0') continue;
 			if(part > 0 && MIDIpartFilter[index][part - 1] == '0') continue;
 			if(!MIDImicrotonality && !PassOutEvent(status,index)) continue;

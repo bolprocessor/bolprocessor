@@ -31,6 +31,7 @@
     POSSIBILITY OF SUCH DAMAGE.
 */
 
+// Comments "// note N" in this file refer to the numbered notes of the technical description of this algorithm: https://bolprocessor.org/tech-analysis-of-microtonality/
 
 #include "-BP3.h"
 #include "-BP3decl.h"
@@ -340,6 +341,21 @@ int MIDIflush(int quick, int now) {
 	}
 
 
+int WaitNextMIDIevent(long maxdelay) {
+	// 2026-11-16: sleep until the date of the next event in the stack, between 1 and 'maxdelay' milliseconds.
+	// A fixed sleep of 10 ms delayed events by up to 10 ms.
+	long long current_time,delay,d;
+	long i;
+	current_time = (long long) (getClockTime() - initTime); // microseconds, as in MIDIflush()
+	delay = 1000LL * maxdelay;
+	for(i = 0; i < eventCount; i++) {
+		d = (long long) eventStack[i].time + (long long) TimeStopped - current_time;
+		if(d < delay) delay = d;
+		}
+	if(delay < 1000LL) delay = 1000LL;
+	return WaitABit((long) (delay / 1000LL));
+	}
+
 int MaybeWait(unsigned long current_time) {
 	unsigned long time,i;
 	UInt64 time_now;
@@ -356,8 +372,8 @@ int MaybeWait(unsigned long current_time) {
 		WaitABit(5); // milliseconds
 		i++;
 		if(i == 50L && ResetNotes && CapturePtr == NULL) {
+			// 2026-11-16: only notes are turned off. Resetting the controllers (volume 90, effects 0, etc.) changed the sound when the performance continued - fixed by Claude
 			AllNotesOffAllChannels(FALSE);
-			AllControlsOffAllChannels(FALSE);
 			}
 		}
 	TimeStopped += (getClockTime() - time_now);
@@ -401,8 +417,7 @@ int HandleInputEvent(const MIDIPacket* packet,MIDI_Event* e,int index) {
 	if(Interactive) {
 		if(StopPauseContinue && c0 == Stop) {
 			StopPlay = TRUE;
-			AllNotesOffAllChannels(FALSE);
-			AllControlsOffAllChannels(FALSE);
+			AllNotesOffAllChannels(FALSE); // 2026-11-16: controllers are not reset since a Continue message may follow - fixed by Claude
 			if(TraceMIDIinteraction) BPPrintMessage(0,odInfo,"👉 Received Stop message\n");
 			return(OK);
 			}
@@ -1523,10 +1538,11 @@ int FindScale(int scale) {
 	return i_scale;
 	}
 
+// note 6
 int AssignUniqueChannel(int status, int note, int value, int i_scale, int pitch, Milliseconds time) {
 	// time is only used for checking
 	int test = FALSE;
-	int ch;
+	int ch,best;
 	if(i_scale < 0) i_scale = 0;
 	if(i_scale >= MAXCONVENTIONS) {
 		BPPrintMessage(1,odError,"=> Error i_scale = %d, >= MAXCONVENTIONS (100)\n",i_scale);
@@ -1542,6 +1558,7 @@ int AssignUniqueChannel(int status, int note, int value, int i_scale, int pitch,
 				MPEnote[ch] = 0;
 				MPEscale[ch] = -1;
 				MPEpitch[ch] = -1;
+				MPEreleased[ch] = ++MPEreleaseCount;
 				return ch;
 				}
 			}
@@ -1552,6 +1569,7 @@ int AssignUniqueChannel(int status, int note, int value, int i_scale, int pitch,
 				MPEnote[ch] = 0;
 				MPEscale[ch] = -1;
 				MPEpitch[ch] = -1;
+				MPEreleased[ch] = ++MPEreleaseCount;
 				return ch;
 				}
 			if(status == NoteOn && value > 0 && MPEscale[ch] == i_scale && MPEpitch[ch] == pitch) return ch;
@@ -1564,23 +1582,32 @@ int AssignUniqueChannel(int status, int note, int value, int i_scale, int pitch,
 				MPEnote[ch] = 0;
 				MPEscale[ch] = -1;
 				MPEpitch[ch] = -1;
+				MPEreleased[ch] = ++MPEreleaseCount;
 				return ch;
 				}
 			if(status == NoteOn && value > 0 && MPEscale[ch] == i_scale && MPEpitch[ch] == pitch) return ch;
 			}
 		}
+	if(status != NoteOn) return(0);
+	// 2026-11-16: take the free channel released longest ago. A channel just released by a NoteOff still plays the
+	// release of its note, which the pitchbend of the new note would shift, making a click on some synthesisers (Pianoteq).
+	// note 7
+	best = 0;
 	for(ch = 1; ch < MAXCHAN; ch++) {
 		if(test) BPPrintMessage(0,odInfo,"@ NoteOn ch = %d  value = %d, MPEnote[ch] = %d, MPEold_note[ch] = %d, MPEscale[ch] = %d, MPEpitch[ch] == %d\n",ch,value,MPEnote[ch],MPEold_note[ch],MPEscale[ch],MPEpitch[ch]);
 		if(MPEnote[ch] == 0 && MPEscale[ch] == -1) {
-			if(test) BPPrintMessage(0,odInfo,"ch = %d  value = %d\n",ch,value);
-			if(status == NoteOn) { // Record a new NoteOn
-				MPEnote[ch] = note;
-				MPEscale[ch] = i_scale;
-				MPEpitch[ch] = pitch;
-				if(test) BPPrintMessage(1,odInfo,"• NoteOn %d pitch = %d -> ch = %d time = %ld\n",note,pitch,ch,(long)(time - MIDIsetUpTime));
-				return ch;
-				}
+			// Channel 10 (ch = 9) is for percussion in General MIDI: players of MIDI files turn its notes into drum sounds,
+			// so it is only taken when no other channel is free
+			if(best == 0 || (best == 9 && ch != 9) || (ch != 9 && MPEreleased[ch] < MPEreleased[best])) best = ch;
 			}
+		}
+	if(best > 0) { // Record a new NoteOn
+		ch = best;
+		MPEnote[ch] = note;
+		MPEscale[ch] = i_scale;
+		MPEpitch[ch] = pitch;
+		if(test) BPPrintMessage(1,odInfo,"• NoteOn %d pitch = %d -> ch = %d time = %ld\n",note,pitch,ch,(long)(time - MIDIsetUpTime));
+		return ch;
 		}
 	return(0); // No space left, all 15 channels are busy
 	}
@@ -1612,11 +1639,14 @@ int SendToDriver(int kcurrentinstance, int scale, int blockkey, Milliseconds tim
 	value = ByteToInt(p_e->data2);
 	if(p_e->type == TWO_BYTE_EVENT) p_e->data1 = 0;
 	i_scale = -1;
+
 //	BPPrintMessage(1,odInfo,"@@@ status %d, c1 = %d c2 = %d channel = %d, time = %ld ms\n",status,note,value,channel,(long)time);
 	if(type != NoteOn && type != NoteOff) i_scale = blockkey = 0;
+	// note 5
 	if(MIDImicrotonality) {
 		i_scale = FindScale(scale);
 		if((type == NoteOn || type == NoteOff) && i_scale <= NumberScales && i_scale > 0) {
+			// note 13
 			if(EventListOn && !Exported_scale[i_scale]) {
 				BPPrintMessage(0,odInfo,"👉 Exporting SCL and KBM of scale \"%s\"\n",*((*Scale)[i_scale].label));
 				result = ExportScale(i_scale);
@@ -1637,6 +1667,7 @@ int SendToDriver(int kcurrentinstance, int scale, int blockkey, Milliseconds tim
 				channel = 0;
 				}
 			p_e->status = type + channel;
+			// note 8
 			if(type == NoteOff || (type == NoteOn && value == 0)) {
 				if(MPEold_note[channel] == note) note = p_e->data1 = MPEnew_note[channel];
 				MPEold_note[channel] = MPEnew_note[channel] = -1;
@@ -1660,6 +1691,7 @@ int SendToDriver(int kcurrentinstance, int scale, int blockkey, Milliseconds tim
 				sensitivity = 2; // semitones
 				if(pitchbend_master != 0  && TraceMicrotonality) BPPrintMessage(0,odInfo,"--> with additional pitchbend value of %d\n",pitchbend_master);
 				this_note = note;
+				// note 8
 				if(correction < -100 || correction >= 100) {
 					int new_note = note + floor(correction / 100.);
 					if(new_note >= 0 && new_note < MAXKEY) {
@@ -1708,6 +1740,7 @@ int SendToDriver(int kcurrentinstance, int scale, int blockkey, Milliseconds tim
 					if(basekey_ratio < 0.9 || basekey_ratio > 1.1) BPPrintMessage(0,odInfo,", ratio %;3f",basekey_ratio);
 					BPPrintMessage(0,odInfo,"\n");
 					}
+				// note 9
 				pitchBendValue = pitchbend_master + DEFTPITCHBEND + (int)(correction * (0.01 * DEFTPITCHBEND / sensitivity));
 				if(pitchBendValue < 0) {
 					if(ToldPitchbend++ < 4) BPPrintMessage(0,odError,"=> Pitchbender out of range has been set to 0\n");
@@ -1853,6 +1886,10 @@ long SendToStack(MIDI_Event event,Milliseconds time,int kcurrentinstance,int i_s
 			time_now = (getClockTime() - TimeStopped) / 1000 - FirstEventTime; // Milliseconds
 			if((result=stop(1,"SendToStack")) != OK) return(count);
 			if((time - time_now) <= AdvanceTime) break;
+			if(eventCount > 0L) { // 2026-11-16: send the stacked events whose date has come while waiting
+				if(MIDIflush(TRUE,FALSE) != OK) return(eventCount);
+				count = eventCount;
+				}
 			WaitABit(5); // milliseconds
 			}
 		}
@@ -1997,7 +2034,7 @@ int CleanUpBuffer(void) {
 	//	BPPrintMessage(1,odInfo,"%.3f s, time_now = %ld\n",(time_now - initTime)/1000000.,(long)time_now);
 		while(eventCount > half) { 
 		// Reaching half the limit of the buffer
-			WaitABit(10); // Sleep for 10 milliseconds
+			WaitNextMIDIevent(10L); // Sleep until the next event, at most 10 milliseconds
 			if((r = MIDIflush(TRUE,FALSE)) != OK) break;
 			if(ChangedGrammar || ChangedSettings) break;
 			}

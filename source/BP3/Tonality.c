@@ -31,6 +31,7 @@
     POSSIBILITY OF SUCH DAMAGE.
 */
 
+// Comments "// note N" in this file refer to the numbered notes of the technical description of this algorithm: https://bolprocessor.org/tech-analysis-of-microtonality/
 
 #ifndef _H_BP3
 #include "-BP3.h"
@@ -40,6 +41,7 @@
 
 int trace_each_scale = 0;
 
+// note 13
 int ExportScale(int i_scale) {
 	OutFileInfo* finfo;
 	const char *path;
@@ -117,6 +119,7 @@ int ExportKBM(int i_scale,char* scale_path,char* label) {
 	return(OK);
 	}
 
+// note 1
 int CreateMicrotonalScale(char* line, char* name, char* note_names, char* key_numbers, char* fractions, char* baseoctave_string) {
 	// "line" contains the scale as defined in Csound GEN51 format
 	char c, curr_arg[MAXLIN], label[MAXLIN], this_note[MAXLIN], this_fraction_arg[MAXLIN], note_name[20],key_number_string[20];
@@ -307,6 +310,7 @@ int CreateMicrotonalScale(char* line, char* name, char* note_names, char* key_nu
 		WarnedBasedKey = TRUE;
 		}
 
+	// note 2
 	// Fill the table of cent corrections that will be used for MIDI microtonality
 	
 	int check_corrections = FALSE;
@@ -351,6 +355,7 @@ int CreateMicrotonalScale(char* line, char* name, char* note_names, char* key_nu
 	}
 
 
+// note 4
 double GetPitchWithScale(int i_scale, int kcurrentinstance, int key, double cents, int blockkey) {
 	int this_block_key, i_note, temp_note,note_class, octave, temp_octave,keyclass,blockkey_pitch_class, numgrades, numnotes, basekey, basekeyclass, baseoctave, delta_key, pitchbend_master;
 	double basefreq, blockkey_pitch_ratio, blockkey_correction, basekey_ratio, diapason_correction, interval, n, frequency;

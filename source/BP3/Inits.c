@@ -38,7 +38,7 @@
 
 #include "-BP3decl.h"
 
-// REVISED VERSION 2024-12-28 using "console_strings.json" instead of "StringLists.h"
+// Comments "// note N (microtonality)" in this file refer to the numbered notes of the technical description of this algorithm: https://bolprocessor.org/tech-analysis-of-microtonality/
 
 char StringsJason[] = "console_strings.json";
 char ScriptCommand[MAX_STRINGLISTS_NUMBER][MAX_STRINGLISTS_LEN];
@@ -160,12 +160,15 @@ int Inits(void) {
 	Stream.code = NULL;
 	Stream.imax = ZERO; Stream.cyclic = FALSE; Stream.period = ZERO;
 
+	// note 6 (microtonality)
 	for(ch = 0; ch < MAXCHAN; ch++) {
 		MPEnote[ch] = 0;
 		MPEold_note[ch] = MPEnew_note[ch] = -1;
 		MPEscale[ch] = -1;
 		MPEpitch[ch] = -1;
+		MPEreleased[ch] = 0L;
 		}
+	MPEreleaseCount = 0L;
 
 	if(LoadStrings() != OK) return(ABORT);
 

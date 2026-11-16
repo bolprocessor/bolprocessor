@@ -328,7 +328,7 @@ CLEANUP:
 		if(Panic) eventCount = 0L;
 		while(eventCount > 0L) {
 			if(MIDIflush(FALSE,FALSE) != OK) break;  // Process MIDI events
-			if((result = WaitABit(10)) != OK) break; // Sleep for 10 milliseconds
+			if((result = WaitNextMIDIevent(10L)) != OK) break; // Sleep until the next event, at most 10 milliseconds
 			}
 		WaitABit(100); // Sleep for 100 milliseconds
 		if(!MIDIcapture) {

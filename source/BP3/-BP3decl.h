@@ -370,6 +370,7 @@ extern int RunningOnOSX;
 extern int WaitForSpace, WaitForEver;
 extern short MPEnote[17], MPEold_note[17], MPEnew_note[17], MPEscale[17];
 extern int MPEpitch[17];
+extern long MPEreleased[17], MPEreleaseCount;
 // extern ControlActionUPP vScrollUPP,hScrollUPP;
 // extern NSWReply** MIDIfileReply;
 // extern NSWReply** CsFileReply;

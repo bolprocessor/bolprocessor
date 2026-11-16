@@ -38,6 +38,7 @@
 
 #include "-BP3decl.h"
 // Comments "// note N (real-time Csound)" in this file refer to the numbered notes of the technical description of real-time Csound: https://bolprocessor.org/tech-analysis-of-realtime-csound/
+// Comments "// note N (microtonality)" in this file refer to the numbered notes of the technical description of this algorithm: https://bolprocessor.org/tech-analysis-of-microtonality/
 
 int trace_load_settings = 0;
 int trace_load_prototypes = 0;
@@ -199,6 +200,7 @@ int LoadTonalityJSON(const char *json_text) {
 			if(ToAppend(&table,&table_size," ") != OK || ToAppend(&table,&table_size,number) != OK) goto QUIT;
 			}
 		if(trace_load_scales) BPPrintMessage(0,odInfo, "table line = [%s]\n",table);
+		// note 1 (microtonality)
 		result = CreateMicrotonalScale(table,name,note_names,key_numbers,fractions,baseoctave_string);
 		if(result == OK) i_scale++;
 		}
@@ -270,6 +272,7 @@ int LoadTonalityOldFormat(void) {
 			}
 		length = MyHandleLen(p_completeline);
 		if(length > 0) {
+			// note 1 (microtonality)
 			result = CreateMicrotonalScale(*p_line,name,note_names,key_numbers,fractions,baseoctave_string);
 			strcpy(name,""); strcpy(note_names,""); strcpy(key_numbers,""); strcpy(baseoctave_string,"");
 			if(result == OK) i_scale++;

@@ -31,6 +31,7 @@
     POSSIBILITY OF SUCH DAMAGE.
 */
 
+// Comments "// note N (microtonality)" in this file refer to the numbered notes of the technical description of this algorithm: https://bolprocessor.org/tech-analysis-of-microtonality/
 
 #ifndef _H_BP3
 #include "-BP3.h"
@@ -1309,6 +1310,7 @@ int GetPerformanceControl(char **pp,int arg_nr,int *p_n,int quick,long *p_u,long
 			if((k=FixStringConstant(line)) < 0) return(k);
 			break;
 		case 65:	/* _scale() */
+			// note 3 (microtonality)
 			if(trace_scale) BPPrintMessage(0,odInfo,"_scale() found in compilation\n");
 			if(!OutCsound && (rtMIDI || WriteMIDIfile || EventListOn)) { 
 				if(!MIDImicrotonality) BPPrintMessage(0,odInfo,"👉 Microtonality mimics MIDI Polyphonic Expression\nNumber of scales = %d\n",NumberScales);

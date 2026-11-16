@@ -48,7 +48,10 @@
 		}
 #elif defined(__APPLE__)
 	void mysleep(long waitTime) {
+		// In real-time MIDI, sleep with the time-constraint policy for punctual wake-ups (see SetRealTimeThread())
+		if(rtMIDI) SetRealTimeThread(TRUE);
 		usleep(waitTime);
+		if(rtMIDI) SetRealTimeThread(FALSE);
 		}
 #elif defined(__linux__)
 	void mysleep(long waitTime) {

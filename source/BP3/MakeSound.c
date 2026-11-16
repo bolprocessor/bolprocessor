@@ -33,12 +33,15 @@
 
 // Comments "// note N" in this file refer to the numbered notes of the technical description of this algorithm: https://bolprocessor.org/tech-analysis-of-makesound/
 
+// Comments "// note N (microtonality)" in this file refer to the numbered notes of the technical description of this algorithm: https://bolprocessor.org/tech-analysis-of-microtonality/
+
+// Comments "// note N (real-time Csound)" in this file refer to the numbered notes of the technical description of real-time Csound: https://bolprocessor.org/tech-analysis-of-realtime-csound/
+
 #ifndef _H_BP3
 #include "-BP3.h"
 #endif
 
 #include "-BP3decl.h" 
-// Comments "// note N (real-time Csound)" in this file refer to the numbered notes of the technical description of real-time Csound: https://bolprocessor.org/tech-analysis-of-realtime-csound/
 
 int trace_makesound = 0;
 int trace_maps = 0;
@@ -1118,6 +1121,17 @@ int MakeSound(long *p_kmax,unsigned long imaxstreak,int maxnsequences,long tmin,
 										c2 = ClipVelocity(c2,localvelocity,
 											(*p_Instance)[kcurrentinstance].velcontrol,
 											(*p_Instance)[kcurrentinstance].rndvel);
+									// note 10 (microtonality)
+									if(c2 > 0 && DeftVolume > 0 && VolumeAsVelocity(cswrite,scale)
+											&& (j >= 16384 || (*p_OkVolume)[j])) {
+										// 2026-11-16: with MIDI microtonality, notes of a scale are sent on channels 2 to 16 assigned
+										// to each note. Their volume was sent as CC7 on their original channel, which synthesisers
+										// such as Pianoteq apply to all notes: the drone and the melody of '-gr.tryShruti' made the
+										// volume jump at each note. The volume is now applied to the velocity of the note.
+										c2 = (int) ((c2 * InstanceVolume(kcurrentinstance)) / DeftVolume);
+										if(c2 < 1) c2 = 1;
+										if(c2 > 127) c2 = 127;
+										}
 									if(c1 != oldc1) {
 										if((result=StoreMappedKey(oldc1,c1,kcurrentinstance,localchan,
 											&p_currmapped,&maxmapped)) != OK) goto OVER;
@@ -1516,6 +1530,25 @@ int SendNoteOffAndDraw(int key,int chan,int kinstance,int scale,int blockkey,Mil
 	return(OK);
 	}
 
+int InstanceVolume(int kinstance) {
+	// Volume (0..127) at the start of instance 'kinstance'
+	int control,volume;
+	volume = (int) VolumeStart(kinstance);
+	if((control=(*((*p_Instance)[kinstance].contparameters.values))[IVOLUME].control) > -1)
+		volume = ParamValue[control];
+	return(volume);
+	}
+
+// note 10 (microtonality)
+int VolumeAsVelocity(int cswrite,int scale) {
+	// TRUE if the notes of this scale are sent to MIDI on a channel of their own (see SendToDriver()), in which case
+	// their volume is applied to their velocity instead of being sent as CC7
+	int i_scale;
+	if(cswrite || !MIDImicrotonality || scale <= 0) return(FALSE);
+	i_scale = FindScale(scale);
+	return(i_scale > 0 && i_scale <= NumberScales);
+	}
+
 // note 42
 int SendInitialControls(int kinstance,int j,int chan,int nseq,int maxconc,ContinuousControl **p_control,char ***p_active,int cswrite,Milliseconds date,int *p_rs) {
 	// At the start of instance 'kinstance' of object j, send on MIDI channel 'chan' its volume, panoramic, pitchbend,
@@ -1543,9 +1576,10 @@ int SendInitialControls(int kinstance,int j,int chan,int nseq,int maxconc,Contin
 		ch = (*stream)[IMODULATION].channel;
 		if(chan == ch && (*(p_active[ch]))[IMODULATION]) okmodulation = FALSE;
 		}
-	volume = (int) VolumeStart(kinstance);
-	if((control=(*((*p_Instance)[kinstance].contparameters.values))[IVOLUME].control) > -1)
-		volume = ParamValue[control];
+	volume = InstanceVolume(kinstance);
+	// 2026-11-16: with MIDI microtonality, a note of a scale gets its own channel, so the volume is applied to its velocity
+	// note 10 (microtonality)
+	if(VolumeAsVelocity(cswrite,(*p_Instance)[kinstance].scale)) okvolume = FALSE;
 	panoramic = (int) PanoramicStart(kinstance);
 	if((control=(*((*p_Instance)[kinstance].contparameters.values))[IPANORAMIC].control) > -1)
 		panoramic = ParamValue[control];
@@ -1678,6 +1712,7 @@ int ReleaseKeysAndSwitches(char ***p_keychannel,unsigned int *currswitchstate,in
 	}
 
 // note 44
+// note 14 (microtonality)
 void TuneMIDIdevice(int *p_rs) {
 	// Set the diapason (A4freq) of the MIDI device on all channels
 	int chan,semitones;
@@ -1702,6 +1737,7 @@ void TuneMIDIdevice(int *p_rs) {
 	}
 
 // note 44
+// note 14 (microtonality)
 void SetUpMPEreceiver(int *p_rs) {
 	// Not used (see MakeSound()). Set up a MIDI receiver for MPE microtonality.
 	int chan;
