@@ -39,6 +39,7 @@
 #endif
 
 #include "-BP3decl.h"
+// Comments "// note N (real-time Csound)" in this file refer to the numbered notes of the technical description of real-time Csound: https://bolprocessor.org/tech-analysis-of-realtime-csound/
 
 typedef enum {	
 	odiDisplay	= 0,	// for results of produce items, expand selection, etc.
@@ -210,6 +211,7 @@ int BPPrintMessage(int force,int dest, const char *format, ...) {
 		va_end(args);
 		}
 	if(dest & odCsScore) {
+		// note 4 (real-time Csound)
 		if(CsoundRT) { // Real-time Csound: lines are sent to Csound, see CsoundRealTime.c
 			va_start(args, format);
 			CsRTText(format, args);

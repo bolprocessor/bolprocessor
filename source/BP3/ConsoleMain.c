@@ -39,6 +39,7 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #include "-BP3.h"
 #include "-BP3main.h"
+// Comments "// note N (real-time Csound)" in this file refer to the numbered notes of the technical description of real-time Csound: https://bolprocessor.org/tech-analysis-of-realtime-csound/
 
 // #include "ConsoleGlobals.h"
 // #include "ConsoleMessages.h"
@@ -321,8 +322,8 @@ CLEANUP:
 	CloseEventListFile();
 	// CloseFileAndUpdateVolume(&TraceRefnum);
 	// CloseFileAndUpdateVolume(&TempRefnum);
-	CloseCsScore();
-	CsRTClose();
+	CloseCsScore(); // note 13 (real-time Csound)
+	CsRTClose(); // note 16 (real-time Csound)
 	if(rtMIDI) {
 		if(Panic) eventCount = 0L;
 		while(eventCount > 0L) {
@@ -506,6 +507,7 @@ void WriteTimeFile(int force) {
 	now = getClockTime(); // microseconds
 	if(!force && now < next_write) return;
 	next_write = now + 200000L; // Every 200 ms
+	// note 14 (real-time Csound)
 	if(CsoundRT) date = CsRTDate(&end); // Real-time Csound, see CsoundRealTime.c
 	else {
 		elapsed = now - initTime;
@@ -1114,6 +1116,7 @@ int ParsePostInitArgs(int argc, char* args[], BPConsoleOpts* opts) {
 					opts->outOptsChanged = TRUE;
 					}
 				else if(strcmp(args[argn], "--csoundrt") == 0)	{
+					// note 1 (real-time Csound)
 					// Real-time Csound (2026-11-16), see CsoundRealTime.c
 					if(++argn < argc && (CsoundRTport = atoi(args[argn])) > 0 && CsoundRTport < 65536) {
 						CsoundRT = TRUE;
@@ -1243,6 +1246,7 @@ int ParsePostInitArgs(int argc, char* args[], BPConsoleOpts* opts) {
 		BPPrintMessage(0,odError, "Use '%s --help' to see help information.\n\n", args[0]);
 		return ABORT;
 		}
+	// note 1 (real-time Csound)
 	if(CsoundRT) {
 		if(opts->useRealtimeMidi == TRUE) {
 			BPPrintMessage(0,odError, "\n=> Options --rtmidi and --csoundrt cannot be used together\n\n");

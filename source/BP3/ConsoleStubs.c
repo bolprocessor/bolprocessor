@@ -37,6 +37,7 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #include "-BP3.h"
 #include "-BP3decl.h"
+// Comments "// note N (real-time Csound)" in this file refer to the numbered notes of the technical description of real-time Csound: https://bolprocessor.org/tech-analysis-of-realtime-csound/
 // #include "ConsoleGlobals.h"
 // #include "ConsoleMessages.h"
 
@@ -151,6 +152,7 @@ static int MakeCsoundScoreFile(OutFileInfo* finfo);
    has been set by a command-line argument */
 int PrepareCsFile(void) {
 	if(!CsScoreOpened)	{
+		// note 3 (real-time Csound)
 		// With real-time Csound (CsoundRT), the score may have no file: its lines are only sent to Csound
 		if(gOptions.outputFiles[ofiCsScore].name != NULL || CsoundRT) {
 			return MakeCsoundScoreFile(&(gOptions.outputFiles[ofiCsScore]));
@@ -168,6 +170,7 @@ static int MakeCsoundScoreFile(OutFileInfo* finfo) {
 	FILE *fout;
 	int i, i_table;
 	
+	// note 3 (real-time Csound)
 	if(finfo->name == NULL) fout = NULL; // Real-time Csound without a score file
 	else if(strcmp(finfo->name, "-") == 0)	{
 		// if name is "-", use stdout and don't "open" finfo
@@ -239,6 +242,7 @@ int CloseCsScore(void) {
 		CloseOutputFile(&(gOptions.outputFiles[ofiCsScore]));
 		BPPrintMessage(0,odInfo, "Closing the Csound score file %s\n", gOptions.outputFiles[ofiCsScore].name);
 		}
+	// note 13 (real-time Csound)
 	if(CsoundRT) return CsRTEnd(); // Send the remaining lines and wait for the end of the performance
 
 	return OK;

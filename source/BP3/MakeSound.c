@@ -38,6 +38,7 @@
 #endif
 
 #include "-BP3decl.h" 
+// Comments "// note N (real-time Csound)" in this file refer to the numbered notes of the technical description of real-time Csound: https://bolprocessor.org/tech-analysis-of-realtime-csound/
 
 int trace_makesound = 0;
 int trace_maps = 0;
@@ -140,6 +141,7 @@ int MakeSound(long *p_kmax,unsigned long imaxstreak,int maxnsequences,long tmin,
 	if(WriteMIDIfile || OutCsound || EventListOn) {
 		ItemNumber++;
 	//  BPPrintMessage(1,odInfo,"@@ 👉 %ld !!!\n",(long)ItemNumber);
+		// note 15 (real-time Csound)
 		if(!CsoundRT && (MaxItemsProduce > 0) && ItemNumber > MaxItemsProduce) { // No limit in real-time Csound, as in real-time MIDI
 			if(ItemNumber == (MaxItemsProduce + 1L)) BPPrintMessage(1,odInfo,"👉 %ld items have been produced\n",(long)(ItemNumber - 1L));
 			return(OK);
@@ -1462,6 +1464,7 @@ OVER2:
 	MyDisposeHandle((Handle*)&p_nextd);
 	MyDisposeHandle((Handle*)&p_t1);
 	MyDisposeHandle((Handle*)&p_currmapped);
+	// note 7 (real-time Csound)
 	// Real-time Csound: the lines of this item are sent in time. The next item is computed while its last notes are sounding.
 	if(cswrite && CsoundRT && result == OK) result = CsRTFlush(TRUE);
 	SoundOn = FALSE;

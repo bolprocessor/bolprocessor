@@ -37,6 +37,7 @@
 #endif
 
 #include "-BP3decl.h"
+// Comments "// note N (real-time Csound)" in this file refer to the numbered notes of the technical description of real-time Csound: https://bolprocessor.org/tech-analysis-of-realtime-csound/
 
 int trace_load_settings = 0;
 int trace_load_prototypes = 0;
@@ -632,6 +633,7 @@ int LoadCsoundInstrumentsJSON(const char *json_text) {
 		}
 	if(ins > 0) BPPrintMessage(0,odInfo,"%d Csound instrument(s) found\n",ins);
 	else BPPrintMessage(0,odInfo,"No Csound instrument was found. The default one will be used.\n");
+	// note 19 (real-time Csound)
 	// 2026-11-16: the orchestra matters, since the instruments of this file must match the ones it defines
 	if(strlen(CsoundOrchestraName) > 0 && strcmp(CsoundOrchestraName,"no file") != 0)
 		BPPrintMessage(0,odInfo,"Csound orchestra named in this file: %s\n",CsoundOrchestraName);
@@ -1018,6 +1020,7 @@ int LoadCsoundInstrumentsOldFormat(int checkversion,int tryname) {
 		}
 	if(ins > 0) BPPrintMessage(0,odInfo,"%d Csound instrument(s) found\n",ins);
 	else BPPrintMessage(0,odInfo,"No Csound instrument was found. The default one will be used.\n");
+	// note 19 (real-time Csound)
 	// 2026-11-16: the orchestra matters, since the instruments of this file must match the ones it defines
 	if(strlen(CsoundOrchestraName) > 0 && strcmp(CsoundOrchestraName,"no file") != 0)
 		BPPrintMessage(0,odInfo,"Csound orchestra named in this file: %s\n",CsoundOrchestraName);

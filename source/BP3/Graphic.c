@@ -36,6 +36,7 @@
 #endif
 
 #include "-BP3decl.h"
+// Comments "// note N (real-time Csound)" in this file refer to the numbered notes of the technical description of real-time Csound: https://bolprocessor.org/tech-analysis-of-realtime-csound/
 
 // extern FILE * imagePtr;
 
@@ -69,6 +70,7 @@ int DrawItem(int w,SoundObjectInstanceParameters **p_object,Milliseconds **p_t1,
 	p_list **waitlist;
 
 	// BPPrintMessage(1,odInfo,"@ DrawItem() ItemNumber = %ld, MaxItemsProduce = %d\n",ItemNumber,MaxItemsProduce);
+	// note 15 (real-time Csound)
 	if(!ShowGraphic || (!rtMIDI && !CsoundRT && ((MaxItemsProduce > 0) && (ItemNumber > MaxItemsProduce)))) {
 		return OK;
 		}

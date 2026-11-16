@@ -42,6 +42,8 @@
 // so that the next item is computed while the last notes are sounding.
 // Stop, panic and pause turn off the notes of the instruments used, including the ones already sent and not yet started.
 
+// Comments "// note N" in this file refer to the numbered notes of the technical description of this algorithm: https://bolprocessor.org/tech-analysis-of-real-time-csound/
+
 #include "-BP3.h"
 #include "-BP3decl.h"
 
@@ -62,6 +64,7 @@
 	#define CsRTclosesocket close
 #endif
 
+// note 9
 #define CSRT_LOOKAHEAD 0.15		// seconds: lines are sent this time before their date
 #define CSRT_LATENCY 0.3		// seconds: the performance starts this time after the first item has been computed
 #define CSRT_MAXMESSAGE 65000	// bytes: maximum size of a UDP message
@@ -96,6 +99,7 @@ static void CsRTFreeEvent(CsRTEvent* p_e);
 static void CsRTSleep(long milliseconds);
 
 
+// note 2
 int CsRTOpen(void) {
 	// Called by ParsePostInitArgs() for option "--csoundrt port"
 	if(CsRTSocket != CSRT_NOSOCKET) return OK;
@@ -115,6 +119,7 @@ int CsRTOpen(void) {
 		BPPrintMessage(0,odError,"=> Could not create a UDP socket for real-time Csound\n");
 		return ABORT;
 		}
+	// note 18
 	{
 		// The default size limits messages to 9216 bytes on MacOS, too few for long function tables
 		int size = 65536;
@@ -135,6 +140,7 @@ int CsRTOpen(void) {
 	}
 
 
+// note 16
 void CsRTClose(void) {
 	long i;
 	if(CsRTSocket != CSRT_NOSOCKET) {
@@ -155,6 +161,7 @@ void CsRTClose(void) {
 	}
 
 
+// note 4
 void CsRTText(const char* format,va_list args) {
 	// Called by BPPrintMessage() for destination odCsScore. Text is stored until the end of a line, then the line is processed.
 	va_list args2;
@@ -190,6 +197,7 @@ void CsRTText(const char* format,va_list args) {
 	}
 
 
+// note 5
 static void CsRTLine(char* line) {
 	// Queue an "i" or "f" line with its date
 	char *p, *q, *end, type;
@@ -249,6 +257,7 @@ static void CsRTLine(char* line) {
 	}
 
 
+// note 6
 static int CsRTPush(CsRTEvent** p_list,long* p_size,long* p_max,CsRTEvent* p_e,int sorted) {
 	// Add an event to a list. If 'sorted', it is inserted after the events with the same date or an earlier one.
 	// The order of lines with the same date is kept: a function table is written before the note that uses it.
@@ -274,6 +283,7 @@ static int CsRTPush(CsRTEvent** p_list,long* p_size,long* p_max,CsRTEvent* p_e,i
 	}
 
 
+// note 17
 static void CsRTSleep(long milliseconds) {
 	// Unlike mysleep(), which is a busy loop on Windows, this lets the processor rest during the performance
 #if defined(_WIN64)
@@ -292,9 +302,11 @@ static void CsRTFreeEvent(CsRTEvent* p_e) {
 	}
 
 
+// note 9
 static int CsRTSend(const char* message) {
 	size_t length;
 	length = strlen(message);
+	// note 18
 	if(length > CSRT_MAXMESSAGE) {
 		if(CsRTSaidError++ < 5)
 			BPPrintMessage(0,odError,"=> A line of %ld bytes is too long to be sent to Csound: %.40s...\n",(long) length,message);
@@ -318,6 +330,7 @@ static UInt64 CsRTDateToClock(double date) {
 	}
 
 
+// note 9
 static int CsRTSendDue(void) {
 	// Send the lines whose date is less than CSRT_LOOKAHEAD seconds away
 	UInt64 now;
@@ -339,6 +352,7 @@ static int CsRTSendDue(void) {
 		e = CsRTQueue[sent];
 		delay = ((double) CsRTDateToClock(e.time) - (double) now) / 1000000.;
 		if(delay > CSRT_LOOKAHEAD) break;
+		// note 10
 		if(delay < 0.) {
 			// Late, e.g. because computing the item took longer than the end of the previous one: the rest of the performance is shifted
 			CsRTOrigin += (UInt64)(-delay * 1000000.);
@@ -365,6 +379,7 @@ static int CsRTSendDue(void) {
 	}
 
 
+// note 11
 static void CsRTStopAll(void) {
 	// Turn off the notes of the instruments used, including the ones sent and not yet started (turnoff3).
 	// Notes are released (turnoff2 mode 1) so that their envelopes end smoothly.
@@ -387,6 +402,7 @@ static void CsRTStopAll(void) {
 	}
 
 
+// note 7
 int CsRTFlush(int wait) {
 	// Send the lines that are due. With 'wait', wait until all lines have been sent.
 	// Stop, panic, pause and continue are handled by stop(), which also updates the "_time" file.
@@ -394,6 +410,7 @@ int CsRTFlush(int wait) {
 	long i;
 	UInt64 pausestart;
 	if(CsRTSocket == CSRT_NOSOCKET) return OK;
+	// note 8
 	if(!CsRTStarted) {
 		if(CsRTQueueSize == 0L) return OK;
 		CsRTOrigin = getClockTime() + (UInt64)(CSRT_LATENCY * 1000000.);
@@ -401,10 +418,12 @@ int CsRTFlush(int wait) {
 		CsRTStarted = TRUE;
 		}
 	while(TRUE) {
+		// note 11
 		if((result = stop(0,"CsRTFlush")) != OK) {
 			CsRTPanic();
 			return result;
 			}
+		// note 12
 		if(PausePlay) {
 			// Notes sent and not yet started will be sent again after the pause
 			CsRTStopAll();
@@ -430,6 +449,7 @@ int CsRTFlush(int wait) {
 	}
 
 
+// note 13
 int CsRTEnd(void) {
 	// Called by CloseCsScore(): send the remaining lines and wait for the end of the last note
 	int result;
@@ -462,6 +482,7 @@ int CsRTEnd(void) {
 	}
 
 
+// note 11
 void CsRTPanic(void) {
 	// Called after stop or panic: nothing more is sent, and the notes are turned off
 	long i;
@@ -475,6 +496,7 @@ void CsRTPanic(void) {
 	}
 
 
+// note 14
 long CsRTDate(long* p_end) {
 	// Date of the performance (milliseconds) for the "_time" file, and expected end in *p_end
 	UInt64 now;
