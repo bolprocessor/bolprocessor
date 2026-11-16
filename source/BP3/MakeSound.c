@@ -140,7 +140,7 @@ int MakeSound(long *p_kmax,unsigned long imaxstreak,int maxnsequences,long tmin,
 	if(WriteMIDIfile || OutCsound || EventListOn) {
 		ItemNumber++;
 	//  BPPrintMessage(1,odInfo,"@@ 👉 %ld !!!\n",(long)ItemNumber);
-		if((MaxItemsProduce > 0) && ItemNumber > MaxItemsProduce) {
+		if(!CsoundRT && (MaxItemsProduce > 0) && ItemNumber > MaxItemsProduce) { // No limit in real-time Csound, as in real-time MIDI
 			if(ItemNumber == (MaxItemsProduce + 1L)) BPPrintMessage(1,odInfo,"👉 %ld items have been produced\n",(long)(ItemNumber - 1L));
 			return(OK);
 			}
@@ -1462,6 +1462,8 @@ OVER2:
 	MyDisposeHandle((Handle*)&p_nextd);
 	MyDisposeHandle((Handle*)&p_t1);
 	MyDisposeHandle((Handle*)&p_currmapped);
+	// Real-time Csound: the lines of this item are sent in time. The next item is computed while its last notes are sounding.
+	if(cswrite && CsoundRT && result == OK) result = CsRTFlush(TRUE);
 	SoundOn = FALSE;
 	if(!MIDIfileOn && !cswrite && rtMIDI && !showpianoroll) {
 		drivertime = getClockTime();

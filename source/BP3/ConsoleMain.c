@@ -322,6 +322,7 @@ CLEANUP:
 	// CloseFileAndUpdateVolume(&TraceRefnum);
 	// CloseFileAndUpdateVolume(&TempRefnum);
 	CloseCsScore();
+	CsRTClose();
 	if(rtMIDI) {
 		if(Panic) eventCount = 0L;
 		while(eventCount > 0L) {
@@ -500,17 +501,22 @@ void WriteTimeFile(int force) {
 	UInt64 now, elapsed;
 	long date;
 	FILE* ptr;
-	if(!rtMIDI || FirstNoteOn || StopPlay || PausePlay || strlen(TimefileName) == 0) return;
+	long end;
+	if((!rtMIDI && !CsoundRT) || (rtMIDI && FirstNoteOn) || StopPlay || PausePlay || strlen(TimefileName) == 0) return;
 	now = getClockTime(); // microseconds
 	if(!force && now < next_write) return;
 	next_write = now + 200000L; // Every 200 ms
-	elapsed = now - initTime;
-	if(elapsed > TimeStopped) date = (long)((elapsed - TimeStopped) / 1000L) - MIDIsetUpTime; // milliseconds
-	else date = 0L;
+	if(CsoundRT) date = CsRTDate(&end); // Real-time Csound, see CsoundRealTime.c
+	else {
+		elapsed = now - initTime;
+		if(elapsed > TimeStopped) date = (long)((elapsed - TimeStopped) / 1000L) - MIDIsetUpTime; // milliseconds
+		else date = 0L;
+		end = ExpectedEndTime;
+		}
 	if(date < 0L) date = 0L;
 	ptr = my_fopen(0,TimefileName,"w");
 	if(ptr == NULL) return;
-	fprintf(ptr,"%ld %ld\n",date,ExpectedEndTime);
+	fprintf(ptr,"%ld %ld\n",date,end);
 	my_fclose(ptr);
 	return;
 	}
@@ -886,6 +892,9 @@ const char gOptionList[] =
 	"  --eventlistout outfile:      write event list to file 'outfile'\n"
 /*	"  --midiformat num:       use Midi file format 0, 1, or 2 (default is 1)\n" */
 	"  --rtmidi:   play real-time Midi\n"
+	"  --csoundrt port:        play real-time Csound, sending the score to a Csound server listening to UDP port 'port'\n"
+	"                          of this computer, e.g. started with: csound -odac --port=10789 --orc 0-default.orc\n"
+	"                          (with --csoundout, the score is also written to a file)\n"
 	"\n"
 	"OPTIONS (Computation):\n"
 /*	"  -s or --start string   use 'string' as the start string (default is \"S\")\n"
@@ -1104,6 +1113,18 @@ int ParsePostInitArgs(int argc, char* args[], BPConsoleOpts* opts) {
 					opts->useRealtimeMidi = TRUE;
 					opts->outOptsChanged = TRUE;
 					}
+				else if(strcmp(args[argn], "--csoundrt") == 0)	{
+					// Real-time Csound (2026-11-16), see CsoundRealTime.c
+					if(++argn < argc && (CsoundRTport = atoi(args[argn])) > 0 && CsoundRTport < 65536) {
+						CsoundRT = TRUE;
+						opts->writeCsoundScore = TRUE;
+						opts->outOptsChanged = TRUE;
+						}
+					else {
+						BPPrintMessage(0,odError, "\n=> Missing or incorrect UDP port after --csoundrt\n\n");
+						return ABORT;
+						}
+					}
 				else if(strcmp(args[argn], "--english") == 0)	{
 					opts->noteConvention = ENGLISH;
 					}
@@ -1221,6 +1242,13 @@ int ParsePostInitArgs(int argc, char* args[], BPConsoleOpts* opts) {
 		BPPrintMessage(0,odError, "\n=> Missing required action command in arguments.\n");
 		BPPrintMessage(0,odError, "Use '%s --help' to see help information.\n\n", args[0]);
 		return ABORT;
+		}
+	if(CsoundRT) {
+		if(opts->useRealtimeMidi == TRUE) {
+			BPPrintMessage(0,odError, "\n=> Options --rtmidi and --csoundrt cannot be used together\n\n");
+			return ABORT;
+			}
+		if(CsRTOpen() != OK) return ABORT;
 		}
 	if(opts->useRealtimeMidi == TRUE) {
 	// BPPrintMessage(0,odInfo,"opts->outputFiles[ofiTraceFile].name = %s\n",opts->outputFiles[ofiTraceFile].name);

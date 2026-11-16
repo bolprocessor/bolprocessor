@@ -88,16 +88,6 @@ Real-time MIDI
 - Implement a connection with FluidSynth (https://www.fluidsynth.org/)
 
 
-Real-time Csound
-----------------
-
-- This development might be easy with the help of AI tools. :-)
-- Implement UDP for communicating with Csound. Links:
-https://csound.com/docs/manual/udpserver.html
-https://www.geeksforgeeks.org/udp-server-client-implementation-c/
-- Implement OSC: this will be done in the forthcoming architecture (Kanopi).
-
-
 Antescofo Score Language
 ------------------------
 

@@ -210,6 +210,11 @@ int BPPrintMessage(int force,int dest, const char *format, ...) {
 		va_end(args);
 		}
 	if(dest & odCsScore) {
+		if(CsoundRT) { // Real-time Csound: lines are sent to Csound, see CsoundRealTime.c
+			va_start(args, format);
+			CsRTText(format, args);
+			va_end(args);
+			}
 		va_start(args, format);
 		PrintToOutputFile(odCsScore, odiCsScore, format, args);
 		va_end(args);

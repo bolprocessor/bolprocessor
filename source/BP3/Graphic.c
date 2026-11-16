@@ -69,7 +69,7 @@ int DrawItem(int w,SoundObjectInstanceParameters **p_object,Milliseconds **p_t1,
 	p_list **waitlist;
 
 	// BPPrintMessage(1,odInfo,"@ DrawItem() ItemNumber = %ld, MaxItemsProduce = %d\n",ItemNumber,MaxItemsProduce);
-	if(!ShowGraphic || (!rtMIDI && ((MaxItemsProduce > 0) && (ItemNumber > MaxItemsProduce)))) {
+	if(!ShowGraphic || (!rtMIDI && !CsoundRT && ((MaxItemsProduce > 0) && (ItemNumber > MaxItemsProduce)))) {
 		return OK;
 		}
 	if(!ShowObjectGraph) return(OK);

@@ -151,7 +151,8 @@ static int MakeCsoundScoreFile(OutFileInfo* finfo);
    has been set by a command-line argument */
 int PrepareCsFile(void) {
 	if(!CsScoreOpened)	{
-		if(gOptions.outputFiles[ofiCsScore].name != NULL) {
+		// With real-time Csound (CsoundRT), the score may have no file: its lines are only sent to Csound
+		if(gOptions.outputFiles[ofiCsScore].name != NULL || CsoundRT) {
 			return MakeCsoundScoreFile(&(gOptions.outputFiles[ofiCsScore]));
 			}
 		}
@@ -167,7 +168,8 @@ static int MakeCsoundScoreFile(OutFileInfo* finfo) {
 	FILE *fout;
 	int i, i_table;
 	
-	if(strcmp(finfo->name, "-") == 0)	{
+	if(finfo->name == NULL) fout = NULL; // Real-time Csound without a score file
+	else if(strcmp(finfo->name, "-") == 0)	{
 		// if name is "-", use stdout and don't "open" finfo
 		fout = stdout;
 		}
@@ -232,9 +234,12 @@ int CloseCsScore(void) {
 	my_sprintf(Message,"\n; this score was created by the Bol Processor console on %s",line);
 	WriteToFile(NO,CsoundFileFormat,Message,CsRefNum);
 	SetOutputDestinations(odCsScore, NULL);
-	CloseOutputFile(&(gOptions.outputFiles[ofiCsScore]));
 	CsScoreOpened = FALSE;
-	BPPrintMessage(0,odInfo, "Closing the Csound score file %s\n", gOptions.outputFiles[ofiCsScore].name);
+	if(gOptions.outputFiles[ofiCsScore].name != NULL) {
+		CloseOutputFile(&(gOptions.outputFiles[ofiCsScore]));
+		BPPrintMessage(0,odInfo, "Closing the Csound score file %s\n", gOptions.outputFiles[ofiCsScore].name);
+		}
+	if(CsoundRT) return CsRTEnd(); // Send the remaining lines and wait for the end of the performance
 
 	return OK;
 	}

@@ -408,6 +408,7 @@ int MinPeriod;
 // FSSpec MIDIfileSpec;
 float EndFadeOut,AdvanceTime;
 double CsScoreEnd = 0.; // End (seconds) of the last note written to the Csound score, used when CSOUND_SECTIONS is 0
+int CsoundRT = FALSE, CsoundRTport = 0; // Real-time Csound, option "--csoundrt port", see CsoundRealTime.c
 int CurrentVolume[MAXCHAN+1];
 long WindowParID[WMAX],ParIDstartup,ParIDbp2;
 // Str255 DeftVolName;

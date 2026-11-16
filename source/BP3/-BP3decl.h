@@ -336,6 +336,7 @@ extern int MinPeriod;
 // extern FSSpec MIDIfileSpec;
 extern float EndFadeOut,AdvanceTime;
 extern double CsScoreEnd;
+extern int CsoundRT, CsoundRTport;
 extern int CurrentVolume[MAXCHAN+1];
 extern char FilePrefix[WMAX][5];
 extern char FileOldPrefix[WMAX][5];

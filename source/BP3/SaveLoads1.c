@@ -632,6 +632,10 @@ int LoadCsoundInstrumentsJSON(const char *json_text) {
 		}
 	if(ins > 0) BPPrintMessage(0,odInfo,"%d Csound instrument(s) found\n",ins);
 	else BPPrintMessage(0,odInfo,"No Csound instrument was found. The default one will be used.\n");
+	// 2026-11-16: the orchestra matters, since the instruments of this file must match the ones it defines
+	if(strlen(CsoundOrchestraName) > 0 && strcmp(CsoundOrchestraName,"no file") != 0)
+		BPPrintMessage(0,odInfo,"Csound orchestra named in this file: %s\n",CsoundOrchestraName);
+	else BPPrintMessage(0,odInfo,"No Csound orchestra is named in this file\n");
 
 	/* Csound tables, put on top of Csound scores */
 	result = OK;
@@ -1014,6 +1018,10 @@ int LoadCsoundInstrumentsOldFormat(int checkversion,int tryname) {
 		}
 	if(ins > 0) BPPrintMessage(0,odInfo,"%d Csound instrument(s) found\n",ins);
 	else BPPrintMessage(0,odInfo,"No Csound instrument was found. The default one will be used.\n");
+	// 2026-11-16: the orchestra matters, since the instruments of this file must match the ones it defines
+	if(strlen(CsoundOrchestraName) > 0 && strcmp(CsoundOrchestraName,"no file") != 0)
+		BPPrintMessage(0,odInfo,"Csound orchestra named in this file: %s\n",CsoundOrchestraName);
+	else BPPrintMessage(0,odInfo,"No Csound orchestra is named in this file\n");
 	if(ReadOne(FALSE,FALSE,TRUE,csfile,TRUE,&p_line,&p_completeline,&pos) == MISSED) goto QUIT;
 	result = OK;
 	i_table = 0;

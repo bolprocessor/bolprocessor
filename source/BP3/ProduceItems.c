@@ -51,7 +51,7 @@ int ProduceItems(int w,int repeat,int template,tokenbyte ***pp_start) {
 	if(MaxConsoleTime > 0L) BPPrintMessage(1,odInfo,"Maximum computation time allowed = %ld seconds\n",MaxConsoleTime);
 	if(Improvize && ItemNumber == 0 && !WriteMIDIfile) {
 		BPPrintMessage(1,odInfo,"\n👉 Most of the messages will be discarded during the improvisation\n");
-		if(!rtMIDI) BPPrintMessage(1,odInfo,"Only %ld items will be produced.\n",MaxItemsProduce);
+		if(!rtMIDI && !CsoundRT) BPPrintMessage(1,odInfo,"Only %ld items will be produced.\n",MaxItemsProduce);
 		}
 
 	if(CheckEmergency() != OK) return(ABORT);
@@ -206,7 +206,7 @@ int ProduceItems(int w,int repeat,int template,tokenbyte ***pp_start) {
 		Print(wTrace,"\n");
 		}
 	if(Improvize) {
-		if(!rtMIDI && (MaxItemsProduce > 0) && ItemNumber > MaxItemsProduce) {
+		if(!rtMIDI && !CsoundRT && (MaxItemsProduce > 0) && ItemNumber > MaxItemsProduce) {
 	//		BPPrintMessage(1,odInfo,"👉 %ld items have been produced. We stop improvizing...\n",(long)(ItemNumber - 1L));
 			Improvize =  FALSE;
 			r = ABORT;
