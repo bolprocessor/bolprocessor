@@ -1352,6 +1352,7 @@ struct s_CurrentParameters {
 	short xpandkey,xpandval;
 	char velmode,articulmode,mapmode,transposemode,transposefirst;
 	char chanset,insset;	// TRUE once _chan() or _ins() has been given (2026-11-12)
+	int inslevel;	// Level of the polymetric expression in which 'currinstr' was set (2026-11-15)
 	KeyNumberMap map0,map1;
 	};
 typedef struct s_CurrentParameters CurrentParameters;

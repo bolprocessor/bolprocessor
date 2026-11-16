@@ -209,7 +209,7 @@ extern long **p_Dur,****p_Seq,**p_MaxDelay,**p_MaxForward,**p_PreRoll,**p_PostRo
 extern int Minconc,Maxconc;
 extern short Maxlevel,MaxFlag,MaxScript,PlayFromInsertionPoint,**p_SilentObject,
 	Jscriptline,Final,POLYconvert,
-	KeepFlag,CoverOK,DiscontinuityOK,AllSolTimeSet,
+	KeepFlag,AllSolTimeSet,
 	LimCompute,LimTimeSet,SkipFlag,StackFlag,Port,Portbit,
 	MIDI;
 extern int MaxItemsProduce,MaxItemsGraphic;

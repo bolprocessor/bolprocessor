@@ -130,6 +130,8 @@ int DrawItem(int w,SoundObjectInstanceParameters **p_object,Milliseconds **p_t1,
 		BPPrintMessage(1,odInfo,"GraphicScaleP = %d GraphicScaleQ = %d tmin = %d tmax =%d endxmax = %d\n",GraphicScaleP,GraphicScaleQ,tmin,tmax,endxmax);
 	if(endxmax < 100) endxmax = 100;
 
+	// 2026-11-15 The width of an image is written when it is finalized. Finalize the previous image (e.g. the pianoroll) before changing WidthMax, otherwise it gets the width of this one and may be cropped - fixed by Claude
+	if(imagePtr != NULL) EndImageFile();
 	if(WidthMax < 32000) WidthMax = 2 * endxmax + 40;
 	//	BPPrintMessage(0,odInfo,"WidthMax (2) = %ld\n",WidthMax);
 	if(WidthMax > 32000) {
@@ -401,6 +403,10 @@ int DrawItem(int w,SoundObjectInstanceParameters **p_object,Milliseconds **p_t1,
 	ENDGRAPH:
 
 	QUIT:
+	// 2026-11-15 The ruler goes to 'tmax', which may be the end of the rightmost object (TimeSet() note 21).
+	// Leave room for its last label, which starts 10 pixels left of its tick, with about 7 pixels per character - fixed by Claude
+	if(endxmax < (leftoffset + (tmax * GraphicScaleP) / GraphicScaleQ / 10 + 50))
+		endxmax = leftoffset + (tmax * GraphicScaleP) / GraphicScaleQ / 10 + 50;
 	if(WidthMax < 32000) WidthMax = 2 * endxmax + 40;
 	// BPPrintMessage(0,odInfo,"WidthMax (1) = %ld\n",WidthMax);
 	if(WidthMax > 32000) {
@@ -474,6 +480,19 @@ int DrawObject(int j, char *label, int moved_up, int moved, double beta, int top
 		if(j > 1 && j < 16384 && (*p_MIDIsize)[j] == ZERO && (*p_CsoundSize)[j] == ZERO) // Empty object
 			fill_rect_hatched(&r2,"Cornsilk");
 		else fill_rect(&r2,"Cornsilk");
+		}
+	// 2026-11-15 Hatch the part of a MIDI sound-object that comes after its last NoteOff, such as a fade-out of
+	// volume controllers. Lines go the other way and have another colour than those of the pre-roll and post-roll.
+	// The stream starts at r.left - trbeg, plus the duration of a negative pre-roll (FixObjectTimings()) - added by Claude
+	if(j > 1 && j < Jbol) {
+		long toff = LastNoteOffTime(j);
+		if(toff >= ZERO) {
+			r3 = r2;
+			r3.left = r.left - trbeg + (int)(toff * beta * GraphicScaleP / GraphicScaleQ / 10.);
+			if(preroll < ZERO) r3.left -= preroll;
+			if(r3.left < r2.left) r3.left = r2.left;
+			if(r3.left < r3.right - 1) fill_rect_hatched_style(&r3,"Cornsilk","Coral",TRUE);
+			}
 		}
 	// Draw preroll and postroll
 	if(preroll < ZERO) {
@@ -1582,7 +1601,33 @@ void fill_rect(Rect* p_r,char* color) {
 	}
 
 
+long LastNoteOffTime(int j) {
+	// 2026-11-15 Date (ms, not dilated) of the last NoteOff of MIDI sound-object 'j', counted from the start of its stream,
+	// or -1 if it has no note or no event after that NoteOff. Same scan as in CheckConsistency() - added by Claude
+	long i,t,toff,ton;
+	int k;
+	if(j < 2 || j >= Jbol || pp_MIDIcode == NULL || (*pp_MIDIcode)[j] == NULL || (*p_MIDIsize)[j] < 3) return(-1L);
+	toff = ton = -1L;
+	for(i = t = ZERO; i < (*p_MIDIsize)[j] - 2; i++) {
+		t += (*((*pp_MIDIcode)[j]))[i].time;
+		k = (*((*pp_MIDIcode)[j]))[i].byte;
+		if((NoteOn <= k && k < NoteOn + 16 && (*((*pp_MIDIcode)[j]))[i+2].byte == 0)
+				|| (NoteOff <= k && k < NoteOff + 16))
+			toff = t;
+		if(NoteOn <= k && k < NoteOn + 16 && (*((*pp_MIDIcode)[j]))[i+2].byte > 0 && ton < ZERO) ton = t;
+		}
+	if(ton < ZERO || toff < ZERO) return(-1L);
+	for(; i < (*p_MIDIsize)[j]; i++) t += (*((*pp_MIDIcode)[j]))[i].time;
+	if(t <= toff) return(-1L); // Nothing after the last NoteOff
+	return(toff);
+	}
+
 void fill_rect_hatched(Rect* p_r, char* color) {
+	fill_rect_hatched_style(p_r,color,"Cyan",FALSE);
+	}
+
+void fill_rect_hatched_style(Rect* p_r, char* color, char* linecolor, int backward) {
+	// 2026-11-15 'linecolor' and 'backward' (lines going down to the right) added for the end of objects after their last NoteOff - by Claude
 	char line[200];
 	int x1, x2, y1, y2, w, h;
 	int spacing = resize * 4;   /* distance between hatch lines */
@@ -1615,14 +1660,21 @@ void fill_rect_hatched(Rect* p_r, char* color) {
 				fputs(line, imagePtr);
 
 				/* White hatch lines at 45 degrees */
-				fputs("ctx.strokeStyle = 'Cyan';\n", imagePtr);
+				my_sprintf(line, "ctx.strokeStyle = '%s';\n", linecolor);
+				fputs(line, imagePtr);
 				fputs("ctx.lineWidth = 2;\n", imagePtr);
 
 				for(int i = -h; i < w; i += spacing) {
-					my_sprintf(line,
-						"ctx.beginPath(); ctx.moveTo(%ld,%ld); ctx.lineTo(%ld,%ld); ctx.stroke();\n",
-						(long)(x1 + i),     (long)y2,
-						(long)(x1 + i + h), (long)y1);
+					if(backward)
+						my_sprintf(line,
+							"ctx.beginPath(); ctx.moveTo(%ld,%ld); ctx.lineTo(%ld,%ld); ctx.stroke();\n",
+							(long)(x1 + i),     (long)y1,
+							(long)(x1 + i + h), (long)y2);
+					else
+						my_sprintf(line,
+							"ctx.beginPath(); ctx.moveTo(%ld,%ld); ctx.lineTo(%ld,%ld); ctx.stroke();\n",
+							(long)(x1 + i),     (long)y2,
+							(long)(x1 + i + h), (long)y1);
 					fputs(line, imagePtr);
 					}
 
@@ -1673,6 +1725,7 @@ void resize_rect(Rect* p_r,int w,int h) {
 		}
 	}
 
+// Comments "// note N" in this part refer to the numbered notes of the technical description of this algorithm: https://bolprocessor.org/tech-analysis-of-makesound/
 // note 5
 int PreparePianoroll(long kmax,int cswrite,long *p_tmin,long *p_tmax,unsigned long imaxstreak,Milliseconds **p_delta,PianoRoll *p_roll,int *p_overflow) {
 	// Compute the limits in time and pitch of the pianoroll of the item, then draw its background and note scale.
@@ -1758,6 +1811,8 @@ int PreparePianoroll(long kmax,int cswrite,long *p_tmin,long *p_tmax,unsigned lo
 	endxmax = 50 + 13 + 30 + ((tmax - tmin) * GraphicScaleP) / GraphicScaleQ / 10;
 	if(endxmax < 100) endxmax = 100;
 	endymax = topoffset + ((maxkey - minkey) * hrect) + 10;
+	// 2026-11-15 Finalize the previous image before changing WidthMax (see DrawItem()) - fixed by Claude
+	if(ShowGraphic && imagePtr != NULL) EndImageFile();
 	if(WidthMax < 32000 && WidthMax < (2 * endxmax + 40)) WidthMax = 2 * endxmax + 40;
 	if(WidthMax > 32000) {
 		BPPrintMessage(0,odInfo,"\nImage width %d was too large: it has been cropped to 32000\n",WidthMax);

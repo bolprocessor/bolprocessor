@@ -31,6 +31,8 @@
     POSSIBILITY OF SUCH DAMAGE.
 */
 
+// Comments "// note N" in this file refer to the numbered notes of the technical description of this algorithm: https://bolprocessor.org/tech-analysis-of-makesound/
+
 #ifndef _H_BP3
 #include "-BP3.h"
 #endif
@@ -460,6 +462,8 @@ int MakeSound(long *p_kmax,unsigned long imaxstreak,int maxnsequences,long tmin,
 					ievent = FirstEventAfterTruncation(k,j,cswrite,preroll,&this_gap);
 					if(ievent < im) (*p_inext)[k] = ievent;
 					}
+				// 2026-11-15 'starttime' includes a negative pre-roll (FixObjectTimings()), which comes before the first event of the object, as in the graphic of the item and in FirstEventAfterTruncation(). The events of an object that was not truncated were sent 'preroll' ms too early, so that its pivot was misplaced - fixed by Claude
+				else if(preroll < ZERO) this_gap = - preroll;
 				}
 			(*p_onoff)[k] = FALSE;
 			(*p_nextd)[k] = (*p_Instance)[k].starttime + this_gap;

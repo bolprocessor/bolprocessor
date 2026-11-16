@@ -241,7 +241,7 @@ long **p_Dur,****p_Seq,**p_MaxDelay,**p_MaxForward,**p_MaxBegGap,**p_MaxEndGap,
 	**p_MaxCoverBeg,**p_MaxCoverEnd,**p_MaxTruncBeg,**p_MaxTruncEnd,**p_PreRoll,**p_PostRoll;
 int Minconc,Maxconc;
 short Maxlevel,MaxFlag,MaxScript,Jscriptline,Final,POLYconvert,
-	KeepFlag,CoverOK,DiscontinuityOK,AllSolTimeSet,
+	KeepFlag,AllSolTimeSet,
 	LimCompute,LimTimeSet,SkipFlag,StackFlag,PlayFromInsertionPoint,**p_SilentObject,
 	Port,Portbit,MIDI;
 int MaxItemsProduce,MaxItemsGraphic;

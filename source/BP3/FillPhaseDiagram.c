@@ -464,6 +464,7 @@ int FillPhaseDiagram(tokenbyte ***pp_buff,long* p_numberobjects,unsigned long *p
 	currentparameters.currinstr = 0;
 	currentparameters.currpart = 0;
 	currentparameters.chanset = currentparameters.insset = FALSE; // 2026-11-12 - fixed by Claude
+	currentparameters.inslevel = 0;
 	StartRememberedParameters(); // 2026-11-12 - fixed by Claude
 
 	currentparameters.currtranspose = starttranspose = (*p_deftstarttranspose)[0] = 0.;
@@ -546,7 +547,10 @@ int FillPhaseDiagram(tokenbyte ***pp_buff,long* p_numberobjects,unsigned long *p
 			paramindex = FindParameterIndexAndCreateStorage(p_contparameters,level,paramnameindex);
 			if(paramindex >= 0) {
 			//	BPPrintMessage(0,odInfo,"#&## paramnameindex = %d, instrument = %d, kobj = %d\n",paramnameindex,instrument,kobj);
-				if(instrument >= 0) currentparameters.currinstr = instrument;
+				if(instrument >= 0) {
+					currentparameters.currinstr = instrument;
+					currentparameters.inslevel = level;
+					}
 			//	(*p_Instance)[kobj].instrument = instrument;
 				SwitchParameterChannel(p_contparameters,level,paramindex,currentparameters.currchan,h_table,TRUE);	// 2026-11-08 - fixed by Claude
 				UpdateParameter(paramindex,p_contparameters,level,ZERO);
@@ -564,7 +568,10 @@ int FillPhaseDiagram(tokenbyte ***pp_buff,long* p_numberobjects,unsigned long *p
 			paramindex = FindParameterIndexAndCreateStorage(p_contparameters,level,paramnameindex);
 			if(paramindex >= 0) {
 			//	BPPrintMessage(0,odInfo,"#&## paramnameindex = %d, instrument = %d, kobj = %d\n",paramnameindex,instrument,kobj);
-				if(instrument >= 0) currentparameters.currinstr = instrument;
+				if(instrument >= 0) {
+					currentparameters.currinstr = instrument;
+					currentparameters.inslevel = level;
+					}
 				SwitchParameterChannel(p_contparameters,level,paramindex,currentparameters.currchan,h_table,TRUE);	// 2026-11-08 - fixed by Claude
 				UpdateParameter(paramindex,p_contparameters,level,ZERO);
 				(*((*p_contparameters)[level].values))[paramindex].ibeats = 0.;
@@ -1551,11 +1558,21 @@ int FillPhaseDiagram(tokenbyte ***pp_buff,long* p_numberobjects,unsigned long *p
 				if(value == Infpos) goto ENDDIAGRAM;
 				currentparameters.chanset = TRUE; // 2026-11-12 - fixed by Claude
 				channel = roundf(value);
+				// 2026-11-15 A channel assigned to an instrument in the Csound resource file cancels an instrument inherited
+				// from an enclosing polymetric expression, and CscoreWrite() will use the assignment. An instrument set in the
+				// same field keeps priority: "_ins(1) _chan(2) C4" is still played by instrument 1.
+				// Previously "_ins(1) {C4, _chan(2) E4}" gave E4 to instrument 1 although channel 2 was assigned to instrument 3 - fixed by Claude
+				if(channel > 0 && channel <= MAXCHAN && WhichCsoundInstrumentForChannel[channel] > 0
+						&& currentparameters.currinstr > 0 && currentparameters.inslevel < level) {
+					currentparameters.currinstr = instrument = 0;
+					currentparameters.insset = FALSE;
+					}
 		//		if(trace_capture) BPPrintMessage(1,odInfo,"§§ channel = %d\n",channel);
 				break;
 			case T32:	/* Instrument assignment _ins() */
 				value = (float) FindValue(m,p,currentparameters.currchan);
 				currentparameters.currinstr = (int) value;
+				currentparameters.inslevel = level;
 				if(value == Infpos) goto ENDDIAGRAM;
 				currentparameters.insset = TRUE; // 2026-11-12 - fixed by Claude
 				instrument = roundf(value);
@@ -1645,7 +1662,10 @@ int FillPhaseDiagram(tokenbyte ***pp_buff,long* p_numberobjects,unsigned long *p
 				paramindex = FindParameterIndexAndCreateStorage(p_contparameters,level,paramnameindex);
 				if(paramindex >= 0) {
 			//		BPPrintMessage(0,odInfo,"#&# paramnameindex = %d, paramindex = %d, instrument = %d, kobj = %d\n",paramnameindex,paramindex,instrument,kobj);
-					if(instrument >= 0) currentparameters.currinstr = instrument;
+					if(instrument >= 0) {
+						currentparameters.currinstr = instrument;
+						currentparameters.inslevel = level;
+						}
 				//	(*p_Instance)[kobj].instrument = instrument;
 					if(paramvalueindex >= (MyGetHandleSize((Handle)p_NumberConstant)
 						/ sizeof(double))) {

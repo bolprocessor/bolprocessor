@@ -651,7 +651,7 @@ unsigned long Class(double);
 int Plot(char,int*,unsigned long*,char*,int,int*,unsigned long**,double**,long****,int*,double,unsigned long,int);
 int AttachObjectLists(long,int,p_list****,p_list****,int*,unsigned int*);
 int SetVariation(tokenbyte,CurrentParameters**,CurrentParameters*,ContParameters**,int,int,unsigned long,tokenbyte**,double,double,float*,KeyNumberMap*,float*,Table**);
-int Locate(int,unsigned long**,long,long,Milliseconds**,unsigned long*,Milliseconds**,Milliseconds**,Milliseconds**,Milliseconds**,Milliseconds**,Milliseconds**,Milliseconds**,Milliseconds**,int,int,char**);
+int Locate(int,unsigned long**,long,long,Milliseconds**,unsigned long*,Milliseconds**,Milliseconds**,Milliseconds**,Milliseconds**,Milliseconds**,Milliseconds**,Milliseconds**,Milliseconds**,int,int,char**,char**,char**,long*,Milliseconds*);
 int Calculate_alpha(int,int,long,unsigned long,int,char**);
 int FixDilationRatioInCyclicObject(int,double,double*,double*,int*);
 int FixObjectTimings(int,Milliseconds**,Milliseconds**,int);
@@ -874,6 +874,8 @@ void draw_line(int,int,int,int,char*);
 void stroke_rect(Rect*);
 void fill_rect(Rect*,char*);
 void fill_rect_hatched(Rect*,char*);
+void fill_rect_hatched_style(Rect*,char*,char*,int);
+long LastNoteOffTime(int);
 void resize_rect(Rect*,int,int);
 
 char *recode_tags(const char*);

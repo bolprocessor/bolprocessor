@@ -41,7 +41,7 @@
 char Possible_choices(solset,char,int,int,int,long,int,char**,
 	int,Milliseconds,Milliseconds,Milliseconds,Milliseconds,Milliseconds,Milliseconds,int);
 int Situation_ok(int,int,int,int,Milliseconds,Milliseconds,Milliseconds,Milliseconds,Milliseconds,Milliseconds,
-	Milliseconds,Milliseconds,char**,int);
+	Milliseconds,Milliseconds,char**,int,int,int);
 int Get_choice(solset,p_list2***,p_list2***,int*,int*,int,int,int,Milliseconds,
 										Milliseconds,Milliseconds,Milliseconds);
 int Next_choice(solset,int,int,int,int,Milliseconds,Milliseconds,Milliseconds,Milliseconds,int);
@@ -50,7 +50,7 @@ int Erase_stack(int,int*,p_list2**);
 int Solution_is_accepted(int,int,unsigned long**,long,Milliseconds**,Milliseconds**,Milliseconds**,Milliseconds**,
 	Milliseconds**,Milliseconds**);
 Milliseconds Alternate_correction1(int,int,int,Milliseconds,Milliseconds**,Milliseconds,Milliseconds,
-	Milliseconds,Milliseconds,Milliseconds,Milliseconds);
+	Milliseconds,Milliseconds,Milliseconds,Milliseconds,int,int);
 
 int check_choices = 0;
 
@@ -59,7 +59,9 @@ int Locate(int nseq,unsigned long** p_imaxseq,long imax,long kmax,Milliseconds *
 	Milliseconds **p_maxcoverbeg,
 	Milliseconds **p_maxcoverend,Milliseconds **p_maxgapbeg,Milliseconds **p_maxgapend,
 	Milliseconds **p_maxtruncbeg,Milliseconds **p_maxtruncend,
-	int nature_time,int first,char **p_marked) {
+	int nature_time,int first,char **p_marked,char **p_coverok,char **p_discontinuityok,
+	long *p_iconflict,Milliseconds *p_shiftconflict) {
+	// 2026-11-14 p_coverok[i] and p_discontinuityok[i] release the constraints of overlapping and continuity between the object in column i and the preceding object(s). They replace the global flags CoverOK and DiscontinuityOK, which released them for the whole sequence. *p_iconflict returns the column of the last unacceptable situation, and *p_shiftconflict its shift, so that SetTimeObjects() can release the constraints of this object only - by Claude
 	char **p_BreakTempoPrev,**p_choice1,choice2;
 	int j,sol1,sol2,n,nsol,redo,iii,
 		krep,r,result,stack_depth,okmove;
@@ -118,6 +120,7 @@ int Locate(int nseq,unsigned long** p_imaxseq,long imax,long kmax,Milliseconds *
 		== NULL) return(ABORT);
 	
 	redo = FALSE; nsol = 0; stack_depth = 0; s = s0 = NULL;
+	*p_iconflict = -1; *p_shiftconflict = ZERO;
 
 START:
 	if(kmax > 100 && ++n > 10) {
@@ -275,8 +278,12 @@ CHECK:
 	if(shift1 == ZERO) goto INCREMENT;
 
 	if(Situation_ok(nseq,i,i0,j,shift1,(*p_tp1)[i],(*p_tp2)[i],(*p_Ts)[i],(*p_tscover)[i],
-		(*p_tsgap)[i],(*p_maxgapbeg)[i],(*p_maxcoverbeg)[i],p_marked,nature_time)) {
+		(*p_tsgap)[i],(*p_maxgapbeg)[i],(*p_maxcoverbeg)[i],p_marked,nature_time,
+		(*p_coverok)[i],(*p_discontinuityok)[i])) {
 		shift1 = ZERO;
+		}
+	else {
+		*p_iconflict = i; *p_shiftconflict = shift1;
 		}
 
 	// BPPrintMessage(0,odInfo,"\nBefore Possible_choices() nseq = %ld, i= %ld, j = %ld, k = %ld, tp1[i] = %ld, tp2[i] = %ld, shift1 = %ld, Ts[i] = %ld, BreakTempoPrev[i] = %ld\n",(long)nseq,(long)i,(long)j,(long)k,(long)(*p_tp1)[i],(long)(*p_tp2)[i],(long)shift1,(long)(*p_Ts)[i],(long)(*p_BreakTempoPrev)[i]);
@@ -531,7 +538,8 @@ NEWCHOICE2:
 	shift3 = (*p_Ts)[i] - (*p_ts1)[i];
 	if((*p_Ts)[i] < Veryneg) shift3 = ZERO;
 	shift4 = Alternate_correction1(i,i0,nseq,shift3,p_ts1,(*p_ts2)[i],(*p_tsgap)[i],
-				(*p_tscover)[i],(*p_maxgapbeg)[i],(*p_maxcoverbeg)[i],(*p_maxtruncbeg)[i]);
+				(*p_tscover)[i],(*p_maxgapbeg)[i],(*p_maxcoverbeg)[i],(*p_maxtruncbeg)[i],
+				(*p_coverok)[i],(*p_discontinuityok)[i]);
 	if(shift4 == ZERO) {
 		goto INCREMENT;
 		}
@@ -745,7 +753,8 @@ int Solution_is_accepted(int nsol,int nseq,unsigned long **p_imaxseq,long kmax,M
 
 int Situation_ok(int nseq, int i, int i0, int j, Milliseconds shift, Milliseconds t1, Milliseconds t2,
 	Milliseconds ts, Milliseconds tscover, Milliseconds tsgap,Milliseconds maxgapbeg,Milliseconds maxcoverbeg,
-	char **p_marked,int nature_time) {	
+	char **p_marked,int nature_time,int coverok,int discontinuityok) {
+	// coverok and discontinuityok: constraints released for this object (2026-11-14)
 	if(nseq >= Maxconc) {
 		BPPrintMessage(0,odError,"=> Err. Situation_ok(). nseq >= Maxconc");
 		return(YES);
@@ -757,12 +766,12 @@ int Situation_ok(int nseq, int i, int i0, int j, Milliseconds shift, Millisecond
 	if((nature_time != SMOOTH) && j == 1) return(YES);		/* Silence "-" */
 	if(shift < ZERO) {
 		if(j > 16383) return(YES);		/* Simple note */
-		if(DiscontinuityOK || (tsgap >= t1 && (-shift <= maxgapbeg))) return(YES);	/* 1 */
+		if(discontinuityok || (tsgap >= t1 && (-shift <= maxgapbeg))) return(YES);	/* 1 */
 		}																	
 	if(shift > ZERO) {
 		if(nature_time == SMOOTH && !(*p_marked)[i]) return(NO);
 		if((j == 1 || j > 16383) && nature_time == SMOOTH) return(NO);	/* Fixed 5/7/97, modified 25/4/98 and 10/6/98 */
-		if(CoverOK || (t1 >= tscover && (maxcoverbeg == Infpos
+		if(coverok || (t1 >= tscover && (maxcoverbeg == Infpos
 							|| ts <= (t1 + maxcoverbeg)))) return(YES); 			/* 3 */
 		}
 	return(NO);
@@ -952,7 +961,8 @@ REVISE:
 
 Milliseconds Alternate_correction1(int i,int i0,int nseq,Milliseconds shift,Milliseconds** p_ts1,
 	Milliseconds t2,Milliseconds tsgap,Milliseconds tscover,Milliseconds maxgapbeg,Milliseconds maxcoverbeg,
-	Milliseconds maxtruncbeg) {
+	Milliseconds maxtruncbeg,int coverok,int discontinuityok) {
+	// coverok and discontinuityok: constraints released for this object (2026-11-14)
 	int j,k;
 	Milliseconds t1,shiftmore,s1,s2;
 
@@ -970,7 +980,7 @@ Milliseconds Alternate_correction1(int i,int i0,int nseq,Milliseconds shift,Mill
 	t1 = (*p_ts1)[i];
 	if(tscover != Infneg) s1 = tscover - t1;
 	else s1 = Infneg;
-	if(!CoverOK && s1 > ZERO && s1 <= maxtruncbeg) {
+	if(!coverok && s1 > ZERO && s1 <= maxtruncbeg) {
 		(*p_Instance)[k].truncbeg += s1;
 		(*p_ts1)[i] += s1;
 		t1 = (*p_ts1)[i];
@@ -978,7 +988,7 @@ Milliseconds Alternate_correction1(int i,int i0,int nseq,Milliseconds shift,Mill
 		}
 	if(shift == ZERO) return(ZERO); 	/* Situation 2 */
 	if(shift < ZERO) {
-		if(DiscontinuityOK) return(ZERO);
+		if(discontinuityok) return(ZERO);
 		s1 = t1 - tsgap;				/* Situation 1 */
 		if(maxgapbeg != Infpos) s2 = - shift - maxgapbeg;
 		else s2 = Infneg;
@@ -1008,7 +1018,7 @@ Milliseconds Alternate_correction1(int i,int i0,int nseq,Milliseconds shift,Mill
 		return(shiftmore);
 		}
 	if(shift > ZERO) {
-		if(CoverOK) return(ZERO);
+		if(coverok) return(ZERO);
 		if(maxcoverbeg != Infpos) s2 = shift - maxcoverbeg;
 		else s2 = Infneg;
 		if(s1 <= ZERO && s2 <= ZERO) return(ZERO);

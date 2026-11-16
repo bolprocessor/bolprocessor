@@ -6,7 +6,7 @@ https://github.com/bolprocessor/bolprocessor/blob/graphics-for-BP3/BP3-changes.t
 Geeks can also read the "to-do" file:
 https://raw.githubusercontent.com/bolprocessor/bolprocessor/graphics-for-BP3/BP3-To-Do.txt
 
-2026-11-14 (version 3.6.1)
+2026-11-14 -> 2026-11-16 (version 3.6.1)
 The Bol Processor now works with Csound version 7, which replaces version 6.18. The interface has been updated to accommodate this change. If your installation is running Csound 6.18, the interface will tell you to install 7.0 and it will supply the link to the official download page.
 
 Please note:

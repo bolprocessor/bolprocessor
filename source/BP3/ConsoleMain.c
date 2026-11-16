@@ -679,6 +679,7 @@ int EndImageFile(void) {
 	if(imageHits < 1) {
 		BPPrintMessage(0,odError, "Closing an empty image: %s\n",imageFileName);
 		my_fclose(imagePtr);
+		imagePtr = NULL; // 2026-11-15 Was left pointing to the closed file - fixed by Claude
 		remove(imageFileName);
 		return OK;
 		}
