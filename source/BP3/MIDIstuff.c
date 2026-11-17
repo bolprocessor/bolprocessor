@@ -35,6 +35,7 @@
 
 #include "-BP3.h"
 #include "-BP3decl.h"
+// Comments "// note N (real-time Csound)" in this file refer to the numbered notes of the technical description of real-time Csound: https://bolprocessor.org/tech-analysis-of-realtime-csound/
 
 int trace_midi_filter = 0;
 int trace_driver = 0;
@@ -706,7 +707,8 @@ INTERPRET:
 			}
 		else {
 			if(Jinscript > 0) {
-				if(FirstNoteOn) {
+				if(CsoundRT) time_now = CsRTScriptTime(); // note 20 (real-time Csound)
+				else if(FirstNoteOn) {
 					if(TraceMIDIinteraction) BPPrintMessage(0,odError,"time_now = 0L in HandleInputEvent()\n");
 					time_now = 0L;
 					}
@@ -726,7 +728,8 @@ INTERPRET:
 							}
 						StopPlay = FALSE;
 					//	Oldtimestopped = TimeStopped; // 2024-07-03
-						TimeStopped +=  1000 * MIDIsyncDelay; // Necessary to restore the timing of the next events
+						// With real-time Csound, CsRTScripts() shifts the performance instead
+						if(!CsoundRT) TimeStopped +=  1000 * MIDIsyncDelay; // Necessary to restore the timing of the next events
 						if(TRUE || !Improvize) { // Not sure this is necessary  2024-08-30
 							((*p_INscript)[j]).chan = -1; // This input event is now deactivated
 							for(jj = 1; jj <= Jinscript; jj++) { //  Now we deactivate all input events at the same date

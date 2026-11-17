@@ -6,8 +6,9 @@ https://github.com/bolprocessor/bolprocessor/blob/graphics-for-BP3/BP3-changes.t
 Geeks can also read the "to-do" file:
 https://raw.githubusercontent.com/bolprocessor/bolprocessor/graphics-for-BP3/BP3-To-Do.txt
 
-2026-11-16 (version 3.6.2)
+2026-11-16 -> 2026-11-17 (version 3.6.2)
 This is the first version running **real-time Csound** on MacOS, Windows and Linux. It has been checked on MacOS 26.6.2, Windows 10 and Linux Ubuntu. We hope to get reports of its operation on Windows 11 and other brands of Linux.
+Real-time Csound can be combined with real-time MIDI: run '-da.tryWait' for a demo.
 
 Don't forget to update the PHP interface:
 https://github.com/bolprocessor/php-frontend/

@@ -897,6 +897,7 @@ const char gOptionList[] =
 	"  --csoundrt port:        play real-time Csound, sending the score to a Csound server listening to UDP port 'port'\n"
 	"                          of this computer, e.g. started with: csound -odac --port=10789 --orc 0-default.orc\n"
 	"                          (with --csoundout, the score is also written to a file)\n"
+	"                          (with --rtmidi, the MIDI ports are used for interaction, e.g. _script(wait for C3 channel 1))\n"
 	"\n"
 	"OPTIONS (Computation):\n"
 /*	"  -s or --start string   use 'string' as the start string (default is \"S\")\n"
@@ -1247,12 +1248,14 @@ int ParsePostInitArgs(int argc, char* args[], BPConsoleOpts* opts) {
 		return ABORT;
 		}
 	// note 1 (real-time Csound)
+	// With --rtmidi as well, notes are played by Csound and the MIDI ports are used for interaction:
+	// waiting for MIDI events, sending MIDI messages, input filters (see CsRTScripts() in CsoundRealTime.c)
 	if(CsoundRT) {
-		if(opts->useRealtimeMidi == TRUE) {
-			BPPrintMessage(0,odError, "\n=> Options --rtmidi and --csoundrt cannot be used together\n\n");
-			return ABORT;
-			}
 		if(CsRTOpen() != OK) return ABORT;
+		if(opts->useRealtimeMidi == TRUE && (opts->outputFiles[ofiTraceFile].name == NULL || strlen(opts->outputFiles[ofiTraceFile].name) == 0)) {
+			BPPrintMessage(0,odWarning,"=> MIDI ports cannot be used without a trace path (--traceout). Real-time Csound will play without MIDI input and output\n");
+			opts->useRealtimeMidi = FALSE;
+			}
 		}
 	if(opts->useRealtimeMidi == TRUE) {
 	// BPPrintMessage(0,odInfo,"opts->outputFiles[ofiTraceFile].name = %s\n",opts->outputFiles[ofiTraceFile].name);
@@ -1282,6 +1285,13 @@ int ParsePostInitArgs(int argc, char* args[], BPConsoleOpts* opts) {
 		rtMIDI = TRUE;
 		resultinit = initializeMIDISystem();
 		if(new_thepath != NULL) free(new_thepath);
+		if(resultinit != OK && CsoundRT) {
+			// Real-time Csound does not need MIDI to play: it goes on without MIDI input and output
+			BPPrintMessage(0,odWarning,"=> MIDI ports could not be opened. Real-time Csound will play without MIDI input and output\n");
+			rtMIDI = Interactive = FALSE;
+			opts->useRealtimeMidi = FALSE;
+			return OK;
+			}
 		if(resultinit != OK) {
 			Panic = TRUE;
 			rtMIDI = FALSE;
@@ -1759,7 +1769,8 @@ int isInteger(const char* s) {
 void StopWaiting(int key,char ch) {
 	unsigned long time_now,thisscripttime;
 	int j;
-	if(FirstNoteOn) {
+	if(CsoundRT) time_now = CsRTScriptTime(); // note 20 (real-time Csound)
+	else if(FirstNoteOn) {
 		if(TraceMIDIinteraction) BPPrintMessage(0,odInfo,"time_now = 0L in HandleInputEvent()\n");
 		time_now = 0L;
 		}
@@ -1780,7 +1791,7 @@ void StopWaiting(int key,char ch) {
 		if(key == ((*p_INscript)[j]).key && time_now >= thisscripttime) {
 			if(TraceMIDIinteraction) BPPrintMessage(0,odInfo,"[%d] Good real-time message %d, time_now = %ld ms\n",j,key,time_now/1000L);
 			StopPlay = FALSE;
-			TimeStopped +=  1000 * MIDIsyncDelay; // Necessary to restore the timing of the next events
+			if(!CsoundRT) TimeStopped +=  1000 * MIDIsyncDelay; // Necessary to restore the timing of the next events. Real-time Csound: see CsRTScripts()
 			((*p_INscript)[j]).chan = -1; // This input script is now deactivated
 			return;
 			}

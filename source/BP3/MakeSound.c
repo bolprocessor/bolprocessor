@@ -128,7 +128,9 @@ int MakeSound(long *p_kmax,unsigned long imaxstreak,int maxnsequences,long tmin,
 	if(FALSE && showpianoroll) BPPrintMessage(0,odInfo,"Showing piano roll\n");
 
 	cswrite = FALSE;
-	if(((OutCsound && (FileWriteMode == NOW || !rtMIDI))
+	// note 21 (real-time Csound)
+	// With real-time Csound, notes go to the Csound score even if MIDI is running for interaction (--rtmidi)
+	if(((OutCsound && (FileWriteMode == NOW || !rtMIDI || CsoundRT))
 		|| ConvertMIDItoCsound) && !ItemCapture) cswrite = TRUE;
 
 	MIDIfileOn = FALSE;
@@ -1354,7 +1356,7 @@ FINDNEXTEVENT:
 		}
 	// note 37
 	// End of the Nplay performances
-	if(rtMIDI) { // 2024-06-17
+	if(rtMIDI && !CsoundRT) { // 2024-06-17. Not with real-time Csound: no MIDI event is sent, see note 21 (real-time Csound)
 		// Keep the driver alive to be able to handle MIDI input events
 		if((result=SendMIDIevent(NORMAL_EVENT,ActiveSensing,0,0,0,0,0,(t0 + t1),0,&rs)) != OK) goto OVER;
 		}
@@ -1415,7 +1417,7 @@ GETOUT:
 		BPPrintMessage(0,odInfo,"max_endtime = %ld, max_endtime_event = %ld\n",(long)max_endtime,(long)max_endtime_event);
 
 	if(add_time > ZERO  && (Improvize || PlayAllChunks)) {
-		if((MIDIfileOn || rtMIDI) && !Create_set) {
+		if((MIDIfileOn || (rtMIDI && !CsoundRT)) && !Create_set) { // note 21 (real-time Csound)
 			// Two NoteOffs (key 0) mark the silence
 			if((result=SendMIDIevent(NORMAL_EVENT,NoteOn,0,0,0,scale,blockkey,(Tcurr * Time_res),nseq,&rs)) != OK) goto OVER2;
 			if((result=SendMIDIevent(NORMAL_EVENT,NoteOn,0,0,0,scale,blockkey,((Tcurr * Time_res) + add_time),nseq,&rs)) != OK) goto OVER2;

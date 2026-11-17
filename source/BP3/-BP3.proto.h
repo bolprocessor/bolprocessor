@@ -533,6 +533,7 @@ int CsRTFlush(int wait);
 int CsRTEnd(void);
 void CsRTPanic(void);
 long CsRTDate(long* p_end);
+unsigned long CsRTScriptTime(void);
 int FixCsoundScoreName(char*);
 int CscoreWrite(Milliseconds,Rect*,int,int,int,int,int,int,int,double,Milliseconds,int,int,int,int,int,int,int,int,PerfParameters****,int,int);
 int CompileCsoundObjects(void);

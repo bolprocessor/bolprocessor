@@ -97,6 +97,8 @@ static void CsRTLine(char* line);
 static int CsRTPush(CsRTEvent** p_list,long* p_size,long* p_max,CsRTEvent* p_e,int sorted);
 static void CsRTFreeEvent(CsRTEvent* p_e);
 static void CsRTSleep(long milliseconds);
+static double CsRTBarrier(void);
+static int CsRTScripts(void);
 
 
 // note 2
@@ -334,7 +336,7 @@ static UInt64 CsRTDateToClock(double date) {
 static int CsRTSendDue(void) {
 	// Send the lines whose date is less than CSRT_LOOKAHEAD seconds away
 	UInt64 now;
-	double delay;
+	double delay, barrier;
 	long i, j, sent;
 	char* message;
 	size_t length;
@@ -347,9 +349,13 @@ static int CsRTSendDue(void) {
 		else CsRTSent[j++] = CsRTSent[i];
 		}
 	CsRTSentSize = j;
+	barrier = CsRTBarrier();
 	sent = 0L;
 	while(sent < CsRTQueueSize) {
 		e = CsRTQueue[sent];
+		// note 20
+		// Lines dated at or after a pending wait or hold are kept until it is over (half a millisecond is tolerated for rounding)
+		if(barrier >= 0. && e.time >= barrier - 0.0005) break;
 		delay = ((double) CsRTDateToClock(e.time) - (double) now) / 1000000.;
 		if(delay > CSRT_LOOKAHEAD) break;
 		// note 10
@@ -441,6 +447,10 @@ int CsRTFlush(int wait) {
 				}
 			CsRTOrigin += getClockTime() - pausestart;
 			}
+		if((result = CsRTScripts()) != OK) { // note 20
+			CsRTPanic();
+			return result;
+			}
 		if((result = CsRTSendDue()) != OK) return result;
 		if(!wait || CsRTQueueSize == 0L) break;
 		CsRTSleep(2L);
@@ -472,6 +482,10 @@ int CsRTEnd(void) {
 			}
 		if(PausePlay) {
 			if((result = CsRTFlush(FALSE)) != OK) return result;
+			}
+		if((result = CsRTScripts()) != OK) { // note 20
+			CsRTPanic();
+			return result;
 			}
 		CsRTSleep(20L);
 		}
@@ -505,4 +519,110 @@ long CsRTDate(long* p_end) {
 	now = getClockTime();
 	if(now <= CsRTOrigin) return 0L;
 	return (long)((now - CsRTOrigin) / 1000L);
+	}
+
+
+// note 20
+static int CsRTWaitInstruction(int instr) {
+	// Script instructions that wait for an event: Space, forever, a note, MIDI Start, Continue or Stop
+	return (instr == 46 || instr == 47 || instr == 97 || instr == 66 || instr == 67 || instr == 128);
+	}
+
+
+// note 20
+unsigned long CsRTScriptTime(void) {
+	// Date of the performance (microseconds) on the timeline of script instructions, i.e. the date in the score.
+	// Used by the MIDI input handlers instead of the clock of real-time MIDI.
+	UInt64 now;
+	if(!CsRTStarted) return 0L;
+	now = getClockTime();
+	if(now <= CsRTOrigin) return 0L;
+	return (unsigned long)(now - CsRTOrigin);
+	}
+
+
+// note 20
+static double CsRTBarrier(void) {
+	// Earliest date (seconds) of a pending wait (input script) or hold (output script), or -1 if there is none
+	double barrier, date;
+	int j;
+	barrier = -1.;
+	for(j = 1; j <= Jinscript; j++) {
+		if((*p_INscript)[j].chan == -1 || !CsRTWaitInstruction((*p_INscript)[j].scriptline)) continue;
+		date = (double)(*p_INscript)[j].time / 1000000.;
+		if(barrier < 0. || date < barrier) barrier = date;
+		}
+	for(j = 1; j <= Joutscript; j++) {
+		if((*p_OUTscript)[j].chan == -1 || (*p_OUTscript)[j].scriptline != 17) continue; // Hold
+		date = (double)(*p_OUTscript)[j].time / 1000000.;
+		if(barrier < 0. || date < barrier) barrier = date;
+		}
+	return barrier;
+	}
+
+
+// note 20
+static int CsRTScripts(void) {
+	// Script instructions of the score, executed when their date is reached, as check_stop_instructions() does in real-time MIDI.
+	// Their dates (microseconds) are those of the score. Instead of 'TimeStopped', the performance is shifted by moving CsRTOrigin.
+	// - Hold: the performance is shifted by its duration
+	// - MIDI send Start, Continue, Stop: the message is sent to the MIDI outputs if MIDI is running (option --rtmidi)
+	// - Wait for a note, Start, Continue, Stop, Space, or forever: the performance waits until the MIDI input handler
+	//   (HandleInputEvent(), StopWaiting()) resets StopPlay, then resumes at the date of the script after MIDIsyncDelay.
+	//   Notes sounding go on, and lines dated at or after the script have not been sent (CsRTBarrier()).
+	UInt64 now, resume;
+	unsigned long t, date;
+	int j, instr, result;
+	unsigned char midiData[4];
+
+	if(!CsRTStarted) return OK;
+	now = getClockTime();
+	if(now < CsRTOrigin) return OK;
+	t = (unsigned long)(now - CsRTOrigin);
+	for(j = 1; j <= Joutscript; j++) {
+		if((*p_OUTscript)[j].chan == -1) continue;
+		instr = (*p_OUTscript)[j].scriptline;
+		if(instr != 17 && instr != 190 && instr != 191 && instr != 192) continue;
+		if((*p_OUTscript)[j].time > t) continue;
+		(*p_OUTscript)[j].chan = -1; // Done
+		if(instr == 17) { // Hold
+			CsRTOrigin += (UInt64)(*p_OUTscript)[j].duration;
+			my_sprintf(Message,"Holding during %ld ms",(long)((*p_OUTscript)[j].duration / 1000L));
+			Notify(Message,0);
+			strcpy(Message,"");
+			}
+		else if(rtMIDI) {
+			midiData[0] = (instr == 190) ? Start : ((instr == 191) ? Continue : Stop);
+			sendMIDIEvent(-1,0,OUTmidi,0,midiData,1,0);
+			}
+		}
+	for(j = 1; j <= Jinscript; j++) {
+		if((*p_INscript)[j].chan == -1) continue;
+		instr = (*p_INscript)[j].scriptline;
+		if(!CsRTWaitInstruction(instr)) continue;
+		date = (*p_INscript)[j].time;
+		if(date > t) continue;
+		StopPlay = TRUE;
+		switch(instr) {
+			case 46: WaitForSpace = TRUE; strcpy(Message,"Waiting for a spacebar hit"); break;
+			case 47: WaitForEver = TRUE; strcpy(Message,"Waiting forever"); break;
+			case 97: my_sprintf(Message,"Waiting for note #key %d channel %d at date %ld ms",(*p_INscript)[j].key,(*p_INscript)[j].chan,(long)(date / 1000L)); break;
+			case 67: strcpy(Message,"Waiting for MIDI Start (250)"); break;
+			case 66: strcpy(Message,"Waiting for MIDI Continue (251)"); break;
+			case 128: strcpy(Message,"Waiting for MIDI Stop (252)"); break;
+			}
+		if(!rtMIDI && instr != 46 && instr != 47) BPPrintMessage(0,odWarning,"=> %s, but MIDI input is not active: only STOP can end this wait\n",Message);
+		Notify(Message,0);
+		strcpy(Message,"");
+		while(StopPlay) {
+			if((result = stop(1,"CsRTScripts")) != OK) return result;
+			CsRTSleep(10L);
+			}
+		(*p_INscript)[j].chan = -1; // This wait is over, even if StopPlay was reset otherwise (e.g. by a MIDI Continue message)
+		// The performance resumes at the date of the script, after MIDIsyncDelay milliseconds
+		resume = getClockTime() + (UInt64)(MIDIsyncDelay > 0 ? MIDIsyncDelay : 0) * 1000L;
+		if(resume > (UInt64) date && resume - (UInt64) date > CsRTOrigin) CsRTOrigin = resume - (UInt64) date;
+		return OK; // Other scripts will be checked at the next call
+		}
+	return OK;
 	}
