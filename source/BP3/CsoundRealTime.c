@@ -443,7 +443,9 @@ int CsRTFlush(int wait) {
 			return result;
 			}
 		// note 12
-		if(PausePlay) {
+		// A pause is requested by the PAUSE button (PausePlay), or by a MIDI Stop message received when the setting
+		// "Respond to Stop/Continue" is on (StopPlay, set and reset by HandleInputEvent()), as in real-time MIDI
+		if(PausePlay || StopPlay) {
 			// Notes sent and not yet started will be sent again after the pause
 			CsRTStopAll();
 			for(i = 0; i < CsRTSentSize; i++) {
@@ -451,7 +453,7 @@ int CsRTFlush(int wait) {
 				}
 			CsRTSentSize = 0L;
 			pausestart = getClockTime();
-			while(PausePlay) {
+			while(PausePlay || StopPlay) {
 				if((result = stop(1,"CsRTFlush pause")) != OK) {
 					CsRTPanic();
 					return result;
@@ -494,7 +496,7 @@ int CsRTEnd(void) {
 			CsRTPanic();
 			return result;
 			}
-		if(PausePlay) {
+		if(PausePlay || StopPlay) {
 			if((result = CsRTFlush(FALSE)) != OK) return result;
 			}
 		if((result = CsRTScripts()) != OK) { // note 20
