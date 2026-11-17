@@ -1,4 +1,4 @@
-/* TimeSet.c (BP3) */ 
+// TimeSet.c (BP3) 
 
 /*  This file is a part of Bol Processor
     Copyright (c) 1990-2000 by Bernard Bel, Jim Kippen and Srikumar K. Subramanian
@@ -197,7 +197,7 @@ int SetTimeObjects(int bigitem,unsigned long **p_imaxseq,unsigned long maxseq,in
 	Milliseconds shiftconflict;
 	int linerelease;
 
-	nature_time = Nature_of_time;	/* Must not change during computation */
+	nature_time = Nature_of_time;	// Must not change during computation
 
 	// note 7
 	handle_size = maxseq + 50; // Added by BB 2021-03-23
@@ -665,7 +665,7 @@ QUEST2:
 			if(trace_timeset) BPPrintMessage(0,odInfo,"Calculating global drift\n");
 			for(i=1L; i <= maxseq; i++) {
 				if((*p_DELTA)[i] > EPSILON) BTflag = TRUE;
-				else {		/* Correct last streaks for which DELTA is not known */
+				else {		// Correct last streaks for which DELTA is not known
 					if(BTflag) (*p_DELTA)[i] = olddelta;
 					}
 				(*p_T)[i] += (*p_DELTA)[i];
@@ -684,8 +684,8 @@ QUEST2:
 					// BPPrintMessage(0,odInfo,"+ marked i = %ld k = %ld T[i] = %ld, DELTA[i] = %ld\n",(long)i,(long)k,(long)(*p_T)[i],(long)(*p_DELTA)[i]);
 					(*p_T)[i] = (*p_T)[i] + (*p_DELTA)[i];
 					if((*p_T)[i] >= tmax) tmax = (*p_T)[i];
-					else {	/* Must be increasing.  Sometimes local errors in smooth time */
-						(*p_T)[i] = tmax; /* This correction is very small */
+					else {	// Must be increasing.  Sometimes local errors in smooth time
+						(*p_T)[i] = tmax; // This correction is very small
 						}
 					}
 				else {
@@ -730,7 +730,7 @@ QUEST2:
 			}
 
 		// note 21
-		/* Update tmin and tmax */
+		// Update tmin and tmax
 		imax = (*p_imaxseq)[nseq] - 1L;
 		if(trace_timeset) {
 			BPPrintMessage(0,odInfo,"\nimax = %ld\n",(long)imax);

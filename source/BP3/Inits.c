@@ -1,4 +1,4 @@
-/* Inits.c (BP3) */
+// Inits.c (BP3)
 
 /*  This file is a part of Bol Processor
     Copyright (c) 1990-2000 by Bernard Bel, Jim Kippen and Srikumar K. Subramanian
@@ -61,7 +61,7 @@ int Inits(void) {
 
 	Beta = NO;
 
-	Time_res = 10L; /* Time resolution for MIDI messages */
+	Time_res = 10L; // Time resolution for MIDI messages
 	// Quantization = 10L;
 
 	Nw = 0;
@@ -123,7 +123,7 @@ int Inits(void) {
 	KeyboardType = QWERTY;
 	C4key = 60;  A4freq = 440.;
 	DefaultBlockKey =  60; // Block frequency on C4 wheen changing scales
-	ProgNrFrom = 1;	/* This has changed with version 2.7.3 */
+	ProgNrFrom = 1;	// This has changed with version 2.7.3
 	TestMIDIChannel = 1;
 	for(i=0; i <= MAXCHAN; i++) {
 		CurrentMIDIprogram[i] = 0;
@@ -282,7 +282,7 @@ int Inits(void) {
 		
 	NoAlphabet = TRUE;
 	StartFromOne = TRUE;
-	MIDIsetUpTime = 700L;	/* ms */
+	MIDIsetUpTime = 700L;	// ms
 	NewEnvironment = NewColors = Help = FALSE;
 	ObjectMode = ObjectTry = Final = LoadedScript = FALSE;
 	LoadedIn = FALSE;
@@ -294,7 +294,7 @@ int Inits(void) {
 	Pduration = 0.;  Qduration = 1.;
 	UseBufferLimit = FirstTime = WaitForSpace = WaitForEver = FALSE;
 	OkWait = TRUE;
-	Nplay = 1;	/* Number of times each item is played */
+	Nplay = 1;	// Number of times each item is played
 	SynchroSignal = OFF;
 	MaxDeriv = MAXDERIV;
 	IgnoreFields = TraceZouleb = FALSE;
@@ -304,9 +304,9 @@ int Inits(void) {
 	Infpos1 = Infpos + 1.;
 	// BPPrintMessage(0,odError,"Infneg = %ld\n",Infneg);
 	InsertGramRuleNumbers = InsertGramCorrections = InsertNewBols = FALSE;
-	SplitTimeObjects = TRUE;	/* Terminal symbols separated by spaces */
-	SplitVariables = FALSE;	/* SplitVariables <=> variables displayed between '||' */
-	Token = SpaceOn = FALSE;	/* Typing text, not tokens */
+	SplitTimeObjects = TRUE;	// Terminal symbols separated by spaces
+	SplitVariables = FALSE;	// SplitVariables <=> variables displayed between '||'
+	Token = SpaceOn = FALSE;	// Typing text, not tokens
 	FileName[iObjects][0] = '\0';
 	BufferSize = DeftBufferSize = MAXDISPL;
 	GraphicScaleP = GraphicScaleQ = 1L;
@@ -390,7 +390,7 @@ int Inits(void) {
 		TheVRefNum[i] = RefNumStartUp;
 		}
 	FileName[wScript][0] = '\0';
-	CurrentChannel = 1;	/* Used for program changes,by default. */
+	CurrentChannel = 1;	// Used for program changes,by default.
 	NumberMessages = ZERO;
 	if(SetNoteNames() != OK) return(ABORT);
 	NeedAlphabet = FALSE;
@@ -553,7 +553,7 @@ int SetNoteNames(void) {
 
 int Ctrlinit(void) {
 	int i,igram,irul,j,k;
-	/* Print(wTrace,"\nCtrl values:\n"); */
+	// Print(wTrace,"\nCtrl values:\n");
 
 	if(Gram.p_subgram == NULL || Gram.number_gram < 1) return(OK);
 	for(i=1; i < MAXPARAMCTRL; i++) {
@@ -594,7 +594,7 @@ int MakeWindows(void) {
 	OSErr err;
 
 
-	/* This initialization needs to occur even in non-GUI builds ?? */
+	// This initialization needs to occur even in non-GUI builds ??
 	ResumeStopOn = FALSE;
 	Jbutt = 0;
 	for(w=0; w < WMAX; w++) {
@@ -616,7 +616,7 @@ int MakeWindows(void) {
 	return(OK);
 	}
 
-/* Non-Carbon version just creates TextHandles to use */
+// Non-Carbon version just creates TextHandles to use
 int SetUpWindow(int w) {	
 	if(w < 0 || w >= WMAX) {
 		BPPrintMessage(0,odError,"=> Internal problem in setting up text buffers! w = %d\n",w);

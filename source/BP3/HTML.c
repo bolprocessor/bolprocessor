@@ -1,4 +1,4 @@
-/* HTML.c (BP3) */ 
+// HTML.c (BP3) 
 
 /*  This file is a part of Bol Processor
     Copyright (c) 1990-2000 by Bernard Bel, Jim Kippen and Srikumar K. Subramanian
@@ -103,10 +103,10 @@ int CheckHTML(int linebreaks,int w,char** p_buffer,long* p_count,int* p_html) {
 NEXTTOKEN:
 		i = j;
 		}
-	return(OK);	/* This is not a HTML file */
+	return(OK);	// This is not a HTML file
 
 FOUND:
-	/* Transcode from HTML to plain text in Unicode */ /* Mac character set */
+	/* Transcode from HTML to plain text in Unicode */ // Mac character set
 	// NEEDS checking!
 
 	/* if(w == wScrap && !(*p_html)) {
@@ -123,7 +123,7 @@ FOUND:
 			}
 		if(c == '<') {
 FOUNDTOKEN:
-			/* Discard tag */
+			// Discard tag
 			j++; k = 0;
 			while(TRUE) {
 				if(j >= *p_count) goto BAD;
@@ -149,7 +149,7 @@ FOUNDTOKEN:
 							}
 						}
 					if(strcmp(line,"TITLE") == 0) {
-						/* Skip the title */
+						// Skip the title
 						while(TRUE) {
 							j++;
 							if(j >= *p_count) break;
@@ -177,7 +177,7 @@ FOUNDTOKEN:
 						(*p_buffer)[i] = '\r';
 						goto GOOD;
 						}
-					goto BAD;	/* Ignore this token */
+					goto BAD;	// Ignore this token
 					} 
 				if(k < HTMLTOKENLENGTH) line[k] = UpperCase(c);
 				j++; k++;
@@ -205,7 +205,7 @@ FOUNDTOKEN:
 					else n = 256;
 					j++;
 					}
-				goto BAD; 	/* Token wasn't recognized */
+				goto BAD; 	// Token wasn't recognized
 				}
 			while(TRUE) {
 				if(j >= *p_count) goto BAD;
@@ -219,7 +219,7 @@ FOUNDTOKEN:
 							goto GOOD;
 							}
 						}
-					goto BAD; 	/* Token wasn't recognized */
+					goto BAD; 	// Token wasn't recognized
 					}
 				if(k < HTMLTOKENLENGTH) line[k] = c;
 				k++; j++;

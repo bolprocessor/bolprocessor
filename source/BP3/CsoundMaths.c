@@ -1,4 +1,4 @@
-/* CsoundMaths.c (BP3) */ 
+// CsoundMaths.c (BP3) 
 
 /*  This file is a part of Bol Processor
     Copyright (c) 1990-2000 by Bernard Bel, Jim Kippen and Srikumar K. Subramanian
@@ -120,7 +120,7 @@ int GetRegressions(int j) {
 
 
 int Findabc(double ***p_xy,int j,regression *p_r) {
-/* Determine a quadratic regression of coordinates (x1,y1),(x2,y2),(x3,y3) */
+// Determine a quadratic regression of coordinates (x1,y1),(x2,y2),(x3,y3)
 
 	double x1,x2,x3,y1,y2,y22,y3,D,Da,Db,Dc,xmin,xmax,ymax,m;
 
@@ -416,7 +416,7 @@ int MakeCsoundFunctionTable(int onoffline,double **scorearg,double alpha1,double
 		if(x == (long)x) n = x;
 		else n = 1L + (long)x;
 		n = 1L << n;
-		if(n < 256L) n = 256L;	/* This provides a minimum accuracy */
+		if(n < 256L) n = 256L;	// This provides a minimum accuracy
 		iscale = ((double) n) / xmax;
 		y = (*(subtable.point))[ZERO].value;
 		oldx = 0.;
@@ -431,7 +431,7 @@ int MakeCsoundFunctionTable(int onoffline,double **scorearg,double alpha1,double
 		oldx = 0.;
 		for(i = 1L; i <= lasti; i++) {
 			if(i == lasti)
-				newx = n - sum;	/* This compensates rounding errors */
+				newx = n - sum;	// This compensates rounding errors
 			else 
 				newx = MyInt(((*(subtable.point))[i].x - oldx) * iscale);
 			oldx = (*(subtable.point))[i].x;

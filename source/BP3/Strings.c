@@ -1,4 +1,4 @@
-/* Strings.c  (BP3) */
+// Strings.c  (BP3)
  
 /*  This file is a part of Bol Processor
     Copyright (c) 1990-2000 by Bernard Bel, Jim Kippen and Srikumar K. Subramanian
@@ -53,7 +53,7 @@ void my_sprintf(char* buffer, const char *format, ...) {
 
 
 void CopyPString(const Str255 src,Str255 dest) {
-	/* copies a pascal string from src to dest */
+	// copies a pascal string from src to dest
 	int i,len;
 
 	i = 0;
@@ -108,7 +108,7 @@ int MystrcpyTableToString(int imax,char *s,char ****p_t,int j) {
 		i++; s[i] = (*((*p_t)[j]))[i];
 		}
 	while(s[i] != '\0' && i < imax-1);
-	s[i] = '\0';	/* The content might get truncated */
+	s[i] = '\0';	// The content might get truncated
 	return(OK);
 	}
 
@@ -152,7 +152,7 @@ int MystrcpyHandleToString(int imax,int offset,char *s,char **p_t) {
 	while((c = (*p_t)[offset++]) != '\0' && (i < imax || imax == 0))
 		s[i++] = c;
 	if(i > imax && imax > 0) i = imax;
-	s[i] = '\0';	/* The content might have been truncated */
+	s[i] = '\0';	// The content might have been truncated
 	return(OK);
 	}
 
@@ -380,7 +380,7 @@ int CheckEnd(char c) {
 
 char *GetEnd(char** pp) {
 	while((**pp) != '[' && (**pp) != '\0' && (**pp) != '\n') {
-	/*	printf("%c",**pp); */
+	// printf("%c",**pp);
 		(*pp)++;
 		}
 	return(*pp);
@@ -415,7 +415,7 @@ int Match(int casesensitive,char** p_s,char** p_t,int length) {
 		BPPrintMessage(0,odError,"=> Err. Match(). p_s == NULL || p_t == NULL");
 		return(NO);
 		}
-	/* if(MyHandleLen(p_s) < length) return(NO); */
+	// if(MyHandleLen(p_s) < length) return(NO);
 	i = 0;
 	while((((c=(*p_s)[i]) == (d=((*p_t)[i]))) || (!casesensitive && ((UpperCase(c) == d)
 			|| (c == UpperCase(d))))) && (c != '\0') && (i < length)) i++;

@@ -1,4 +1,4 @@
-/* DisplayThings.c (BP3) */
+// DisplayThings.c (BP3)
 
 /*  This file is a part of Bol Processor
     Copyright (c) 1990-2000 by Bernard Bel, Jim Kippen and Srikumar K. Subramanian
@@ -785,19 +785,19 @@ int DisplayMode(tokenbyte ***pp_a,int *p_ifunc,int *p_hastabs) {
 				break;
 			case T12:
 				switch(p) {
-					case 21:	/* _retro */
-					case 22:	/* _rndseq */
-					case 24:	/* _ordseq */
+					case 21:	// _retro
+					case 22:	// _rndseq
+					case 24:	// _ordseq
 						return(FALSE);
 						break;
 					}
 				break;
-			case T4:	/* variable */
-			case T6:	/* wild card */
-			case T26:	/* _transpose */
-			case T37:	/* _keymap */
-			case T39:	/* _rotate */
-			case T40:	/* _keyxpand */
+			case T4:	// variable
+			case T6:	// wild card
+			case T26:	// _transpose
+			case T37:	// _keymap
+			case T39:	// _rotate
+			case T40:	// _keyxpand
 				return(FALSE);
 				break;
 			}
@@ -814,16 +814,16 @@ int DisplayMode(tokenbyte ***pp_a,int *p_ifunc,int *p_hastabs) {
 				case 2:
 				case 10:
 				case 17:
-				case 24: /* '**' scale down */
-				case 25: /* '\' speed down */
+				case 24: // '**' scale down
+				case 25: // '\' speed down
 					break;
-				case 3:  /* '+' */
-				case 11: /* '/' */
+				case 3:  // '+'
+				case 11: // '/'
 					if(setting_section && founddigit) (*p_hastabs) = TRUE;
 					setting_section = FALSE;
 					continue;
 					break;
-				case 12: /* '{' */
+				case 12: // '{'
 				case 22:
 					setting_section = FALSE; // 2026-11-13 A fraction inside a polymetric expression is not a tempo setting
 					continue;
@@ -868,13 +868,13 @@ int HasStructure(tokenbyte **p_a) {
 		switch(m) {
 			case T0:
 				switch(p) {
-					case 6:		/* master parenthesis */
-					case 8:		/* '(' */
+					case 6:		// master parenthesis
+					case 8:		// '('
 						return(YES);
 						break;
 					}
 				break;
-			case T5:	/* homomorphism */
+			case T5:	// homomorphism
 				return(YES);
 				break;
 			}

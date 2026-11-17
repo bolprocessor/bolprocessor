@@ -1,4 +1,4 @@
-/* SaveLoads3.c (BP3 version CVS) */ 
+// SaveLoads3.c (BP3 version CVS) 
 
 /*  This file is a part of Bol Processor
     Copyright (c) 1990-2000 by Bernard Bel, Jim Kippen and Srikumar K. Subramanian
@@ -243,7 +243,7 @@ int ReadInteger(FILE* fin,int* p_i,long* p_pos) {
 		rep = MISSED; goto QUIT;
 		}
 	MyLock(FALSE,(Handle)p_line);
-	*p_i = (int) atol(*p_line);	/* Don't use atoi() because int's are 4 bytes */
+	*p_i = (int) atol(*p_line);	// Don't use atoi() because int's are 4 bytes
 	MyUnlock((Handle)p_line);
 
 QUIT:
@@ -393,7 +393,7 @@ int CleanLF(char** p_buffer,long* p_count,int* p_dos) {
 						}
 					else {
 			//			BPPrintMessage(0,odInfo,"NOT DOS\n");
-						return(OK);	/* Not a DOS file */
+						return(OK);	// Not a DOS file
 						}
 					}
 				}
@@ -451,7 +451,7 @@ int GetThisVersion(int w) {
 		goto SORTIR;
 		}
 	if(fileversion >= 3) {
-			/* Delete info and date line */
+			// Delete info and date line
 		REDO2:
 			if(ReadLine(NO,NO,w,&pos,posmax,&p_line,&j) != OK) goto SORTIR;
 			if((*p_line)[0] == '\0') goto REDO2;
@@ -531,7 +531,7 @@ int GetDateSaved(char **p_line,char ***pp_result) {
 			}
 		else offset = 0;
 		MystrcpyHandleToHandle(offset,pp_result,p_line);
-		if(offset > 0) *p = c;	/* fixed 11/3/99 */
+		if(offset > 0) *p = c;	// fixed 11/3/99
 		MyUnlock((Handle)p_line);
 		return(OK);
 		}
@@ -553,7 +553,7 @@ int FindVersion(char **p_line,char* version) {
 		while(MySpace(c=(*p))) p++;
 		}
 	i = 0;
-	while(!isspace(c=(*p))) {	/* Fixed 24/2/99 */
+	while(!isspace(c=(*p))) {	// Fixed 24/2/99
 		if(i >= (VERSIONLENGTH-1)) break;
 		version[i] = c; p++; i++;
 		}

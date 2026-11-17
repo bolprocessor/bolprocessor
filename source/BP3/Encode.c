@@ -1,4 +1,4 @@
-/* Encode.c (BP3) */
+// Encode.c (BP3)
 
 /*  This file is a part of Bol Processor
     Copyright (c) 1990-2000 by Bernard Bel, Jim Kippen and Srikumar K. Subramanian
@@ -85,7 +85,7 @@ tokenbyte **Encode(t_gram* p_gram,int sequence,int notargument, int igram, int i
 
 	// for(; (*pp) <= (*pp2);) {  2024-05-24
 	while((*pp) <= (*pp2)) {
-		while(GetNilString(pp) == OK){}; /* Skip "lambda" */
+		while(GetNilString(pp) == OK){}; // Skip "lambda"
 		c = NextChar(pp);
 		if(isdigit(c)) {
 			SEARCHNUMBER:
@@ -109,10 +109,10 @@ tokenbyte **Encode(t_gram* p_gram,int sequence,int notargument, int igram, int i
 				goto SEARCHHOMO;
 				}
 			(*p_buff)[i++] = T0;
-			(*p_buff)[i++] = 21; /* '*' scale up */
+			(*p_buff)[i++] = 21; // '*' scale up
 			c = (**pp);
 			if(c == '*') {
-				(*p_buff)[--i] = 24; /* '**' scale down */
+				(*p_buff)[--i] = 24; // '**' scale down
 				i++;
 				}
 			c = NextChar(pp);	
@@ -134,7 +134,7 @@ tokenbyte **Encode(t_gram* p_gram,int sequence,int notargument, int igram, int i
 			Print(wTrace,Message);
 			goto ERR;
 			}
-		if(rightcontext) {	/* Remote right context has been read */
+		if(rightcontext) {	// Remote right context has been read
 			my_sprintf(Message,
 				"Can't make sense of expression between parentheses. May be found incorrect grammar procedure, performance control, or misplaced right context...\n");
 			Print(wTrace,Message);
@@ -149,188 +149,188 @@ tokenbyte **Encode(t_gram* p_gram,int sequence,int notargument, int igram, int i
 			// BPPrintMessage(0,odInfo,"@ GetPerformanceControl() Encode.c, n = %d\n",n);
 			if(j != RESUME) {
 				switch(j) {
-					case 0:	/* _chan() */
+					case 0:	// _chan()
 						(*p_buff)[i++] = T10; (*p_buff)[i++] = (tokenbyte) n;
 						break;
-					case 1:	/* _vel() */
+					case 1:	// _vel()
 						(*p_buff)[i++] = T11; (*p_buff)[i++] = (tokenbyte) n;
 						break;
-					case 2:	/* _velstep */
-					case 3:	/* _velcont */
+					case 2:	// _velstep
+					case 3:	// _velcont
 						(*p_buff)[i++] = T12; (*p_buff)[i++] = (tokenbyte)(j - 2);
 						break;
-					case 4: /* _script() */
+					case 4: // _script()
 						(*p_buff)[i++] = T13; (*p_buff)[i++] = (tokenbyte) n;
 						// It won't be used if it is a IN script
 						if(TraceMIDIinteraction) BPPrintMessage(0,odInfo,"Tokenised [T13.%d] as Jscriptline = %d in Encode()\n\n",(int)n,Jscriptline);
 						break;
-					case 5:	/* _mod() */
+					case 5:	// _mod()
 						(*p_buff)[i++] = T14; (*p_buff)[i++] = (tokenbyte)n;
 						break;
-					case 6:	/* _modstep */
-					case 7:	/* _modcont */
+					case 6:	// _modstep
+					case 7:	// _modcont
 						(*p_buff)[i++] = T12; (*p_buff)[i++] = (tokenbyte)(j - 4);
 						break;
-					case 8:	/* _pitchbend */
+					case 8:	// _pitchbend
 						(*p_buff)[i++] = T15; (*p_buff)[i++] = (tokenbyte) n;
 						break;
-					case 9:	/* _pitchstep */
-					case 10: /* _pitchcont */
+					case 9:	// _pitchstep
+					case 10: // _pitchcont
 						(*p_buff)[i++] = T12; (*p_buff)[i++] = (tokenbyte)(j - 5);
 						break;
-					case 11: /* _press */
+					case 11: // _press
 						(*p_buff)[i++] = T16; (*p_buff)[i++] = (tokenbyte) n;
 						break;
-					case 12: /* _presstep */
-					case 13: /* _presscont */
+					case 12: // _presstep
+					case 13: // _presscont
 						(*p_buff)[i++] = T12; (*p_buff)[i++] = (tokenbyte)(j - 6);
 						break;
-					case 14: /* _switchon */
+					case 14: // _switchon
 						(*p_buff)[i++] = T17; (*p_buff)[i++] = (tokenbyte) n;
 						break;
-					case 15: /* _switchoff */
+					case 15: // _switchoff
 						(*p_buff)[i++] = T18; (*p_buff)[i++] = (tokenbyte) n;
 						break;
-					case 16: /* _volume */
+					case 16: // _volume
 						(*p_buff)[i++] = T19; (*p_buff)[i++] = (tokenbyte) n;
 						break;
-					case 17: /* _volumestep */
-					case 18: /* _volumecont */
+					case 17: // _volumestep
+					case 18: // _volumecont
 						(*p_buff)[i++] = T12; (*p_buff)[i++] = (tokenbyte)(j - 9);
 						break;
-					case 19:	/* _legato() */
+					case 19:	// _legato()
 						(*p_buff)[i++] = T20; (*p_buff)[i++] = (tokenbyte) n;
 						break;
-					case 20:	/* _staccato() */
+					case 20:	// _staccato()
 						(*p_buff)[i++] = T20; (*p_buff)[i++] = (tokenbyte)(- n);
 						break;
-					case 21: /* _articulstep */
-					case 22: /* _articulcont */
+					case 21: // _articulstep
+					case 22: // _articulcont
 						(*p_buff)[i++] = T12; (*p_buff)[i++] = (tokenbyte)(j - 11);
 						break;
-					case 23: /* _velfixed */
-					case 24: /* _modfixed */
-					case 25: /* _pitchfixed */
-					case 26: /* _pressfixed */
-					case 27: /* _volumefixed */
-					case 28: /* _articulfixed */
+					case 23: // _velfixed
+					case 24: // _modfixed
+					case 25: // _pitchfixed
+					case 26: // _pressfixed
+					case 27: // _volumefixed
+					case 28: // _articulfixed
 						(*p_buff)[i++] = T12; (*p_buff)[i++] = (tokenbyte)(j - 11);
 						break;
-					case 29: /* _pitchrange */
+					case 29: // _pitchrange
 						(*p_buff)[i++] = T21; (*p_buff)[i++] = (tokenbyte) n;
 						break;
-					case 30: /* _pitchrate */
+					case 30: // _pitchrate
 						(*p_buff)[i++] = T22; (*p_buff)[i++] = (tokenbyte) n;
 						break;
-					case 31: /* _modrate */
+					case 31: // _modrate
 						(*p_buff)[i++] = T23; (*p_buff)[i++] = (tokenbyte) n;
 						break;
-					case 32: /* _pressrate */
+					case 32: // _pressrate
 						(*p_buff)[i++] = T24; (*p_buff)[i++] = (tokenbyte) n;
 						break;
-					case 33: /* _transpose */
+					case 33: // _transpose
 						(*p_buff)[i++] = T26; (*p_buff)[i++] = (tokenbyte) n;
 						break;
-					case 34: /* _volumerate */
+					case 34: // _volumerate
 						(*p_buff)[i++] = T27; (*p_buff)[i++] = (tokenbyte) n;
 						break;
-					case 35: /* _volumecontrol */
+					case 35: // _volumecontrol
 						(*p_buff)[i++] = T28; (*p_buff)[i++] = (tokenbyte) n;
 						break;
-					case 36: /* _pan */
+					case 36: // _pan
 						(*p_buff)[i++] = T29; (*p_buff)[i++] = (tokenbyte) n;
 						break;
-					case 37: /* _panstep */
+					case 37: // _panstep
 						(*p_buff)[i++] = T12; (*p_buff)[i++] = (tokenbyte) 19;
 						break;
-					case 38: /* _pancont */
+					case 38: // _pancont
 						(*p_buff)[i++] = T12; (*p_buff)[i++] = (tokenbyte) 20;
 						break;
-					case 40: /* _panrate */
+					case 40: // _panrate
 						(*p_buff)[i++] = T30; (*p_buff)[i++] = (tokenbyte) n;
 						break;
-					case 41: /* _pancontrol */
+					case 41: // _pancontrol
 						(*p_buff)[i++] = T31; (*p_buff)[i++] = (tokenbyte) n;
 						break;
-					case 42: /* _rest */
+					case 42: // _rest
 						(*p_buff)[i++] = T0; (*p_buff)[i++] = 17;
 						break;
-					case 43: /* _ins() */
+					case 43: // _ins()
 						// BPPrintMessage(1,odInfo,"@@@ case 43 _ins(%d)\n",(int)n);
 						(*p_buff)[i++] = T32; (*p_buff)[i++] = (tokenbyte) n;
 						break;
-					case 67: /* _part() */
+					case 67: // _part()
 				//		BPPrintMessage(1,odInfo,"@@@ case 67 _part(%d)\n",(int)n);
 						(*p_buff)[i++] = T46; (*p_buff)[i++] = (tokenbyte) n;
 						break;
-					case 44: /* _value() */
+					case 44: // _value()
 						(*p_buff)[i++] = T35; (*p_buff)[i++] = (tokenbyte) n;
 						break;
-					case 45: /* _step() */
+					case 45: // _step()
 						(*p_buff)[i++] = T33; (*p_buff)[i++] = (tokenbyte) n;
 						break;
-					case 46: /* _cont() */
+					case 46: // _cont()
 						(*p_buff)[i++] = T34; (*p_buff)[i++] = (tokenbyte) n;
 						break;
-					case 47: /* _fixed() */
+					case 47: // _fixed()
 						(*p_buff)[i++] = T36; (*p_buff)[i++] = (tokenbyte) n;
 						break;
-					case 48: /* _retro */
+					case 48: // _retro
 						(*p_buff)[i++] = T12; (*p_buff)[i++] = (tokenbyte) 21;
 						if(arg_nr == 2) NotBPCase[7] = TRUE;
 						last_is_terminal = FALSE;
 						break;
-					case 49: /* _rndseq */
+					case 49: // _rndseq
 						(*p_buff)[i++] = T12; (*p_buff)[i++] = (tokenbyte) 22;
 						if(arg_nr == 2) NotBPCase[7] = TRUE;
 						last_is_terminal = FALSE;
 						break;
-					case 50: /* _randomize */
+					case 50: // _randomize
 						(*p_buff)[i++] = T12; (*p_buff)[i++] = (tokenbyte) 23;
 						if(arg_nr < 4) WillRandomize = TRUE;
 						last_is_terminal = FALSE;
 						break;
-					case 51: /* _ordseq */
+					case 51: // _ordseq
 						(*p_buff)[i++] = T12; (*p_buff)[i++] = (tokenbyte) 24;
 						last_is_terminal = FALSE;
 						break;
-					case 52: /* _keymap */
+					case 52: // _keymap
 						(*p_buff)[i++] = T37; (*p_buff)[i++] = (tokenbyte)(map.p1 + 128 * map.q1);
 						(*p_buff)[i++] = T37; (*p_buff)[i++] = (tokenbyte)(map.p2 + 128 * map.q2);
 						last_is_terminal = FALSE;
 						break;
-					case 53: /* _mapfixed */
-					case 54: /* _mapcont */
-					case 55: /* _mapstep */
+					case 53: // _mapfixed
+					case 54: // _mapcont
+					case 55: // _mapstep
 						(*p_buff)[i++] = T12; (*p_buff)[i++] = (tokenbyte)(j - 28);
 						break;
-					case 56:	/* _rndvel() */
+					case 56:	// _rndvel()
 						(*p_buff)[i++] = T38; (*p_buff)[i++] = (tokenbyte) n;
 						break;
-					case 57:	/* _rotate() */
+					case 57:	// _rotate()
 						(*p_buff)[i++] = T39; (*p_buff)[i++] = (tokenbyte) n;
 						last_is_terminal = FALSE;
 						break;
-					case 58: /* _keyxpand() */
+					case 58: // _keyxpand()
 						(*p_buff)[i++] = T40; (*p_buff)[i++] = (tokenbyte) n;
 						last_is_terminal = FALSE;
 						break;
-					case 59: /* _rndtime() */
+					case 59: // _rndtime()
 						(*p_buff)[i++] = T41; (*p_buff)[i++] = (tokenbyte) n;
 						break;
-					case 60: /* _srand() */
+					case 60: // _srand()
 						(*p_buff)[i++] = T42; (*p_buff)[i++] = (tokenbyte) n;
 						break;
-					case 61: /* _tempo() */
+					case 61: // _tempo()
 						(*p_buff)[i++] = T43; (*p_buff)[i++] = (tokenbyte) u;
 						(*p_buff)[i++] = T43; (*p_buff)[i++] = (tokenbyte) v;
 						break;
-					case 62: /* _transposefixed */
-					case 63: /* _transposecont */
-					case 64: /* _transposestep */
+					case 62: // _transposefixed
+					case 63: // _transposecont
+					case 64: // _transposestep
 						(*p_buff)[i++] = T12; (*p_buff)[i++] = (tokenbyte)(j - 34);
 						break;
-					case 65: /* _scale */
+					case 65: // _scale
 #ifdef __BP3_WASM__
 						if(NumberScales > 0) {
 #else
@@ -340,7 +340,7 @@ tokenbyte **Encode(t_gram* p_gram,int sequence,int notargument, int igram, int i
 								if(trace_scale) BPPrintMessage(0,odInfo,"Encode() T44 i = %ld n = %d\n",i,n);
 							}
 						break;
-					case 66: /* _capture() */
+					case 66: // _capture()
 						if(rtMIDI) {
 							(*p_buff)[i++] = T45; (*p_buff)[i++] = (tokenbyte) n;
 							if(trace_capture) BPPrintMessage(0,odInfo,"👉 Capture() T45 i = %d n = %d\n",i,n);
@@ -376,45 +376,45 @@ tokenbyte **Encode(t_gram* p_gram,int sequence,int notargument, int igram, int i
 					}
 				p_gram->hasproc = TRUE;
 				switch(j) {
-					case 0:	/* _goto */
+					case 0:	// _goto
 						(*((*(p_gram->p_subgram))[igram].p_rule))[irul].gotogram = ig;
 						(*((*(p_gram->p_subgram))[igram].p_rule))[irul].gotorule = ir;
 					//	BPPrintMessage(0,odInfo,"gotogram = %d, gotorule = %d, igram = %d, irul = %d\n",ig,ir,igram,irul);
 						break;
-					case 1:	/* _failed */
+					case 1:	// _failed
 						(*((*(p_gram->p_subgram))[igram].p_rule))[irul].failedgram = ig;
 						(*((*(p_gram->p_subgram))[igram].p_rule))[irul].failedrule = ir;
 						break;
-					case 2:	/* _repeat */
+					case 2:	// _repeat
 						(*((*(p_gram->p_subgram))[igram].p_rule))[irul].repeat = ig;
 						(*((*(p_gram->p_subgram))[igram].p_rule))[irul].repeatcontrol = ir;
 					//	BPPrintMessage(0,odInfo,"repeat = %d, ir = %d, igram = %d, irul = %d\n",ig,ir,igram,irul);
 						break;
-					case 3:	/* _stop */
+					case 3:	// _stop
 						(*((*(p_gram->p_subgram))[igram].p_rule))[irul].stop += arg_nr;
 						break;
-					case 4:	/* _print */
+					case 4:	// _print
 						(*((*(p_gram->p_subgram))[igram].p_rule))[irul].print += arg_nr;
 						break;
-					case 5:	/* _printOn */
+					case 5:	// _printOn
 						(*((*(p_gram->p_subgram))[igram].p_rule))[irul].printon += arg_nr;
 						break;
-					case 6:	/* _printOff */
+					case 6:	// _printOff
 						(*((*(p_gram->p_subgram))[igram].p_rule))[irul].printoff += arg_nr;
 						break;
-					case 7:	/* _stepOn */
+					case 7:	// _stepOn
 						(*((*(p_gram->p_subgram))[igram].p_rule))[irul].stepon += arg_nr;
 						break;
-					case 8:	/* _stepOff */
+					case 8:	// _stepOff
 						(*((*(p_gram->p_subgram))[igram].p_rule))[irul].stepoff += arg_nr;
 						break;
-					case 9:	/* _traceOn */
+					case 9:	// _traceOn
 						(*((*(p_gram->p_subgram))[igram].p_rule))[irul].traceon += arg_nr;
 						break;
-					case 10:	/* _traceOff */
+					case 10:	// _traceOff
 						(*((*(p_gram->p_subgram))[igram].p_rule))[irul].traceoff += arg_nr;
 						break;
-					case 11:	/* _destru */
+					case 11:	// _destru
 						(*((*(p_gram->p_subgram))[igram].p_rule))[irul].destru = TRUE;
 						break;
 					}
@@ -425,14 +425,14 @@ tokenbyte **Encode(t_gram* p_gram,int sequence,int notargument, int igram, int i
 			goto SEARCHTERMINAL2;	// Found "_"
 			}
 		if(islower(c)) goto SEARCHNOTE;
-		if(c == '/') {		/* Look for /flag/ */
+		if(c == '/') {		// Look for /flag/
 			q = *pp;
 			c = *(++q);
 			p_mem = *pp;
-			if(c == '/' && arg_nr == 0) { /* Remark starting with "//" */ 
+			if(c == '/' && arg_nr == 0) { // Remark starting with "//" 
 				break;
 				}
-			if(!isdigit(c)) { /*  not a tempo marker */
+			if(!isdigit(c)) { // not a tempo marker
 				if(arg_nr == 0 || arg_nr > 2) {
 					my_sprintf(Message,"Slash is followed by \"%c\" which does not make sense\n",c);
 					Print(wTrace,Message);
@@ -529,7 +529,7 @@ tokenbyte **Encode(t_gram* p_gram,int sequence,int notargument, int igram, int i
 						goto ERR;
 						}
 					}
-				/* Append new flag to list */
+				// Append new flag to list
 	STOREFLAG:
 				oldh = nexth = *(ph_flag);
 				while(nexth != NULL) {
@@ -579,7 +579,7 @@ tokenbyte **Encode(t_gram* p_gram,int sequence,int notargument, int igram, int i
 				}
 			}
 		c = (**pp);
-		if(c == '<') {		/* Out-time object or <<Wx>> */
+		if(c == '<') {		// Out-time object or <<Wx>>
 			(*pp)++;
 			c = (**pp);
 			if(c != '<') {
@@ -588,7 +588,7 @@ tokenbyte **Encode(t_gram* p_gram,int sequence,int notargument, int igram, int i
 				goto ERR;
 				}
 			(*pp)++;
-			if((c=(**pp)) == 'W') {	/* <<Wx>> */
+			if((c=(**pp)) == 'W') {	// <<Wx>>
 				(*pp)++;
 				l = 0;
 				while((c=(**pp)) != '>') {
@@ -741,14 +741,14 @@ tokenbyte **Encode(t_gram* p_gram,int sequence,int notargument, int igram, int i
 	SEARCHCONTEXT:	
 		if(c == '(') {
 			d = (*pp)[1];
-			if((d != '=') && (d != ':')) {		/* Context */
+			if((d != '=') && (d != ':')) {		// Context
 				if(arg_nr != 1) {
 					my_sprintf(Message,
 						"Remote context should only be in left argument of grammar rule. May be misspelled '_goto','_failed','_chan'...\n");
 					Print(wTrace,Message);
 					goto ERR;
 					}
-				if(neg) {	/* erase preceding '#' */
+				if(neg) {	// erase preceding '#'
 					i--;i--;
 					}
 				if(leftside) {
@@ -979,7 +979,7 @@ tokenbyte **Encode(t_gram* p_gram,int sequence,int notargument, int igram, int i
 				qmax = q + l;
 				}
 			}
-		if(lmax > 0) {				/* Found homomorphism */
+		if(lmax > 0) {				// Found homomorphism
 			leftside = neg = FALSE;
 			(*p_buff)[i++] = 5;
 			(*p_buff)[i++] = (tokenbyte) jj;
@@ -1154,7 +1154,7 @@ int GetContext(t_gram* p_gram,int igram, int irul, char **pp, char **ppmax, p_co
 	*p_ppc = ptr;
 	p1 = &c1; p2 = &c2;
 	pp1 = &p1; pp2 = &p2;
-	++(*pp);		/* skip first '(' */
+	++(*pp);		// skip first '('
 	*pp1 = *pp;
 	for(levpar = 1; (*pp) <= (*ppmax); (*pp)++) {
 		c = NextChar(pp);
@@ -1167,14 +1167,14 @@ int GetContext(t_gram* p_gram,int igram, int irul, char **pp, char **ppmax, p_co
 			if(--levpar == 0) break;
 			}
 		}
-	/* printf("levpar=%ld",(long)levpar); Pause(0); */
+	// printf("levpar=%ld",(long)levpar); Pause(0);
 	if(levpar != 0) {
 		my_sprintf(Message,"Incorrect bracketting.\n");
 		Print(wTrace,Message);
 		return(MISSED);
 		}
 	*pp2 = (*pp);
-	**pp2 = ' '; /* Erase ')' */
+	**pp2 = ' '; // Erase ')'
 	ppx = NULL; ppy = NULL;
 	result = OK;
 	if((p = Encode(p_gram,FALSE,TRUE,igram,irul,pp1,pp2,&ppx,&ppy,p_meta,0,NULL,FALSE,&result))
@@ -1258,7 +1258,7 @@ int GetVar(char **pp, char **ppmax) {
 		return(ABORT);
 		}
 	if(MaxVar != 0) {
-		/* The contrary may happen if encoding with no compiled grammar and no compiled glossary */
+		// The contrary may happen if encoding with no compiled grammar and no compiled glossary
 		if(++Jvar >= MaxVar) {
 			if((p_Var = (char****) IncreaseSpace((Handle)p_Var)) == NULL)
 											return(ABORT);
@@ -1362,18 +1362,18 @@ int Recode(int notargument,long *p_imax,tokenbyte ***pp_buff) {
 	while(i < (*p_imax)-1) {
 		if((**pp_buff)[i] == T0) {
 			i++;
-			if((**pp_buff)[i] == 8) {		/* '(' */
-				i++; /* levpar++;  */
+			if((**pp_buff)[i] == 8) {		// '('
+				i++; // levpar++;
 				if((**pp_buff)[i] != T0) return(18);
 				i++;
-				if((**pp_buff)[i] == 6) {	/* '=' */
+				if((**pp_buff)[i] == 6) {	// '='
 					(**pp_buff)[i-1] = 2;
 					(**pp_buff)[i] = 0;
 					imaster++;
 					}
 				else {
 					if((**pp_buff)[i] != 4) return(18);
-											/* only ':' should follow */
+											// only ':' should follow
 					(**pp_buff)[i-1] = 2;
 					(**pp_buff)[i] = 1;
 					}
@@ -1430,8 +1430,8 @@ int FindMaster(tokenbyte ***pp_buff, long orgmaster[], long endmaster[], int *p_
 	int j;
 
 	for(i=0; i < (*p_imax)-1; i+=2) {
-		if((**pp_buff)[i] == T0 && (**pp_buff)[i+1] == 8) {		/* '(' */
-			if((**pp_buff)[i+2] == T2 && (**pp_buff)[i+3] == 0) { /* '=' */
+		if((**pp_buff)[i] == T0 && (**pp_buff)[i+1] == 8) {		// '('
+			if((**pp_buff)[i+2] == T2 && (**pp_buff)[i+3] == 0) { // '='
 				i += 4;
 				if((j=LastSymbol(pp_buff,i,p_imax)) == 0) continue;
 				(*p_nbmaster)++;
@@ -1449,12 +1449,12 @@ int LastSymbol(tokenbyte ***pp_buff, long iorg, long *p_imax) {
 	long i;
 
 	for(i=iorg,levpar=1; i < (*p_imax)-1; i+=2) {
-		if((**pp_buff)[i] == T0 && (**pp_buff)[i+1] == 9) {	/* ')' */
+		if((**pp_buff)[i] == T0 && (**pp_buff)[i+1] == 9) {	// ')'
 			levpar--;
 			if(levpar == 0) return(i-2);
 			}
 		else
-			if((**pp_buff)[i] == T0 && (**pp_buff)[i+1] == 8) levpar++; 	/* '(' */
+			if((**pp_buff)[i] == T0 && (**pp_buff)[i+1] == 8) levpar++; 	// '('
 		}
 	return(0);
 	}
@@ -1468,7 +1468,7 @@ int BindSlaves(tokenbyte ***pp_buff,long *orgmaster,long *endmaster,int *p_nbmas
 	long length[MAXLEVEL];
 	int nhomo,homoname[MAXLEVEL],depth[MAXLEVEL];
 
-	/* First pick-up ref numbers in master table */
+	// First pick-up ref numbers in master table
 
 	if(*pp_buff == NULL) {
 		BPPrintMessage(0,odError,"=> Err. BindSlaves(). *pp_buff = NULL");
@@ -1483,7 +1483,7 @@ int BindSlaves(tokenbyte ***pp_buff,long *orgmaster,long *endmaster,int *p_nbmas
 		if((**pp_buff)[i] == T0 && (**pp_buff)[i+1] == 8) {
 			levpar++;
 			}
-		if((**pp_buff)[i] == T0 && (**pp_buff)[i+1] == 9) {	/* ')' */
+		if((**pp_buff)[i] == T0 && (**pp_buff)[i+1] == 9) {	// ')'
 			if(levpar > 0) levpar--;
 			for(h=nhomo; h >= 1; h--)
 				if(depth[h] >= levpar) nhomo--;
@@ -1499,7 +1499,7 @@ int BindSlaves(tokenbyte ***pp_buff,long *orgmaster,long *endmaster,int *p_nbmas
 			homoname[nhomo] = (int)(**pp_buff)[i+1];
 			}
 		if((**pp_buff)[i] == T2 && (**pp_buff)[i+1] == 1) {
-									/* temp ':', this is a slave */
+									// temp ':', this is a slave
 			if((j=Reference(pp_buff,orgmaster,endmaster,p_nbmaster,p_imax,i+2,
 				nhomo,levpar,depth,homoname)) == -1) {
 				MyDisposeHandle((Handle*)&p_a);
@@ -1518,13 +1518,13 @@ int BindSlaves(tokenbyte ***pp_buff,long *orgmaster,long *endmaster,int *p_nbmas
 	if(CopyBuf(&p_a,pp_buff) == ABORT) return(17);  // should this return ABORT as above? - akozar
 	MyDisposeHandle((Handle*)&p_a);
 
-	/* Erase content of slaves... */
-	/* ... especially copies of 'ZERO' markers that are irrelevant */
+	// Erase content of slaves...
+	// ... especially copies of 'ZERO' markers that are irrelevant
 
 	// OPTIMIZE: I think we can skip the rest of this if islave == 0
 	i = 0; islave = 0;
 	while(i < (*p_imax)-1)	{
-		if((**pp_buff)[i] == T2 && (**pp_buff)[i+1] != 0) {	/* found slave */
+		if((**pp_buff)[i] == T2 && (**pp_buff)[i+1] != 0) {	// found slave
 			for(j=i+2; j < i+2+length[islave]; j=j+2) {
 				(**pp_buff)[j] = TEND; (**pp_buff)[j+1] = TEND;
 				}
@@ -1534,20 +1534,20 @@ int BindSlaves(tokenbyte ***pp_buff,long *orgmaster,long *endmaster,int *p_nbmas
 		i += 2;
 		}
 	
-	/* Count ZERO markers and write true slave markers */
+	// Count ZERO markers and write true slave markers
 	for(i=0; i < (*p_imax)-1; i+=2) {
 		if((**pp_buff)[i] != T2 || (j=(**pp_buff)[i+1]) == 0) continue;
-														/* look for slave */
+														// look for slave
 		for(ii=orgmaster[j],mark=1; ii < (i-2); ii=ii+2)
-			if((**pp_buff)[ii] == T2 && (**pp_buff)[ii+1] == 0) /* ZERO marker */
+			if((**pp_buff)[ii] == T2 && (**pp_buff)[ii+1] == 0) // ZERO marker
 				mark++;
 		(**pp_buff)[i+1] = (tokenbyte) mark;
 		}
 
-	/* Now delete all '0 0's in slaves */
+	// Now delete all '0 0's in slaves
 	i = 0; islave = 0;
 	while(i < (*p_imax)-1)	{
-		if((**pp_buff)[i] == T2 && (**pp_buff)[i+1] != 0) {	/* found slave */
+		if((**pp_buff)[i] == T2 && (**pp_buff)[i+1] != 0) {	// found slave
 			j = i + 2; k = j + length[islave];
 			// OPTIMIZE: save & use p_a above and copy back to pp_buff here instead, skipping
 			// slave contents, so we only need to move the rest of the buffer once ??
@@ -1578,7 +1578,7 @@ int Reference(tokenbyte ***pp_buff, long orgmaster[], long endmaster[], int *p_n
 				if(nhomo > 0) goto TERMINAL;
 				}
 			if(p2 == T3 && q2 > 1 && nhomo > 0) {
-				/* Apply homorphisms to terminal */
+				// Apply homorphisms to terminal
 TERMINAL:
 				for(n=nhomo; n >= 1; n--) {
 					if(depth[n] < levpar) {
@@ -1597,7 +1597,7 @@ TERMINAL:
 				}
 			}
 		if(!dif && (j == (endmaster[k] + 2)) && (**pp_buff)[j] == T0
-				&& (**pp_buff)[j+1] == 9) 		/* Next symbol is ')' */
+				&& (**pp_buff)[j+1] == 9) 		// Next symbol is ')'
 			return(k);
 		}
 	return(-1);
@@ -1634,7 +1634,7 @@ int FoundPeriod(tokenbyte ***pp_a) {
 	for(i=0; ; i+=2) {
 		m = (int)(**pp_a)[i]; p = (int)(**pp_a)[i+1];
 		if(m == TEND && p == TEND) break;
-		if(m == T0 && p == 7) {		/* '�' */
+		if(m == T0 && p == 7) {		// '�'
 			return(TRUE);
 			}
 		}
@@ -1646,62 +1646,62 @@ int ShowError(int i,int igram,int irul) {
 	char t[255];
 	static int fatal[] = {0,1,1,0,0,0,1,0,0,0,0,0,0,1,0,0,0,0,0,1,0,1,0,0,1,1,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0};
 	static char* err[] = {"",
-		"too many grammars", 		/* 1 */
-		"too many rules",			/* 2 */
-		"rule syntax",				/* 3 */
-		"flag name too long",		/* 4 */
-		"rule incomplete",			/* 5 */
-		"file not found",			/* 6 */
-		"subgrammar type",		/* 7 */
-		"incorrect expression or bad derivation",			/* 8 */
-		"error in remote context",	/* 9 */
-		"unterminated comment: can't find ']' nor '*/'",		/* 10 */
-		"incorrect terminal",		/* 11 */
-		"variable name too long",	/* 12 */
-		"too many variables",		/* 13 */
-		"argument too large: increase 'FIELDSIZE'!",	/* 14 */
-		"argument syntax",			/* 15 */
-		"bad slave marker",			/* 16 */
-		"slave has no reference (may be incorrect homomorphism in alphabet)",	/* 17 */
-		"'=' or ':' marker must follow opening bracket",	/* 18 */
-		"too many terminal symbols",						/* 19 */
-		"incorrect weight",							/* 20 */
-		"can't read this file",						/* 21 */
-		"terminal name too long",					/* 22 */
+		"too many grammars", 		// 1
+		"too many rules",			// 2
+		"rule syntax",				// 3
+		"flag name too long",		// 4
+		"rule incomplete",			// 5
+		"file not found",			// 6
+		"subgrammar type",		// 7
+		"incorrect expression or bad derivation",			// 8
+		"error in remote context",	// 9
+		"unterminated comment: can't find ']' nor '*/'",		// 10
+		"incorrect terminal",		// 11
+		"variable name too long",	// 12
+		"too many variables",		// 13
+		"argument too large: increase 'FIELDSIZE'!",	// 14
+		"argument syntax",			// 15
+		"bad slave marker",			// 16
+		"slave has no reference (may be incorrect homomorphism in alphabet)",	// 17
+		"'=' or ':' marker must follow opening bracket",	// 18
+		"too many terminal symbols",						// 19
+		"incorrect weight",							// 20
+		"can't read this file",						// 21
+		"terminal name too long",					// 22
 		"variable name can't be empty (could be missing space before '-->')",
-																		/* 23 */
-		"incorrect homomorphism",					/* 24 */
-		"too many homomorphisms",					/* 25 */
-		"symbol too long",							/* 26 */
-		"terminal symbol contains unwanted character", /* 27 */
-		"'n' is too high in '?n' metavariable",		/* 28 */
-		"more '?' in right argument",				/* 29 */
-		"can't write this file",					/* 30 */
-		"can't interpret polyphonic structure",		/* 31 */
-		"can't create MIDI data",					/* 32 */
-		"error in arithmetic",						/* 33 */
-		"too long sequence",						/* 34 */
-		"subgrammar type should be one single word:'ORD','LEFT','LIN','SUB'", /* 35 */
-		"too many sound-objects",							/* 36 */
-		"can't set time",									/* 37 */
-		"item ignored...",									/* 38 */
-		"'{' and '}' not balanced",							/* 39 */
-		"too many parenthesis levels: increase 'MAXLEVEL'",	/* 40 */
-		"weight misplaced or incorrect <<out-time object>>",		/* 41 */
-		"incorrect tag",									/* 42 */
-		"number should be less than 256",					/* 43 */
-		"procedure should be single word, e.g. '_destru'",	/* 44 */
-		"only one flag allowed in left argument",			/* 45 */
-		"incorrect time pattern name(s)",						/* 46 */
-		"incorrect time value in pattern(s)",					/* 47 */
-		"same time-pattern(s) defined twice",						/* 48 */
-		"/flags/ not allowed in SUB or SUB1 or POSLONG subgrammar or glossary",	/* 49 */
-		"/flag = .../ assignment or comparison should occur only in argument of rule", /* 50 */
-		"/flag/ incrementation or comparison should occur only in left argument of rule",	/* 51 */
-		"Missing slash after /flag/",	/* 52 */
-		"=> Incorrect integer value for /flag/ assignment or incrementation",	/* 53 */
-		"Reserved words 'lambda', 'nil', 'empty' and 'null' can't be redefined as terminals", /* 54 */
-		"=> Incorrect character in argument" /* 55 */
+																		// 23
+		"incorrect homomorphism",					// 24
+		"too many homomorphisms",					// 25
+		"symbol too long",							// 26
+		"terminal symbol contains unwanted character", // 27
+		"'n' is too high in '?n' metavariable",		// 28
+		"more '?' in right argument",				// 29
+		"can't write this file",					// 30
+		"can't interpret polyphonic structure",		// 31
+		"can't create MIDI data",					// 32
+		"error in arithmetic",						// 33
+		"too long sequence",						// 34
+		"subgrammar type should be one single word:'ORD','LEFT','LIN','SUB'", // 35
+		"too many sound-objects",							// 36
+		"can't set time",									// 37
+		"item ignored...",									// 38
+		"'{' and '}' not balanced",							// 39
+		"too many parenthesis levels: increase 'MAXLEVEL'",	// 40
+		"weight misplaced or incorrect <<out-time object>>",		// 41
+		"incorrect tag",									// 42
+		"number should be less than 256",					// 43
+		"procedure should be single word, e.g. '_destru'",	// 44
+		"only one flag allowed in left argument",			// 45
+		"incorrect time pattern name(s)",						// 46
+		"incorrect time value in pattern(s)",					// 47
+		"same time-pattern(s) defined twice",						// 48
+		"/flags/ not allowed in SUB or SUB1 or POSLONG subgrammar or glossary",	// 49
+		"/flag = .../ assignment or comparison should occur only in argument of rule", // 50
+		"/flag/ incrementation or comparison should occur only in left argument of rule",	// 51
+		"Missing slash after /flag/",	// 52
+		"=> Incorrect integer value for /flag/ assignment or incrementation",	// 53
+		"Reserved words 'lambda', 'nil', 'empty' and 'null' can't be redefined as terminals", // 54
+		"=> Incorrect character in argument" // 55
 		};
 
 	if(i < 0) return(TRUE);

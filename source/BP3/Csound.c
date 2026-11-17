@@ -1,4 +1,4 @@
-/* Csound.c (BP3) */ 
+// Csound.c (BP3) 
 
 /*  This file is a part of Bol Processor
     Copyright (c) 1990-2000 by Bernard Bel, Jim Kippen and Srikumar K. Subramanian
@@ -323,7 +323,7 @@ int CompileObjectScore(int j,int *p_longerCsound) {
 		nparam = -1;
 		maxparam = 1;
 		if((h=(double**) GiveSpace((Size)(maxparam * sizeof(double)))) == NULL) {
-			result = ABORT; goto SORTIR;	/* Will be resized later */
+			result = ABORT; goto SORTIR;	// Will be resized later
 			}
 		i0++;
 		ip = 1;
@@ -405,7 +405,7 @@ int CompileObjectScore(int j,int *p_longerCsound) {
 					
 					paramlist = (*p_CsInstrument)[ins].paramlist;
 					
-					/* Check the number of arguments in this instrument */
+					// Check the number of arguments in this instrument
 					maxparam = (*p_CsInstrument)[ins].iargmax - 3;
 					if(MySetHandleSize((Handle*)&h,(Size)maxparam * sizeof(double)) != OK) {
 						result = ABORT; goto SORTIR;
@@ -464,7 +464,7 @@ int CompileObjectScore(int j,int *p_longerCsound) {
 					(*((*pp_CsoundScore)[j]))[ievent].duration = param;
 					break;
 				default:
-					/* Modify param according to instrument mapping */
+					// Modify param according to instrument mapping
 					if(ins < 0 || ins >= Jinstr) {
 						BPPrintMessage(0,odError,"=> Err. CompileObjectScore(). ins < 0 || ins >= Jinstr\n");
 						if(CompileOn) CompileOn--;
@@ -574,7 +574,7 @@ int CompileObjectScore(int j,int *p_longerCsound) {
 
 	SORTIR:
 	if(CompileOn) CompileOn--;
-	MyDisposeHandle((Handle*)&h); /* Useful when result != OK */
+	MyDisposeHandle((Handle*)&h); // Useful when result != OK
 
 	if(result != OK) ievent = 0;
 	(*p_CsoundSize)[j] = ievent;
@@ -808,13 +808,13 @@ static int parse_i_statement(const char *s, size_t content_len, double *date) {
 	while (p < end && isspace((unsigned char)*p)) p++;
 	if(p >= end || *p != 'i') return 0;
 	p++;
-	while (p < end && isspace((unsigned char)*p)) p++;   /* "i 1" form      */
-	while (p < end && !isspace((unsigned char)*p)) p++;  /* instrument p1   */
+	while (p < end && isspace((unsigned char)*p)) p++;   // "i 1" form
+	while (p < end && !isspace((unsigned char)*p)) p++;  // instrument p1
 	while (p < end && isspace((unsigned char)*p)) p++;
 	if(p >= end) return 0;
 
 	d = strtod(p, &q);
-	if(q == p || q > end) return 0;   /* no numeric p2 (e.g. "+" or ".") */
+	if(q == p || q > end) return 0;   // no numeric p2 (e.g. "+" or ".")
 	*date = d;
 	return 1;
 	}
@@ -824,7 +824,7 @@ static int compare_lines(const void *a, const void *b) {
 	const ScoreLine *y = (const ScoreLine *)b;
 	if(x->date < y->date) return -1;
 	if(x->date > y->date) return  1;
-	return (x->order < y->order) ? -1 : (x->order > y->order); /* stable */
+	return (x->order < y->order) ? -1 : (x->order > y->order); // stable
 	}
 
 
@@ -942,7 +942,7 @@ static const char *CsPitchFormatName(int format) {
 	return("UNKNOWN");
 	}
 
-/* Returns the description if it is not empty, otherwise the fallback (variable name) */
+// Returns the description if it is not empty, otherwise the fallback (variable name)
 static const char *JsonLabel(const char*,const char*);
 
 static const char *JsonLabel(const char *description,const char *fallback) {
@@ -1013,7 +1013,7 @@ int ExportJsonCsoundInstrument(int instrument) {
 
 	fprintf(csjson,"{\n\"header\": \"Bol Processor Csound instrument\",\n");
 
-	/* Identification */
+	// Identification
 	my_sprintf(label,"%s",BaseName(FileName[wCsoundResources]));
 	SaveEscapedStringAsJson(csjson,"FileName","","Csound resource file containing this instrument",label);
 
@@ -1049,7 +1049,7 @@ int ExportJsonCsoundInstrument(int instrument) {
 			}
 		}
 
-	/* Argument indexes */
+	// Argument indexes
 	SAVE_CS_INT(CsDilationRatioIndex,"Argument of dilation ratio (-1 means empty)");
 	SAVE_CS_INT(CsAttackVelocityIndex,"Argument of attack velocity (-1 means empty)");
 	SAVE_CS_INT(CsReleaseVelocityIndex,"Argument of release velocity (-1 means empty)");
@@ -1067,24 +1067,24 @@ int ExportJsonCsoundInstrument(int instrument) {
 	SAVE_CS_INT(CsPanoramicStartIndex,"Argument of start panoramic");
 	SAVE_CS_INT(CsPanoramicEndIndex,"Argument of end panoramic");
 
-	/* Pitchbend range */
+	// Pitchbend range
 	SaveFloatAsJson(csjson,"pitchbendrange","cents","pitchbendrange",CSI.pitchbendrange);
 
-	/* Tables */
+	// Tables
 	SAVE_INSTR_INT(pitchbendtable,"","Argument of pitchbend table (-1 means empty)");
 	SAVE_INSTR_INT(volumetable,"","Argument of volume table (-1 means empty)");
 	SAVE_INSTR_INT(pressuretable,"","Argument of pressure table (-1 means empty)");
 	SAVE_INSTR_INT(modulationtable,"","Argument of modulation table (-1 means empty)");
 	SAVE_INSTR_INT(panoramictable,"","Argument of panoramic table (-1 means empty)");
 
-	/* GEN types */
+	// GEN types
 	SAVE_INSTR_INT(pitchbendGEN,"","Pitchbend GEN type");
 	SAVE_INSTR_INT(volumeGEN,"","Volume GEN type");
 	SAVE_INSTR_INT(pressureGEN,"","Pressure GEN type");
 	SAVE_INSTR_INT(modulationGEN,"","Modulation GEN type");
 	SAVE_INSTR_INT(panoramicGEN,"","Panoramic GEN type");
 
-	/* Logarithmic scales of the regressions */
+	// Logarithmic scales of the regressions
 	SAVE_INSTR_BOOL(rPitchBend,islogx,"MIDI pitchbend is logarithmic");
 	SAVE_INSTR_BOOL(rPitchBend,islogy,"Csound pitchbend is logarithmic");
 	SAVE_INSTR_BOOL(rVolume,islogx,"MIDI volume is logarithmic");
@@ -1096,14 +1096,14 @@ int ExportJsonCsoundInstrument(int instrument) {
 	SAVE_INSTR_BOOL(rPanoramic,islogx,"MIDI panoramic is logarithmic");
 	SAVE_INSTR_BOOL(rPanoramic,islogy,"Csound panoramic is logarithmic");
 
-	/* MIDI -> Csound mapping points: [0..2] MIDI values, [3..5] Csound values */
+	// MIDI -> Csound mapping points: [0..2] MIDI values, [3..5] Csound values
 	SAVE_CS_TABLE(CsPitchBend,"MIDI to Csound pitchbend conversion (number > 100000 means no mapping) ");
 	SAVE_CS_TABLE(CsVolume,"MIDI to Csound volume mapping (number > 100000 means no mapping) ");
 	SAVE_CS_TABLE(CsPressure,"MIDI to Csound pressure mapping (number > 100000 means no mapping) ");
 	SAVE_CS_TABLE(CsModulation,"MIDI to Csound modulation mapping (number > 100000 means no mapping) ");
 	SAVE_CS_TABLE(CsPanoramic,"MIDI to Csound panoramic mapping (number > 100000 means no mapping) ");
 
-	/* Associated (untyped) parameters */
+	// Associated (untyped) parameters
 	ipmax = CSI.ipmax;
 	SAVE_INSTR_INT(ipmax,"","Number of additional parameters");
 	params = CSI.paramlist;

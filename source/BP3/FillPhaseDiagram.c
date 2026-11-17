@@ -1,4 +1,4 @@
-/* FillPhaseDiagram.c (BP3) */
+// FillPhaseDiagram.c (BP3)
 
 /*  This file is a part of Bol Processor
     Copyright (c) 1990-2000 by Bernard Bel, Jim Kippen and Srikumar K. Subramanian
@@ -239,7 +239,7 @@ int FillPhaseDiagram(tokenbyte ***pp_buff,long* p_numberobjects,unsigned long *p
 	number_skipped = 0;
 	max_tempo_in_skipped_object = 0.;
 	old_toofast = FALSE;
-	maxseqapprox = ((ceil(maxseqapprox) / Kpress) + 6.) * 1.01;	/* This is an approximation. */
+	maxseqapprox = ((ceil(maxseqapprox) / Kpress) + 6.) * 1.01;	// This is an approximation.
 	if(ShowMessages || MaxObjects > 500L) {
 		if(Kpress > 1.) {
 			// ShowWindow(Window[wTimeAccuracy]);
@@ -400,7 +400,7 @@ int FillPhaseDiagram(tokenbyte ***pp_buff,long* p_numberobjects,unsigned long *p
 		StackFlag = AllSolTimeSet || DisplayTimeSet;
 		}
 	if(!StepTimeSet) {
-	/*	LimTimeSet = TRUE; */
+	// LimTimeSet = TRUE;
 	/*	if(!WriteMIDIfile && !Improvize && !OutCsound) {
 			my_sprintf(Message,
 			"Current time limit is: %4.2f sec. Stop at limit",
@@ -414,9 +414,9 @@ int FillPhaseDiagram(tokenbyte ***pp_buff,long* p_numberobjects,unsigned long *p
 	//  -------------  Fill phase diagram ------------------
 
 		
-		/* kobj = 0		empty object or prolongational gap "_"		*/
-		/* kobj = 1		silence "-"							*/
-		/* kobj > 1		non-empty time-object					*/
+		// kobj = 0		empty object or prolongational gap "_"
+		// kobj = 1		silence "-"
+		// kobj > 1		non-empty time-object
 
 
 	tempomax = Prod / Kpress;
@@ -539,7 +539,7 @@ int FillPhaseDiagram(tokenbyte ***pp_buff,long* p_numberobjects,unsigned long *p
 		if(nseq >= 0 && nseq < Maxconc) SetRememberClock((*p_im)[nseq]); // 2026-11-12 - fixed by Claude
 		if((m != T3 && m != T47) || p != 0) part_of_ip = Kpress; // Added by BB 2021-03-25
 
-		if(m == T33 || m == T34) {	/* _step() or _cont() */
+		if(m == T33 || m == T34) {	// _step() or _cont()
 			paramnameindex = p;
 			if(trace_diagram || trace_toofast) 
 				BPPrintMessage(1,odInfo, "_step() or _cont() m = %d paramnameindex = %d paramindex = %d\n",m,paramnameindex,paramindex);
@@ -562,7 +562,7 @@ int FillPhaseDiagram(tokenbyte ***pp_buff,long* p_numberobjects,unsigned long *p
 				}
 			goto NEXTTOKEN;
 			}
-		if(m == T36) {	/* _fixed() */
+		if(m == T36) {	// _fixed()
 			paramnameindex = p;
 			instrument = ParamNameIndexToInstrument[paramnameindex];
 			paramindex = FindParameterIndexAndCreateStorage(p_contparameters,level,paramnameindex);
@@ -584,8 +584,8 @@ int FillPhaseDiagram(tokenbyte ***pp_buff,long* p_numberobjects,unsigned long *p
 			}
 		if(m == T12) {
 			switch(p) {
-				case 0: /* _velcont */
-				case 1: /* _velstep */
+				case 0: // _velcont
+				case 1: // _velstep
 					startvel = startvel + (velincrement * ibeatsvel / maxbeatsvel);
 					currentparameters.currvel = startvel;
 					if(p == 0) currentparameters.velmode = STEPWISE;
@@ -598,8 +598,8 @@ int FillPhaseDiagram(tokenbyte ***pp_buff,long* p_numberobjects,unsigned long *p
 						}
 					else velincrement = endvel - startvel;
 					break;
-				case 2:	/* _modstep */
-				case 3: /* _modcont */
+				case 2:	// _modstep
+				case 3: // _modcont
 					paramindex = IMODULATION;
 					SwitchParameterChannel(p_contparameters,level,paramindex,currentparameters.currchan,h_table,TRUE);	// 2026-11-08 - fixed by Claude
 					UpdateParameter(paramindex,p_contparameters,level,ZERO);
@@ -609,8 +609,8 @@ int FillPhaseDiagram(tokenbyte ***pp_buff,long* p_numberobjects,unsigned long *p
 							*pp_buff,speed,scale,&endval,&mapendvalue,&maxbeats,h_table) != OK)
 						goto ENDDIAGRAM;
 					break;
-				case 4:	/* _pitchstep */
-				case 5:	/* _pitchcont */
+				case 4:	// _pitchstep
+				case 5:	// _pitchcont
 					paramindex = IPITCHBEND;
 					SwitchParameterChannel(p_contparameters,level,paramindex,currentparameters.currchan,h_table,TRUE);	// 2026-11-08 - fixed by Claude
 					UpdateParameter(paramindex,p_contparameters,level,ZERO);
@@ -627,8 +627,8 @@ int FillPhaseDiagram(tokenbyte ***pp_buff,long* p_numberobjects,unsigned long *p
 						goto ENDDIAGRAM;
 					if(trace_toofast) BPPrintMessage(1,odInfo,"-> pitchbend maxbeats = %d, endval = %ld v0 = %ld v1 = %ld\n",(int)maxbeats,(long)endval,(long)(*((*p_contparameters)[level].values))[paramindex].v0,(long)(*((*p_contparameters)[level].values))[paramindex].v1);
 					break;
-				case 6:	/* _presstep */
-				case 7:	/* _presscont */
+				case 6:	// _presstep
+				case 7:	// _presscont
 					paramindex = IPRESSURE;
 					SwitchParameterChannel(p_contparameters,level,paramindex,currentparameters.currchan,h_table,TRUE);	// 2026-11-08 - fixed by Claude
 					UpdateParameter(paramindex,p_contparameters,level,ZERO);
@@ -638,8 +638,8 @@ int FillPhaseDiagram(tokenbyte ***pp_buff,long* p_numberobjects,unsigned long *p
 						*pp_buff,speed,scale,&endval,&mapendvalue,&maxbeats,h_table) != OK)
 							goto ENDDIAGRAM;
 					break;
-				case 8: /* _volumestep */
-				case 9: /* _volumecont */
+				case 8: // _volumestep
+				case 9: // _volumecont
 					paramindex = IVOLUME;
 					SwitchParameterChannel(p_contparameters,level,paramindex,currentparameters.currchan,h_table,TRUE);	// 2026-11-08 - fixed by Claude
 					UpdateParameter(paramindex,p_contparameters,level,ZERO);
@@ -649,12 +649,12 @@ int FillPhaseDiagram(tokenbyte ***pp_buff,long* p_numberobjects,unsigned long *p
 						*pp_buff,speed,scale,&endval,&mapendvalue,&maxbeats,h_table) != OK)
 							goto ENDDIAGRAM;
 					break;
-				case 10: /* _articulstep */
-				case 11: /* _articulcont */
+				case 10: // _articulstep
+				case 11: // _articulcont
 					startarticul = startarticul + (articulincrement * ibeatsarticul / maxbeatsarticul);
 					currentparameters.currarticul = startarticul;
 					if(p == 10) currentparameters.articulmode = STEPWISE;
-					else currentparameters.articulmode = CONTINUOUS;	/* not implemented */
+					else currentparameters.articulmode = CONTINUOUS;	// not implemented
 					if(SetVariation(T20,p_deftcurrentparameters,&currentparameters,p_contparameters,level,-1,id,
 							*pp_buff,speed,scale,&endarticul,&mapendvalue,&maxbeatsarticul,h_table) != OK)
 						goto ENDDIAGRAM;
@@ -666,13 +666,13 @@ int FillPhaseDiagram(tokenbyte ***pp_buff,long* p_numberobjects,unsigned long *p
 					else articulincrement = endarticul - startarticul;
 					
 					break;
-				case 12: /* _velfixed */
+				case 12: // _velfixed
 					currentparameters.velmode = FIXMAPMODE;
 					startvel = startvel + (velincrement * ibeatsvel / maxbeatsvel);
 					currentparameters.currvel = startvel;
 					ibeatsvel = 0.; maxbeatsvel = 1.; velincrement = 0.;
 					break;
-				case 13: /* _modfixed */
+				case 13: // _modfixed
 					paramindex = IMODULATION;
 					SwitchParameterChannel(p_contparameters,level,paramindex,currentparameters.currchan,h_table,TRUE);	// 2026-11-08 - fixed by Claude
 					UpdateParameter(paramindex,p_contparameters,level,ZERO);
@@ -683,7 +683,7 @@ int FillPhaseDiagram(tokenbyte ***pp_buff,long* p_numberobjects,unsigned long *p
 					(*((*p_contparameters)[level].values))[paramindex].point = NULL;
 					(*((*p_contparameters)[level].values))[paramindex].active = FALSE;
 					break;
-				case 14: /* _pitchfixed */
+				case 14: // _pitchfixed
 					paramindex = IPITCHBEND;
 					SwitchParameterChannel(p_contparameters,level,paramindex,currentparameters.currchan,h_table,TRUE);	// 2026-11-08 - fixed by Claude
 					UpdateParameter(paramindex,p_contparameters,level,ZERO);
@@ -694,7 +694,7 @@ int FillPhaseDiagram(tokenbyte ***pp_buff,long* p_numberobjects,unsigned long *p
 					(*((*p_contparameters)[level].values))[paramindex].point = NULL;
 					(*((*p_contparameters)[level].values))[paramindex].active = FALSE; // 2026-11-03
 					break;
-				case 15: /* _pressfixed */
+				case 15: // _pressfixed
 					paramindex = IPRESSURE;
 					SwitchParameterChannel(p_contparameters,level,paramindex,currentparameters.currchan,h_table,TRUE);	// 2026-11-08 - fixed by Claude
 					UpdateParameter(paramindex,p_contparameters,level,ZERO);
@@ -705,7 +705,7 @@ int FillPhaseDiagram(tokenbyte ***pp_buff,long* p_numberobjects,unsigned long *p
 					(*((*p_contparameters)[level].values))[paramindex].point = NULL;
 					(*((*p_contparameters)[level].values))[paramindex].active = FALSE;
 					break;
-				case 16: /* _volumefixed */
+				case 16: // _volumefixed
 					paramindex = IVOLUME;
 					SwitchParameterChannel(p_contparameters,level,paramindex,currentparameters.currchan,h_table,TRUE);	// 2026-11-08 - fixed by Claude
 					UpdateParameter(paramindex,p_contparameters,level,ZERO);
@@ -716,13 +716,13 @@ int FillPhaseDiagram(tokenbyte ***pp_buff,long* p_numberobjects,unsigned long *p
 					(*((*p_contparameters)[level].values))[paramindex].point = NULL;
 					(*((*p_contparameters)[level].values))[paramindex].active = FALSE;
 					break;
-				case 17: /* _articulfixed */
+				case 17: // _articulfixed
 					currentparameters.articulmode = FIXMAPMODE;
 					startarticul = startarticul + (articulincrement * ibeatsarticul / maxbeatsarticul);
 					currentparameters.currarticul = startarticul;
 					ibeatsarticul = 0; maxbeatsarticul = 1; articulincrement = 0;
 					break;
-				case 18: /* _panfixed */
+				case 18: // _panfixed
 					paramindex = IPANORAMIC;
 					SwitchParameterChannel(p_contparameters,level,paramindex,currentparameters.currchan,h_table,TRUE);	// 2026-11-08 - fixed by Claude
 					UpdateParameter(paramindex,p_contparameters,level,ZERO);
@@ -733,8 +733,8 @@ int FillPhaseDiagram(tokenbyte ***pp_buff,long* p_numberobjects,unsigned long *p
 					(*((*p_contparameters)[level].values))[paramindex].point = NULL;
 					(*((*p_contparameters)[level].values))[paramindex].active = FALSE;
 					break;
-				case 19: /* _panstep */
-				case 20: /* _pancont */
+				case 19: // _panstep
+				case 20: // _pancont
 					paramindex = IPANORAMIC;
 					SwitchParameterChannel(p_contparameters,level,paramindex,currentparameters.currchan,h_table,TRUE);	// 2026-11-08 - fixed by Claude
 					UpdateParameter(paramindex,p_contparameters,level,ZERO);
@@ -744,7 +744,7 @@ int FillPhaseDiagram(tokenbyte ***pp_buff,long* p_numberobjects,unsigned long *p
 							*pp_buff,speed,scale,&endval,&mapendvalue,&maxbeats,h_table) != OK)
 						goto ENDDIAGRAM;
 					break;
-				case 25: /* _mapfixed */
+				case 25: // _mapfixed
 					currentparameters.mapmode = FIXMAPMODE;
 					startmap.p1 = startmap.p1 + (mapincrement.p1 * ibeatsmap / maxbeatsmap);
 					startmap.q1 = startmap.q1 + (mapincrement.q1 * ibeatsmap / maxbeatsmap);
@@ -759,11 +759,11 @@ int FillPhaseDiagram(tokenbyte ***pp_buff,long* p_numberobjects,unsigned long *p
 						currentparameters.mapmode = OFF;
 						}
 					break;
-				case 23: /* _randomize */
+				case 23: // _randomize
 					currentparameters.seed = RANDOMIZE;
 					break;
-				case 26: /* _mapcont */
-				case 27: /* _mapstep */
+				case 26: // _mapcont
+				case 27: // _mapstep
 					startmap.p1 = startmap.p1 + (mapincrement.p1 * ibeatsmap / maxbeatsmap);
 					startmap.q1 = startmap.q1 + (mapincrement.q1 * ibeatsmap / maxbeatsmap);
 					startmap.p2 = startmap.p2 + (mapincrement.p2 * ibeatsmap / maxbeatsmap);
@@ -789,18 +789,18 @@ int FillPhaseDiagram(tokenbyte ***pp_buff,long* p_numberobjects,unsigned long *p
 						mapincrement.q2 = mapendvalue.q2 - startmap.q2;
 						}
 					break;
-				case 28: /* _transposefixed */
+				case 28: // _transposefixed
 					currentparameters.transposemode = FIXMAPMODE;
 					starttranspose = starttranspose + (transposeincrement * ibeatstranspose / maxbeatstranspose);
 					currentparameters.currtranspose = starttranspose;
 					ibeatstranspose = 0.; maxbeatstranspose = 1.; transposeincrement = 0.;
 					break;
-				case 29: /* _transposecont */
-				case 30: /* _transposestep */
+				case 29: // _transposecont
+				case 30: // _transposestep
 					starttranspose = starttranspose + (transposeincrement * ibeatstranspose / maxbeatstranspose);
 					currentparameters.currtranspose = starttranspose;
 					if(p == 30) currentparameters.transposemode = STEPWISE;
-					else currentparameters.transposemode = CONTINUOUS;	/* not implemented */
+					else currentparameters.transposemode = CONTINUOUS;	// not implemented
 					if(SetVariation(T26,p_deftcurrentparameters,&currentparameters,p_contparameters,level,-1,id,
 							*pp_buff,speed,scale,&endtranspose,&mapendvalue,
 							&maxbeatstranspose,h_table) != OK)
@@ -1103,12 +1103,12 @@ int FillPhaseDiagram(tokenbyte ***pp_buff,long* p_numberobjects,unsigned long *p
 			if(trace_diagram) BPPrintMessage(0,odError,"numberzeros = %.2f\n",numberzeros);
 			if(numberzeros >= 0) numberzeros += 1.; // This is the total duration: zeros + note
 			if(numberzeros < 1.) {
-				/* Too fast sequence */
+				// Too fast sequence
 				if(nseq < Maxconc) {
 					(*p_im)[nseq] -= Kpress;
 					(*p_maxcol)[nseq] = Class((*p_im)[nseq]);
 					}
-				/* Plot() will attempt to overstrike the current object, but seeing it, it will jump to another value of nseq */
+				// Plot() will attempt to overstrike the current object, but seeing it, it will jump to another value of nseq
 				goto NEXTTOKEN;
 				}
 			ibeatsvel += numberzeros;
@@ -1187,7 +1187,7 @@ int FillPhaseDiagram(tokenbyte ***pp_buff,long* p_numberobjects,unsigned long *p
 		switch(m) {
 			case T0:
 				switch(p) {
-					case 12:			/* '{' */
+					case 12:			// '{'
 					case 22:
 					//	BPPrintMessage(1,odInfo,"\nFillPhaseDiagram() { m = %d p = %d level = %d, number = %d\n",m,p,level,(*p_contparameters)[level].number);
 						skipzeros = add_zeros = FALSE;
@@ -1257,7 +1257,7 @@ int FillPhaseDiagram(tokenbyte ***pp_buff,long* p_numberobjects,unsigned long *p
 						oldp = -1;
 						goto NEXTTOKEN;
 						break;
-					case 13:					/* '}' */
+					case 13:					// '}'
 					case 23:
 						skipzeros = add_zeros = FALSE;
 						if(trace_parameters) BPPrintMessage(1,odInfo,"}\n");
@@ -1331,7 +1331,7 @@ int FillPhaseDiagram(tokenbyte ***pp_buff,long* p_numberobjects,unsigned long *p
 						goto NEXTTOKEN;
 						break;
 						
-					case 14:				/* ',' */
+					case 14:				// ','
 				//		BPPrintMessage(0,odInfo,"\nFillPhaseDiagram() , m = %d p = %d level = %ld\n",m,p,(long)level);
 						skipzeros = add_zeros = FALSE;
 						inext = (*p_origin)[level];
@@ -1339,7 +1339,7 @@ int FillPhaseDiagram(tokenbyte ***pp_buff,long* p_numberobjects,unsigned long *p
 						if(trace_toofast) BPPrintMessage(1,odInfo,",\n");
 						if(trace_diagram) BPPrintMessage(1,odInfo,"nseq = %ld level = %ld Minconc = %ld inext = %.0f classofinext = %ld\n",(long)nseq,(long)level,(long)Minconc,(double)inext,(long)classofinext);
 						
-						/* (*p_maxcol)[nseq] must be checked because of concatenated time-objects */
+						// (*p_maxcol)[nseq] must be checked because of concatenated time-objects
 						if(trace_diagram) BPPrintMessage(1,odInfo,"@@ (*p_maxcol)[%ld + 1] = %ld\n",(long)nseq,(long)(*p_maxcol)[nseq+1]);
 						while((++nseq) <= (*p_nmax) && (*p_maxcol)[nseq] > classofinext);
 						if(nseq >= Minconc) {
@@ -1413,7 +1413,7 @@ int FillPhaseDiagram(tokenbyte ***pp_buff,long* p_numberobjects,unsigned long *p
 						goto NEXTTOKEN;
 						break;
 						
-					case 11:				/* '/' speed up */
+					case 11:				// '/' speed up
 						skipzeros = FALSE;
 						speed = GetScalingValue((*pp_buff),id);
 						if(speed < 1.) goto ENDDIAGRAM;
@@ -1429,7 +1429,7 @@ int FillPhaseDiagram(tokenbyte ***pp_buff,long* p_numberobjects,unsigned long *p
 						goto NEXTTOKEN;
 						break;
 						
-					case 25:				/* '\' speed down */
+					case 25:				// '\' speed down
 						skipzeros = FALSE;
 						speed = GetScalingValue((*pp_buff),id);
 						if(speed < 1.) goto ENDDIAGRAM;
@@ -1446,7 +1446,7 @@ int FillPhaseDiagram(tokenbyte ***pp_buff,long* p_numberobjects,unsigned long *p
 						goto NEXTTOKEN;
 						break;
 						
-					case 21:				/* '*' scale up */
+					case 21:				// '*' scale up
 						skipzeros = FALSE;
 						scale = GetScalingValue((*pp_buff),id);
 						if(scale != 0.) {
@@ -1461,7 +1461,7 @@ int FillPhaseDiagram(tokenbyte ***pp_buff,long* p_numberobjects,unsigned long *p
 						goto NEXTTOKEN;
 						break;
 						
-					case 24:				/* '**' scale down */
+					case 24:				// '**' scale down
 						skipzeros = FALSE;
 						s = GetScalingValue((*pp_buff),id);
 						if(s < 1.) goto ENDDIAGRAM;
@@ -1479,7 +1479,7 @@ int FillPhaseDiagram(tokenbyte ***pp_buff,long* p_numberobjects,unsigned long *p
 						goto NEXTTOKEN;
 						break;
 						
-					case 19:			/* '&' preceding terminal symbol */
+					case 19:			// '&' preceding terminal symbol
 		//				if(level >= Maxlevel) goto NEXTTOKEN;
 						skipzeros = FALSE;
 						if(trace_diagram)
@@ -1488,7 +1488,7 @@ int FillPhaseDiagram(tokenbyte ***pp_buff,long* p_numberobjects,unsigned long *p
 						goto NEXTTOKEN;
 						break;
 						
-					case 18:				/* '&' following terminal or simple note */
+					case 18:				// '&' following terminal or simple note
 						if(foundendconcatenation) {
 							if(trace_diagram) BPPrintMessage(1,odInfo,"foundendconcatenation -> goto NEXTTOKEN\n");
 							goto NEXTTOKEN;
@@ -1541,7 +1541,7 @@ int FillPhaseDiagram(tokenbyte ***pp_buff,long* p_numberobjects,unsigned long *p
 						break;
 					}
 				break;
-			case T8:	/* Synchronization tag */
+			case T8:	// Synchronization tag
 		//		if(nseq >= Maxconc) goto NEXTTOKEN;
 	//			if(level >= Maxlevel) goto NEXTTOKEN;
 				if((tag=(p_list**) GiveSpace(sizeof(p_list))) == NULL) goto ENDDIAGRAM;
@@ -1553,7 +1553,7 @@ int FillPhaseDiagram(tokenbyte ***pp_buff,long* p_numberobjects,unsigned long *p
 					(**ptag).p = tag;
 					}
 				break;
-			case T10:	/* Channel assignment _chan() */
+			case T10:	// Channel assignment _chan()
 				currentparameters.currchan = value = FindValue(m,p,currentparameters.currchan);
 				if(value == Infpos) goto ENDDIAGRAM;
 				currentparameters.chanset = TRUE; // 2026-11-12 - fixed by Claude
@@ -1569,7 +1569,7 @@ int FillPhaseDiagram(tokenbyte ***pp_buff,long* p_numberobjects,unsigned long *p
 					}
 		//		if(trace_capture) BPPrintMessage(1,odInfo,"§§ channel = %d\n",channel);
 				break;
-			case T32:	/* Instrument assignment _ins() */
+			case T32:	// Instrument assignment _ins()
 				value = (float) FindValue(m,p,currentparameters.currchan);
 				currentparameters.currinstr = (int) value;
 				currentparameters.inslevel = level;
@@ -1578,13 +1578,13 @@ int FillPhaseDiagram(tokenbyte ***pp_buff,long* p_numberobjects,unsigned long *p
 				instrument = roundf(value);
 				// BPPrintMessage(0,odInfo,"@@@ instrument = %d, p = %ld\n",instrument,(long)p);
 				break;
-			case T46:	/* Part assignment _part() */
+			case T46:	// Part assignment _part()
 				currentparameters.currpart = value = FindValue(m,p,currentparameters.currchan);
 				if(value == Infpos) goto ENDDIAGRAM;
 				part = roundf(value);
 			//	BPPrintMessage(1,odInfo,"@@@ part = %d, m = %d p = %d\n",part,m,p);
 				break;
-			case T44:	/* _scale() */
+			case T44:	// _scale()
 				currentparameters.scale = p % MAXSTRINGCONSTANTS;
 				if(trace_scale)
 					BPPrintMessage(1,odInfo,"FillPhaseDiagram() _scale() value = %ld\n",(long)value);
@@ -1614,35 +1614,35 @@ int FillPhaseDiagram(tokenbyte ***pp_buff,long* p_numberobjects,unsigned long *p
 					}
 				else currentparameters.blockkey = DefaultBlockKey;
 				break;
-			case T21:	/* _pitchrange() */
+			case T21:	// _pitchrange()
 				PitchbendRange[currentparameters.currchan] = p;
 				break;
-			case T22:	/* _pitchrate() */
+			case T22:	// _pitchrate()
 				PitchbendRate[currentparameters.currchan] = p;
 				break;
-			case T23:	/* _modrate() */
+			case T23:	// _modrate()
 				ModulationRate[currentparameters.currchan] = p;
 				break;
-			case T24:	/* _pressrate() */
+			case T24:	// _pressrate()
 				PressRate[currentparameters.currchan] = p;
 				break;
-			case T27:	/* _volumerate() */
+			case T27:	// _volumerate()
 				VolumeRate[currentparameters.currchan] = p;
 				break;
-			case T30:	/* _panrate() */
+			case T30:	// _panrate()
 				PanoramicRate[currentparameters.currchan] = p;
 				break;
-			case T28:	/* _volumecontrol() */
+			case T28:	// _volumecontrol()
 				VolumeControl[currentparameters.currchan] = value
 					= FindValue(m,p,currentparameters.currchan);
 				if(value == Infpos) goto ENDDIAGRAM;
 				break;
-			case T31:	/* _pancontrol() */
+			case T31:	// _pancontrol()
 				PanoramicControl[currentparameters.currchan] = value
 					= FindValue(m,p,currentparameters.currchan);
 				if(value == Infpos) goto ENDDIAGRAM;
 				break;
-			case T14:	/* Modulation assignment _mod() */
+			case T14:	// Modulation assignment _mod()
 		//		if(level >= Maxlevel) goto NEXTTOKEN;
 				i = IMODULATION;
 		//		i = FindParameterIndexAndCreateStorage(p_contparameters,level,i);
@@ -1654,7 +1654,7 @@ int FillPhaseDiagram(tokenbyte ***pp_buff,long* p_numberobjects,unsigned long *p
 							goto ENDDIAGRAM;
 					}
 				break;
-			case T35:	/* _value() */
+			case T35:	// _value()
 		//		if(level >= Maxlevel) goto NEXTTOKEN;
 				paramnameindex = (p % 256);
 				paramvalueindex = (p - paramnameindex) / 256;
@@ -1680,7 +1680,7 @@ int FillPhaseDiagram(tokenbyte ***pp_buff,long* p_numberobjects,unsigned long *p
 							goto ENDDIAGRAM;
 					}
 				break;
-			case T15:	/* Pitchbend assignment _pitchbend() */
+			case T15:	// Pitchbend assignment _pitchbend()
 		//		if(level >= Maxlevel) goto NEXTTOKEN;
 				i = IPITCHBEND;
 		//		i = FindParameterIndexAndCreateStorage(p_contparameters,level,i);
@@ -1695,7 +1695,7 @@ int FillPhaseDiagram(tokenbyte ***pp_buff,long* p_numberobjects,unsigned long *p
 							goto ENDDIAGRAM;
 					}
 				break;
-			case T16:	/* Pressure assignment _press() */
+			case T16:	// Pressure assignment _press()
 		//		if(level >= Maxlevel) goto NEXTTOKEN;
 				i = IPRESSURE;
 		//		i = FindParameterIndexAndCreateStorage(p_contparameters,level,i);
@@ -1708,7 +1708,7 @@ int FillPhaseDiagram(tokenbyte ***pp_buff,long* p_numberobjects,unsigned long *p
 							goto ENDDIAGRAM;
 					}
 				break;
-			case T19:	/* Volume assignment _volume() */
+			case T19:	// Volume assignment _volume()
 		//		if(level >= Maxlevel) goto NEXTTOKEN;
 				i = IVOLUME;
 		//		i = FindParameterIndexAndCreateStorage(p_contparameters,level,i);
@@ -1722,7 +1722,7 @@ int FillPhaseDiagram(tokenbyte ***pp_buff,long* p_numberobjects,unsigned long *p
 							goto ENDDIAGRAM;
 					}
 				break;
-			case T29:	/* Panoramic assignment _pan() */
+			case T29:	// Panoramic assignment _pan()
 		//		if(level >= Maxlevel) goto NEXTTOKEN;
 				i = IPANORAMIC;
 		//		i = FindParameterIndexAndCreateStorage(p_contparameters,level,i);
@@ -1735,7 +1735,7 @@ int FillPhaseDiagram(tokenbyte ***pp_buff,long* p_numberobjects,unsigned long *p
 							goto ENDDIAGRAM;
 					}
 				break;
-			case T26:	/* Transpose assignment _transpose() */
+			case T26:	// Transpose assignment _transpose()
 		//		if(level >= Maxlevel) goto NEXTTOKEN;
 				value = FindValue(m,p,currentparameters.currchan);
 				if(value == Infpos) goto ENDDIAGRAM;
@@ -1751,7 +1751,7 @@ int FillPhaseDiagram(tokenbyte ***pp_buff,long* p_numberobjects,unsigned long *p
 					}
 				else transposeincrement = endtranspose - starttranspose;
 				break;
-			case T40:	/* _keyxpand */
+			case T40:	// _keyxpand
 	//			if(level >= Maxlevel) goto NEXTTOKEN;
 			//	currentparameters.xpandkey = p % 256;
 				currentparameters.xpandkey = p % MAXSTRINGCONSTANTS;
@@ -1782,17 +1782,17 @@ int FillPhaseDiagram(tokenbyte ***pp_buff,long* p_numberobjects,unsigned long *p
 				else currentparameters.xpandval = newxpandval;
 				currentparameters.transposefirst = FALSE;
 				break;
-			case T41:	/* Time fluctuation assignment _rndtime() */
+			case T41:	// Time fluctuation assignment _rndtime()
 				currentparameters.randomtime = p;
 				if((2 * p) > MaxDeltaTime) {
 					MaxDeltaTime = 2 * p;
 					BPPrintMessage(1,odInfo,"Max time of merged NoteOns = %ld ms, due to rndtime(%d)\n",MaxDeltaTime,p);
 					}
 				break;
-			case T42:	/* Reseed and reset random sequence _srand() */
+			case T42:	// Reseed and reset random sequence _srand()
 				currentparameters.seed = p;
 				break;
-			case T45:	/* Capture input MIDI stream _capture() */
+			case T45:	// Capture input MIDI stream _capture()
 				if(Interactive) {
 					currentparameters.capture = p;
 					if(trace_capture) BPPrintMessage(1,odInfo,"👉 Found CaptureSource = %d\n",p);
@@ -1800,12 +1800,12 @@ int FillPhaseDiagram(tokenbyte ***pp_buff,long* p_numberobjects,unsigned long *p
 					}
 				else BPPrintMessage(1,odError,"=> _capture(%d) will be ignored because there is no input\n",p);
 				break;
-			case T11:	/* Velocity assignment _vel() */
+			case T11:	// Velocity assignment _vel()
 		//		if(level >= Maxlevel) goto NEXTTOKEN;
 				startvel = FindValue(m,p,currentparameters.currchan);
 				if(startvel == Infpos) goto ENDDIAGRAM;
 				currentparameters.currvel = startvel;
-				if(p > 127) /* Velocity is assigned by controller Kx */
+				if(p > 127) // Velocity is assigned by controller Kx
 					velcontrol = currentparameters.velcontrol = p - 128;
 				else velcontrol = currentparameters.velcontrol = -1;
 				if(SetVariation(m,p_deftcurrentparameters,&currentparameters,p_contparameters,level,-1,id,
@@ -1817,7 +1817,7 @@ int FillPhaseDiagram(tokenbyte ***pp_buff,long* p_numberobjects,unsigned long *p
 					}
 				else velincrement = endvel - startvel;
 				break;
-			case T20:	/* Articulation assignment _legato() or _staccato() */
+			case T20:	// Articulation assignment _legato() or _staccato()
 		//		if(level >= Maxlevel) goto NEXTTOKEN;
 				startarticul = FindValue(m,p,currentparameters.currchan);
 				if(startarticul == Infpos) goto ENDDIAGRAM;
@@ -1831,7 +1831,7 @@ int FillPhaseDiagram(tokenbyte ***pp_buff,long* p_numberobjects,unsigned long *p
 					}
 				else articulincrement = endarticul - startarticul;
 				break;
-			case T13:	/* Scriptline assignment */
+			case T13:	// Scriptline assignment
 		//		if(level >= Maxlevel) goto NEXTTOKEN;
 		//		if(nseq >= Maxconc) goto NEXTTOKEN;
 				if((tag=(p_list**) GiveSpace(sizeof(p_list))) == NULL) goto ENDDIAGRAM;
@@ -1845,7 +1845,7 @@ int FillPhaseDiagram(tokenbyte ***pp_buff,long* p_numberobjects,unsigned long *p
 					(**ptag).p = tag;
 					}
 				break;
-			case T37:	/* Key map assignment _keymap() */
+			case T37:	// Key map assignment _keymap()
 	//			if(level >= Maxlevel) goto NEXTTOKEN;
 				startmap.p1 = p % 128;
 				startmap.q1 = (p - (p % 128)) / 128;
@@ -1877,10 +1877,10 @@ int FillPhaseDiagram(tokenbyte ***pp_buff,long* p_numberobjects,unsigned long *p
 					mapincrement.q2 = mapendvalue.q2 - startmap.q2;
 					}
 				break;
-			case T38:	/* Random velocity assignment _rndvel() */
+			case T38:	// Random velocity assignment _rndvel()
 				currentparameters.rndvel = p;
 				break;
-			case T17:	/* _switchon() */
+			case T17:	// _switchon()
 		//		if(level >= Maxlevel) goto NEXTTOKEN;
 				v = p % 128;
 				if(v < 64 || v > 69)  {
@@ -1895,7 +1895,7 @@ int FillPhaseDiagram(tokenbyte ***pp_buff,long* p_numberobjects,unsigned long *p
 				currswitchstate[ch] = currswitchstate[ch] | (1L << (v - 64));
 				newswitch = TRUE;
 				break;
-			case T18:	/* _switchoff() */
+			case T18:	// _switchoff()
 		//		if(level >= Maxlevel) goto NEXTTOKEN;
 				v = p % 128;
 				if(v < 64 || v > 69)  {
@@ -1932,8 +1932,8 @@ int FillPhaseDiagram(tokenbyte ***pp_buff,long* p_numberobjects,unsigned long *p
 		if(trace_diagram) BPPrintMessage(1,odInfo,"@@@ nseq = %ld, ip = %ld\n",nseq,ip);
 		oldnseq = nseq;
 		if(Plot(INTIME,&nseqplot,&iplot,&overstrike,FALSE,p_nmax,p_maxcol,p_im,p_Seq,&nseq,maxseqapprox,ip,1) != OK) goto ENDDIAGRAM;
-		/* This shortens objects that would be too long because of roundings when Kpress > 1 */
-		/* Note than an object that was just at the end (in too fast tempo) hasn't been overstriken */
+		// This shortens objects that would be too long because of roundings when Kpress > 1
+		// Note than an object that was just at the end (in too fast tempo) hasn't been overstriken
 		nseq = oldnseq; // nseq might have been changed by Plot() // Added by BB 2021-03-22
 		if((*p_maxcol)[nseq] > imax) {
 			imax = (*p_maxcol)[nseq];
@@ -1950,7 +1950,7 @@ int FillPhaseDiagram(tokenbyte ***pp_buff,long* p_numberobjects,unsigned long *p
 	j = (*p_Instance)[k].object;
 	if(trace_diagram || trace_toofast) BPPrintMessage(1,odInfo,"LOOKATEND nseqmem = %ld imax = %ld k = %d j = %d\n",nseqmem,imax,k,j);
 	if(j < 0) {
-		/* Oops! we are outside the table */
+		// Oops! we are outside the table
 		BPPrintMessage(1,odError,"=> Err. FillPhaseDiagram(). LOOKATEND: j < 0");
 		imax--;
 		if(imax > ZERO) goto LOOKATEND;
@@ -1986,7 +1986,7 @@ int FillPhaseDiagram(tokenbyte ***pp_buff,long* p_numberobjects,unsigned long *p
 				suggested_quantization = suggested_quantization - modulo(suggested_quantization,((int)Time_res / 2));
 			BPPrintMessage(1,odError,"=> %d objects/notes have been skipped. Quantization should be less than %d ms to avoid it\n",number_skipped,suggested_quantization);
 			}
-		/* Let's put an out-time silence at the end of the item, and attach to it the ultimate control parameter values */
+		// Let's put an out-time silence at the end of the item, and attach to it the ultimate control parameter values
 		nseq = Minconc;
 		ip = imax;
 		kobj++;
@@ -2016,7 +2016,7 @@ int FillPhaseDiagram(tokenbyte ***pp_buff,long* p_numberobjects,unsigned long *p
 		if((*p_maxcol)[nseq] < 1L) (*p_maxcol)[nseq] = 1L;
 		ip = (*p_maxcol)[nseq];
 		if((*p_waitlist)[nseq] != NULL || (*p_scriptlist)[nseq] != NULL || newswitch) {
-			/* Append <<->> */
+			// Append <<->>
 			kobj++; (*p_numberobjects) = kobj;
 			if(kobj >= MaxObjects) {
 				BPPrintMessage(1,odError,"=> Err. FillPhaseDiagram(). kobj (%ld) >= MaxObjects (%ld). (2)\n",kobj,MaxObjects);
@@ -2039,7 +2039,7 @@ int FillPhaseDiagram(tokenbyte ***pp_buff,long* p_numberobjects,unsigned long *p
 		(*p_imaxseq)[nseq] = ip = (*p_maxcol)[nseq];
 		if(ip > (*p_maxseq)) (*p_maxseq) = ip;
 		
-		/* Mark the end of the sequence */
+		// Mark the end of the sequence
 		if(Plot(INTIME,&nseqplot,&ip,&overstrike,TRUE,p_nmax,p_maxcol,p_im,p_Seq,
 			&nseq,maxseqapprox,ip,-1) != OK) goto ENDDIAGRAM;
 		rest = FALSE;
@@ -2049,7 +2049,7 @@ int FillPhaseDiagram(tokenbyte ***pp_buff,long* p_numberobjects,unsigned long *p
 			if(k == 0) continue;
 			if(k == 1) {
 				if(rest == FALSE && nseq < Minconc) rest = TRUE;
-				else {	/* Replace trailing silences with empty objects */
+				else {	// Replace trailing silences with empty objects
 					if(iseq > 1L) (*((*p_Seq)[nseq]))[iseq] = 0;
 					}
 				}
@@ -2130,8 +2130,8 @@ int FillPhaseDiagram(tokenbyte ***pp_buff,long* p_numberobjects,unsigned long *p
 		return(result);
 		}
 
-	(*p_maxseq)++; /* Now we got the exact value. */
-	MaxObjects = (*p_numberobjects) + 1; 	/* Now we got the exact value. */
+	(*p_maxseq)++; // Now we got the exact value.
+	MaxObjects = (*p_numberobjects) + 1; 	// Now we got the exact value.
 
 	if(MaxObjects > 5000) (*p_bigitem) = TRUE;
 
@@ -2172,7 +2172,7 @@ int Plot(char where,int *p_nseqplot,unsigned long *p_iplot,char *p_overstrike,in
 				goto PLOTOUTSIDE;
 				}
 			if(force && oldk > 1 && newk > 1) {
-				/* When newk == 1 with force, table contains arbitrary numbers, so oldk is irrelevant */
+				// When newk == 1 with force, table contains arbitrary numbers, so oldk is irrelevant
 				BPPrintMessage(1,odError,"=> Error Plot(): overwrote object #%d\n",oldk);
 				(*p_Instance)[oldk].object = 0;
 				}
@@ -2284,7 +2284,7 @@ int Plot(char where,int *p_nseqplot,unsigned long *p_iplot,char *p_overstrike,in
 unsigned long Class(double i) {
 	unsigned long result;
 	if(i < 0.) {
-		/* Happens in beginning of table */
+		// Happens in beginning of table
 		return(ZERO);
 		}
 	if(Kpress < 1.) {
@@ -2711,8 +2711,8 @@ int PutZeros(int nseq_current, char toofast,double **p_im,unsigned long **p_maxc
 			(*p_im)[nseq] = i + 1. + numberzeros - j;
 			(*p_maxcol)[nseq] = Class((*p_im)[nseq]);
 			}
-		/* This final value, when incremented with Kpress, is the position of the next streak to */
-		/* ... place objects on. */
+		// This final value, when incremented with Kpress, is the position of the next streak to
+		// ... place objects on.
 		}
 	return(OK);
 	}

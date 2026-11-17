@@ -1,4 +1,4 @@
-/* MakeSound.c (BP3) */
+// MakeSound.c (BP3)
 
 /*  This file is a part of Bol Processor
     Copyright (c) 1990-2000 by Bernard Bel, Jim Kippen and Srikumar K. Subramanian
@@ -1368,7 +1368,7 @@ FINDNEXTEVENT:
 	if(showpianoroll) goto OUTGRAPHIC;
 
 	SynchroSignal = OFF;
-	RunningStatus = 0;	/* This is used by ListenToEvents() */
+	RunningStatus = 0;	// This is used by ListenToEvents()
 	result = OK;
 
 	// note 38
@@ -1766,7 +1766,7 @@ void SetUpMPEreceiver(int *p_rs) {
 		SendControlChange(chan,101,0,time,0,p_rs);
 		SendControlChange(chan,100,0,time,0,p_rs);
 		SendControlChange(chan,6,2,time,0,p_rs);	// Data Entry MSB: 2 semitones
-	/*	SendControlChange(chan,38,0,time,0,p_rs);	// Data Entry LSB: 0 cents */
+	// SendControlChange(chan,38,0,time,0,p_rs);	// Data Entry LSB: 0 cents
 		}
 	WaitABit(10); // Sleep for 10 milliseconds
 	}
@@ -1985,9 +1985,9 @@ int ChannelConvert(int ch) {
 		//	BPPrintMessage(0,odError,"%s",Message);
 			return(ABORT);
 			}
-		return(ch);	/* Fixed channel */
+		return(ch);	// Fixed channel
 		}
-	/* Channel is determined by Kx */
+	// Channel is determined by Kx
 	x = ch - 128;
 	if(x < 1 || x >= MAXPARAMCTRL) {
 		my_sprintf(Message,"=> Trying to fix channel with incorrect K%ld.\nValue should be 1..%ld",
@@ -2221,7 +2221,7 @@ int SendControl(ContinuousControl **p_control,Milliseconds t0,int chan,int ipara
 					return(ABORT);
 					}
 				
-				/* Set the proper ib using value of t2 */
+				// Set the proper ib using value of t2
 				if((*((*p_control)[nn].param))[iparam].duration <= ZERO) {
 					// BPPrintMessage(0,odError,"=> Err. SendControl(). (*((*p_control)[nn].param))[iparam].duration <= 0");
 					(*((*p_control)[nn].param))[iparam].ib = ZERO;
@@ -2239,7 +2239,7 @@ int SendControl(ContinuousControl **p_control,Milliseconds t0,int chan,int ipara
 					}
 				else {
 					(*((*p_control)[nn].param))[iparam].ibm = -1L;
-		/*			(*(p_active[chan]))[iparam] = FALSE; */
+		// (*(p_active[chan]))[iparam] = FALSE;
 					}
 				break;
 				}
@@ -2264,7 +2264,7 @@ double GetTableValue(double alpha,long imax,Coordinates** coords,double startval
 		alpha = 1.;
 		}
 	if(imax == ZERO) {
-		/* No table: just interpolate */
+		// No table: just interpolate
 		y = startvalue + alpha * (endvalue - startvalue);
 		return(y);
 		}
@@ -2353,7 +2353,7 @@ int RetrieveMappedKey(int orgkey,int k,int channel,MappedKey **p_currmapped,long
 
 // note 51
 int MapThisKey(int key,float howmuch,char mapmode,KeyNumberMap *p_map0,KeyNumberMap *p_map1) {
-	KeyNumberMap map;	/* Fixed 24/2/99 - was 'p_map' */
+	KeyNumberMap map;	// Fixed 24/2/99 - was 'p_map'
 	
 	if(trace_maps) {
 		if(howmuch < 0.000001) BPPrintMessage(0,odInfo,"\n=====\n");

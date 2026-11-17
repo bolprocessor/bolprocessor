@@ -51,7 +51,7 @@ int CheckMem;
 // FIXME: figure out how to completely remove TempMemoryUsed (& FixedMaxQuantization?)
 int EmergencyExit,FixedMaxQuantization,TraceMemory,
 	EventState,Beta;
-int MIDIsetUpTime;  /* Time needed to set-up MIDI driver (ms) */
+int MIDIsetUpTime;  // Time needed to set-up MIDI driver (ms)
 int MIDIsyncDelay;  
 int FirstNoteOn;
 int LoadedScript;
@@ -381,7 +381,7 @@ char DocumentTypeName[][21] = {"grammar","alphabet","\0","\0","\0","trace","\0",
 	"script","\0","\0","\0","glossary","interaction","weights","decisions","time-base","MIDI driver settings",
 	"\0","\0","\0","keyboard","\0","\0","MIDI","settings","sound-objects","\0","\0","\0","\0","\0","\0","\0","\0",
 	"csound instruments","\0","\0","Tonality"};
-	/* See window and dialog indexes in BP3.h */
+	// See window and dialog indexes in BP3.h
 char DeftName[][MAXNAME] = {"New Grammar","New Alphabet",
 	"Start string","Message","Graphic","Trace","Info",
 	"New Data","New script","Scrap","Help","Notice","New glossary","New interaction",
@@ -389,7 +389,7 @@ char DeftName[][MAXNAME] = {"New Grammar","New Alphabet",
 	"New Keyboard","Script","Metronom","\0","\0","New prototypes",
 	"\0","\0","\0","\0","Period","Csound object prototype","MIDI filter","Tick settings",
 	"Csound resources","\0","\0","Tonal resource"};
-	/* See window and dialog indexes in -BP3.h */
+	// See window and dialog indexes in -BP3.h
 char WindowName[][MAXNAME] = {"Grammar","Alphabet","Start string",
 	"Message","Graphic","Trace","Info",
 	"Data","Script","Scrap","Help","Notice","Glossary","Interaction",
@@ -415,7 +415,7 @@ long WindowParID[WMAX],ParIDstartup,ParIDbp2;
 /* Cursor EditCursor,WatchCursor,CrossCursor,HelpCursor,KeyboardCursor,WheelCursor[4],
 	FootCursor[8],DiskCursor[2]; */
 int Jwheel,Jfeet,Jdisk;
-int Jbutt; /* Number of buttons created in dialogs */
+int Jbutt; // Number of buttons created in dialogs
 // ControlHandle Hbutt[MAXBUTT];
 int CompiledGr,CompiledPt,CompiledAl,CompiledIn,CompiledCsObjects,
 	CompiledRegressions,LoadedIn,LoadedCsoundInstruments,Interactive,
@@ -485,4 +485,4 @@ typedef struct BPConsoleOpts {
 
 BPConsoleOpts gOptions;
 
-#endif /* BP3_MAIN_H */
+#endif // BP3_MAIN_H

@@ -1,5 +1,5 @@
-/* GetRelease.c (BP3) */
-/* WARNING: Record carefully any change done here as it may take ages to trace bad consequences */
+// GetRelease.c (BP3)
+// WARNING: Record carefully any change done here as it may take ages to trace bad consequences
 
 /*  This file is a part of Bol Processor
     Copyright (c) 1990-2000 by Bernard Bel, Jim Kippen and Srikumar K. Subramanian
@@ -39,7 +39,7 @@
 
 #include "-BP3decl.h"
 
-/* WARNING: Record carefully any change done here as it may take ages to trace bad consequences */
+// WARNING: Record carefully any change done here as it may take ages to trace bad consequences
 
 int ResetProject(int init) {
 	long count;
@@ -183,7 +183,7 @@ int ReleasePhaseDiagram(int nmax,unsigned long*** pp_imaxseq) {
 							ptag = newptag;
 							}
 						while(ptag != NULL);
-						WaitList(i) = NULL;	/* Already disposed of */
+						WaitList(i) = NULL;	// Already disposed of
 						}
 					else {
 						MyDisposeHandle((Handle*)&ptag);
@@ -199,7 +199,7 @@ int ReleasePhaseDiagram(int nmax,unsigned long*** pp_imaxseq) {
 							ptag = newptag;
 							}
 						while(ptag != NULL);
-						ObjScriptLine(i) = NULL;	/* Already disposed of */
+						ObjScriptLine(i) = NULL;	// Already disposed of
 						}
 					else {
 						MyDisposeHandle((Handle*)&ptag);
@@ -451,7 +451,7 @@ int ReleaseScriptSpace(void) {
 		p_Script = NULL;
 		}
 	Jscriptline = 0;
-	Jinscript = 0; /* also impossible to execute script instructions from interaction */
+	Jinscript = 0; // also impossible to execute script instructions from interaction
 	CompiledGr = FALSE;
 	return(OK);
 	}
@@ -631,7 +631,7 @@ int ResizeCsoundInstrumentsSpace(int howmany) {
 			}
 		}
 	for(j = howmany; j < Jinstr; j++) {
-		/* Downsizing */
+		// Downsizing
 		ptr = (*pp_CsInstrumentName)[j];
 		MyDisposeHandle((Handle*)&ptr);
 		(*pp_CsInstrumentName)[j] = NULL;
@@ -711,7 +711,7 @@ int ReleaseObjectPrototypes(void) {
 	else max = MyGetHandleSize((Handle) pp_MIDIcode) / sizeof(MIDIcode**);
 	// BPPrintMessage(0,odInfo,"@@@ max = %d\n",max);
 	for(j = 2; j < max; j++) {
-		/* Here we also release time-patterns */
+		// Here we also release time-patterns
 	/*	if((*pp_MIDIcode)[j] != NULL) {
 			for(i=0; i < (*p_MIDIsize)[j]; i++) {
 				ptr = (Handle) (*((*pp_MIDIcode)[j]))[i];
@@ -1260,7 +1260,7 @@ int GetGrammarSpace(t_gram* p_gram) {
 	while(ReadLine(NO,YES,wGrammar,&pos,posmax,&p_line,&gap) == OK) {
 		if((*p_line)[0] == '\0') goto NEXTLINE;
 		q = &(InitToken[0]);
-		if(Match(TRUE,p_line,&q,4)) goto NEXTLINE;	/* Found "INIT:" */
+		if(Match(TRUE,p_line,&q,4)) goto NEXTLINE;	// Found "INIT:"
 		if((numbergram == 1) && (maxrulesinsubgram == 0)) {
 			for(i=0; i < WMAX; i++) {
 				if(FilePrefix[i][0] == '\0') continue;
@@ -1337,7 +1337,7 @@ int GetAlphabetSpace(void) {
 		BPPrintMessage(0,odError,"=> Err. GetAlphabetSpace(). p_Image != NULL || p_NoteImage != NULL || p_Homo != NULL");
 		return(ABORT);
 		}
-	/* p_Image = p_NoteImage = NULL; p_Homo = NULL; */
+	// p_Image = p_NoteImage = NULL; p_Homo = NULL;
 	/* if(Jhomo > 0) {
 		if((p_Image = (int****) GiveSpace((Size)(Jhomo) * sizeof(int**))) == NULL)
 			return(ABORT);
@@ -1517,7 +1517,7 @@ int CheckTerminalSpace(void) {
 			ptr = (*p_Image)[i];
 			MySetHandleSize((Handle*)&ptr,(Size)Jbol*sizeof(int));
 			(*p_Image)[i] = ptr;
-			/* Every homomorphism is set to identity */
+			// Every homomorphism is set to identity
 			for(j=oldjbol; j < Jbol; j++) (*((*p_Image)[i]))[j] = j;
 			}
 		}

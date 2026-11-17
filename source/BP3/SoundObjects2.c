@@ -1,4 +1,4 @@
-/* SoundObjects2.c (BP3) */
+// SoundObjects2.c (BP3)
 
 /*  This file is a part of Bol Processor
     Copyright (c) 1990-2000 by Bernard Bel, Jim Kippen and Srikumar K. Subramanian
@@ -326,15 +326,15 @@ int SortMIDIdates(long i0, int j) {
 					(*((*pp_MIDIcode)[j]))[i-3] = (*((*pp_MIDIcode)[j]))[i];
 					}
 				}
-			(*((*pp_MIDIcode)[j]))[i-3].byte = c0; /* Added 5/3/97 */
-			(*((*pp_MIDIcode)[j]))[i-3].sequence = 0; /* Added 5/3/97 */
-			(*((*pp_MIDIcode)[j]))[i-3].time = t0; /* Added 5/3/97 */
-			(*((*pp_MIDIcode)[j]))[i-2].byte = c1; /* Added 5/3/97 */
-			(*((*pp_MIDIcode)[j]))[i-2].sequence = 0; /* Added 5/3/97 */
-			(*((*pp_MIDIcode)[j]))[i-2].time = t0; /* Added 5/3/97 */
-			(*((*pp_MIDIcode)[j]))[i-1].byte = c2; /* Added 5/3/97 */
-			(*((*pp_MIDIcode)[j]))[i-1].sequence = 0; /* Added 5/3/97 */
-			(*((*pp_MIDIcode)[j]))[i-1].time = t0; /* Added 5/3/97 */
+			(*((*pp_MIDIcode)[j]))[i-3].byte = c0; // Added 5/3/97
+			(*((*pp_MIDIcode)[j]))[i-3].sequence = 0; // Added 5/3/97
+			(*((*pp_MIDIcode)[j]))[i-3].time = t0; // Added 5/3/97
+			(*((*pp_MIDIcode)[j]))[i-2].byte = c1; // Added 5/3/97
+			(*((*pp_MIDIcode)[j]))[i-2].sequence = 0; // Added 5/3/97
+			(*((*pp_MIDIcode)[j]))[i-2].time = t0; // Added 5/3/97
+			(*((*pp_MIDIcode)[j]))[i-1].byte = c2; // Added 5/3/97
+			(*((*pp_MIDIcode)[j]))[i-1].sequence = 0; // Added 5/3/97
+			(*((*pp_MIDIcode)[j]))[i-1].time = t0; // Added 5/3/97
 			}
 		else {
 			t = (*((*pp_MIDIcode)[j]))[i].time;

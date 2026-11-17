@@ -1,4 +1,4 @@
-/* DisplayArg.c (BP3) */
+// DisplayArg.c (BP3)
 
 /*  This file is a part of Bol Processor
     Copyright (c) 1990-2000 by Bernard Bel, Jim Kippen and Srikumar K. Subramanian
@@ -43,14 +43,14 @@ int trace_template = 0;
 int PrintArg(int datamode,int istemplate,int ret,char showtempo,int ifunc,int nocode,FILE *f,int wind,
 	tokenbyte ***pp_b, tokenbyte ***pp_a) {
 
-/* datamode = TRUE: space according to metre, FALSE: no space */
-/* nocode = FALSE: copy pp_a to file f, if not NULL, or window 'wind' */
-/* nocode = TRUE and istemplate = FALSE: copy pp_a without structure to array pp_b... */
-/* istemplate = TRUE: match template in pp_a against item in pp_b... */
-/* ... and replace '_' in template with terminals in pp_b. */
-/* showtempo: add prolongational gaps using "Prod" */
-/* ret = TRUE: print a 'return' at the end */
-/* ifunc = TRUE: interpret grammar.  Jfunc is the index of '-->' */
+// datamode = TRUE: space according to metre, FALSE: no space
+// nocode = FALSE: copy pp_a to file f, if not NULL, or window 'wind'
+// nocode = TRUE and istemplate = FALSE: copy pp_a without structure to array pp_b...
+// istemplate = TRUE: match template in pp_a against item in pp_b...
+// ... and replace '_' in template with terminals in pp_b.
+// showtempo: add prolongational gaps using "Prod"
+// ret = TRUE: print a 'return' at the end
+// ifunc = TRUE: interpret grammar.  Jfunc is the index of '-->'
 
 	int itab,h,nhomo,pos,levpar,homoname[MAXLEVEL],r,wasactive,
 		copylevel,depth[MAXLEVEL],setting_section,setting_section2,tab[MAXTAB],
@@ -84,8 +84,8 @@ int PrintArg(int datamode,int istemplate,int ret,char showtempo,int ifunc,int no
 
 	if(istemplate) {
 		nocode = TRUE;
-		/* Skip section markers in the beginning, including speed */
-		for(ia = ZERO; ; ia += 2L) {	/* Scan the template */
+		// Skip section markers in the beginning, including speed
+		for(ia = ZERO; ; ia += 2L) {	// Scan the template
 			m = (**pp_a)[ia]; p = (**pp_a)[ia+1];
 	/*		if(trace_template) {
 				sprintf(Message,"@++ ia = %ld, m = %d, p = %d\n",ia,m,p);
@@ -95,8 +95,8 @@ int PrintArg(int datamode,int istemplate,int ret,char showtempo,int ifunc,int no
 			if(m == TEND && p == TEND) break;
 			if(m == T1) continue;
 			if(m != T0) break;
-			if(p == 3) continue;	/* '+' */
-			if(p == 11) {		/* '/' */
+			if(p == 3) continue;	// '+'
+			if(p == 11) {		// '/'
 				speed = GetScalingValue((*pp_a),ia);
 				if(scale != 0.) {
 					tempo = speed / scale;
@@ -106,7 +106,7 @@ int PrintArg(int datamode,int istemplate,int ret,char showtempo,int ifunc,int no
 				if(trace_template) Print(wTrace,"@++\n");
 				continue;
 				}
-			if(p == 25) {		/* '\' */
+			if(p == 25) {		// '\'
 				speed = 1. / (GetScalingValue((*pp_a),ia));
 				if(scale != 0.) {
 					tempo = speed / scale;
@@ -115,7 +115,7 @@ int PrintArg(int datamode,int istemplate,int ret,char showtempo,int ifunc,int no
 				ia += 4L;
 				continue;
 				}
-			if(p == 11) {		/* '/' speed up */
+			if(p == 11) {		// '/' speed up
 				speed = 1. / (GetScalingValue((*pp_a),ia));
 				if(scale != 0.) {
 					tempo = speed / scale;
@@ -124,7 +124,7 @@ int PrintArg(int datamode,int istemplate,int ret,char showtempo,int ifunc,int no
 				ia += 4L;
 				continue;
 				}
-			if(p == 21) {		/* '*' scale up */
+			if(p == 21) {		// '*' scale up
 				scale = GetScalingValue((*pp_a),ia);
 				if(scale != 0.) {
 					tempo = speed / scale;
@@ -133,7 +133,7 @@ int PrintArg(int datamode,int istemplate,int ret,char showtempo,int ifunc,int no
 				ia += 4L;
 				continue;
 				}
-			if(p == 24) {		/* '**' scale down */
+			if(p == 24) {		// '**' scale down
 				scale = 1. / GetScalingValue((*pp_a),ia);
 				if(scale != 0.) {
 					tempo = speed / scale;
@@ -145,13 +145,13 @@ int PrintArg(int datamode,int istemplate,int ret,char showtempo,int ifunc,int no
 			break;
 			}
 		scale = 1.;
-		for(ib=ZERO;;ib+=2) {	/* Scan the item */
+		for(ib=ZERO;;ib+=2) {	// Scan the item
 			m = (**pp_b)[ib]; p = (**pp_b)[ib+1];
 			if(m == TEND && p == TEND) break;
 			if(m == T1) continue;
 			if(m != T0) break;
-			if(p == 3) continue;	/* '+' */
-			if(p == 11) {		/* '/' */
+			if(p == 3) continue;	// '+'
+			if(p == 11) {		// '/'
 				speed = GetScalingValue((*pp_b),ib);
 				if(scale != 0.) {
 					tempo2 = speed / scale;
@@ -160,7 +160,7 @@ int PrintArg(int datamode,int istemplate,int ret,char showtempo,int ifunc,int no
 				ib += 4;
 				continue;
 				}
-			if(p == 25) {		/* '\' */
+			if(p == 25) {		// '\'
 				speed = 1. / (GetScalingValue((*pp_b),ib));
 				if(scale != 0.) {
 					tempo2 = speed / scale;
@@ -169,7 +169,7 @@ int PrintArg(int datamode,int istemplate,int ret,char showtempo,int ifunc,int no
 				ib += 4;
 				continue;
 				}
-			if(p == 21) {		/* '*' scale up */
+			if(p == 21) {		// '*' scale up
 				scale = GetScalingValue((*pp_b),ib);
 				if(scale != 0.) {
 					tempo2 = speed / scale;
@@ -178,7 +178,7 @@ int PrintArg(int datamode,int istemplate,int ret,char showtempo,int ifunc,int no
 				ib += 4L;
 				continue;
 				}
-			if(p == 24) {		/* '**' scale down */
+			if(p == 24) {		// '**' scale down
 				scale = 1. / GetScalingValue((*pp_b),ib);
 				if(scale != 0.) {
 					tempo2 = speed / scale;
@@ -214,16 +214,16 @@ int PrintArg(int datamode,int istemplate,int ret,char showtempo,int ifunc,int no
 			if(m == TEND && p == TEND) break;
 			if(setting_section2 && m == T1) continue;
 			if(m == T1 && (**pp_a)[i+2] == T1 && (**pp_a)[i+4] == T0 && (**pp_a)[i+5] == 11) {
-				/* Found fractional gap */
+				// Found fractional gap
 				print_periods = 0;
 				goto READY;
 				}
 			if(m == T0) {
 				switch(p) {
-					case 3:		/* '+' */
+					case 3:		// '+'
 						continue;
 						break;
-					case 11:	/* '/' speed up */
+					case 11:	// '/' speed up
 						speed = GetScalingValue((*pp_a),i);
 						if(scale != 0.) {
 							tempo = speed / scale;
@@ -233,7 +233,7 @@ int PrintArg(int datamode,int istemplate,int ret,char showtempo,int ifunc,int no
 						i += 4L;
 						continue;
 						break;
-					case 25:	/* '\' speed down */
+					case 25:	// '\' speed down
 						speed = 1. / (GetScalingValue((*pp_a),i));
 						if(scale != 0.) {
 							tempo = speed / scale;
@@ -243,18 +243,18 @@ int PrintArg(int datamode,int istemplate,int ret,char showtempo,int ifunc,int no
 						i += 4L;
 						continue;
 						break;
-					case 21:	/* '*' scale up */
+					case 21:	// '*' scale up
 						s = GetScalingValue((*pp_a),i);
 						scale = s;
 						i += 4L;
 						break;
-					case 24:	/* '**' scale down */
+					case 24:	// '**' scale down
 						s = GetScalingValue((*pp_a),i);
 						scale = 1. / s;
 						i += 4L;
 						break;
-					case 7:		/* bullet */
-					case 14:	/* ',' */
+					case 7:		// bullet
+					case 14:	// ','
 						print_periods = 0;
 						goto READY;
 					}
@@ -311,7 +311,7 @@ int PrintArg(int datamode,int istemplate,int ret,char showtempo,int ifunc,int no
 			(**pp_b)[ib++] = TEND; (**pp_b)[ib++] = TEND;
 			}
 		else {
-			while((**pp_b)[ib] == T3 && (**pp_b)[ib+1] == 1) ib += 2;	/* Skip trailing silences */
+			while((**pp_b)[ib] == T3 && (**pp_b)[ib+1] == 1) ib += 2;	// Skip trailing silences
 			if(r == OK && ((**pp_b)[ib] != TEND || (**pp_b)[ib+1] != TEND)) {
 				r = MISSED; goto QUIT;
 				}
@@ -468,7 +468,7 @@ int PrintArgSub(PrintargType *p_printarg,unsigned long *p_maxib,TextHandle th,
 					(*p_firstslash) = FALSE;
 					continue;
 					break;
-				case 25:	/* '\' speed down */
+				case 25:	// '\' speed down
 					speed = 1. / (GetScalingValue((*pp_a),i));
 					if((*p_scale) != 0.) {
 						tempo = speed / (*p_scale);
@@ -489,7 +489,7 @@ int PrintArgSub(PrintargType *p_printarg,unsigned long *p_maxib,TextHandle th,
 					(*p_firstslash) = FALSE;
 					continue;
 					break;
-				case 21:	/* '*' scale up */
+				case 21:	// '*' scale up
 					scale = GetScalingValue((*pp_a),i);
 					if(scale != 0.) {
 						tempo = speed / scale;
@@ -508,7 +508,7 @@ int PrintArgSub(PrintargType *p_printarg,unsigned long *p_maxib,TextHandle th,
 					(*p_firstslash) = FALSE;
 					continue;
 					break;
-				case 24:	/* '**' scale down */
+				case 24:	// '**' scale down
 					s = GetScalingValue((*pp_a),i);
 					scale = 1. / s;
 					if(scale != 0.) {
@@ -661,7 +661,7 @@ int PrintArgSub(PrintargType *p_printarg,unsigned long *p_maxib,TextHandle th,
 DONESPEED:
 			newtempo = forceshowtempo = FALSE;
 			}
-		if(m == T25) {	/* Simple note */
+		if(m == T25) {	// Simple note
 			if(!nocode && sp != 4 && sp && (sp < 3 || (datamode && *(p_speed) < 2.)
 				|| SplitTimeObjects)) if(Space(f,th,&sp) != OK) {
 				r = ABORT; goto SORTIR;
@@ -757,13 +757,13 @@ PRINTPROLONGATIONS:
 			continue;
 			}
 			
-		if(m == T1) {		/* Digit */
+		if(m == T1) {		// Digit
 			i += 2L;
 			(*p_firstslash) = FALSE;
 			n = ((long) (TOKBASE * p)) + (**pp_a)[i+1];
 			if(!setting_section && (**pp_a)[i+2] == T0 && (**pp_a)[i+3] == 11
 					&& (**pp_a)[i+4] == T1 && (**pp_a)[i+6] == T1) {
-				/* Fractional gap */
+				// Fractional gap
 				if(nocode) {
 					for(ii=i-2L; ii < i+7L; ii+=2L) {
 						if((r=Display('\0',nhomo,levpar,homoname,depth,p_maxib,pp_a,&i,
@@ -824,7 +824,7 @@ PRINTPROLONGATIONS:
 			}
 		setting_section = FALSE;
 			
-		if(m == T12) {	/* Performance Control without argument: _velcont, etc. */
+		if(m == T12) {	// Performance Control without argument: _velcont, etc.
 			if(!nocode && sp != 4) if(Space(f,th,&sp) != OK) {
 				r = ABORT; goto SORTIR;
 				}
@@ -837,47 +837,47 @@ PRINTPROLONGATIONS:
 			else {
 		//		Reformat(wind,-1,-1,-1,&Blue,NO,NO);
 				switch(p) {
-					case 0:	/* _velstep */
-					case 1:	/* _velcont */
+					case 0:	// _velstep
+					case 1:	// _velcont
 						p += 2; break;
-					case 2:	/* _modstep */
-					case 3:	/* _modcont */
+					case 2:	// _modstep
+					case 3:	// _modcont
 						p += 4; break;
-					case 4:	/* _pitchstep */
-					case 5:	/* _pitchcont */
+					case 4:	// _pitchstep
+					case 5:	// _pitchcont
 						p += 5; break;
-					case 6:	/* _presstep */
-					case 7:	/* _presscont */
+					case 6:	// _presstep
+					case 7:	// _presscont
 						p += 6; break;
-					case 8: /* _volumestep */
-					case 9: /* _volumecont */
+					case 8: // _volumestep
+					case 9: // _volumecont
 						p += 9; break;
-					case 10: /* _articulstep */
-					case 11: /* _articulcont */
-					case 12: /* _velfixed */
-					case 13: /* _modfixed */
-					case 14: /* _pitchfixed */
-					case 15: /* _pressfixed */
-					case 16: /* _volumefixed */
-					case 17: /* _articulfixed */
+					case 10: // _articulstep
+					case 11: // _articulcont
+					case 12: // _velfixed
+					case 13: // _modfixed
+					case 14: // _pitchfixed
+					case 15: // _pressfixed
+					case 16: // _volumefixed
+					case 17: // _articulfixed
 						p += 11; break;
-					case 18: /* _panfixed */
+					case 18: // _panfixed
 						p += 21; break;
-					case 19: /* _panstep */
-					case 20: /* _pancont */
+					case 19: // _panstep
+					case 20: // _pancont
 						p += 18; break;
-					case 21: /* _retro */
-					case 22: /* _rndseq */
-					case 23: /* _randomize */
-					case 24: /* _ordseq */
+					case 21: // _retro
+					case 22: // _rndseq
+					case 23: // _randomize
+					case 24: // _ordseq
 						p += 27; break;
-					case 25: /* _mapfixed */
-					case 26: /* _mapcont */
-					case 27: /* _mapstep */
+					case 25: // _mapfixed
+					case 26: // _mapcont
+					case 27: // _mapstep
 						p += 28; break;
-					case 28: /* _transposefixed */
-					case 29: /* _transposecont */
-					case 30: /* _transposestep */
+					case 28: // _transposefixed
+					case 29: // _transposecont
+					case 30: // _transposestep
 						p += 34; break;
 					}
 				my_sprintf(line,"%s ",*((*p_PerformanceControl)[p]));
@@ -891,7 +891,7 @@ PRINTPROLONGATIONS:
 			continue;
 			}
 			
-		if(m == T43) {	/* Performance Control '_tempo()' */
+		if(m == T43) {	// Performance Control '_tempo()'
 			if(!nocode && sp != 4) if(Space(f,th,&sp) != OK) {
 				r = ABORT; goto SORTIR;
 				}
@@ -944,7 +944,7 @@ PRINTPROLONGATIONS:
 			continue;
 			}
 			
-		if(m == T37) {	/* Performance Control '_keymap()' */
+		if(m == T37) {	// Performance Control '_keymap()'
 			if(!nocode && sp != 4) if(Space(f,th,&sp) != OK) {
 				r = ABORT; goto SORTIR;
 				}
@@ -1093,7 +1093,7 @@ PRINTPROLONGATIONS:
 			continue;
 			}
 			
-		if(ifunc && m == T0 && p == 5) { /* interpreting grammar: ';' becomes '\r' */
+		if(ifunc && m == T0 && p == 5) { // interpreting grammar: ';' becomes '\r'
 			if(OutChar(f,th,'\n') != OK) {
 				r = ABORT; goto SORTIR;
 				}
@@ -1101,7 +1101,7 @@ PRINTPROLONGATIONS:
 			continue;
 			}
 			
-		if(ifunc && (m == T3 || m == T47) && p == Jfunc) {	/* interpreting grammar */
+		if(ifunc && (m == T3 || m == T47) && p == Jfunc) {	// interpreting grammar
 			if((r=Display('\0',nhomo,levpar,homoname,depth,p_maxib,pp_a,&i,istemplate,
 					(tokenbyte)0,(tokenbyte)0,nocode,pp_b,p_ib,f,th," --> ",NULL,-1)) != OK) {
 				goto SORTIR;
@@ -1110,8 +1110,8 @@ PRINTPROLONGATIONS:
 			continue;
 			}
 			
-		if(m == T4 && p <= Jvar) {							/* Variable */
-			if(p_Var == NULL) continue;	/* Happens when there is no grammar and no glossary */
+		if(m == T4 && p <= Jvar) {							// Variable
+			if(p_Var == NULL) continue;	// Happens when there is no grammar and no glossary
 			if(!nocode) {
 				if(sp != 4 && Space(f,th,&sp) != OK) {
 					r = ABORT; goto SORTIR;
@@ -1144,7 +1144,7 @@ PRINTPROLONGATIONS:
 			
 		if(m == T0) {
 		//	if(p == 10 && th != NULL) Reformat(wind,-1,-1,(int) 1,&None,NO,NO);	// 'S'
-			if(p == 12) {	/* '{' */
+			if(p == 12) {	// '{'
 				level++;
 				if(level >= maxpoly) {
 					maxpoly = (maxpoly * 3) / 2;
@@ -1155,19 +1155,19 @@ PRINTPROLONGATIONS:
 						}
 					}
 				}
-			if(!datamode && (p == 12 || p == 13 || p == 14 || p == 7)) /* '{', '}', comma, '•' */
+			if(!datamode && (p == 12 || p == 13 || p == 14 || p == 7)) // '{', '}', comma, '•'
 				forceshowtempo = TRUE;
-			if(p == 22 || p == 23) continue;	/* Temporary bracket '|' */
+			if(p == 22 || p == 23) continue;	// Temporary bracket '|'
 			if(nocode) {
-				if(p == 12) {	/* '{' */
+				if(p == 12) {	// '{'
 					(*p_sequence)[level] = FALSE;
 					}
-				if(p == 7 || (p > 11 && p < 20)) {		/* '•', '{', '}', comma */
+				if(p == 7 || (p > 11 && p < 20)) {		// '•', '{', '}', comma
 			//		BPPrintMessage(1,odInfo,"@ PrintArgSub\n");
 					if((*p_sequence)[level]) {
-						if(p == 13 || p == 14) {				/* '}', comma */
+						if(p == 13 || p == 14) {				// '}', comma
 							(*p_sequence)[level] = FALSE;
-							/* Insert closing '|' for bracketing sequential expression */
+							// Insert closing '|' for bracketing sequential expression
 							if((r=Display('\0',nhomo,levpar,homoname,depth,p_maxib,pp_a,&i,istemplate,T0,
 									(tokenbyte)23,nocode,pp_b,p_ib,f,th,"",NULL,-1)) != OK) {
 								goto SORTIR;
@@ -1178,9 +1178,9 @@ PRINTPROLONGATIONS:
 						goto SORTIR;
 						}
 					if((p == 12 || p == 14) && !(*p_sequence)[level]
-							&& SequenceField(pp_a,i+2)) {			/* '{', comma */
+							&& SequenceField(pp_a,i+2)) {			// '{', comma
 						(*p_sequence)[level] = TRUE;
-						/* Insert opening '|' for bracketing sequential expression */
+						// Insert opening '|' for bracketing sequential expression
 						if((r=Display('\0',nhomo,levpar,homoname,depth,p_maxib,pp_a,&i,istemplate,T0,
 								(tokenbyte)22,nocode,pp_b,p_ib,f,th,"",NULL,-1)) != OK) {
 							goto SORTIR;
@@ -1190,7 +1190,7 @@ PRINTPROLONGATIONS:
 				}
 			else {
 				if(!datamode || ((p > 11 || p == 7) && (print_periods < 3 || p == 18 || p == 19))) {
-					if((p != 1 || sp != 4) && p != 9 && p != 8 && p != 18 /* && p != 7 */
+					if((p != 1 || sp != 4) && p != 9 && p != 8 && p != 18 // && p != 7
 							&& (p < 12 || p > 14))
 						if(Space(f,th,&sp) != OK) {
 							r = ABORT; goto SORTIR;
@@ -1235,7 +1235,7 @@ PRINTPROLONGATIONS:
 						}
 					}
 				if(p == 7 || p == 14) {		// '•' or ',' 
-					(*p_pos) = 0;	/* Restart sequence */
+					(*p_pos) = 0;	// Restart sequence
 					(*p_newsection) = FALSE;
 					}
 				}
@@ -1243,12 +1243,12 @@ PRINTPROLONGATIONS:
 				level--;
 				}
 		//	if(p == 10 && th != NULL) Reformat(wind,-1,-1,(int) 0,&None,NO,NO);	// 'S'
-			if(p == 8 && (++levpar) >= MAXLEVEL) {	/* '(' */
+			if(p == 8 && (++levpar) >= MAXLEVEL) {	// '('
 				ShowError(40,0,0);
 				r = ABORT; goto SORTIR;
 				}	
-			if(p == 9) {										/* ')' */
-				if(levpar == 1 && copylevel) {	/* End of copying master */
+			if(p == 9) {										// ')'
+				if(levpar == 1 && copylevel) {	// End of copying master
 					r = OK; goto SORTIR;
 					}
 				if(levpar > 0) levpar--;
@@ -1263,15 +1263,15 @@ PRINTPROLONGATIONS:
 				if(p == 0) {
 					if(OutChar(f,th,'=') != OK) {
 						r = ABORT; goto SORTIR;
-						} /* ZERO marker  */
+						} // ZERO marker
 					}
 				else {
 					if(OutChar(f,th,':') != OK) {
 						r = ABORT; goto SORTIR;
-						} /* slave marker */
+						} // slave marker
 					}
 				}
-			if(p > 0) {							/* slave marker */
+			if(p > 0) {							// slave marker
 				if((ia=SearchOrigin(pp_a,i,p)) == -1) {
 					r = ABORT; goto SORTIR;
 					}
@@ -1306,7 +1306,7 @@ PRINTPROLONGATIONS:
 			continue;
 			}
 			
-		if(m == T9 && p < Jpatt) {				/* Time pattern */
+		if(m == T9 && p < Jpatt) {				// Time pattern
 			if(!nocode && sp != 4 && sp) if(Space(f,th,&sp) != OK) {
 				r = ABORT; goto SORTIR;
 				}
@@ -1325,7 +1325,7 @@ PRINTPROLONGATIONS:
 			goto PRINTPROLONGATIONS;
 			}
 			
-		if(m == T8 && p <= MAXWAIT) {	/* Synchronization tag */
+		if(m == T8 && p <= MAXWAIT) {	// Synchronization tag
 			if(!nocode) {
 				if(Space(f,th,&sp) != OK) {
 					r = ABORT; goto SORTIR;
@@ -1354,7 +1354,7 @@ PRINTPROLONGATIONS:
 			continue;
 			}
 			
-		if(m == T7 && (p < Jbol || p > 16383)) {	/* Out-time object or out-time simple note */
+		if(m == T7 && (p < Jbol || p > 16383)) {	// Out-time object or out-time simple note
 			if(!nocode) {
 				if(Space(f,th,&sp) != OK) {
 					r = ABORT; goto SORTIR;
@@ -1372,7 +1372,7 @@ PRINTPROLONGATIONS:
 					goto SORTIR;
 					}
 				}
-			else {	/* Simple note */
+			else {	// Simple note
 				if(nocode) Display('\0',nhomo,levpar,homoname,depth,p_maxib,pp_a,&i,istemplate,m,p,
 					nocode,pp_b,p_ib,f,th,"%s",NULL,-1);
 				else {
@@ -1392,7 +1392,7 @@ PRINTPROLONGATIONS:
 			continue;
 			}
 			
-		if(m == T5) {				/* Homomorphism */
+		if(m == T5) {				// Homomorphism
 		//	if(th != NULL) Reformat(wind,-1,-1,-1,&Color[HomomorphismC],NO,NO);
 			if(!nocode && !datamode && Jhomo > 0) {
 				if(Space(f,th,&sp) != OK) {
@@ -1616,7 +1616,7 @@ SHOWNUMBER:
 				}
 			sp = 1;
 			}
-		else {	/* Unknown token */
+		else {	// Unknown token
 			if(!nocode) if(Space(f,th,&sp) != OK) {
 				r = ABORT; goto SORTIR;
 				}
@@ -1641,7 +1641,7 @@ SHOWNUMBER:
 
 
 long SearchOrigin(tokenbyte ***pp_a,long ia,tokenbyte p) {
-	/* Find beginning of master referenced by n */
+	// Find beginning of master referenced by n
 	long i;
 	tokenbyte q;
 
@@ -1722,20 +1722,20 @@ int Display(char thechar,int nhomo,int levpar,int* homoname,int* depth,unsigned 
 			(**pp_b)[(*p_ib)++] = p;
 			}
 		else {
-					/* pp_a is istemplate, pp_b is item without structure */
+					// pp_a is istemplate, pp_b is item without structure
 			POSITION:
 					if((**pp_b)[*p_ib] == T0 && (**pp_b)[(*p_ib)+1] == 7) {
-						(*p_ib) += 2;		/* Skip '•' */
+						(*p_ib) += 2;		// Skip '•'
 						goto POSITION;
 						}
 					if((**pp_b)[*p_ib] == TEND && (**pp_b)[(*p_ib)+1] == TEND) return(MISSED);
-					if(m == T3 && p == 0) {	/* '_' */
+					if(m == T3 && p == 0) {	// '_'
 						if((**pp_b)[*p_ib] != T3 && (**pp_b)[*p_ib] != T47 && (**pp_b)[*p_ib] != T25) return(MISSED);
 						mm = (**pp_b)[*p_ib];
 						pp = (**pp_b)[(*p_ib)+1];
 						if(mm == T25) pp += 16384;
 						if(nhomo > 0 && levpar > 0) {
-							/* Search for original terminal symbol */
+							// Search for original terminal symbol
 							for(px=2; px < Jbol; px++) {
 								py = px;
 								for(n=nhomo; n >= 1; n--) {
@@ -1763,7 +1763,7 @@ int Display(char thechar,int nhomo,int levpar,int* homoname,int* depth,unsigned 
 						return(OK);
 						}
 					if(m == T1 || m == T0 || m == T5 || m == T3 || m == T47 || m == T25 || m == T43) {
-					/* m = T3 or T25 while checking slave bracket */
+					// m = T3 or T25 while checking slave bracket
 						if(m != (**pp_b)[*p_ib] || p != (**pp_b)[(*p_ib)+1]) return(MISSED);
 						(*p_ib) += 2;
 						}
@@ -1880,7 +1880,7 @@ int ShowCodes(int j) {
 									PrintBehind(wNotice,Message);
 									i += 2; break;
 									}
-								/* Here we fall into default */
+								// Here we fall into default
 							default:
 								my_sprintf(Message,"<%ld> ",(long)w);
 								PrintBehind(wNotice,Message);

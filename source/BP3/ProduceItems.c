@@ -1,4 +1,4 @@
-/* ProduceItems.c (BP3) */
+// ProduceItems.c (BP3)
 
 /*  This file is a part of Bol Processor
     Copyright (c) 1990-2000 by Bernard Bel, Jim Kippen and Srikumar K. Subramanian
@@ -242,11 +242,11 @@ int ProduceItems(int w,int repeat,int template,tokenbyte ***pp_start) {
 				}
 			MyDisposeHandle((Handle*)pp_buff);
 			ShowMessage(TRUE,wMessage,"Deriving same item further...");
-			}  /* Item is already in buffer if Improvize or not displayed */
+			}  // Item is already in buffer if Improvize or not displayed
 		}
 	else {
 		if(SelectSomething(w) != OK) {
-			/* Default start string is "S" */
+			// Default start string is "S"
 			i = 0; r = OK;
 			(**(pp_a))[i++] = T0; (**(pp_a))[i++] = (tokenbyte) 10;
 			(**(pp_a))[i++] = (tokenbyte) TEND;
@@ -403,17 +403,17 @@ int ResetRuleWeights(t_gram* p_gram,int mode) {
 			rule = (*((*(p_gram->p_subgram))[igram].p_rule))[irul];
 			if((rule.p_leftarg == NULL) || (rule.p_rightarg == NULL)) continue;
 			switch(mode) {
-				case 0:	/* Producing or analyzing items */
+				case 0:	// Producing or analyzing items
 					(*((*(p_gram->p_subgram))[igram].p_rule))[irul].w = rule.weight;
 			//		printf("igram = %d irul = %d weight = %d\n",igram,irul,rule.weight);
 					break;
-				case 1:	/* Reset before learning weights */
+				case 1:	// Reset before learning weights
 					(*((*(p_gram->p_subgram))[igram].p_rule))[irul].w = 0;
 					break;
-				case 2:	/* Copy learned weights */
+				case 2:	// Copy learned weights
 					(*((*(p_gram->p_subgram))[igram].p_rule))[irul].weight = rule.w;
 					break;
-				case 3:	/* Add learned weights */
+				case 3:	// Add learned weights
 					(*((*(p_gram->p_subgram))[igram].p_rule))[irul].weight += rule.w;
 					break;
 				}	
@@ -435,7 +435,7 @@ int AnalyzeSelection(int learn) {
 	sl = the_slashes;
 
 	if(!CompiledGr) return(MISSED);
-	/* BPActivateWindow(SLOW,wData); */
+	// BPActivateWindow(SLOW,wData);
 	p_a = NULL; pp_a = &p_a;
 	TextGetSelection(&origin, &end, TEH[wData]);
 	// SetSelect(GetTextLength(wTrace),GetTextLength(wTrace),TEH[wTrace]);
@@ -472,7 +472,7 @@ int AnalyzeSelection(int learn) {
 	if(MakeComputeSpace(MaxDeriv) != OK) return(MISSED);
 	neworigin = origin;
 
-	/* Skip headers */
+	// Skip headers
 	p_line = NULL;
 	while(ReadLine(NO,YES,wData,&origin,end,&p_line,&gap) == OK) {
 		if((*p_line)[0] == '\0') goto NEXTLINE;
@@ -544,7 +544,7 @@ int SetWeights(void) {
 
 TRY:
 	if((r=AnswerWith("Set weights to...","0",Message)) == ABORT) return(OK);
-	w = (int) atol(Message); 	/* Don't use atoi() because int's are 4 bytes */
+	w = (int) atol(Message); 	// Don't use atoi() because int's are 4 bytes
 	if(w < 0) {
 		BPPrintMessage(0,odError,"=> Weights should not be negative"); goto TRY;
 		}
@@ -556,7 +556,7 @@ TRY:
 	return(AdjustWeights());
 	}
 
-int AdjustWeights(void) {	/* Copy weights in memory to grammar window */
+int AdjustWeights(void) {	// Copy weights in memory to grammar window
 	// OBSOLETE
 	int i,j,igram,irul,newsubgram,dif,gap;
 	long pos,posline,posmax,pos1,pos2;
@@ -637,7 +637,7 @@ int AdjustWeights(void) {	/* Copy weights in memory to grammar window */
 				pos += dif; posmax += dif;
 				break;
 				}
-			else {	/* No weight found.  Create one. */
+			else {	// No weight found.  Create one.
 				pos1 = posline + gap + i;
 				SetSelect(pos1,pos1,TEH[wGrammar]);
 				my_sprintf(Message," <%ld> ",
@@ -970,7 +970,7 @@ int LastGrammarWanted(int igram) {
 	if(!ScriptExecOn && !AEventOn) {
 		if((r=AnswerWith("Last grammar in which all rules should be tried?",
 				defaultvalue,value)) != OK) return(r);
-		wantgram = (int) atol(value); 	/* Don't use atoi() because int's are 4 bytes */
+		wantgram = (int) atol(value); 	// Don't use atoi() because int's are 4 bytes
 		if(wantgram < 1 || wantgram > endgram) {
 			my_sprintf(Message,"Range should be [1,%ld]. Try again...",(long)endgram);
 			BPPrintMessage(0,odError,"%s",Message);
@@ -1097,7 +1097,7 @@ int StructuralRule(int igram, int irul) {
 	// Rule is structural if some structure markers are found in its argument, yet not in its left or right context.
 	rule = (*((*(Gram.p_subgram))[igram].p_rule))[irul];
 	funct = rule.operator;
-	if(funct == 2) return(FALSE);	/* "<--" */
+	if(funct == 2) return(FALSE);	// "<--"
 	p_arg = rule.p_rightarg;
 	if(p_arg == NULL) return(FALSE);
 	// We will ignore the left and right contexts
@@ -1109,8 +1109,8 @@ int StructuralRule(int igram, int irul) {
 	for(i=i0; ((*p_arg)[i] != TEND || (*p_arg)[i+1] != TEND) && i < i1; i+=2) {
 		p = (int) (*p_arg)[i]; q = (int) (*p_arg)[i+1];
 		switch(p) {
-			case T2:		/* Parenthesis */
-			case T5:		/* Homomorphism */
+			case T2:		// Parenthesis
+			case T5:		// Homomorphism
 	/*			my_sprintf(Message,"Found %ld.%ld position %ld i0=%ld  i1=%ld",
 					(long)p,(long)q,(long)i,(long)i0,(long)i1);
 				Println(wTrace,Message);
@@ -1144,7 +1144,7 @@ int NoVariable(tokenbyte ***pp_a) {
 	int i,p,q;
 	for(i=0;((p=(**pp_a)[i]) != TEND || (**pp_a)[i+1] != TEND); i+=2) {
 		q = (**pp_a)[i+1];
-		if(p == T0 && q == 10) return(FALSE);	/* 'S' */
+		if(p == T0 && q == 10) return(FALSE);	// 'S'
 		if(p == T4 && ((Gram.p_subgram != NULL && p_VarStatus != NULL
 			&& q <= Jvar && (((*p_VarStatus)[q] & 1) || ((*p_VarStatus)[q] & 4)))
 				|| ((*p_VarStatus)[q] == 0 && (!CompiledGr))))
@@ -1164,7 +1164,7 @@ int MakeTemplate(tokenbyte ***pp_a) {
 		if(m == T3 || m == T7 || m == T25) {
 			// Terminal or out-time object or simple note
 			if(p >= 0) {
-				(**pp_a)[i] = T3; (**pp_a)[i+1] = 0;	/* '_' */
+				(**pp_a)[i] = T3; (**pp_a)[i+1] = 0;	// '_'
 				}
 			}
 		if(m == T1) {
@@ -1316,9 +1316,9 @@ int ExpandIntegerSilences(tokenbyte ***pp_a) {
 		m = (**pp_a)[i]; q = (**pp_a)[i+1];
 		if(m == T1 && (**pp_a)[i+2] == T1) {
 			if((n = IntegerSilence(*pp_a,i)) > 0) {
-				(*p_b)[j++] = T3; (*p_b)[j++] = 1;	/* '-' */
+				(*p_b)[j++] = T3; (*p_b)[j++] = 1;	// '-'
 				for(n--; n > 0; n--) {
-					(*p_b)[j++] = T3; (*p_b)[j++] = 0;	/* '_' */
+					(*p_b)[j++] = T3; (*p_b)[j++] = 0;	// '_'
 					}
 				}
 			else {
@@ -1346,8 +1346,8 @@ long IntegerSilence(tokenbyte **p_a,unsigned long i) {
 	tokenbyte q;
 	long n;
 
-	if(i >= 2L && (*p_a)[i-2] == T0 && ((q=(*p_a)[i-1]) == 11 || q == 21 || q == 24 || q == 25)) return(0L);	/* After '/', '*', '**' or '\' */
-	if((*p_a)[i+4] == T0 && ((q=(*p_a)[i+5]) == 11 || q == 14)) return(0L); /* Followed by '/' or ',' */
+	if(i >= 2L && (*p_a)[i-2] == T0 && ((q=(*p_a)[i-1]) == 11 || q == 21 || q == 24 || q == 25)) return(0L);	// After '/', '*', '**' or '\'
+	if((*p_a)[i+4] == T0 && ((q=(*p_a)[i+5]) == 11 || q == 14)) return(0L); // Followed by '/' or ','
 	n = ((long) TOKBASE * (*p_a)[i+1]) + (*p_a)[i+3];
 	if(n < 1L || n > 1000L) return(0L);
 	return(n);
@@ -1375,7 +1375,7 @@ int WriteTemplate(t_gram* p_gram,int w,tokenbyte ***pp_a) {
 		if(m != T1 && (m != T0 || p != 3)) setting_section = FALSE;
 		if(m == T1 || (m == T0 && (p == 3 || p == 11))) foundspeed = TRUE;
 		if(m == T0 && (p == 21 || p == 24)) {
-			foundscaling = TRUE;	/* '*' or '**' */
+			foundscaling = TRUE;	// '*' or '**'
 			goto TAKEIT;
 			}
 		if(!foundscaling && !setting_section) {
@@ -1383,7 +1383,7 @@ int WriteTemplate(t_gram* p_gram,int w,tokenbyte ***pp_a) {
 		//	Print(w,"*1");
 			}
 		if(m == T0 && (p == 11 || p == 25)) {
-			foundspeed = TRUE;	/* '/' or '\' */
+			foundspeed = TRUE;	// '/' or '\'
 			}
 		if(!foundspeed && !setting_section) {
 			foundspeed = TRUE;
@@ -1398,30 +1398,30 @@ TAKEIT:
 					Print(w,line);
 					}
 				break;
-			case T1:	/* Number */
+			case T1:	// Number
 				my_sprintf(line,"%.0f",(double)(((double)TOKBASE * p) + (**pp_a)[i+3]));
 				Print(w,line);
 				if((**pp_a)[i+4] != T0 || (**pp_a)[i+5] != 11) // Not followed by '/' of a fractional silence 2026-11-10
 					Print(w," ");
 				i += 2;
 				break;
-			case T2:	/* Parenthesis marker */
+			case T2:	// Parenthesis marker
 				my_sprintf(line,"@%ld ",(long)p);
 				Print(w,line); break;
-			case T3:	/* Sound-object */
-			case T25:	/* Simple note */
-			case T7:	/* Out-time object */
+			case T3:	// Sound-object
+			case T25:	// Simple note
+			case T7:	// Out-time object
 				Print(w,"_"); break;
-			case T5:	/* Homomorphism */
+			case T5:	// Homomorphism
 				if(p < Jhomo) {
 					my_sprintf(line," %s ",*((*p_Homo)[p]));
 					Print(w,line);
 					}
 				break;
-			case T9:	/* Time pattern */
+			case T9:	// Time pattern
 				my_sprintf(line," %s ",*((*p_Patt)[p]));
 				Print(w,line); break;
-			case T43:	/* _tempo */
+			case T43:	// _tempo
 				my_sprintf(line," %s(%ld/",*((*p_PerformanceControl)[61]),(long)p);
 				Print(w,line);
 				i += 2L;
@@ -1482,7 +1482,7 @@ int ReadTemplate(int w,long pos,long *p_posend,tokenbyte ***pp_a,long posmax,int
 			if((ptr = (tokenbyte**) IncreaseSpace((Handle)ptr)) == NULL) return(ABORT);
 			*pp_a = ptr;
 			}
-		if(c == '@') {	/* Bracket marker */
+		if(c == '@') {	// Bracket marker
 			j = 0;
 			while(!MySpace(c=GetTextChar(w,++pos))) {
 				c = c - '0';
@@ -1501,14 +1501,14 @@ int ReadTemplate(int w,long pos,long *p_posend,tokenbyte ***pp_a,long posmax,int
 				p = &((*h)[pos]);
 				j = GetPerformanceControl(&p,0,&n,NO,&u,&v,&map);
 				// BPPrintMessage(0,odInfo,"@ GetPerformanceControl() c == '_', n = %d\n",n);
-				if(j == 61) {	/* _tempo */
+				if(j == 61) {	// _tempo
 					(**pp_a)[i++] = T43; (**pp_a)[i++] = (tokenbyte) u;
 					(**pp_a)[i++] = T43; (**pp_a)[i++] = (tokenbyte) v;
 					while((c=GetTextChar(w,pos)) != ')' && c != '\0') pos++;
 					continue;
 					}
 				}
-			(**pp_a)[i++] = T3;	/* '_' */
+			(**pp_a)[i++] = T3;	// '_'
 			(**pp_a)[i++] = (tokenbyte) 0; continue;
 			}
 		
@@ -1518,19 +1518,19 @@ int ReadTemplate(int w,long pos,long *p_posend,tokenbyte ***pp_a,long posmax,int
 	
 		if(c == '*') {
 			if(isdigit(d=GetTextChar(w,pos+1))) {
-				(**pp_a)[i++] = T0;		/* scaling up '*' */
+				(**pp_a)[i++] = T0;		// scaling up '*'
 				(**pp_a)[i++] = (tokenbyte) 21;
 				continue;
 				}
 			if(d == '*' && isdigit(GetTextChar(w,pos+2))) {
-				(**pp_a)[i++] = T0;		/* scaling down '**' */
+				(**pp_a)[i++] = T0;		// scaling down '**'
 				(**pp_a)[i++] = (tokenbyte) 24;
 				pos++;
 				continue;
 				}
 			}
 		
-		/* Look for homomorphism */
+		// Look for homomorphism
 		MyLock(NO,(Handle) h);
 		for(j=lmax=0; j < Jhomo; j++) {
 			p = &((*h)[pos]);
@@ -1547,14 +1547,14 @@ int ReadTemplate(int w,long pos,long *p_posend,tokenbyte ***pp_a,long posmax,int
 			continue;
 			}
 		
-		/* Look for code */
+		// Look for code
 		if((j=FindCode(c)) != -1) {
 			(**pp_a)[i++] = T0;
 			(**pp_a)[i++] = (tokenbyte) j;
 			continue;
 			}
 	
-		/* Look for number */
+		// Look for number
 		c -= '0'; k = ZERO;
 		if(c >= 0 && c <= 9) {
 			do {
@@ -1570,7 +1570,7 @@ int ReadTemplate(int w,long pos,long *p_posend,tokenbyte ***pp_a,long posmax,int
 			continue;
 			}
 				
-		/* Look for time pattern */
+		// Look for time pattern
 		MyLock(NO,(Handle) h);
 		for(j=lmax=0; j < Jpatt; j++) {
 			p = &((*h)[pos]);
@@ -1648,8 +1648,8 @@ END:
 
 int AnalyzeBuffer(tokenbyte ***pp_a,int learn,int templates,int all,long pos,int *p_result,
 	char *remark) {
-/* Analyze item in a[] */
-/* 'pos' is position of first template considered in grammar window */
+// Analyze item in a[]
+// 'pos' is position of first template considered in grammar window
 	int repeat,r;
 	long lengthA;
 
@@ -1846,7 +1846,7 @@ NEXTTEMPLATE:
 	for(i=0; ; i+=2) {
 		m = (**pp_a)[i]; p = (**pp_a)[i+1];
 		if(m == TEND && p == TEND) goto NEXTTEMPLATE;
-		/* Skip speed markers */
+		// Skip speed markers
 		if(m == T0) {
 			switch(p) {
 				case 11:
@@ -1907,8 +1907,8 @@ NEXTTEMPLATE:
 
 
 int MatchTemplate(tokenbyte ***pp_a,tokenbyte ***pp_b) {
-/* p_a is item without structure, p_b is template */
-/* On normal exit p_a should have structure derived from template */
+// p_a is item without structure, p_b is template
+// On normal exit p_a should have structure derived from template
 	tokenbyte **p_c;
 	double maxseqapprox;
 	int r,hasperiods,ifunc,hastabs,datamode;

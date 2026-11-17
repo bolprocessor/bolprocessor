@@ -1,5 +1,5 @@
-/* ConsoleMemory.c (BP3) */
-/* August 12, 2013 */
+// ConsoleMemory.c (BP3)
+// August 12, 2013
 
 /*  This file is a part of Bol Processor
 Copyright (c) 1990-2000 by Bernard Bel, Jim Kippen and Srikumar K. Subramanian
@@ -38,7 +38,7 @@ POSSIBILITY OF SUCH DAMAGE.
 #include "-BP3.h"
 #include "-BP3decl.h"
 
-/* ANSI replacements for memory allocation functions in BP3 */
+// ANSI replacements for memory allocation functions in BP3
 
 /* s_handle_priv is a "private" structure to implement Handles in a similar 
    fashion to Mac OS' relocatable blocks.  The memory pointed to by our handle
@@ -199,7 +199,7 @@ int MySetHandleSize(Handle* p_h, Size size) {
 		h->memblock = new_mem;
 		h->size = size;
 	/*	if(size > oldsize) */  MemoryUsed += (long)(size - oldsize);
-	/*	else  MemoryUsed -= (unsigned long)(oldsize - size); */
+	// else  MemoryUsed -= (unsigned long)(oldsize - size);
 		if(MemoryUsed > MaxMemoryUsed) {
 			MaxMemoryUsed = MemoryUsed;
 			}

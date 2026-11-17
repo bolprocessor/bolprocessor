@@ -1,4 +1,4 @@
-/* Tonality.c (BP3) */ 
+// Tonality.c (BP3) 
 
 /*  This file is a part of Bol Processor
     Copyright (c) 1990-2000 by Bernard Bel, Jim Kippen and Srikumar K. Subramanian
@@ -158,7 +158,7 @@ int CreateMicrotonalScale(char* line, char* name, char* note_names, char* key_nu
 				}
 			switch(n_args) {
 				case 5:
-					(*Scale)[NumberScales].numgrades = numgrades = (int) atol(curr_arg); /* Don't use atoi() because integers are 4 bytes */
+					(*Scale)[NumberScales].numgrades = numgrades = (int) atol(curr_arg); // Don't use atoi() because integers are 4 bytes
 				//	BPPrintMessage(0,odError,"numgrades = %d\n",numgrades);
 					(*Scale)[NumberScales].tuningratio = (double**) GiveSpace((Size)((numgrades + 1) * sizeof(double)));
 					(*Scale)[NumberScales].notenames = (char****) GiveSpace((Size)((numgrades + 1) * sizeof(char**)));

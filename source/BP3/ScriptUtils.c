@@ -1,4 +1,4 @@
-/* ScriptUtils.c (BP3) */
+// ScriptUtils.c (BP3)
 
 /*  This file is a part of Bol Processor
     Copyright (c) 1990-2000 by Bernard Bel, Jim Kippen and Srikumar K. Subramanian
@@ -42,7 +42,7 @@ int trace_script = 0;
 
 int DoScript(int i_script,char*** p_keyon,int wind,int check,int instr,long* p_posdir,
 	int* p_changed,char* p_newarg,int quick) {
-	/* 'quick' is not used. */
+	// 'quick' is not used.
 	int i,j,k,w,ww,pos,r,rs,firstchar,diffchar,channel,thekey,displayitems,
 		oldoutmidi,oldwritemidifile,oldoutcsound,oms,changed,tried,oldparamcontrol,oldparamkey,oldparamchan;
 	unsigned int seed;
@@ -220,7 +220,7 @@ int DoScript(int i_script,char*** p_keyon,int wind,int check,int instr,long* p_p
 			if(TraceMIDIinteraction && (oldparamchan != ParamChan[i] || oldparamkey != ParamKey[i]))
 				BPPrintMessage(0,odInfo,"Script: K%d will be set by key %d chan %d\n",i,ParamKey[i],ParamChan[i]);
 			break;
-		case 16:	/* Type */
+		case 16:	// Type
 			if(wind == wInteraction || wind == wGlossary) return(MISSED);
 			if(!Editable[ScriptW]) {
 				Print(wTrace,"Can't type to non-text window.\n");
@@ -243,10 +243,10 @@ int DoScript(int i_script,char*** p_keyon,int wind,int check,int instr,long* p_p
 			ShowSelect(CENTRE,ScriptW);
 			MyDisposeHandle((Handle*)&p_line);
 			break;
-		case 17:	/* Hold */
-		case 190:	/* MIDI send Start */
-		case 191:	/* MIDI send Continue */
-		case 192:	/* MIDI send Stop */
+		case 17:	// Hold
+		case 190:	// MIDI send Start
+		case 191:	// MIDI send Continue
+		case 192:	// MIDI send Stop
 	//		if(wind == wInteraction || wind == wGlossary) return(MISSED);
 			if(check) return(OK);
 			if(instr == 17) {
@@ -268,9 +268,9 @@ int DoScript(int i_script,char*** p_keyon,int wind,int check,int instr,long* p_p
 			((*p_OUTscript)[Joutscript]).time = 1000 * Tcurr * Time_res; // microseconds
 			if(TraceMIDIinteraction) BPPrintMessage(0,odInfo,"[%d] OUTscript instruction %d, duration = %lu ms, time = %lu ms\n",Joutscript,instr,((*p_OUTscript)[Joutscript]).duration / 1000L,((*p_OUTscript)[Joutscript]).time / 1000L);
 			break;
-		case 193:	/* CT (control tag) — dispatcher passthrough, no engine action */
+		case 193:	// CT (control tag) — dispatcher passthrough, no engine action
 			break;
-		case 18:	/* Max time */
+		case 18:	// Max time
 			if(wind == wInteraction || wind == wGlossary) return(MISSED);
 			if(check) return(OK);
 			jj = (*(ScriptLine.intarg))[0];
@@ -278,7 +278,7 @@ int DoScript(int i_script,char*** p_keyon,int wind,int check,int instr,long* p_p
 			else WaitEndDate += jj;
 			MoreTime = FALSE;
 			break;
-		case 19:	/* Delete n chars */
+		case 19:	// Delete n chars
 			if(wind == wInteraction || wind == wGlossary) return(MISSED);
 			if(check) return(OK);
 			jj = (*(ScriptLine.intarg))[0];
@@ -288,23 +288,23 @@ int DoScript(int i_script,char*** p_keyon,int wind,int check,int instr,long* p_p
 				}
 			ShowSelect(CENTRE,ScriptW);
 			break;
-		case 20:	/* MIDI sound ON */
+		case 20:	// MIDI sound ON
 			if(wind == wInteraction || wind == wGlossary) return(MISSED);
 			if(check) return(OK);
 			return(MISSED);
 			break;
-		case 21:	/* MIDI sound OFF */
+		case 21:	// MIDI sound OFF
 			if(wind == wInteraction || wind == wGlossary) return(MISSED);
 			if(check) return(OK);
 			rtMIDI = FALSE;
 			break;
-		case 22:	/* Csound score ON */
+		case 22:	// Csound score ON
 			if(wind == wInteraction || wind == wGlossary) return(MISSED);
 			if(check) return(OK);
 			OutCsound = TRUE;
 			
 			break;
-		case 23:	/* Csound score OFF */
+		case 23:	// Csound score OFF
 			if(wind == wInteraction || wind == wGlossary) return(MISSED);
 			if(check) return(OK);
 			oldoutcsound = OutCsound;
@@ -761,7 +761,7 @@ int DoScript(int i_script,char*** p_keyon,int wind,int check,int instr,long* p_p
 			if(check) return(OK);
 			Nature_of_time = STRIATED;
 			break;
-		case 45:	/* tempo */
+		case 45:	// tempo
 			if(wind == wInteraction || wind == wGlossary) return(MISSED);
 			if(check) return(OK);
 			Qclock = (double)(*(ScriptLine.intarg))[0];
@@ -778,47 +778,47 @@ int DoScript(int i_script,char*** p_keyon,int wind,int check,int instr,long* p_p
 			BufferSize = ((*(ScriptLine.intarg))[0] + 1L) * 2L;
 			SetBufferSize();
 			break; */
-		case 49:	/* Number streaks from 0 */
+		case 49:	// Number streaks from 0
 			if(wind == wInteraction || wind == wGlossary) return(MISSED);
 			if(!check) StartFromOne = FALSE; break;
-		case 50:	/* Number streaks from 1 */
+		case 50:	// Number streaks from 1
 			if(wind == wInteraction || wind == wGlossary) return(MISSED);
 			if(!check) StartFromOne = TRUE; break;
-		case 51:	/* Graphic scaling */
+		case 51:	// Graphic scaling
 			if(wind == wInteraction || wind == wGlossary) return(MISSED);
 			if(check) return(OK);
 			GraphicScaleP = (*(ScriptLine.intarg))[0];
 			GraphicScaleQ = (*(ScriptLine.intarg))[1] / 10L;
 			break;
-		case 52:	/* Quantize on */
+		case 52:	// Quantize on
 			if(wind == wInteraction || wind == wGlossary) return(MISSED);
 			if(!check) Quantize = TRUE;
 			break;
 		/* case 53:	// Reset keyboard
 			if(wind == wInteraction || wind == wGlossary) return(MISSED);
 			if(!check) ResetKeyboard(YES); break; */
-		case 54:	/* Time resolution */
+		case 54:	// Time resolution
 			if(wind == wInteraction || wind == wGlossary) return(MISSED);
 			if(check) return(OK);
 			Time_res = (*(ScriptLine.intarg))[0];
 		// 	ResetDriver();
 			break;
-		case 55:	/* Reset random sequence */
+		case 55:	// Reset random sequence
 			if(wind == wInteraction || wind == wGlossary) return(MISSED);
 			if(!check) ResetRandom();
 			break;
-		case 56:	/* Randomize */
+		case 56:	// Randomize
 			if(wind == wInteraction || wind == wGlossary) return(MISSED);
 			if(!check) ReseedOrShuffle(NEWSEED);
 			break;
-		case 57:	/* Seed */
+		case 57:	// Seed
 			if(wind == wInteraction || wind == wGlossary) return(MISSED);
 			if(check) return(OK);
 			seed = (Seed + (*(ScriptLine.intarg))[0]) % 32768;
 			bp3_srand(seed);
 			UsedRandom = TRUE;
 			break;
-		case 58:	/* MIDI set-up time */
+		case 58:	// MIDI set-up time
 			if(wind == wInteraction) return(MISSED);
 			if(check) return(OK);
 			j= (*(ScriptLine.intarg))[0];
@@ -828,7 +828,7 @@ int DoScript(int i_script,char*** p_keyon,int wind,int check,int instr,long* p_p
 				}
 			MIDIsetUpTime = j;
 			break;
-		case 59:	/* Selection start */
+		case 59:	// Selection start
 			if(wind == wInteraction || wind == wGlossary) return(MISSED);
 			j= (*(ScriptLine.intarg))[0];
 			if(Editable[ScriptW]) {
@@ -851,7 +851,7 @@ int DoScript(int i_script,char*** p_keyon,int wind,int check,int instr,long* p_p
 				r = ABORT;
 				}
 			break;
-		case 60:	/* Selection end */
+		case 60:	// Selection end
 			if(wind == wInteraction || wind == wGlossary) return(MISSED);
 			j= (*(ScriptLine.intarg))[0];
 			if(Editable[ScriptW]) {
@@ -875,16 +875,16 @@ int DoScript(int i_script,char*** p_keyon,int wind,int check,int instr,long* p_p
 				r = ABORT;
 				}
 			break;
-		case 65:	/* Quantization */
+		case 65:	// Quantization
 			if(wind == wInteraction || wind == wGlossary) return(MISSED);
 			if(check) return(OK);
 			Quantization = (*(ScriptLine.intarg))[0];
 			break;
 		case 46:	// Wait for Space
 		case 47:	// Wait forever
-		case 66: /* Wait for Continue */
-		case 67: /* Wait for Start */
-		case 128: /* Wait for Stop */
+		case 66: // Wait for Continue
+		case 67: // Wait for Start
+		case 128: // Wait for Stop
 			if(check) return(OK);
 			timethisscript = 1000 * Tcurr * Time_res; // microseconds
 			for(j = 1; j <= Jinscript; j++) { // Is this script already there? It happens in improvisation
@@ -916,7 +916,7 @@ int DoScript(int i_script,char*** p_keyon,int wind,int check,int instr,long* p_p
 				else  BPPrintMessage(0,odInfo,"[%d] INscript instruction %d, wait for MIDI event %d, time = %lu ms\n",j,instr,((*p_INscript)[j]).key,((*p_INscript)[j]).time / 1000L);
 				}
 			break;
-		case 68:	/* Return */
+		case 68:	// Return
 			if(wind == wInteraction || wind == wGlossary) return(MISSED);
 			return(FINISH);
 			break;
@@ -924,7 +924,7 @@ int DoScript(int i_script,char*** p_keyon,int wind,int check,int instr,long* p_p
 			if(check) return(OK);
 			return(mPause(0));
 			break; */
-		case 70:	/* Set directory: */
+		case 70:	// Set directory:
 			if(wind == wInteraction || wind == wGlossary) return(MISSED);
 			CurrentDir = (*(ScriptLine.intarg))[0];
 			TextGetSelection(&selbegin, &selend, TEH[wTrace]);
@@ -937,7 +937,7 @@ int DoScript(int i_script,char*** p_keyon,int wind,int check,int instr,long* p_p
 					}
 				}
 			break;
-		case 71:	/* MIDI program */
+		case 71:	// MIDI program
 			if(wind == wInteraction || wind == wGlossary) return(MISSED);
 			if(check) return(OK);
 			e.time = Tcurr;
@@ -950,7 +950,7 @@ int DoScript(int i_script,char*** p_keyon,int wind,int check,int instr,long* p_p
 			e.data2 = (*(ScriptLine.intarg))[0] - ProgNrFrom;
 			if((r=SendToDriver(0,0,0,Tcurr * Time_res,0,&rs,&e)) != OK) return(r);
 			break;
-		case 72:	/* Quantize off */
+		case 72:	// Quantize off
 			if(wind == wInteraction || wind == wGlossary) return(MISSED);
 			if(!check) Quantize = FALSE;
 			break;
@@ -1013,7 +1013,7 @@ int DoScript(int i_script,char*** p_keyon,int wind,int check,int instr,long* p_p
 					}
 				}
 			break; */
-		case 75:	/* MIDI (undefined) controller */
+		case 75:	// MIDI (undefined) controller
 			if(wind == wInteraction || wind == wGlossary) return(MISSED);
 			if(check) return(OK);
 			e.time = Tcurr;
@@ -1023,7 +1023,7 @@ int DoScript(int i_script,char*** p_keyon,int wind,int check,int instr,long* p_p
 			e.data2 = (*(ScriptLine.intarg))[1];
 			if((r=SendToDriver(0,0,0,Tcurr * Time_res,0,&rs,&e)) != OK) return(r);
 			break;
-		case 76: /* MIDI local control off */
+		case 76: // MIDI local control off
 			if(wind == wInteraction) return(MISSED);
 			if(check) return(OK);
 			e.time = Tcurr;
@@ -1033,7 +1033,7 @@ int DoScript(int i_script,char*** p_keyon,int wind,int check,int instr,long* p_p
 			e.data2 = 0;
 			if((r=SendToDriver(0,0,0,Tcurr * Time_res,0,&rs,&e)) != OK) return(r);
 			break;
-		case 77: /* MIDI local control on */
+		case 77: // MIDI local control on
 			if(wind == wInteraction) return(MISSED);
 			if(check) return(OK);
 			e.time = Tcurr;
@@ -1043,7 +1043,7 @@ int DoScript(int i_script,char*** p_keyon,int wind,int check,int instr,long* p_p
 			e.data2 = 127;
 			if((r=SendToDriver(0,0,0,Tcurr * Time_res,0,&rs,&e)) != OK) return(r);
 			break;
-		case 78: /* MIDI all notes off */
+		case 78: // MIDI all notes off
 			if(wind == wInteraction || wind == wGlossary) return(MISSED);
 			if(check) return(OK);
 			e.time = Tcurr;
@@ -1053,7 +1053,7 @@ int DoScript(int i_script,char*** p_keyon,int wind,int check,int instr,long* p_p
 			e.data2 = 0;
 			if((r=SendToDriver(0,0,0,Tcurr * Time_res,0,&rs,&e)) != OK) return(r);
 			break;
-		case 79: /* MIDI Omni mode off */
+		case 79: // MIDI Omni mode off
 			if(wind == wInteraction) return(MISSED);
 			if(check) return(OK);
 			e.time = Tcurr;
@@ -1063,7 +1063,7 @@ int DoScript(int i_script,char*** p_keyon,int wind,int check,int instr,long* p_p
 			e.data2 = 0;
 			if((r=SendToDriver(0,0,0,Tcurr * Time_res,0,&rs,&e)) != OK) return(r);
 			break;
-		case 80: /* MIDI Omni mode on */
+		case 80: // MIDI Omni mode on
 			if(wind == wInteraction) return(MISSED);
 			if(check) return(OK);
 			e.time = Tcurr;
@@ -1073,7 +1073,7 @@ int DoScript(int i_script,char*** p_keyon,int wind,int check,int instr,long* p_p
 			e.data2 = 0;
 			if((r=SendToDriver(0,0,0,Tcurr * Time_res,0,&rs,&e)) != OK) return(r);
 			break;
-		case 81: /* MIDI Mono mode ON ["0..16" voices] channel "1..16" */
+		case 81: // MIDI Mono mode ON ["0..16" voices] channel "1..16"
 			if(wind == wInteraction) return(MISSED);
 			if(check) return(OK);
 			e.time = Tcurr;
@@ -1083,7 +1083,7 @@ int DoScript(int i_script,char*** p_keyon,int wind,int check,int instr,long* p_p
 			e.data2 = (*(ScriptLine.intarg))[0];
 			if((r=SendToDriver(0,0,0,Tcurr * Time_res,0,&rs,&e)) != OK) return(r);
 			break;
-		case 82: /* Poly mode ON channel "1..16" */
+		case 82: // Poly mode ON channel "1..16"
 			if(wind == wInteraction) return(MISSED);
 			if(check) return(OK);
 			e.time = Tcurr;
@@ -1093,7 +1093,7 @@ int DoScript(int i_script,char*** p_keyon,int wind,int check,int instr,long* p_p
 			e.data2 = 0;
 			if((r=SendToDriver(0,0,0,Tcurr * Time_res,0,&rs,&e)) != OK) return(r);
 			break;
-		case 83: /* MIDI decimal send "decimal data" */
+		case 83: // MIDI decimal send "decimal data"
 			if(wind == wInteraction || wind == wGlossary) return(MISSED);
 			if(check) return(OK);
 			if((p_line=(char**) GiveSpace((Size)MyGetHandleSize((Handle)
@@ -1102,7 +1102,7 @@ int DoScript(int i_script,char*** p_keyon,int wind,int check,int instr,long* p_p
 			r = SendMIDIstream(check,p_line,FALSE);
 			MyDisposeHandle((Handle*)&p_line);
 			break;
-		case 84: /* MIDI hexa send "hexadecimal data" */
+		case 84: // MIDI hexa send "hexadecimal data"
 			if(wind == wInteraction || wind == wGlossary) return(MISSED);
 			if(check) return(OK);
 			if((p_line=(char**) GiveSpace((Size)MyGetHandleSize((Handle)
@@ -1111,7 +1111,7 @@ int DoScript(int i_script,char*** p_keyon,int wind,int check,int instr,long* p_p
 			r = SendMIDIstream(check,p_line,TRUE);
 			MyDisposeHandle((Handle*)&p_line);
 			break;
-		case 85: /* Play item */
+		case 85: // Play item
 			if(wind == wInteraction || wind == wGlossary) return(MISSED);
 			if(SoundOn) {
 				my_sprintf(Message,"\nYou can't play '%s' while playing another item.\n",
@@ -1119,8 +1119,8 @@ int DoScript(int i_script,char*** p_keyon,int wind,int check,int instr,long* p_p
 				Print(wTrace,Message);
 				return(MISSED);
 				}
-			if(check == 2) {	/* Compiling 'INIT:' in grammar */
-				/* Here *p_Posdir is actually line position in grammar window. */
+			if(check == 2) {	// Compiling 'INIT:' in grammar
+				// Here *p_Posdir is actually line position in grammar window.
 				*p_posdir += MyHandleLen((p_ScriptLabelPart(85,0)));
 				TextGetSelection(&selbegin, &selend, TEH[wGrammar]);
 				SelectBehind(*p_posdir,selend,TEH[wGrammar]);
@@ -1142,7 +1142,7 @@ int DoScript(int i_script,char*** p_keyon,int wind,int check,int instr,long* p_p
 			if(!check && ScriptExecOn == 0 && wind == wScript) r = ABORT;
 			else r = OK;
 			break;
-		case 86: /* MIDI switch ON "64..69" channel "1..16" */
+		case 86: // MIDI switch ON "64..69" channel "1..16"
 			if(wind == wInteraction || wind == wGlossary) return(MISSED);
 			if(check) return(OK);
 			e.time = Tcurr;
@@ -1152,7 +1152,7 @@ int DoScript(int i_script,char*** p_keyon,int wind,int check,int instr,long* p_p
 			e.data2 = 127;
 			if((r=SendToDriver(0,0,0,Tcurr * Time_res,0,&rs,&e)) != OK) return(r);
 			break;
-		case 87: /* MIDI switch OFF "64..69" channel "1..16" */
+		case 87: // MIDI switch OFF "64..69" channel "1..16"
 			if(wind == wInteraction || wind == wGlossary) return(MISSED);
 			if(check) return(OK);
 			e.time = Tcurr;
@@ -1162,11 +1162,11 @@ int DoScript(int i_script,char*** p_keyon,int wind,int check,int instr,long* p_p
 			e.data2 = 0;
 			if((r=SendToDriver(0,0,0,Tcurr * Time_res,0,&rs,&e)) != OK) return(r);
 			break;
-		case 88:	/* Indian convention */
+		case 88:	// Indian convention
 			if(check) return(OK);
 			NoteConvention = INDIAN;
 			break;
-		case 89:	/* IN Derive further key "note" channel "1..16" */
+		case 89:	// IN Derive further key "note" channel "1..16"
 			if(wind == wGlossary) return(MISSED);
 			if(check) return(OK);
 			if(wind == wInteraction && DeriveFurtherChan != -1) {
@@ -1179,7 +1179,7 @@ int DoScript(int i_script,char*** p_keyon,int wind,int check,int instr,long* p_p
 			DeriveFurtherKey = (*(ScriptLine.intarg))[0];
 			DeriveFurtherChan = (*(ScriptLine.intarg))[1];
 			break;
-		case 90:	/* IN Reset weights key "note" channel "1..16" */
+		case 90:	// IN Reset weights key "note" channel "1..16"
 			if(wind == wGlossary) return(MISSED);
 			if(check) return(OK);
 			if(wind == wInteraction && ResetWeightChan != -1) {
@@ -1192,7 +1192,7 @@ int DoScript(int i_script,char*** p_keyon,int wind,int check,int instr,long* p_p
 			ResetWeightKey = (*(ScriptLine.intarg))[0];
 			ResetWeightChan = (*(ScriptLine.intarg))[1];
 			break;
-		case 91:	/* IN Start play key "note" channel "1..16" */
+		case 91:	// IN Start play key "note" channel "1..16"
 			if(wind == wGlossary) return(MISSED);
 			if(check) return(OK);
 			if(wind == wInteraction && PlayChan != -1) {
@@ -1205,7 +1205,7 @@ int DoScript(int i_script,char*** p_keyon,int wind,int check,int instr,long* p_p
 			PlayKey = (*(ScriptLine.intarg))[0];
 			PlayChan = (*(ScriptLine.intarg))[1];
 			break;
-		case 92:	/* IN Repeat v times (velocity) key "note" channel "1..16" */
+		case 92:	// IN Repeat v times (velocity) key "note" channel "1..16"
 			if(wind == wGlossary) return(MISSED);
 			if(check) return(OK);
 			if(wind == wInteraction && RepeatChan != -1) {
@@ -1218,7 +1218,7 @@ int DoScript(int i_script,char*** p_keyon,int wind,int check,int instr,long* p_p
 			RepeatKey = (*(ScriptLine.intarg))[0];
 			RepeatChan = (*(ScriptLine.intarg))[1];
 			break;
-		case 93:	/* IN End repeat key "note" channel "1..16" */
+		case 93:	// IN End repeat key "note" channel "1..16"
 			if(wind == wGlossary) return(MISSED);
 			if(check) return(OK);
 			if(wind == wInteraction && EndRepeatChan != -1) {
@@ -1231,7 +1231,7 @@ int DoScript(int i_script,char*** p_keyon,int wind,int check,int instr,long* p_p
 			EndRepeatKey = (*(ScriptLine.intarg))[0];
 			EndRepeatChan = (*(ScriptLine.intarg))[1];
 			break;
-		case 94:	/* IN Repeat forever key "note" channel "1..16" */
+		case 94:	// IN Repeat forever key "note" channel "1..16"
 			if(wind == wGlossary) return(MISSED);
 			if(check) return(OK);
 			if(wind == wInteraction && EverChan != -1) {
@@ -1244,7 +1244,7 @@ int DoScript(int i_script,char*** p_keyon,int wind,int check,int instr,long* p_p
 			EverKey = (*(ScriptLine.intarg))[0];
 			EverChan = (*(ScriptLine.intarg))[1];
 			break;
-		case 95:	/* IN Quit key "note" channel "1..16" */
+		case 95:	// IN Quit key "note" channel "1..16"
 			if(wind == wGlossary) return(MISSED);
 			if(check) return(OK);
 			if(wind == wInteraction && QuitChan != -1) {
@@ -1257,7 +1257,7 @@ int DoScript(int i_script,char*** p_keyon,int wind,int check,int instr,long* p_p
 			QuitKey = (*(ScriptLine.intarg))[0];
 			QuitChan = (*(ScriptLine.intarg))[1];
 			break;
-		case 96:	/* IN Use each substitution key "note" channel "1..16" [toggle] */
+		case 96:	// IN Use each substitution key "note" channel "1..16" [toggle]
 			if(wind == wGlossary) return(MISSED);
 			if(check) return(OK);
 			if(wind == wInteraction && UseEachSubChan != -1) {
@@ -1270,7 +1270,7 @@ int DoScript(int i_script,char*** p_keyon,int wind,int check,int instr,long* p_p
 			UseEachSubKey = (*(ScriptLine.intarg))[0];
 			UseEachSubChan = (*(ScriptLine.intarg))[1];
 			break;
-		case 97:	/* IN Wait for note */
+		case 97:	// IN Wait for note
 	//		if(wind == wGlossary) return(MISSED);
 			if(check) return OK;
 			timethisscript = 1000 * Tcurr * Time_res; // microseconds
@@ -1295,7 +1295,7 @@ int DoScript(int i_script,char*** p_keyon,int wind,int check,int instr,long* p_p
 			((*p_INscript)[j]).time = timethisscript; // microseconds
 			if(TraceMIDIinteraction) BPPrintMessage(0,odInfo,"[%d] INscript instruction %d, key = %d chan = %d, time = %lu ms\n",j,instr,(*(ScriptLine.intarg))[0],(*(ScriptLine.intarg))[1],((*p_INscript)[j]).time / 1000L);
 			break;
-		case 98:	/* IN Control tempo controller #"0..127" channel "1..16" range "float" */
+		case 98:	// IN Control tempo controller #"0..127" channel "1..16" range "float"
 			if(wind == wGlossary) return(MISSED);
 			if(check) return(OK);
 			if(wind == wInteraction && SynchronizeStartChan != -1) {
@@ -1308,7 +1308,7 @@ int DoScript(int i_script,char*** p_keyon,int wind,int check,int instr,long* p_p
 			SpeedChan = (*(ScriptLine.intarg))[1];
 			SpeedRange = (*(ScriptLine.floatarg))[2];
 			break;
-		case 99:	/* IN Set computation time to 'v' key "note" channel "1..16" */
+		case 99:	// IN Set computation time to 'v' key "note" channel "1..16"
 			if(wind == wGlossary) return(MISSED);
 			if(check) return(OK);
 			if(wind == wInteraction && SetTimeChan != -1) {
@@ -1321,7 +1321,7 @@ int DoScript(int i_script,char*** p_keyon,int wind,int check,int instr,long* p_p
 			SetTimeKey = (*(ScriptLine.intarg))[0];
 			SetTimeChan = (*(ScriptLine.intarg))[1];
 			break;
-		case 100:	/* IN Smooth/striated time (toggle) key "note" channel "1..16" */
+		case 100:	// IN Smooth/striated time (toggle) key "note" channel "1..16"
 			if(wind == wGlossary) return(MISSED);
 			if(check) return(OK);
 			if(wind == wInteraction && StriatedChan != -1) {
@@ -1334,7 +1334,7 @@ int DoScript(int i_script,char*** p_keyon,int wind,int check,int instr,long* p_p
 			StriatedKey = (*(ScriptLine.intarg))[0];
 			StriatedChan = (*(ScriptLine.intarg))[1];
 			break;
-		case 101:	/* IN Use/ignore object constraints (toggle) key "note" channel "1..16" */
+		case 101:	// IN Use/ignore object constraints (toggle) key "note" channel "1..16"
 			if(wind == wGlossary) return(MISSED);
 			if(check) return(OK);
 			if(wind == wInteraction && NoConstraintChan != -1) {
@@ -1347,7 +1347,7 @@ int DoScript(int i_script,char*** p_keyon,int wind,int check,int instr,long* p_p
 			NoConstraintKey = (*(ScriptLine.intarg))[0];
 			NoConstraintChan = (*(ScriptLine.intarg))[1];
 			break;
-		case 102:	/* IN Skip next item key "note" channel "1..16" */
+		case 102:	// IN Skip next item key "note" channel "1..16"
 			if(wind == wGlossary) return(MISSED);
 			if(check) return(OK);
 			if(wind == wInteraction && SkipChan != -1) {
@@ -1360,7 +1360,7 @@ int DoScript(int i_script,char*** p_keyon,int wind,int check,int instr,long* p_p
 			SkipKey = (*(ScriptLine.intarg))[0];
 			SkipChan = (*(ScriptLine.intarg))[1];
 			break;
-		case 103:	/* IN Play again item key "note" channel "1..16" */
+		case 103:	// IN Play again item key "note" channel "1..16"
 			if(wind == wGlossary) return(MISSED);
 			if(check) return(OK);
 			if(wind == wInteraction && AgainChan != -1) {
@@ -1373,7 +1373,7 @@ int DoScript(int i_script,char*** p_keyon,int wind,int check,int instr,long* p_p
 			AgainKey = (*(ScriptLine.intarg))[0];
 			AgainChan = (*(ScriptLine.intarg))[1];
 			break;
-		case 104:	/* IN Synchronisation tag "Wx" = key "note" channel "1..16" */
+		case 104:	// IN Synchronisation tag "Wx" = key "note" channel "1..16"
 			if(wind == wGlossary) return(MISSED);
 			if(check) return(OK);
 			i = (*(ScriptLine.intarg))[0];
@@ -1389,7 +1389,7 @@ int DoScript(int i_script,char*** p_keyon,int wind,int check,int instr,long* p_p
 			WaitKey[i] = (*(ScriptLine.intarg))[1];
 			WaitChan[i] = (*(ScriptLine.intarg))[2];
 			break;
-		case 105:	/* Control parameter _Kx_ from #_0..127_ channel _1..16_ */
+		case 105:	// Control parameter _Kx_ from #_0..127_ channel _1..16_
 		//	if(wind == wGlossary) return(MISSED);
 			if(!check) return(OK);
 			i = (*(ScriptLine.intarg))[0];
@@ -1407,7 +1407,7 @@ int DoScript(int i_script,char*** p_keyon,int wind,int check,int instr,long* p_p
 				BPPrintMessage(0,odInfo,"Script: Parameter K%d will be set by controller #%d chan %d\n",i,ParamControl[i],ParamChan[i]);
 			return OK; // 2024-06-19
 			break;
-		case 106:	/* IN Adjust tempo minimum tempo "long" ticks in "long" secs key "note" maximum tempo "long" ticks in "long" secs key "note" channel "1..16" */
+		case 106:	// IN Adjust tempo minimum tempo "long" ticks in "long" secs key "note" maximum tempo "long" ticks in "long" secs key "note" channel "1..16"
 			if(wind == wGlossary) return(MISSED);
 			if(check) return(OK);
 			if(wind == wInteraction && TclockChan != -1) {
@@ -1433,168 +1433,168 @@ int DoScript(int i_script,char*** p_keyon,int wind,int check,int instr,long* p_p
 			if(check) return(OK);
 			ResetInteraction();
 			break; */
-		case 108:	/* Display Scrap */
+		case 108:	// Display Scrap
 			if(wind == wInteraction || wind == wGlossary) return(MISSED);
 			if(!check) BPActivateWindow(SLOW,wScrap);
 			break;
-		case 109:	/* Display info */
+		case 109:	// Display info
 			if(wind == wInteraction || wind == wGlossary) return(MISSED);
 			if(!check) BPActivateWindow(SLOW,wNotice);
 			break;
-		case 110:	/* BP3 script */
+		case 110:	// BP3 script
 			return(OK); break;
-		case 111:  	/* Compute while play OFF */
+		case 111:  	// Compute while play OFF
 			if(wind == wInteraction || wind == wGlossary) return(MISSED);
 			if(check) return(OK);
 			ComputeWhilePlay = FALSE; 
 			break;
-		case 112:  	/* Compute while play ON */
+		case 112:  	// Compute while play ON
 			if(wind == wInteraction || wind == wGlossary) return(MISSED);
 			if(check) return(OK);
 			ComputeWhilePlay = TRUE; 
 			break;
-		case 113:  	/* Non-stop improvize OFF */
+		case 113:  	// Non-stop improvize OFF
 			if(wind == wInteraction || wind == wGlossary) return(MISSED);
 			if(check) return(OK);
 			Improvize = FALSE;  
 			break;
-		case 114:  	/* Non-stop improvize ON */
+		case 114:  	// Non-stop improvize ON
 			if(wind == wInteraction || wind == wGlossary) return(MISSED);
 			if(check) return(OK);
 			Improvize = ON;  
 			break;
-		case 115:  	/* Cyclic play OFF */
+		case 115:  	// Cyclic play OFF
 			if(wind == wInteraction || wind == wGlossary) return(MISSED);
 			if(check) return(OK);
 			CyclicPlay = FALSE;  
 			break;
-		case 116:  	/* Cyclic play ON */
+		case 116:  	// Cyclic play ON
 			if(wind == wInteraction || wind == wGlossary) return(MISSED);
 			if(check) return(OK);
 			CyclicPlay = TRUE;  
 			break;
-		case 117:  	/* Use each substitution OFF */
+		case 117:  	// Use each substitution OFF
 			if(wind == wInteraction || wind == wGlossary) return(MISSED);
 			if(check) return(OK);
 			UseEachSub = FALSE; 
 			break;
-		case 118:  	/* Use each substitution ON */
+		case 118:  	// Use each substitution ON
 			if(wind == wInteraction || wind == wGlossary) return(MISSED);
 			if(check) return(OK);
 			UseEachSub = TRUE; 
 			break;
-		case 119:  	/* Produce all items OFF */
+		case 119:  	// Produce all items OFF
 			if(wind == wInteraction || wind == wGlossary) return(MISSED);
 			if(check) return(OK);
 			AllItems = FALSE;  
 			break;
-		case 120:  	/* Produce all items ON */
+		case 120:  	// Produce all items ON
 			if(wind == wInteraction || wind == wGlossary) return(MISSED);
 			if(check) return(OK);
 			AllItems = TRUE;  
 			break;
-		case 121:  	/* Display items OFF */
+		case 121:  	// Display items OFF
 			if(wind == wInteraction || wind == wGlossary) return(MISSED);
 			if(check) return(OK);
 			DisplayItems = FALSE; 
 			break;
-		case 122:  	/* Display items ON */
+		case 122:  	// Display items ON
 			if(wind == wInteraction || wind == wGlossary) return(MISSED);
 			if(check) return(OK);
 			DisplayItems = TRUE; 
 			break;
-		case 123:  	/* Show graphic OFF */
+		case 123:  	// Show graphic OFF
 			if(wind == wInteraction || wind == wGlossary) return(MISSED);
 			if(check) return(OK);
 			ShowGraphic = FALSE; 
 			break;
-		case 124:  	/* Show graphic ON */
+		case 124:  	// Show graphic ON
 			if(wind == wInteraction || wind == wGlossary) return(MISSED);
 			if(check) return(OK);
 			ShowGraphic = TRUE; 
 			break;
-		case 125:  	/* Autorandomize OFF */
+		case 125:  	// Autorandomize OFF
 			if(wind == wInteraction || wind == wGlossary) return(MISSED);
 			if(check) return(OK);
 			AllowRandomize = FALSE; 
 			break;
-		case 126:  	/* Autorandomize ON */
+		case 126:  	// Autorandomize ON
 			if(wind == wInteraction || wind == wGlossary) return(MISSED);
 			if(check) return(OK);
 			AllowRandomize = TRUE; 
 			break;
-		case 127:  	/* Use MIDI in/out OFF */
+		case 127:  	// Use MIDI in/out OFF
 			if(wind == wInteraction || wind == wGlossary) return(MISSED);
 			if(check) return(OK);
 			rtMIDI = FALSE;  
 			break;
-		case 129:  	/* Synchronize start OFF */
+		case 129:  	// Synchronize start OFF
 			if(wind == wInteraction || wind == wGlossary) return(MISSED);
 			if(check) return(OK);
 			SynchronizeStart = FALSE; 
 			break;
-		case 130:  	/* Synchronize start ON */
+		case 130:  	// Synchronize start ON
 			if(wind == wInteraction || wind == wGlossary) return(MISSED);
 			if(check) return(OK);
 			SynchronizeStart = TRUE; 
 			break;
-		case 131:  	/* Interactive (use input) OFF */
+		case 131:  	// Interactive (use input) OFF
 			if(wind == wInteraction || wind == wGlossary) return(MISSED);
 			if(check) return(OK);
 		//	Interactive = FALSE;  
 			break;
-		case 132:  	/* Interactive (use input) ON */
+		case 132:  	// Interactive (use input) ON
 			if(wind == wInteraction || wind == wGlossary) return(MISSED);
 			if(check) return(OK);
 			Interactive = TRUE;  
 			break;
-		case 133:  	/* Reset rule weights OFF */
+		case 133:  	// Reset rule weights OFF
 			if(wind == wInteraction || wind == wGlossary) return(MISSED);
 			if(check) return(OK);
 			ResetWeights = FALSE; 
 			break;
-		case 134:  	/* Reset rule weights ON */
+		case 134:  	// Reset rule weights ON
 			if(wind == wInteraction || wind == wGlossary) return(MISSED);
 			if(check) return(OK);
 			ResetWeights = TRUE; 
 			NeverResetWeights = FALSE;
 			break;
-		case 135:  	/* Reset rule flags OFF */
+		case 135:  	// Reset rule flags OFF
 			if(wind == wInteraction || wind == wGlossary) return(MISSED);
 			if(check) return(OK);
 			ResetFlags = FALSE; 
 			break;
-		case 136:  	/* Reset rule flags ON */
+		case 136:  	// Reset rule flags ON
 			if(wind == wInteraction || wind == wGlossary) return(MISSED);
 			if(check) return(OK);
 			ResetFlags = TRUE; 
 			break;
-		case 137:  	/* Ignore constraints OFF */
+		case 137:  	// Ignore constraints OFF
 			if(wind == wInteraction || wind == wGlossary) return(MISSED);
 			if(check) return(OK);
 			NoConstraint = OFF; 
 			break;
-		case 138:  	/* Ignore constraints ON */
+		case 138:  	// Ignore constraints ON
 			if(wind == wInteraction || wind == wGlossary) return(MISSED);
 			if(check) return(OK);
 			NoConstraint = ON; 
 			break;
-		case 139:  	/* Show messages OFF */
+		case 139:  	// Show messages OFF
 			if(wind == wInteraction || wind == wGlossary) return(MISSED);
 			if(check) return(OK);
 			ShowMessages = OFF; 
 			break;
-		case 140:  	/* Show messages ON */
+		case 140:  	// Show messages ON
 			if(wind == wInteraction || wind == wGlossary) return(MISSED);
 			if(check) return(OK);
 			ShowMessages = ON; 
 			break;
-		case 141:  	/* Reset controllers OFF */
+		case 141:  	// Reset controllers OFF
 			if(wind == wInteraction || wind == wGlossary) return(MISSED);
 			if(check) return(OK);
 			ResetControllers = FALSE; 
 			break;
-		case 142:  	/* Reset controllers ON */
+		case 142:  	// Reset controllers ON
 			if(wind == wInteraction || wind == wGlossary) return(MISSED);
 			if(check) return(OK);
 			ResetControllers = TRUE; 
@@ -1605,15 +1605,15 @@ int DoScript(int i_script,char*** p_keyon,int wind,int check,int instr,long* p_p
 			BPActivateWindow(SLOW,wGlossary);
 			break;
 		case 144: return(OK); break;
-		case 145:	/* Define... */
+		case 145:	// Define...
 			if(wind != wGlossary) {
 				Print(wTrace,"'Define...' should appear only in the \"Glossary\" window.\n");
 				return(MISSED);
 				}
 			break;
-		case 146:	/* MIDI set default channel to "1..16" */
+		case 146:	// MIDI set default channel to "1..16"
 			CurrentChannel = (*(ScriptLine.intarg))[0]; break;
-		case 147:	/* Produce and play "int" items */
+		case 147:	// Produce and play "int" items
 			if(wind == wInteraction || wind == wGlossary) return(MISSED);
 			if(check) return(OK);
 			ItemNumber = ZERO;
@@ -1647,17 +1647,17 @@ int DoScript(int i_script,char*** p_keyon,int wind,int check,int instr,long* p_p
 			
 			if(r == EXIT) return(r);
 			break;
-		case 148:	/* Beep */
+		case 148:	// Beep
 			if(wind == wInteraction || wind == wGlossary) return(MISSED);
 			if(check) return(OK);
 			SysBeep(10);
 			break;
-		case 149:	/* Prompt ON */
+		case 149:	// Prompt ON
 			if(wind == wInteraction || wind == wGlossary) return(MISSED);
 			if(check) return(OK);
 			OkWait = TRUE;
 			break;
-		case 150:	/* Prompt OFF */
+		case 150:	// Prompt OFF
 			if(wind == wInteraction || wind == wGlossary) return(MISSED);
 			if(check) return(OK);
 			OkWait = FALSE;
@@ -1673,32 +1673,32 @@ int DoScript(int i_script,char*** p_keyon,int wind,int check,int instr,long* p_p
 				}
 			else r = ABORT;
 			break; */
-		case 152:  	/* Display time setting OFF */
+		case 152:  	// Display time setting OFF
 			if(wind == wInteraction || wind == wGlossary) return(MISSED);
 			if(check) return(OK);
 			DisplayTimeSet = FALSE; 
 			break;
-		case 153:  	/* Display time setting ON */
+		case 153:  	// Display time setting ON
 			if(wind == wInteraction || wind == wGlossary) return(MISSED);
 			if(check) return(OK);
 			DisplayTimeSet = TRUE; 
 			break;
-		case 154:  	/* Step time setting OFF */
+		case 154:  	// Step time setting OFF
 			if(wind == wInteraction || wind == wGlossary) return(MISSED);
 			if(check) return(OK);
 			StepTimeSet = FALSE; 
 			break;
-		case 155:  	/* Step time setting ON */
+		case 155:  	// Step time setting ON
 			if(wind == wInteraction || wind == wGlossary) return(MISSED);
 			if(check) return(OK);
 			StepTimeSet = TRUE; 
 			break;
-		case 156:  	/* Trace time setting OFF */
+		case 156:  	// Trace time setting OFF
 			if(wind == wInteraction || wind == wGlossary) return(MISSED);
 			if(check) return(OK);
 			TraceTimeSet = FALSE; 
 			break;
-		case 157:  	/* Trace time setting ON */
+		case 157:  	// Trace time setting ON
 			if(wind == wInteraction || wind == wGlossary) return(MISSED);
 			if(check) return(OK);
 			TraceTimeSet = TRUE; 
@@ -1712,15 +1712,15 @@ int DoScript(int i_script,char*** p_keyon,int wind,int check,int instr,long* p_p
 				}
 			else r = ABORT;
 			break; */
-		case 159:	/* Text Color ON */
+		case 159:	// Text Color ON
 			if(check) return(OK);
 			// ForceTextColor = +1; UseTextColor = TRUE;
 			break;
-		case 160:	/* Text Color OFF */
+		case 160:	// Text Color OFF
 			if(check) return(OK);
 			// ForceTextColor = -1; UseTextColor = FALSE;
 			break;
-		case 161:	/* IN On note channel "1..16" do "script instruction" */
+		case 161:	// IN On note channel "1..16" do "script instruction"
 		//	if(wind != wInteraction) return(MISSED);
 			if(CheckUsedKey(p_keyon,0,1) != OK) return(MISSED);
 			if(check) return(OK);
@@ -1734,17 +1734,17 @@ int DoScript(int i_script,char*** p_keyon,int wind,int check,int instr,long* p_p
 			((*p_INscript)[Jinscript]).chan = (*(ScriptLine.intarg))[1]; 
 			((*p_INscript)[Jinscript]).scriptline = (*(ScriptLine.intarg))[2];
 			break;
-		case 162:	/* Graphic Color ON */
+		case 162:	// Graphic Color ON
 			if(check) return(OK);
 			if(wind == wInteraction || wind == wGlossary) return(MISSED);
 			// ForceGraphicColor = +1; UseGraphicsColor = TRUE;
 			break;
-		case 163:	/* Graphic Color OFF */
+		case 163:	// Graphic Color OFF
 			if(check) return(OK);
 			if(wind == wInteraction || wind == wGlossary) return(MISSED);
 			// ForceGraphicColor = -1; UseGraphicsColor = FALSE;
 			break;
-		case 164:	/* Set output window "windowname" */
+		case 164:	// Set output window "windowname"
 			if(wind == wInteraction || wind == wGlossary) return(MISSED);
 			if((w=BPGetWindowIndex(line,0)) != ABORT) {
 				if(check) return(OK);
@@ -1752,11 +1752,11 @@ int DoScript(int i_script,char*** p_keyon,int wind,int check,int instr,long* p_p
 				}
 			else r = ABORT;
 			break;
-		case 165:	/* Tick cycle ON */
+		case 165:	// Tick cycle ON
 			if(check) return(OK);
 			if(wind == wInteraction || wind == wGlossary) return(MISSED);
 			break;
-		case 166:	/* Tick cycle OFF */
+		case 166:	// Tick cycle OFF
 			if(check) return(OK);
 			if(wind == wInteraction || wind == wGlossary) return(MISSED);
 			break;
@@ -1812,26 +1812,26 @@ int DoScript(int i_script,char*** p_keyon,int wind,int check,int instr,long* p_p
 			MystrcpyTableToString(5,type2,ScriptLine.arg,1);
 			WaitKeyStrokeOrAppleEvent(' ',NO,APPLEVENT,theclass,theID,type1,type2);
 			break; */
-		case 170:	/* Stop */
+		case 170:	// Stop
 			if(check) return(OK);
 		//	return(mStop(0));
 			break;
-		case 171: break; /* (- */
-		case 172: break; /* (- */
+		case 171: break; // (-
+		case 172: break; // (-
 		case 173:
 			if(wind == wInteraction || wind == wGlossary) return(MISSED);
 			if(!check) BPActivateWindow(SLOW,wTimeBase);
-		case 174: break; /* Reset session time */
-		case 175: break; /* Tell session time */
-		case 176: /* Reset tick cycle */
+		case 174: break; // Reset session time
+		case 175: break; // Tell session time
+		case 176: // Reset tick cycle
 			if(check) return(OK);
 			if(wind == wInteraction || wind == wGlossary) return(MISSED);
 			break;
-		case 177:	/* Time ticks OFF */
+		case 177:	// Time ticks OFF
 			if(check) return(OK);
 			if(wind == wInteraction || wind == wGlossary) return(MISSED);
 			break;
-		case 178:	/* Time ticks ON */
+		case 178:	// Time ticks ON
 			if(check) return(OK);
 			if(wind == wInteraction || wind == wGlossary) return(MISSED);
 			break;
@@ -1872,17 +1872,17 @@ int DoScript(int i_script,char*** p_keyon,int wind,int check,int instr,long* p_p
 			WriteMIDIfile = FALSE;
 			if(oldwritemidifile) CloseMIDIFile();
 			break; */
-		case 186: /* Csound trace ON */
+		case 186: // Csound trace ON
 			if(wind == wInteraction || wind == wGlossary) return(MISSED);
 			if(check) return(OK);
 			CsoundTrace = TRUE;
 			break;
-		case 187: /* Csound trace OFF */
+		case 187: // Csound trace OFF
 			if(wind == wInteraction || wind == wGlossary) return(MISSED);
 			if(check) return(OK);
 			CsoundTrace = FALSE;
 			break;
-		case 188:	/* IN Mute ON "note" channel "1..16" */
+		case 188:	// IN Mute ON "note" channel "1..16"
 			if(wind == wGlossary) return(MISSED);
 			if(check) return(OK);
 			if(wind == wInteraction && MuteOnChan != -1) {
@@ -1899,7 +1899,7 @@ int DoScript(int i_script,char*** p_keyon,int wind,int check,int instr,long* p_p
 			MuteOnKey = (*(ScriptLine.intarg))[0];
 			MuteOnChan = (*(ScriptLine.intarg))[1];
 			break;
-		case 189:	/* IN Mute OFF "note" channel "1..16" */
+		case 189:	// IN Mute OFF "note" channel "1..16"
 			if(wind == wGlossary) return(MISSED);
 			if(check) return(OK);
 			if(wind == wInteraction && MuteOffChan != -1) {
@@ -2204,7 +2204,7 @@ BADCREATOR:
 				h = (Handle) (*(ScriptLine.arg))[j];
 				imax = MyGetHandleSize((Handle)p_args);
 				MySetHandleSize((Handle*)&h,(Size)imax);
-				/* It will be resized down after use */
+				// It will be resized down after use
 				(*(ScriptLine.arg))[j] = h;
 				imax = (imax / sizeof(char)) - 1;
 				}

@@ -1,4 +1,4 @@
-/*  CTextHandles.c (BP3) */
+// CTextHandles.c (BP3)
 
 /*  This file is a part of Bol Processor
     Copyright (c) 1990-2000 by Bernard Bel, Jim Kippen and Srikumar K. Subramanian
@@ -160,7 +160,7 @@ int TextGetSelection(TextOffset* start,TextOffset* end, TextHandle th) {
 int SetSelect(TextOffset start,TextOffset end, TextHandle th) {
 	long maxoffset;
 
-	/* clamp range to text bounds */
+	// clamp range to text bounds
 	maxoffset = GetTextHandleLength(th);
 	if(start < ZERO) {
 		BPPrintMessage(0,odError,"=> Err. SetSelect(). start < ZERO\n");

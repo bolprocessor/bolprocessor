@@ -1,4 +1,4 @@
-/* CompileProcs.c (BP3) */
+// CompileProcs.c (BP3)
 
 /*  This file is a part of Bol Processor
     Copyright (c) 1990-2000 by Bernard Bel, Jim Kippen and Srikumar K. Subramanian
@@ -40,7 +40,7 @@
 #include "-BP3decl.h"
 
 
-int SkipRem(char **p) {	/* Skip comments between[] or C programming style */
+int SkipRem(char **p) {	// Skip comments between[] or C programming style
 	char c,*ptr;
 	int level;
 
@@ -89,7 +89,7 @@ int FindLeftoffset(tokenbyte **p_left,tokenbyte **p_right,int *p_lenc) {
 	moresymbols = 0;
 	for(j=i;(*p_left)[j] != TEND || (*p_left)[j+1] != TEND; j+=4) {
 		if((*p_right)[j] == TEND && (*p_right)[j+1] == TEND) break;
-		if((*p_left)[j] == T0 && (*p_left)[j+1] == 2) {	/* Skip neg context */
+		if((*p_left)[j] == T0 && (*p_left)[j+1] == 2) {	// Skip neg context
 			continue;
 			}
 		moresymbols = TRUE;
@@ -125,7 +125,7 @@ int FindRightoffset(tokenbyte **p_left, tokenbyte **p_right, int *p_lenarg) {
 	moresymbols = 0;
 	for(ii=i; ii >= 0; ii-=4, j-=4) {
 		if(ii > 1 && (*p_left)[ii-2] == T0 && (*p_left)[ii-1] == 2) {
-			/* Skip neg context */
+			// Skip neg context
 			continue;
 			}
 		if(j >= 0) {
@@ -182,7 +182,7 @@ int CreateEventScript(char *x,int quick) {
 	diff = TRUE;
 	if(TraceMIDIinteraction) BPPrintMessage(0,odInfo,"Creating script instruction during compilation from “%s”\n",x);
 	if(!quick && Jscriptline > 0) {
-	/* quick is TRUE in the second argument of glossary instructions */
+	// quick is TRUE in the second argument of glossary instructions
 		for(i=0; i < Jscriptline; i++) {
 			if((diff = Mystrcmp((*p_Script)[i],x)) == 0) {
 			//	diff = FALSE;
@@ -228,13 +228,13 @@ int CreateEventScript(char *x,int quick) {
 
 long GetArgument(int mode,char **pp,int *p_inc,long *p_initparam,int *p_foundk,
 	double *p_x,long *p_u,long *p_v) {
-	/* mode = 1 : rule weight (possibly Kx) */
-	/* mode = 2 : negative or positive (possibly Kx=y) */
-	/* mode = 3 : two integers */
-	/* mode = 4 : negative or positive integer */
-	/* mode = 5 : negative or positive integer representing 100 times the value */
-	/* mode = 6 : negative or positive floating-point value */
-	/* mode = 7 : negative or positive floating-point value or ratio */
+	// mode = 1 : rule weight (possibly Kx)
+	// mode = 2 : negative or positive (possibly Kx=y)
+	// mode = 3 : two integers
+	// mode = 4 : negative or positive integer
+	// mode = 5 : negative or positive integer representing 100 times the value
+	// mode = 6 : negative or positive floating-point value
+	// mode = 7 : negative or positive floating-point value or ratio
 	int control,sign,dec,isnumber;
 	long i,n,num,den;
 	char c,d,s,**qq,*q,line[MAXLIN];
@@ -268,7 +268,7 @@ NEXTCHAR:
 		line[i] = '\0';
 		if(isnumber) (*p_x) = Myatof(line,&num,&den);
 		else (*p_x) = 0.;
-		n = 1;	/* dummy value */
+		n = 1;	// dummy value
 		goto SORTIR;
 		}
 
@@ -325,7 +325,7 @@ NEXTCHAR4:
 		Simplify((double)INT_MAX,u,v,&u,&v);
 		(*p_u) = (long) (u * sign);
 		(*p_v) = (long) v;
-		n = 1;	/* dummy value */
+		n = 1;	// dummy value
 		goto SORTIR;
 		}
 
@@ -353,7 +353,7 @@ READ:
 	for(n=ZERO; (c=(**qq)) != ')' && c != '>' && c != '-' && c != '+'
 			&& c != '=' && c != ',' && !MySpace(c); (*qq)++) {
 		if(!control && (mode == 1) && (c == 'i' || c == -80)) {
-			/* Infinite weight: <inf> (preferred) or legacy <\xb0> (Latin-1 only) */
+			// Infinite weight: <inf> (preferred) or legacy <\xb0> (Latin-1 only)
 			if(c == 'i' && *((*qq)+1) == 'n' && *((*qq)+2) == 'f') {
 				(*qq) += 3;
 				}
@@ -361,7 +361,7 @@ READ:
 				(*qq)++;
 				}
 			else goto NOT_INF;
-			n = INT_MIN;		/* Infinite weight */
+			n = INT_MIN;		// Infinite weight
 			while(MySpace(**qq)) (*qq)++;
 			if((**qq) != '>') return(INT_MAX);
 			goto SORTIR;
@@ -388,7 +388,7 @@ READ:
 		}
 	if(mode == 3 && (**qq) == ',') {
 		(*qq)++;
-		(*p_inc) = sign * n;	/* In general, p_inc has another meaning here. */
+		(*p_inc) = sign * n;	// In general, p_inc has another meaning here.
 		goto READ;
 		}
 	if(mode == 1 && ((**qq) == '>')) goto SORTIR;
@@ -474,7 +474,7 @@ int GetMode(char **pp, int type) {
 	int i,j,mode;
 	char c,d,*p;
 
-	mode = 0;  /* default 'RND' */
+	mode = 0;  // default 'RND'
 	for(j=0; j < MAXMODE && strlen(Mode[j]) > 0; j++) {
 		p = *pp; i = 0;
 		while(i < strlen(Mode[j])
@@ -490,7 +490,7 @@ int GetMode(char **pp, int type) {
 		}
 	if(type == ORDtype) {
 		if(mode == j) return(mode);
-		else return(1);	/* default 'LEFT' */
+		else return(1);	// default 'LEFT'
 		}
 	if(type == LINtype || type == SUB1type || type == POSLONGtype) {
 		if(mode == j && mode != 1) {
@@ -527,7 +527,7 @@ int SkipGramProc(char **pp) {
 
 int GetProcedure(int igram,char **pp,int arg_nr,int *p_igram,int *p_irul,double *p_x,
 	long *p_y) {
-	/* arg_nr = 0 : searching for procedure on top of a subgrammar */
+	// arg_nr = 0 : searching for procedure on top of a subgrammar
 
 	int i,im,j,jproc,k,incweight,length,foundk;
 	long initparam,u,v;
@@ -555,16 +555,16 @@ int GetProcedure(int igram,char **pp,int arg_nr,int *p_igram,int *p_irul,double 
 	p = q;
 
 	switch(jproc) {
-		case 0:	/* _goto */
-		case 1:	/* _failed */
-		case 2:	/* _repeat */
+		case 0:	// _goto
+		case 1:	// _failed
+		case 2:	// _repeat
 			NotBPCase[7] = TRUE;
 		/*	if(AllItems) {
 				BPPrintMessage(0,odError,"=> Cannot produce all items because this grammar contains a '%s' instruction\n",*((*p_GramProcedure)[jproc]));
 				return(ABORT);
 				} */
-			/* no break */
-		case 16:	/* _srand */
+			// no break
+		case 16:	// _srand
 			if(jproc != 16 && arg_nr != 2) {
 				my_sprintf(Message,"\n'%s' may only occur be in the right argument or a rule.",
 					*((*p_GramProcedure)[jproc]));
@@ -576,7 +576,7 @@ int GetProcedure(int igram,char **pp,int arg_nr,int *p_igram,int *p_irul,double 
 				return(ABORT);
 				}
 			if(jproc == 16) {
-				if(arg_nr != 0) return(jproc);	/* This won't be used. _srand() actually belongs to the left argument */
+				if(arg_nr != 0) return(jproc);	// This won't be used. _srand() actually belongs to the left argument
 				if((k=GetArgument(4,&p,&incweight,&initparam,&foundk,p_x,&u,&v)) == INT_MAX) {
 					Print(wTrace,"\nIncorrect or missing argument after '_srand'");
 					return(ABORT);
@@ -592,7 +592,7 @@ int GetProcedure(int igram,char **pp,int arg_nr,int *p_igram,int *p_irul,double 
 				return(jproc);
 				break;
 				}
-			if(jproc == 2) {	/* _repeat */
+			if(jproc == 2) {	// _repeat
 				if((k=GetArgument(2,&p,&incweight,&initparam,&foundk,p_x,&u,&v)) == INT_MAX) {
 					Print(wTrace,"\nIncorrect or missing argument after '_repeat'");
 					return(ABORT);
@@ -609,7 +609,7 @@ int GetProcedure(int igram,char **pp,int arg_nr,int *p_igram,int *p_irul,double 
 						if(initparam == INT_MAX) {
 							k = ParamInit[i];
 							}
-						else {	/* Found '<Kx=y>' */
+						else {	// Found '<Kx=y>'
 							k = 1;
 							if(ParamInit[i] == INT_MAX) ParamInit[i] = ParamValue[i] = initparam;
 							else {
@@ -638,7 +638,7 @@ int GetProcedure(int igram,char **pp,int arg_nr,int *p_igram,int *p_irul,double 
 					}
 				}
 			*p_igram = k; p++;
-			if(jproc == 2) {	/* _repeat */
+			if(jproc == 2) {	// _repeat
 				*pp = p; return(jproc);
 				}
 			k = 0;
@@ -655,7 +655,7 @@ int GetProcedure(int igram,char **pp,int arg_nr,int *p_igram,int *p_irul,double 
 			*pp = p;
 			return(jproc);
 			break;
-		case 11:	/* _destru */
+		case 11:	// _destru
 			NotBPCase[7] = TRUE;
 			if(arg_nr == 1) {
 				my_sprintf(Message,"\n'%s' should be on top of a subgrammar or in the right argument of a rule.",
@@ -663,20 +663,20 @@ int GetProcedure(int igram,char **pp,int arg_nr,int *p_igram,int *p_irul,double 
 				Print(wTrace,Message);
 				return(ABORT);
 				}
-		case 12:	/* _randomize */
+		case 12:	// _randomize
 			if(arg_nr > 0) return(RESUME);
-		case 3:		/* _stop */
-		case 4:		/* _print */
-		case 5:		/* _printOn */
-		case 6:		/* _printOff */
-		case 7:		/* _stepOn */
-		case 8:		/* _stepOff */
-		case 9:		/* _traceOn */
-		case 10:	/* _traceOff */
-		case 14:	/* _striated */
-		case 15:	/* _smooth */
+		case 3:		// _stop
+		case 4:		// _print
+		case 5:		// _printOn
+		case 6:		// _printOff
+		case 7:		// _stepOn
+		case 8:		// _stepOff
+		case 9:		// _traceOn
+		case 10:	// _traceOff
+		case 14:	// _striated
+		case 15:	// _smooth
 			break;
-		case 13:	/* _mm */
+		case 13:	// _mm
 			if((igram > 1 || arg_nr > 0) && (jproc == 14 || jproc == 15 || jproc == 13)) {
 				my_sprintf(Message,"\n'%s' should always be on top of the first subgrammar.",
 					*((*p_GramProcedure)[jproc]));
@@ -736,66 +736,66 @@ int GetPerformanceControl(char **pp,int arg_nr,int *p_n,int quick,long *p_u,long
 		}
 	ptr = q;
 	switch(jinstr) {
-		case 0:	/* _chan() */
-		case 1:	/* _vel() */
-		case 5:	/* _mod() */
-		case 11: /* _press() */
-		case 16: /* _volume() */
-		case 19: /* _legato() */
-		case 20: /* _staccato() */
-		case 29: /* _pitchrange() */
-		case 30: /* _pitchrate() */
-		case 31: /* _modrate() */
-		case 32: /* _pressrate() */
-		case 34: /* _volumerate() */
-		case 35: /* _volumecontrol() */
-		case 36: /* _pan() */
-		case 40: /* _panrate() */
-		case 41: /* _pancontrol() */
-		case 56: /* _rndvel() */
-		case 57: /* _rotate() */
-		case 59: /* _rndtime() */
-		case 60: /* _srand() */
-		case 66: /* _capture() */
+		case 0:	// _chan()
+		case 1:	// _vel()
+		case 5:	// _mod()
+		case 11: // _press()
+		case 16: // _volume()
+		case 19: // _legato()
+		case 20: // _staccato()
+		case 29: // _pitchrange()
+		case 30: // _pitchrate()
+		case 31: // _modrate()
+		case 32: // _pressrate()
+		case 34: // _volumerate()
+		case 35: // _volumecontrol()
+		case 36: // _pan()
+		case 40: // _panrate()
+		case 41: // _pancontrol()
+		case 56: // _rndvel()
+		case 57: // _rotate()
+		case 59: // _rndtime()
+		case 60: // _srand()
+		case 66: // _capture()
 			goto GETARG;
-		case 8:	/* _pitchbend() */
+		case 8:	// _pitchbend()
 			k = 4;
 			goto GETARGN;
-		case 33: /* _transpose() */
+		case 33: // _transpose()
 			k = 5;
 			goto GETARGN;
-		case 2:	/* _velstep */
-		case 3:	/* _velcont */
-		case 6:	/* _modstep */
-		case 7:	/* _modcont */
-		case 9:	/* _pitchstep */
-		case 10: /* _pitchcont */
-		case 12: /* _presstep */
-		case 13: /* _presscont */
-		case 17: /* _volumestep */
-		case 18: /* _volumecont */
-		case 21: /* _articulstep */
-		case 22: /* _articulcont */
-		case 23: /* _velfixed */
-		case 24: /* _modfixed */
-		case 25: /* _pitchfixed */
-		case 26: /* _pressfixed */
-		case 27: /* _volumefixed */
-		case 28: /* _articulfixed */
-		case 37: /* _panstep */
-		case 38: /* _pancont */
-		case 39: /* _panfixed */
-		case 42: /* _rest */
-		case 48: /* _retro */
-		case 49: /* _rndseq */
-		case 50: /* _randomize */
-		case 51: /* _ordseq */
-		case 53: /* _mapfixed */
-		case 54: /* _mapcont */
-		case 55: /* _mapstep */
-		case 62: /* _transposefixed */
-		case 63: /* _transposecont */
-		case 64: /* _transposestep */
+		case 2:	// _velstep
+		case 3:	// _velcont
+		case 6:	// _modstep
+		case 7:	// _modcont
+		case 9:	// _pitchstep
+		case 10: // _pitchcont
+		case 12: // _presstep
+		case 13: // _presscont
+		case 17: // _volumestep
+		case 18: // _volumecont
+		case 21: // _articulstep
+		case 22: // _articulcont
+		case 23: // _velfixed
+		case 24: // _modfixed
+		case 25: // _pitchfixed
+		case 26: // _pressfixed
+		case 27: // _volumefixed
+		case 28: // _articulfixed
+		case 37: // _panstep
+		case 38: // _pancont
+		case 39: // _panfixed
+		case 42: // _rest
+		case 48: // _retro
+		case 49: // _rndseq
+		case 50: // _randomize
+		case 51: // _ordseq
+		case 53: // _mapfixed
+		case 54: // _mapcont
+		case 55: // _mapstep
+		case 62: // _transposefixed
+		case 63: // _transposecont
+		case 64: // _transposestep
 			*pp = ptr;
 			if((*ptr) == '(') {
 				my_sprintf(Message,"\nShould not find '(' after '%s'",*((*p_PerformanceControl)[jinstr]));
@@ -803,23 +803,23 @@ int GetPerformanceControl(char **pp,int arg_nr,int *p_n,int quick,long *p_u,long
 				return(ABORT);
 				}
 			return(jinstr);
-		case 4:	/* _script() */
-		case 43: /* _ins() */
-		case 67: /* _part() */
-		case 45: /* _step() */
-		case 46: /* _cont() */
-		case 47: /* _fixed() */
+		case 4:	// _script()
+		case 43: // _ins()
+		case 67: // _part()
+		case 45: // _step()
+		case 46: // _cont()
+		case 47: // _fixed()
 			goto GETSTRING;
-		case 14: /* _switchon() */
-		case 15: /* _switchoff() */
+		case 14: // _switchon()
+		case 15: // _switchoff()
 			goto GET2ARGS;
-		case 44: /* _value() */
-		case 58: /* _keyxpand() */
-		case 65: /* _scale() */
+		case 44: // _value()
+		case 58: // _keyxpand()
+		case 65: // _scale()
 			goto GET2CONSTANTS;
-		case 52: /* _keymap() */
+		case 52: // _keymap()
 			goto GET4ARGS;
-		case 61: /* _tempo() */
+		case 61: // _tempo()
 			goto GETRATIO;
 		default:
 			my_sprintf(Message,"=> Err. GetPerformanceControl(). Unknown instruction");
@@ -956,31 +956,31 @@ int GetPerformanceControl(char **pp,int arg_nr,int *p_n,int quick,long *p_u,long
 		return(ABORT);
 		}
 	else {
-		if(foundk) {	/* Found '<Kx>' or '<Kx=y>' */
+		if(foundk) {	// Found '<Kx>' or '<Kx=y>'
 			i = - k - 1;
 			switch(jinstr) {
-				case 5: /* _mod() */
-				case 29: /* _pitchrange() */ 
-				case 30: /* _pitchrate() */
-				case 31: /* _modrate() */
-				case 32: /* _pressrate() */
-				case 34: /* _volumerate() */
-				case 40: /* _panrate() */
+				case 5: // _mod()
+				case 29: // _pitchrange() 
+				case 30: // _pitchrate()
+				case 31: // _modrate()
+				case 32: // _pressrate()
+				case 34: // _volumerate()
+				case 40: // _panrate()
 					my_sprintf(Message,
 						"\nIncorrect argument in %s. Integer value required (0..16383)",
 							*((*p_PerformanceControl)[jinstr]));
 					Print(wTrace,Message);
 					return(ABORT);
 					break;
-				case 66: /* _capture() */
+				case 66: // _capture()
 					my_sprintf(Message,
 						"\nIncorrect argument in %s. Integer value required (0..128)",
 							*((*p_PerformanceControl)[jinstr]));
 					Print(wTrace,Message);
 					return(ABORT);
 					break;
-				case 59: /* _rndtime() */ 
-				case 60: /* _srand() */
+				case 59: // _rndtime() 
+				case 60: // _srand()
 					my_sprintf(Message,
 						"\nIncorrect argument in %s. Integer value required (0..32767)",
 							*((*p_PerformanceControl)[jinstr]));
@@ -994,7 +994,7 @@ int GetPerformanceControl(char **pp,int arg_nr,int *p_n,int quick,long *p_u,long
 				return(ABORT);
 				}
 			k = 128 + i;
-			if(initparam != INT_MAX) {	/* Found '<Kx=y>' */
+			if(initparam != INT_MAX) {	// Found '<Kx=y>'
 		//		BPPrintMessage(1,odInfo,"@@@ jinstr = %d\n",jinstr);
 				if(jinstr == 0 && (initparam < 1 || initparam > MAXCHAN)) {
 					my_sprintf(Message,
@@ -1067,9 +1067,9 @@ int GetPerformanceControl(char **pp,int arg_nr,int *p_n,int quick,long *p_u,long
 					Print(wTrace,Message);
 					return(ABORT);
 					}
-				if(arg_nr == 0)	/* Playing selection */
+				if(arg_nr == 0)	// Playing selection
 					ParamValue[i] = initparam;
-				else {	/* Compiling grammar */
+				else {	// Compiling grammar
 					if(ParamInit[i] == INT_MAX) ParamInit[i] = ParamValue[i] = initparam;
 					else {
 						if(ParamInit[i] != initparam) {
@@ -1306,10 +1306,10 @@ int GetPerformanceControl(char **pp,int arg_nr,int *p_n,int quick,long *p_u,long
 	line[i] = '\0';
 
 	switch(jinstr) {
-		case 44:	/* _value() */
+		case 44:	// _value()
 			if((k=FixStringConstant(line)) < 0) return(k);
 			break;
-		case 65:	/* _scale() */
+		case 65:	// _scale()
 			// note 3 (microtonality)
 			if(trace_scale) BPPrintMessage(0,odInfo,"_scale() found in compilation\n");
 			if(!OutCsound && (rtMIDI || WriteMIDIfile || EventListOn)) { 
@@ -1371,12 +1371,12 @@ int GetPerformanceControl(char **pp,int arg_nr,int *p_n,int quick,long *p_u,long
 					}
 				}
 			break;
-		case 58:	/* _keyxpand() */
+		case 58:	// _keyxpand()
 			Strip(line);
 			ptr2 = ptr;
 			if(line[0] == 'K') {
 				for(i=1; i <= strlen(line); i++) line[i-1] = line[i];
-				cntl = atol(line); 	/* Don't use atoi() because integers are 4 bytes */
+				cntl = atol(line); 	// Don't use atoi() because integers are 4 bytes
 				if(cntl < 1 || cntl >= MAXPARAMCTRL) {
 					my_sprintf(Message,"'K%ld' not accepted. Range [1,%ld]",(long)cntl,
 						(long)MAXPARAMCTRL-1);
@@ -1387,7 +1387,7 @@ int GetPerformanceControl(char **pp,int arg_nr,int *p_n,int quick,long *p_u,long
 				if((ptr=strstr(line,"=")) != NULLSTR) {
 					ptr++;
 					initparam = (int) atol(ptr);
-					if(arg_nr == 0)	/* Playing selection */
+					if(arg_nr == 0)	// Playing selection
 						ParamValue[cntl] = initparam;
 					else {	// Compiling grammar
 						if(ParamInit[cntl] == INT_MAX) ParamInit[cntl] = ParamValue[cntl]
@@ -1431,13 +1431,13 @@ int GetPerformanceControl(char **pp,int arg_nr,int *p_n,int quick,long *p_u,long
 
 	if(c != ',') {
 		switch(jinstr) {
-			case 44:	/* _value() */
+			case 44:	// _value()
 				Print(wTrace,"Missing ',' in '_value()'\n");
 				break;
-			case 65:	/* _scale() */
+			case 65:	// _scale()
 				Print(wTrace,"Missing ',' in '_scale()'\n");
 				break;
-			case 58:	/* _keyxpand() */
+			case 58:	// _keyxpand()
 				Print(wTrace,"Missing ',' in '_keyxpand()'\n");
 				break;
 			}
@@ -1577,13 +1577,13 @@ int GetArg(char **pp, char **qq1, char **qq2, char **qq3, char **qq4) {
 			}
 		}
 	for(operator=0; operator < MAXARROW && strlen(Arrow[operator]) > 0; operator++) {
-		strcpy(x,Arrow[operator]);	/* This search is only useful if |arg2| = 0 */
+		strcpy(x,Arrow[operator]);	// This search is only useful if |arg2| = 0
 		if((i2 = FindPattern(qq1,x,&i3)) > 0) {
 			*qq2 = &((*qq1)[i2-1]);
 			*qq3 = &((*qq1)[i3]);
 			*qq4 = *qq3;
 			*qq4 = GetEnd(qq4);
-			NotBPCase[0] = TRUE;	/* Erase rule */
+			NotBPCase[0] = TRUE;	// Erase rule
 			return(operator);
 			}
 		}
@@ -1608,7 +1608,7 @@ int CompilePatterns(void) {
 	// ShowMessage(TRUE,wMessage,"Looking for time patterns...");
 	if((rep=ReleasePatternSpace()) != OK) goto ERR;
 
-	if((rep=GetPatterns(wAlphabet,TRUE)) != OK){	/* Just counting patterns */
+	if((rep=GetPatterns(wAlphabet,TRUE)) != OK){	// Just counting patterns
 		Jpatt = 0; goto ERR;
 		}
 	if((rep=GetPatterns(wGrammar,TRUE)) != OK){
@@ -1622,7 +1622,7 @@ int CompilePatterns(void) {
 		goto ERR;
 		}
 	Jpatt = 0;
-	if((rep=GetPatterns(wAlphabet,FALSE)) != OK) {	/* Now creating patterns */
+	if((rep=GetPatterns(wAlphabet,FALSE)) != OK) {	// Now creating patterns
 		ReleasePatternSpace();
 		goto ERR;
 		}

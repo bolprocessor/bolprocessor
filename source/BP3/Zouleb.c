@@ -1,4 +1,4 @@
-/* Zouleb.c (BP3) */
+// Zouleb.c (BP3)
 
 /*  This file is a part of Bol Processor
     Copyright (c) 1990-2000 by Bernard Bel, Jim Kippen and Srikumar K. Subramanian
@@ -245,7 +245,7 @@ int Zouleb(tokenbyte ***pp_a,unsigned long *p_pos_init,int level,int retro,int r
 				}
 			}
 		switch(m) {
-			case T39:	/* _rotate */
+			case T39:	// _rotate
 				newrotate = rotate + (int) FindValue(m,p,0);
 				origin = i; // Includes '_rotate()'
 				end = NextEnd(pp_a,i,&next_is_bracket); // Find the end to store the chunk
@@ -348,7 +348,7 @@ int Zouleb(tokenbyte ***pp_a,unsigned long *p_pos_init,int level,int retro,int r
 				i += 2L;
 				break;
 			}
-		if(m == T1) {	/* Number */
+		if(m == T1) {	// Number
 			origin = i;
 			do {
 				i += 2L;
@@ -550,7 +550,7 @@ int GetChunk(ChunkPointer **p_chunk,long *p_ichunk,long nchunks,int rndseq,
 		(*p_i) +=  2L;
 		return(OK);
 		}
-	if(p_index != NULL) {	/* _rotate or _rndseq */
+	if(p_index != NULL) {	// _rotate or _rndseq
 		ichunk = (*p_index)[ichunk];
 		}
 	if(ichunk > nchunks) {
@@ -879,23 +879,23 @@ int ZoulebOld(tokenbyte ***pp_a,int *p_level,unsigned long *p_pos_init,int retro
 		m = (**pp_a)[i]; p = (**pp_a)[i+1];
 		if(TraceZouleb) DisplayCode(TRUE,i,m,p);
 		if(m == TEND && p == TEND) break;
-		if(m == T0 && (p == 13 || p == 14 || p == 23))	/*  ',' or  '}' */
+		if(m == T0 && (p == 13 || p == 14 || p == 23))	// ',' or  '}'
 			break;
 		switch(m) {
-			case T3:	/* terminal */
-			case T4:	/* variable */
-			case T9:	/* time pattern */
-			case T25:	/* simple note */
+			case T3:	// terminal
+			case T4:	// variable
+			case T9:	// time pattern
+			case T25:	// simple note
 				origin = i;
-				do {	/* Include prolongation symbols '_' */
+				do {	// Include prolongation symbols '_'
 					i += 2L;
 					m = (**pp_a)[i]; p = (**pp_a)[i+1];
 					}
 				while(m == T3 && p == 0);
 				goto STOREOBJECT;
 				break;
-			case T6:	/* wildcard */
-			case T7:	/* out-time object or simple note */
+			case T6:	// wildcard
+			case T7:	// out-time object or simple note
 				origin = i;
 				i += 2L;
 	STOREOBJECT:
@@ -905,7 +905,7 @@ int ZoulebOld(tokenbyte ***pp_a,int *p_level,unsigned long *p_pos_init,int retro
 				continue;
 				break;
 			case T12:
-				if(p == 23) {	/* _randomize */
+				if(p == 23) {	// _randomize
 					seed = RANDOMIZE;
 					goto NEXT;
 					break;
@@ -918,17 +918,17 @@ int ZoulebOld(tokenbyte ***pp_a,int *p_level,unsigned long *p_pos_init,int retro
 				else goto NEXT;
 				ischanged = TRUE;
 				switch(p) {
-					case 21:	/* _retro */
+					case 21:	// _retro
 						if((r=ZoulebOld(pp_a,&newlevel,&i,1-retro,rndseq,rotate,repeat,FALSE,seed))
 							!= OK) goto SORTIR;
 						if(!retro) ischanged = FALSE;
 						break;
-					case 22:	/* _rndseq */
+					case 22:	// _rndseq
 						if((r=ZoulebOld(pp_a,&newlevel,&i,FALSE,TRUE,0,repeat,FALSE,seed))
 							!= OK) goto SORTIR;
 						ischanged = FALSE;
 						break;
-					case 24:	/* _ordseq */
+					case 24:	// _ordseq
 						if((r=ZoulebOld(pp_a,&newlevel,&i,FALSE,FALSE,0,repeat,FALSE,seed))
 							!= OK) goto SORTIR;
 						break;
@@ -940,7 +940,7 @@ int ZoulebOld(tokenbyte ***pp_a,int *p_level,unsigned long *p_pos_init,int retro
 				more--;
 				continue;
 				break;
-			case T39:	/* _rotate */
+			case T39:	// _rotate
 				if(p == 0) goto NEXT;
 				newrotate = FindValue(m,p,0);
 				i += 2L;
@@ -952,19 +952,19 @@ int ZoulebOld(tokenbyte ***pp_a,int *p_level,unsigned long *p_pos_init,int retro
 				ischanged = ((rotate+newrotate) == 0);
 				goto STORE;
 				break;
-			case T42:	/* _srand */
+			case T42:	// _srand
 				seed = p;
 				goto NEXT;
 				break;
 			}
-		if(m == T1) {	/* Number */
+		if(m == T1) {	// Number
 			origin = i;
 			do {
 				i += 2L;
 				m = (**pp_a)[i];
 				}
 			while(m == T1);
-			if((**pp_a)[i] == T0 && (**pp_a)[i+1] == 11) {	/* '/' */
+			if((**pp_a)[i] == T0 && (**pp_a)[i+1] == 11) {	// '/'
 				do {
 					i += 2L;
 					m = (**pp_a)[i];
@@ -976,7 +976,7 @@ int ZoulebOld(tokenbyte ***pp_a,int *p_level,unsigned long *p_pos_init,int retro
 			continue;
 			}
 		
-		if(m == T0 && (p == 11 || p == 21 || p == 24 || p == 25)) {	/* '/' '*' '**' '\' */
+		if(m == T0 && (p == 11 || p == 21 || p == 24 || p == 25)) {	// '/' '*' '**' '\'
 			do {
 				i += 2L;
 				m = (**pp_a)[i];
@@ -985,7 +985,7 @@ int ZoulebOld(tokenbyte ***pp_a,int *p_level,unsigned long *p_pos_init,int retro
 			continue;
 			}
 			
-		if(m == T0 && (p == 12 || p == 22)) {	/* '{' */
+		if(m == T0 && (p == 12 || p == 22)) {	// '{'
 			origin = i;
 			newpos = i + 2L;
 			newlevel = orglevel + 1;
@@ -1053,17 +1053,17 @@ int ZoulebOld(tokenbyte ***pp_a,int *p_level,unsigned long *p_pos_init,int retro
 			(*p_pos_init) = i + (2L * more);
 			break;
 			}
-		if(m == T0 && p == 14) {		/* ',' */
+		if(m == T0 && p == 14) {		// ','
 			(*p_pos_init) = i + (2L * (more + 1));
 			break;
 			}
-		if(m == T0 && (p == 13 || p == 23)) {	/* '}' */
+		if(m == T0 && (p == 13 || p == 23)) {	// '}'
 			(*p_level)--;
 			(*p_pos_init) = i + (2L * (isbracket + more));
 			break;
 			}
 			
-		if(m == T0 && (p == 12 || p == 22)) {	/* '{' */
+		if(m == T0 && (p == 12 || p == 22)) {	// '{'
 			if((r=CheckBuffer(ib,&ibmax,&p_b)) != OK) goto SORTIR;
 			GetChunkOld(p_chunk,&ichunk,nchunks,rndseq,retro,rotate,&ib,&ibmax,&i,*pp_a,p_b,p_index,(p == 22),
 				&more);
@@ -1071,40 +1071,40 @@ int ZoulebOld(tokenbyte ***pp_a,int *p_level,unsigned long *p_pos_init,int retro
 			}
 			
 		switch(m) {
-			case T3:	/* sound-object */
-			case T4:	/* variable */
-			case T6:	/* wildcard */
-			case T7:	/* out-time object or simple note */
-			case T9:	/* time pattern */
-			case T25:	/* simple note */
+			case T3:	// sound-object
+			case T4:	// variable
+			case T6:	// wildcard
+			case T7:	// out-time object or simple note
+			case T9:	// time pattern
+			case T25:	// simple note
 				GetChunkOld(p_chunk,&ichunk,nchunks,rndseq,retro,rotate,&ib,&ibmax,&i,*pp_a,p_b,p_index,NO,&more);
 				continue;
 				break;
 			case T12:
 				switch(p) {
-					case 21:	/* _retro */
-					case 22:	/* _rndseq */
-					case 24:	/* _ordseq */
+					case 21:	// _retro
+					case 22:	// _rndseq
+					case 24:	// _ordseq
 	GETITBACK:
-						i += 2L;	/* skip instruction */
+						i += 2L;	// skip instruction
 						NeedZouleb--;
 						GetChunkOld(p_chunk,&ichunk,nchunks,rndseq,retro,rotate,&ib,&ibmax,&i,*pp_a,p_b,p_index,NO,&more);
 						continue;
 					}
 				break;
-			case T39:	/* _rotate */
+			case T39:	// _rotate
 				goto GETITBACK;
 				break;
 			}
 		
-		if(m == T1) {	/* Number */
+		if(m == T1) {	// Number
 			GetChunkOld(p_chunk,&ichunk,nchunks,rndseq,retro,rotate,&ib,&ibmax,&i,*pp_a,p_b,p_index,NO,
 				&more);
 			continue;
 			break;
 			}
 		
-		if(m == T0 && (p == 11 || p == 21 || p == 24 || p == 25)) {	/* '/' '*' '**' '\' */
+		if(m == T0 && (p == 11 || p == 21 || p == 24 || p == 25)) {	// '/' '*' '**' '\'
 			do {
 				(*p_b)[ib++] = m; (*p_b)[ib++] = p;
 				if((r=CheckBuffer(ib,&ibmax,&p_b)) != OK) goto SORTIR;
@@ -1194,7 +1194,7 @@ int GetChunkOld(ChunkPointer **p_chunk,long *p_ichunk,long ichunkmax,int rndseq,
 	if(retro) ichunk = ichunkmax - (*p_ichunk) - 1L;
 	else ichunk = (*p_ichunk);
 
-	if(p_index != NULL) {	/* _rotate or _rndseq */
+	if(p_index != NULL) {	// _rotate or _rndseq
 		ichunk = (*p_index)[ichunk];
 		}
 
@@ -1217,16 +1217,16 @@ int GetChunkOld(ChunkPointer **p_chunk,long *p_ichunk,long ichunkmax,int rndseq,
 	if(cutbracket) {
 		m = (*p_a)[origin+2L]; p = (*p_a)[origin+3L];
 		switch(m) {
-			case T39:	/* _rotate */
-			case T40:	/* _keyxpand */
-			case T26:	/* _transpose */
+			case T39:	// _rotate
+			case T40:	// _keyxpand
+			case T26:	// _transpose
 				cutbracket = FALSE;
 				break;
 			case T12:
 				switch(p) {
-					case 21:	/* _retro */
-					case 22:	/* _rndseq */
-					case 24:	/* _ordseq */
+					case 21:	// _retro
+					case 22:	// _rndseq
+					case 24:	// _ordseq
 						cutbracket = FALSE;
 						break;
 					}
@@ -1322,7 +1322,7 @@ int RotateSequenceOld(long ***pp_x,long size,int rotate) {
 		if(*pp_x == NULL) return(ABORT);
 		}
 
-	j = rotate % size;	/* Direction changed on 30/4/98 */
+	j = rotate % size;	// Direction changed on 30/4/98
 	if(j < ZERO) j += size;
 
 	for(i=ZERO; i < size; i++) {

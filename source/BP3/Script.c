@@ -1,4 +1,4 @@
-/* Script.c (BP3) */
+// Script.c (BP3)
 
 /*  This file is a part of Bol Processor
     Copyright (c) 1990-2000 by Bernard Bel, Jim Kippen and Srikumar K. Subramanian
@@ -271,7 +271,7 @@ int StopCount(int i) {
 	my_sprintf(Message,"%ld",(long)ItemNumber-1L);
 	MystrcpyStringToTable(ScriptLine.arg,0,Message);
 	CountOn = FALSE;
-	/* AppendScript(18); */
+	// AppendScript(18);
 	return(OK);
 	}
 
@@ -300,7 +300,7 @@ int InitWait(long maxticks) {
 int CheckEndOfWait(void) {
 	if(!ScriptExecOn || !CountOn) return(OK);
 	if(WaitEndDate > ZERO && clock() > WaitEndDate) return(ABORT);
-	/* clock() is the same as TickCount() */
+	// clock() is the same as TickCount()
 	return(OK);
 	}
 
@@ -348,14 +348,14 @@ int ExecScriptLine(char*** p_keyon,int w,int check,int nocomment,char **p_line,l
 	if((*p_line)[0] == '\0') return(OK);
 //	BPPrintMessage(0,odError,"Match? line = “%s”\n",*p_line);
 	istart = 0; p_arg = NULL;
-	/* Skip BP style remark */
+	// Skip BP style remark
 	if((*p_line)[istart] == '[') {
 		while((*p_line)[istart] != ']' && (*p_line)[istart] != '\0') istart++;
 		istart++;
 		while(MySpace((*p_line)[istart])) istart++;
 		}
 
-	/* Suppress AppleScript style remark: Should use Arrow[1] */
+	// Suppress AppleScript style remark: Should use Arrow[1]
 	quote = OFF;
 	for(i=istart; i < MyHandleLen(p_line)-2; i++) {
 		c = (*p_line)[i];
@@ -366,7 +366,7 @@ int ExecScriptLine(char*** p_keyon,int w,int check,int nocomment,char **p_line,l
 			}
 		}
 
-	/* Remove trailing spaces */
+	// Remove trailing spaces
 	i = MyHandleLen(p_line) - 1;
 	while(i >= istart && MySpace((*p_line)[i])) (*p_line)[i--] = '\0';
 
@@ -376,7 +376,7 @@ int ExecScriptLine(char*** p_keyon,int w,int check,int nocomment,char **p_line,l
 		return(ABORT);
 	MystrcpyHandleToHandle(istart,&p_arg,p_line);
 
-	/* Discard glossary line with "-->" */
+	// Discard glossary line with "-->"
 
 	MyLock(FALSE,(Handle)p_arg);
 	if(w == wGlossary && strstr(*p_arg,Arrow[1]) != NULLSTR) {
@@ -385,7 +385,7 @@ int ExecScriptLine(char*** p_keyon,int w,int check,int nocomment,char **p_line,l
 		}
 	MyUnlock((Handle)p_arg);
 
-	/* Now, try to match script line with script command */
+	// Now, try to match script line with script command
 
 	MATCH:
 	ScriptExecOn++;
@@ -417,7 +417,7 @@ int ExecScriptLine(char*** p_keyon,int w,int check,int nocomment,char **p_line,l
 				MystrcpyStringToHandle(&p_line,Message);
 				*p_changed = TRUE; *p_keep = FALSE;
 				} */
-			/* Reset the sizes of argument handles */
+			// Reset the sizes of argument handles
 		//	if(TraceMIDIinteraction) BPPrintMessage(0,odError,"Done setting script #%d (out of %ld) [%d] with %d args\n",i,(long)MaxScriptInstructions,(*h_ScriptIndex)[i],ScriptNrArg(i));
 			if(check) {
 				for(j=0; j < ScriptNrArg(i); j++) {

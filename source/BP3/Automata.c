@@ -1,4 +1,4 @@
-/* Automata.c (BP3) */
+// Automata.c (BP3)
 
 /*  This file is a part of Bol Processor
     Copyright (c) 1990-2000 by Bernard Bel, Jim Kippen and Srikumar K. Subramanian

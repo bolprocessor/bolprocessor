@@ -1,4 +1,4 @@
-/* MIDIstuff.c (BP3) */ 
+// MIDIstuff.c (BP3) 
 
 /*  This file is a part of Bol Processor
     Copyright (c) 1990-2000 by Bernard Bel, Jim Kippen and Srikumar K. Subramanian
@@ -512,31 +512,31 @@ INTERPRET:
 		if(!ScriptExecOn) MystrcpyStringToTable(ScriptLine.arg,0,Message);
 		switch(c1) {
 			case 122:
-				if(c2 == 0) {	/* Local control off */
+				if(c2 == 0) {	// Local control off
 					AppendScript(76); my_sprintf(LineBuff,"Local control off channel %ld",
 						(long)(c0-c+1));
 					break;
 					}
-				if(c2 == 127) {	/* Local control on */
+				if(c2 == 127) {	// Local control on
 					AppendScript(77); my_sprintf(LineBuff,"Local control on channel %ld",
 						(long)(c0-c+1));
 					break;
 					}
 				break;
-			case 123: /* if(c2 == 0) AppendScript(78) */ break;	/* All notes off */
-			case 124: if(c2 == 0) {	/* Omni mode off */
+			case 123: /* if(c2 == 0) AppendScript(78) */ break;	// All notes off
+			case 124: if(c2 == 0) {	// Omni mode off
 				AppendScript(79); my_sprintf(LineBuff,"Omni mode off channel %ld",(long)(c0-c+1));
 				break;
 				}
-			case 125: if(c2 == 0) {	/* Omni mode on */
+			case 125: if(c2 == 0) {	// Omni mode on
 				AppendScript(80); my_sprintf(LineBuff,"Omni mode on channel %ld",(long)(c0-c+1));
 				break;
 				}
-			case 127: if(c2 == 0) {	/* Poly mode on */
+			case 127: if(c2 == 0) {	// Poly mode on
 				AppendScript(82); my_sprintf(LineBuff,"Poly mode on channel %ld",(long)(c0-c+1));
 				break;
 				}
-			case 126:	/* Mono mode on, c2 channels */
+			case 126:	// Mono mode on, c2 channels
 				my_sprintf(LineBuff,"Mono mode on (%ld channels) channel %ld",(long)c2,
 					(long)(c0-c+1));
 				my_sprintf(Message,"%ld",(long)(c0 - c + 1));
@@ -563,7 +563,7 @@ INTERPRET:
 			return(OK);
 			}
 		if(c == ControlChange) {
-			if(c1 == VolumeControl[c0-c+1]) {	/* Volume */
+			if(c1 == VolumeControl[c0-c+1]) {	// Volume
 				if(Jcontrol == -1) {
 			/*		my_sprintf(Message,"Volume = %ld channel %ld",(long)c2,
 						(long)(c0 - c + 1));
@@ -576,7 +576,7 @@ INTERPRET:
 				return(OK);
 				}
 			else
-			if(c1 == PanoramicControl[c0-c+1]) {	/* Panoramic */
+			if(c1 == PanoramicControl[c0-c+1]) {	// Panoramic
 				if(Jcontrol == -1) {
 			/*		my_sprintf(Message,"Panoramic = %ld channel %ld",(long)c2,
 						(long)(c0 - c + 1));
@@ -589,7 +589,7 @@ INTERPRET:
 				return(OK);
 				}
 			else
-			if(c1 == 1) {	/* Modulation MSB */
+			if(c1 == 1) {	// Modulation MSB
 				OldModulation = (long) 128L * c2;
 			/*	my_sprintf(Message,"Modulation = %ld channel %ld",(long)OldModulation,
 					(long)(c0 - c + 1));
@@ -597,7 +597,7 @@ INTERPRET:
 				return(OK);
 				}
 			else
-			if(c1 == 33) {	/* Modulation LSB */
+			if(c1 == 33) {	// Modulation LSB
 				if(Jcontrol == -1) {
 			/*		my_sprintf(Message,"Modulation = %ld channel %ld",(long)(c2+OldModulation),
 						(long)(c0 - c + 1));
@@ -670,7 +670,7 @@ INTERPRET:
 			SynchroSignal = PLAYNOW;
 			ShowMessage(TRUE,wMessage,"Play now!");
 			return(QUICK);
-			/* Used to interrupt TimeSet() and play immediately */
+			// Used to interrupt TimeSet() and play immediately
 			}
 		else {
 		if(EverChan > 0 && c1 == EverKey && c0 == (NoteOn + EverChan - 1)) {
@@ -750,7 +750,7 @@ INTERPRET:
 			for(i=1; i < MAXPARAMCTRL; i++) {
 				if(ParamChan[i] != -1 && ParamKey[i] == c1
 									&& c0 == (NoteOn + ParamChan[i] - 1)) {
-				/* IN Param key "Kx" = velocity "note" channel "1..16" */
+				// IN Param key "Kx" = velocity "note" channel "1..16"
 					my_sprintf(Message,"Setting K%d = %d (key %d channel %d)",i,c2,c1,ParamChan[i]);
 					Notify(Message,0);
 					strcpy(Message,"");
@@ -856,7 +856,7 @@ int Ctrl_adjust(MIDI_Event *p_e,int c0,int c1,int c2) {
 		for(i=1; i < MAXPARAMCTRL; i++) {
 			if(ParamChan[i] != -1
 				&& ParamControl[i] == c1 && c0 == (ControlChange + ParamChan[i] - 1)) {
-			/* Control parameter _Kx_ from #_0..127_ channel _1..16_ */
+			// Control parameter _Kx_ from #_0..127_ channel _1..16_
 				ParamControlChan = ParamChan[i];
 				ParamValue[i] = c2;
 				my_sprintf(Message,"Setting K%d = %d (controller %d channel %d)",i,c2,c1,ParamChan[i]);
@@ -1017,7 +1017,7 @@ int SetOutputFilterWord(int i) {
 		+ 2L * (TimeCodePass[i] + 2L * (SysExPass[i] + 2L * (PitchBendPass[i] + 2L * (ChannelPressurePass[i]
 		+ 2L * (ProgramTypePass[i] + 2L * (ControlTypePass[i] + 2L * (KeyPressurePass[i] + 2L * (NoteOnPass[i]
 		+ 2L * NoteOffPass[i]))))))))))))))));
-	/* To pass an event you should enable the driver to receive it... */
+	// To pass an event you should enable the driver to receive it...
 	MIDIacceptFilter[i] = MIDIacceptFilter[i] | MIDIpassFilter[i];
 	GetInputFilterWord(i);
 //	BPPrintMessage(0,odInfo,"@@@ NoteOnPass = %d\n",NoteOnPass);
@@ -1085,7 +1085,7 @@ int ResetMIDIFilter(void) {
 		MIDIpassFilter[i] = MIDIoutputFilterstartup;
 		GetInputFilterWord(i);
 		GetOutputFilterWord(i);
-		SetOutputFilterWord(i);	/* Verifies consistency */
+		SetOutputFilterWord(i);	// Verifies consistency
 		}
 	if(TraceMIDIinteraction) BPPrintMessage(0,odInfo,"MIDI filter has been reset\n");
 	return(OK);
@@ -1466,7 +1466,7 @@ int FormatMIDIstream(MIDIcode **p_b,long imax,MIDIcode **p_c,int zerostart,
 		}
 
 	if(b < NoteOff || br == PitchBend || br == ProgramChange || br == ChannelPressure) {
-		if(br == 0) goto NEXTBYTE;	/* happens in beginning */
+		if(br == 0) goto NEXTBYTE;	// happens in beginning
 		(*p_c)[ii].time = time;
 		this_byte = (*p_c)[ii].byte = br + rc;
 		(*p_c)[ii++].sequence = 0;
@@ -1820,7 +1820,7 @@ int SendToDriver(int kcurrentinstance, int scale, int blockkey, Milliseconds tim
 	if(ItemCapture) *p_running_status = 0;
 	if(trace_driver) 
 		BPPrintMessage(1,odInfo,"++ SendToDriver() time = %ld channel = %d type = %d\tc1 = %d\tc2 = %d\n",(long)time,channel,type,ByteToInt(p_e->data1),ByteToInt(p_e->data2));
-	/* Store if volume */
+	// Store if volume
 	if(type == NoteOn && CurrentVolume[channel+1] == -1)
 		CurrentVolume[channel+1] = DeftVolume;
 	if(type == ControlChange) {
@@ -1830,7 +1830,7 @@ int SendToDriver(int kcurrentinstance, int scale, int blockkey, Milliseconds tim
 			}
 		}
 	if(status != *p_running_status || type == ChannelMode /* || type == ProgramChange */) {
-		/* Send the full Midi event */
+		// Send the full Midi event
 		*p_running_status = status;
 		if(p_e->data1 > 255) {
 			BPPrintMessage(0,odError,"=> Err. SendToDriver(). p_e->data1 = %d\n",p_e->data1);

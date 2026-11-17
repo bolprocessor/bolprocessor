@@ -1,4 +1,4 @@
-/* Arithmetic.c (BP3) */ 
+// Arithmetic.c (BP3) 
 
 /*  This file is a part of Bol Processor
     Copyright (c) 1990-2000 by Bernard Bel, Jim Kippen and Srikumar K. Subramanian
@@ -319,7 +319,7 @@ double Myatof(char *s,long *p_p,long *p_q) {
 			p = 10L * p + (long)(c - '0');
 			if(dot) q = 10L * q;
 			if(p > maxp || p < ZERO) {
-				if(!dot) q = ZERO;	/* Overflow */
+				if(!dot) q = ZERO;	// Overflow
 				my_sprintf(Message,"Number '%s' creates overflow. Max value is %ld...",
 					s,(long)Infpos);
 				Println(wTrace,Message);
@@ -332,13 +332,13 @@ double Myatof(char *s,long *p_p,long *p_q) {
 				my_sprintf(Message,"Two decimal points or commas. Can't accept '%s' as a number...",
 					s);
 				Println(wTrace,Message);
-				q = ZERO;	/* Error in string */
+				q = ZERO;	// Error in string
 				break;
 				}
 			else dot = TRUE;
 			continue;
 			}
-		q = ZERO;	/* Error in string */
+		q = ZERO;	// Error in string
 		break;
 		}
 
@@ -348,7 +348,7 @@ END:
 		*p_p = sign * p; *p_q = q;
 		}
 	else {
-		x = (double) Infneg - 1;	/* Indicates error */
+		x = (double) Infneg - 1;	// Indicates error
 		*p_p = ZERO; *p_q = 1L;
 		}
 	return(x);

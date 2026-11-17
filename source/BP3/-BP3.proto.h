@@ -35,7 +35,7 @@
 int RecoverEmergencyMemory(void);
 int main (int, char*[]);
 
-/* menu functions for CoreMIDI (in MenuCommands.c) */
+// menu functions for CoreMIDI (in MenuCommands.c)
 int mShowCMSettings(int);
 int mOpenAudioMidiSetup(int);
 
@@ -535,6 +535,7 @@ int CsRTEnd(void);
 void CsRTPanic(void);
 long CsRTDate(long* p_end);
 unsigned long CsRTScriptTime(void);
+void CsRTMidiNote(int key,int chan,int instance,double date);
 int FixCsoundScoreName(char*);
 int CscoreWrite(Milliseconds,Rect*,int,int,int,int,int,int,int,double,Milliseconds,int,int,int,int,int,int,int,int,PerfParameters****,int,int);
 int CompileCsoundObjects(void);
@@ -949,4 +950,4 @@ int BPSetMessageCallback(bp_message_callback_t func);
 	void disable_raw_mode(void);
 #endif
 
-#endif /* BP3_PROTO_H */
+#endif // BP3_PROTO_H

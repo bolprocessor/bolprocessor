@@ -1,4 +1,4 @@
-/* PlayThings.c (BP3) */ 
+// PlayThings.c (BP3) 
 
 /*  This file is a part of Bol Processor
     Copyright (c) 1990-2000 by Bernard Bel, Jim Kippen and Srikumar K. Subramanian
@@ -146,7 +146,7 @@ int PlaySelection(int w, int all) {
 	//	BPPrintMessage(1,odInfo,"Selection %ld to %ld (up to %ld)\n",(long)origin,(long)next_origin,(long)end);
 		if((r=SelectionToBuffer(FALSE,FALSE,w,&p_a,&origin,PROD)) != OK) {
 			MyDisposeHandle((Handle*)&p_a);
-			/* Could already be NULL because of PolyExpand() */
+			// Could already be NULL because of PolyExpand()
 			if(ScriptExecOn) r = OK;
 			if(stop(0,"PlaySelection") != OK) r = ABORT;
 			goto END;
@@ -190,12 +190,12 @@ int PlaySelection(int w, int all) {
 			NOVARIABLE:
 					if(r == OK) {
 					//	BPPrintMessage(1,odInfo,"@@@ PlayBuffer\n");
-						r = PlayBuffer(&p_a,NO);	/* HERE WE DO IT */
+						r = PlayBuffer(&p_a,NO);	// HERE WE DO IT
 						if(r != OK) goto END;
 						CarryRememberedParameters();	// 2026-11-12 The values of this chunk apply to the next ones - fixed by Claude
 						}
 				//	MyDisposeHandle((Handle*)&p_a);
-					/* Could already be NULL because of PolyExpand() */
+					// Could already be NULL because of PolyExpand()
 					if(r == ABORT || r == EXIT) {
 						if(Panic) return ABORT;
 						break;
@@ -246,7 +246,7 @@ int PlayBuffer(tokenbyte ***pp_buff,int onlypianoroll) {
 			BPPrintMessage(0,odError,"=> PlayBuffer1() cancelled\n");
 			return(r);
 			}
-		WaitABit(1000L);	/* This is necessary notably if sending a program change */
+		WaitABit(1000L);	// This is necessary notably if sending a program change
 		FirstTime = FALSE;
 		}
 	r = PlayBuffer1(pp_buff,onlypianoroll);
@@ -274,7 +274,7 @@ int PlayBuffer1(tokenbyte ***pp_buff,int onlypianoroll) {
 
 	// if(!NoVariable(pp_buff) && UpdateGlossary() != OK) return(ABORT);
 
-	/* We need to store the item in its current format to be able to derive it further */
+	// We need to store the item in its current format to be able to derive it further
 	p_b = NULL;
 	store = FALSE;
 	if(!Improvize && !PlaySelectionOn && !onlypianoroll) store = TRUE;
@@ -426,7 +426,7 @@ int PlayBuffer1(tokenbyte ***pp_buff,int onlypianoroll) {
 
 	SORTIR:
 	if(store) {
-		/* Restore original item */
+		// Restore original item
 		if(CopyBuf(&p_b,pp_buff) == ABORT) return(ABORT);
 		MyDisposeHandle((Handle*)&p_b);
 		}
@@ -489,7 +489,7 @@ int PlayHandle(char** p_line,int onlypianoroll) {
 		i0 = i;
 		if(i >= im) break;
 ENCODE:
-		if(c == '/' && i < (im-1) && (*p_line)[i+1] == '/') {	/* Skip C-like remarks */
+		if(c == '/' && i < (im-1) && (*p_line)[i+1] == '/') {	// Skip C-like remarks
 			while(i < im && (*p_line)[i] != '\r' && (*p_line)[i] != '\n' && (*p_line)[i] != '\0')
 				i++;
 			continue;
@@ -583,7 +583,7 @@ int TextToMIDIstream(int w) {
 	ShowMessages = FALSE;
 	
 	// PlaySelectionOn++; // Fixed by BB 2021-02-17
-	/* ResetMIDI(TRUE); */
+	// ResetMIDI(TRUE);
 
 	r = ABORT; p_a = NULL;
 	if(!CompiledAl  || (!CompiledGr && (AddBolsInGrammar() > BolsInGrammar))) {
@@ -691,7 +691,7 @@ int PasteStreamToPrototype(int j, int what) {
 		}
 
 	// Resize handles if necessary
-	while((newsize+1L) >= maxsize) {	/* +1L for the case Stream.period > 0 */
+	while((newsize+1L) >= maxsize) {	// +1L for the case Stream.period > 0
 		ptr1 = (*pp_MIDIcode)[j];
 		if((ptr1 = (MIDIcode**)IncreaseSpace((Handle)ptr1)) == NULL) goto ERR;
 		(*pp_MIDIcode)[j] = ptr1;
@@ -755,7 +755,7 @@ long FindGoodInsertPoint(int j,long i) {
 	Milliseconds date;
 
 	if(j < 2 || j >= Jbol) return(i);
-	date = (*((*pp_MIDIcode)[j]))[i].time;	/* We're in "point" representation */
+	date = (*((*pp_MIDIcode)[j]))[i].time;	// We're in "point" representation
 	for(k=oldk=i; k < (*p_MIDIsize)[j]; k++) {
 		c = (*((*pp_MIDIcode)[j]))[k].byte;
 		if((*((*pp_MIDIcode)[j]))[k].time != date) {
@@ -829,7 +829,7 @@ int ExpandSelection(int w) {
 	
 	if((r = SelectionToBuffer(FALSE,FALSE,w,&p_a,&origin,PROD)) != OK) {
 		MyDisposeHandle((Handle*)&p_a);
-		/* Could be NULL because of PolyExpand() */
+		// Could be NULL because of PolyExpand()
 		goto SORTIR;
 		}
 
@@ -859,7 +859,7 @@ int ExpandSelection(int w) {
 		BPActivateWindow(SLOW,wout);
 		}
 	MyDisposeHandle((Handle*)&p_a);
-	/* Could be NULL because of PolyExpand() */
+	// Could be NULL because of PolyExpand()
 /*	if(r == EXIT || r == STOP || r == ABORT) goto SORTIR;
 	newitem = TRUE;
 	}
@@ -899,7 +899,7 @@ int ShowPeriods(int w) {
 		oldorigin = origin;
 		if((r = SelectionToBuffer(FALSE,FALSE,w,&p_a,&origin,PROD)) != OK) {
 			MyDisposeHandle((Handle*)&p_a);
-			/* Could be NULL because of PolyExpand() */
+			// Could be NULL because of PolyExpand()
 			return(r);
 			}
 		if(LengthOf(&p_a) > 0) {
@@ -921,7 +921,7 @@ int ShowPeriods(int w) {
 			origin += newend - oldend;
 			}
 		MyDisposeHandle((Handle*)&p_a);
-		/* Could be NULL because of PolyExpand() */
+		// Could be NULL because of PolyExpand()
 		}
 	ShowSelect(CENTRE,w);
 	return(r);
@@ -1148,7 +1148,7 @@ int ReadToBuff(int nocomment,int noreturn,int w,long *p_i,long im,char ***pp_buf
 		c = GetTextChar(w,j);
 		if(len < MAXLIN - 1) Message[len++] = c;
 		if(nocomment && c == '*' && oldc == '/') {
-			/* Skip C-type remark */
+			// Skip C-type remark
 			oldc = '\0'; j++; k--;
 			while(TRUE) {
 				c = GetTextChar(w,j);

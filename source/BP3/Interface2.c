@@ -1,4 +1,4 @@
-/* Interface2.c  (BP3) */
+// Interface2.c  (BP3)
  
 /*  This file is a part of Bol Processor
     Copyright (c) 1990-2000 by Bernard Bel, Jim Kippen and Srikumar K. Subramanian
@@ -41,7 +41,7 @@
 int check_no_copy = 0;
 
 int SelectSomething(int w) {
-	/* Select line on which cursor is flashing */
+	// Select line on which cursor is flashing
 	long startpos,endpos,length;
 	char c;
 	int j;
@@ -120,7 +120,7 @@ int ReadLine(int two_linefeeds,int nocomment,int w,long *p_i,long im,char ***pp_
 				}
 			}
 		if(c == '\r' || c == '\n') {
-			/* Treat CRLF as a single newline */
+			// Treat CRLF as a single newline
 			if(c == '\r' && (end + 1) < im && GetTextChar(w,(end + 1)) == '\n') end++;
 			newline_count++;
 		//	if(newline_count == 2) BPPrintMessage(1,odInfo,"#");
@@ -194,7 +194,7 @@ int ReadLine1(int check,int w,long *p_i,long im,char *line,int size) {
 		c = GetTextChar(w,j);
 		if(c == '\n') continue;
 		if(oldc == '/' && c == '*') {
-			/* Skip C-type remark */
+			// Skip C-type remark
 			oldc = '\0'; j++; k--;
 			while(TRUE) {
 				c = GetTextChar(w,j);
@@ -259,7 +259,7 @@ int IsEmpty(int w) {
 	
 		if(w == wScript || w == wGlossary || w == wInteraction) {
 			MystrcpyHandleToString(MAXLIN,0,line,p_ScriptLabelPart(110,0));
-			/* line is "BP3 script" */
+			// line is "BP3 script"
 			}
 		if(w == wGrammar) strcpy(line,"COMMENT:");
 		len = strlen(line);
@@ -272,7 +272,7 @@ int IsEmpty(int w) {
 				if(Match(TRUE,p_line,&q,4)) goto NEXTLINE;
 				}
 			if(w == wScript || w == wGlossary || w == wInteraction) {
-				/* Discard line */
+				// Discard line
 				q = line;
 				if(Match(FALSE,p_line,&q,len)) goto NEXTLINE;
 				}
@@ -309,7 +309,7 @@ int GetInitialRemark(char** p_line,char* remark) {
 
 
 int SelectBehind(long pos1,long pos2,TextHandle teh) {
-/* Doesn't force selection to scroll */
+// Doesn't force selection to scroll
 	long maxoffset;
 	maxoffset = GetTextHandleLength(teh);
 	if(pos1 < ZERO) {

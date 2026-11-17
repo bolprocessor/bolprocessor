@@ -1,4 +1,4 @@
-/* SaveLoads1.c (BP3) */ 
+// SaveLoads1.c (BP3) 
 
 /*  This file is a part of Bol Processor
     Copyright (c) 1990-2000 by Bernard Bel, Jim Kippen and Srikumar K. Subramanian
@@ -413,7 +413,7 @@ static int CsStringToHandle(char ***p_handle,const char *s) {
 	return(OK);
 	}
 
-/* Values that are not found keep the defaults set by ResetCsoundInstrument() */
+// Values that are not found keep the defaults set by ResetCsoundInstrument()
 #define CS_JSON_INT(object,key,target) if(CsJsonNumber(object,key,&x) == OK) target = (int) x
 #define CS_JSON_FLOAT(object,key,target) if(CsJsonNumber(object,key,&x) == OK) target = x
 
@@ -544,7 +544,7 @@ int LoadCsoundInstrumentsJSON(const char *json_text) {
 		CS_JSON_INT(instrument,"modulationGEN",(*p_CsInstrument)[ins].modulationGEN);
 		CS_JSON_INT(instrument,"panoramicGEN",(*p_CsInstrument)[ins].panoramicGEN);
 
-		/* MIDI -> Csound mapping points: [0..2] MIDI values, [3..5] Csound values */
+		// MIDI -> Csound mapping points: [0..2] MIDI values, [3..5] Csound values
 		for(k = 0; k < 6; k++) {
 			my_sprintf(key,"Cs%s[%d]",control[0],k);
 			CS_JSON_FLOAT(instrument,key,(*(p_CsPitchBend[k]))[ins]);
@@ -557,7 +557,7 @@ int LoadCsoundInstrumentsJSON(const char *json_text) {
 			my_sprintf(key,"Cs%s[%d]",control[4],k);
 			CS_JSON_FLOAT(instrument,key,(*(p_CsPanoramic[k]))[ins]);
 			}
-		/* Additional parameters. ResetCsoundInstrument() has set paramlist = NULL and ipmax = 0 */
+		// Additional parameters. ResetCsoundInstrument() has set paramlist = NULL and ipmax = 0
 		ipmax = 0;
 		CS_JSON_INT(instrument,"ipmax",ipmax);
 		if(trace_load_csound_instruments) BPPrintMessage(0,odInfo,"ipmax = %d ins = %d\n",ipmax,ins);
@@ -642,7 +642,7 @@ int LoadCsoundInstrumentsJSON(const char *json_text) {
 		BPPrintMessage(0,odInfo,"Csound orchestra named in this file: %s\n",CsoundOrchestraName);
 	else BPPrintMessage(0,odInfo,"No Csound orchestra is named in this file\n");
 
-	/* Csound tables, put on top of Csound scores */
+	// Csound tables, put on top of Csound scores
 	result = OK;
 	i_table = 0;
 	for(k = 0; ; k++) {
@@ -1669,12 +1669,12 @@ static const int SoStrikeValues[] = {1,0,-1};
 static const char *SoCsoundNames[] = {"LOCAL_CS","GLOBAL_CS"};
 static const int SoCsoundValues[] = {LOCAL_CS,GLOBAL_CS};
 
-/* Values that are not found get the default values of so_prototype_fields() (_basic_tasks.php), which are also those of new prototypes */
+// Values that are not found get the default values of so_prototype_fields() (_basic_tasks.php), which are also those of new prototypes
 #define SO_JSON_NUMBER(key,target,type,deft) target = (type) ((CsJsonNumber(prototype,key,&x) == OK) ? x : (deft))
 #define SO_JSON_ENUM(key,names,values,target,deft) \
 	if(SoJsonEnum(prototype,key,names,values,(int)(sizeof(values) / sizeof(int)),&s) != OK) s = (deft); \
 	target = s
-/* Modes and rescale modes equal to -2 are fixed as in LoadObjectPrototypesOldFormat() */
+// Modes and rescale modes equal to -2 are fixed as in LoadObjectPrototypesOldFormat()
 #define SO_JSON_MODE(key,target,deft) \
 	if(SoJsonEnum(prototype,key,SoModeNames,SoModeValues,3,&s) != OK) s = (deft); \
 	if(s == -2) s = 1; \
@@ -2152,7 +2152,7 @@ NEXTBOL:
 	(*p_PivType)[j] = pivbeg + 2 * pivend + 3 * pivbegon + 4 * pivendoff
 		+ 5 * pivmiddle + 6 * pivmiddleonoff + 7 * pivspec;
 	(*p_AlphaCtrl)[j] = (*p_line)[i++]-'0';
-	if(ReadInteger(sofile,&s,&pos) == MISSED) goto ERR; /* rescalemode */
+	if(ReadInteger(sofile,&s,&pos) == MISSED) goto ERR; // rescalemode
 	if(s == -2) s = 1; // Fixing old bug
 	(*p_RescaleMode)[j] = s;
 	if((*p_RescaleMode)[j] == NEVER_RESCALE) (*p_FixScale)[j] = TRUE;
@@ -2161,65 +2161,65 @@ NEXTBOL:
 	(*p_AlphaMin)[j] = r;
 	if(ReadFloat(sofile,&r,&pos) == MISSED) goto ERR;
 	(*p_AlphaMax)[j] = r;
-	if(iv < 5) {	/* Fixing a bug in default values */
+	if(iv < 5) {	// Fixing a bug in default values
 		(*p_AlphaMax)[j] = 10.;
 		}
-	if(ReadInteger(sofile,&s,&pos) == MISSED) goto ERR; /* delaymode */
+	if(ReadInteger(sofile,&s,&pos) == MISSED) goto ERR; // delaymode
 	if(s == -2) s = 1; // Fixing old bug
 	(*p_DelayMode)[j] = s;
 	if(ReadLong(sofile,&k,&pos) == MISSED) goto ERR;
 	(*p_MaxDelay)[j] = k;
 	if(iv > 4) {
-		if(ReadInteger(sofile,&s,&pos) == MISSED) goto ERR; /* forwardmode */
+		if(ReadInteger(sofile,&s,&pos) == MISSED) goto ERR; // forwardmode
 		if(s == -2) s = 1; // Fixing old bug
 		(*p_ForwardMode)[j] = s;
 		}
 	if(ReadLong(sofile,&k,&pos) == MISSED) goto ERR;
 	(*p_MaxForward)[j] = k;
-	if(iv < 5) {	/* Fixing a bug in default values */
+	if(iv < 5) {	// Fixing a bug in default values
 		(*p_MaxDelay)[j] = (*p_MaxForward)[j] = ZERO;
 		}
 	if(ReadInteger(sofile,&s,&pos) == MISSED) goto ERR; // Not used
 /*	(*p_BreakTempoMode)[j] = s;
 	thismode(s,mode); */
 	if(ReadLong(sofile,&k,&pos) == MISSED) goto ERR; // ???
-	if(ReadInteger(sofile,&s,&pos) == MISSED) goto ERR; /* contbegmode */
+	if(ReadInteger(sofile,&s,&pos) == MISSED) goto ERR; // contbegmode
 	if(s == -2) s = 1; // Fixing old bug
 	(*p_ContBegMode)[j] = s;
 //	BPPrintMessage(0,odInfo,"@@@ p_ContBegMode = %s\n",s);
 //	SaveStringAsJson(sojson,"ContBegMode","enum","Continuity at beginning mode",mode);
 	if(ReadLong(sofile,&k,&pos) == MISSED) goto ERR;
 	(*p_MaxBegGap)[j] = k;
-	if(iv < 5) {	/* Fixing a bug in default values */
+	if(iv < 5) {	// Fixing a bug in default values
 		(*p_MaxBegGap)[j] = ZERO;
 		}
-	if(ReadInteger(sofile,&s,&pos) == MISSED) goto ERR; /* contendmode */
+	if(ReadInteger(sofile,&s,&pos) == MISSED) goto ERR; // contendmode
 	if(s == -2) s = 1; // Fixing old bug
 	(*p_ContEndMode)[j] = s;
 	if(ReadLong(sofile,&k,&pos) == MISSED) goto ERR;
 	(*p_MaxEndGap)[j] = k;
-	if(iv < 5) {	/* Fixing a bug in default values */
+	if(iv < 5) {	// Fixing a bug in default values
 		(*p_MaxEndGap)[j] = ZERO;
 		}
-	if(ReadInteger(sofile,&s,&pos) == MISSED) goto ERR; /* coverbegmode */
+	if(ReadInteger(sofile,&s,&pos) == MISSED) goto ERR; // coverbegmode
 	if(s == -2) s = 1; // Fixing old bug
 	(*p_CoverBegMode)[j] = s;
 	if(ReadLong(sofile,&k,&pos) == MISSED) goto ERR;
 	(*p_MaxCoverBeg)[j] = k;
-	if(ReadInteger(sofile,&s,&pos) == MISSED) goto ERR; /* coverendmode */
+	if(ReadInteger(sofile,&s,&pos) == MISSED) goto ERR; // coverendmode
 	if(s == -2) s = 1; // Fixing old bug
 	(*p_CoverEndMode)[j] = s;
 	if(trace_load_prototypes) BPPrintMessage(0,odInfo,"CoverEndMode = %d\n",(*p_CoverEndMode)[j]);
 	if(ReadLong(sofile,&k,&pos) == MISSED) goto ERR;
 	(*p_MaxCoverEnd)[j] = k;
 	if(trace_load_prototypes) BPPrintMessage(0,odInfo,"MaxCoverEnd = %ld\n",(*p_MaxCoverEnd)[j]);
-	if(ReadInteger(sofile,&s,&pos) == MISSED) goto ERR; /* truncbegmode */
+	if(ReadInteger(sofile,&s,&pos) == MISSED) goto ERR; // truncbegmode
 	if(s == -2) s = 1; // Fixing old bug
 	(*p_TruncBegMode)[j] = s;
 	if(ReadLong(sofile,&k,&pos) == MISSED) goto ERR;
 	(*p_MaxTruncBeg)[j] = k;
 	if(trace_load_prototypes) BPPrintMessage(0,odInfo,"MaxTruncBeg = %ld\n",(*p_MaxTruncBeg)[j]);
-	if(ReadInteger(sofile,&s,&pos) == MISSED) goto ERR; /* truncendmode */
+	if(ReadInteger(sofile,&s,&pos) == MISSED) goto ERR; // truncendmode
 	(*p_TruncEndMode)[j] = s;
 	if(s == -2) s = 1; // Fixing old bug
 	if(ReadLong(sofile,&k,&pos) == MISSED) goto ERR;

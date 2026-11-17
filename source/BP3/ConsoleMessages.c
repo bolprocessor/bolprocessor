@@ -1,4 +1,4 @@
-/*  ConsoleMessages.c (BP3) */
+// ConsoleMessages.c (BP3)
 
 /*  This file is a part of Bol Processor
     Copyright (c) 1990-2000 by Bernard Bel, Jim Kippen and Srikumar K. Subramanian
@@ -57,7 +57,7 @@ typedef enum {
 
 #define	MAXOUTDEST	15
 
-/* private globals */
+// private globals
 
 static FILE*	gOutDestinations[MAXOUTDEST] = 
 					{ NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL };

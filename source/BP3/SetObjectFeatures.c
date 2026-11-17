@@ -1,4 +1,4 @@
-/* SetObjectFeatures.c (BP3) */ 
+// SetObjectFeatures.c (BP3) 
 
 /*  This file is a part of Bol Processor
     Copyright (c) 1990-2000 by Bernard Bel, Jim Kippen and Srikumar K. Subramanian
@@ -643,17 +643,17 @@ int SetVariation(tokenbyte targettoken,CurrentParameters **p_deftcurrentparamete
 		}
 	else {
 		switch(targettoken)	{
-			case T11:	/* _vel() */
+			case T11:	// _vel()
 				startvalue = (*p_endvalue) = p_currentparameters->currvel;
 				if(p_currentparameters->velmode == FIXMAPMODE) goto END;
 				break;
-			case T20:	/* _legato() or _staccato() */
+			case T20:	// _legato() or _staccato()
 				startvalue = (*p_endvalue) = p_currentparameters->currarticul;
 				break;
-			case T26:	/* _transpose */
+			case T26:	// _transpose
 				startvalue = (*p_endvalue) = p_currentparameters->currtranspose;
 				break;
-			case T37:	/* _keymap() */
+			case T37:	// _keymap()
 				*p_mapendvalue = p_currentparameters->map0;
 				if(p_currentparameters->mapmode == FIXMAPMODE
 					|| p_currentparameters->mapmode == OFF) goto END;
@@ -680,7 +680,7 @@ int SetVariation(tokenbyte targettoken,CurrentParameters **p_deftcurrentparamete
 		if(trace_set_variation) BPPrintMessage(0,odInfo,"• m = %d, p = %d\n",m,p);
 		if(m == T0) {
 			switch(p) {
-				case 11:	/* '/' speed up */
+				case 11:	// '/' speed up
 					speed = GetScalingValue(p_buff,i);
 					if(scaling != 0.) {
 						tempo = speed / scaling;
@@ -690,7 +690,7 @@ int SetVariation(tokenbyte targettoken,CurrentParameters **p_deftcurrentparamete
 					else tempo = prodtempo = 0.;
 					i += 4;
 					break;
-				case 25:	/* '\' speed down */
+				case 25:	// '\' speed down
 					speed = 1. / (GetScalingValue(p_buff,i));
 					if(scaling != 0.) {
 						tempo = speed / scaling;
@@ -699,7 +699,7 @@ int SetVariation(tokenbyte targettoken,CurrentParameters **p_deftcurrentparamete
 					else tempo = prodtempo = 0.;
 					i += 4;
 					break;
-				case 21:	/* '*' scaling up */
+				case 21:	// '*' scaling up
 					scaling = GetScalingValue(p_buff,i);
 					if(scaling != 0.) {
 						tempo = speed / scaling;
@@ -709,7 +709,7 @@ int SetVariation(tokenbyte targettoken,CurrentParameters **p_deftcurrentparamete
 					else tempo = prodtempo = 0.;
 					i += 4;
 					continue;
-				case 24:	/* '**' scaling down */
+				case 24:	// '**' scaling down
 					s = GetScalingValue(p_buff,i);
 					scaling = 1. / s;
 					if(scaling != 0.) {
@@ -719,7 +719,7 @@ int SetVariation(tokenbyte targettoken,CurrentParameters **p_deftcurrentparamete
 					else tempo = prodtempo = 0.;
 					i += 4;
 					continue;
-				case 12:	/* '{' */
+				case 12:	// '{'
 				case 22:
 					if(seq == seqmem && objectsfound > 0 && !foundconcatenation) {
 						okincrease = FALSE;
@@ -740,7 +740,7 @@ int SetVariation(tokenbyte targettoken,CurrentParameters **p_deftcurrentparamete
 						}
 					seq = 0;
 					break;
-				case 13:	/* '}' */
+				case 13:	// '}'
 				case 23:
 					if(seq == seqmem && objectsfound > 0 && !foundconcatenation)
 						okincrease = FALSE;
@@ -763,20 +763,20 @@ int SetVariation(tokenbyte targettoken,CurrentParameters **p_deftcurrentparamete
 						}
 					continue;
 					break;
-				case 14:	/* ',' */
+				case 14:	// ','
 					if(seq == seqmem && objectsfound > 0 && !foundconcatenation) {
 						okincrease = FALSE;
 						}
 					if(foundconcatenation && !foundclosingbracket) notinthisfield = TRUE;
 					seq++;
 					break;
-				case 18:	/* '&' following terminal */
+				case 18:	// '&' following terminal
 					if(level == levelmem && seq == seqmem) {
 						foundconcatenation = TRUE;
 						notinthisfield = foundclosingbracket = FALSE;
 						}
 					break;
-				case 19:	/* '&' preceding terminal */
+				case 19:	// '&' preceding terminal
 					if(!foundconcatenation) continue;
 					if(!notinthisfield) foundendconcatenation = TRUE;
 					break;
@@ -914,10 +914,10 @@ int SetVariation(tokenbyte targettoken,CurrentParameters **p_deftcurrentparamete
 				result = ABORT;
 				break;
 				}
-			if(targettoken == T26) {	/* _transpose */
+			if(targettoken == T26) {	// _transpose
 				v += orgtranspose;
 				}
-			if(targettoken == T37) {	/* _keymap */
+			if(targettoken == T37) {	// _keymap
 				vmap.p1 = p % 128;
 				vmap.q1 = (p - (p % 128)) / 128;
 				i += 2L;
@@ -1255,7 +1255,7 @@ int Calculate_alpha(int nseq,int nmax,long maxseq,unsigned long imaxseq,int natu
 		BPPrintMessage(0,odError,"=> Err. Calculate_alpha(). nseq >= Maxconc\n");
 		return(OK);
 		}
-	(*p_Instance)[0].alpha = (*p_Instance)[1].alpha = 0.;	/* '_' and '-' */
+	(*p_Instance)[0].alpha = (*p_Instance)[1].alpha = 0.;	// '_' and '-'
 	if(nature_time == SMOOTH) clockperiod = ((double) Pclock) * 1000. / Qclock;
 	i = -1; // Fixed by BB 2021-01-25
 	while((k=(*((*p_Seq)[nseq]))[++i]) < 1) {
@@ -1385,9 +1385,9 @@ OKALPHA1:
 	imax = imaxseq;
 	if(nseq < nmax && (imax < maxseq)) {
 		imax = maxseq;
-		/* We will complete streak markings beyond the end of... */
-		/* ... the sequence, up to end of the phase diagram. */
-		/* This is only needed if there are more sequences. */
+		// We will complete streak markings beyond the end of...
+		// ... the sequence, up to end of the phase diagram.
+		// This is only needed if there are more sequences.
 		}
 	// iprev = i;
 	iprev = i + 1; // Fixed by BB 2022-02-17, checked this with -gr.tryTimePatterns
@@ -1400,22 +1400,22 @@ FINDNEXTMARKED:
 			if(inextm >= imax) return(OK);
 			}
 		To = (*p_T)[inextm] - (*p_T)[iprev];
-		if(To <= ZERO) {	/* May be ZERO because of roundings */
+		if(To <= ZERO) {	// May be ZERO because of roundings
 			goto FINDNEXTMARKED;
 			}
 		sigmaridi = 0.;
-		for(i=iprev; i < inextm;) {			/* Calculate sigmaridi */
+		for(i=iprev; i < inextm;) {			// Calculate sigmaridi
 			if(i < imaxseq) {
 				k = (*((*p_Seq)[nseq]))[i];
-				/* Here we will also consider silences "-" and empty objects "_" */
+				// Here we will also consider silences "-" and empty objects "_"
 				inext = i; while((*((*p_Seq)[nseq]))[++inext] == 0);
 				}
 			else {
-				k = 1;	/* Beyond end of sequence we create silences. */
+				k = 1;	// Beyond end of sequence we create silences.
 				inext = i + 1;
 				}
 			if(inext > inextm) inext = inextm;
-			/* In this case alpha will be too small on current object */
+			// In this case alpha will be too small on current object
 		
 			if(k >= MaxObjects) {
 			//	BPPrintMessage(0,odError,"=> Err. Calculate_alpha(). k >= MaxObjects (2)");
@@ -1427,7 +1427,7 @@ FINDNEXTMARKED:
 			if(j <= 0) {
 				i = inext; continue;
 				}
-			d = (double) (inext - i) * Kpress / Ratio;	/* Symbolic duration */
+			d = (double) (inext - i) * Kpress / Ratio;	// Symbolic duration
 			if(j > 16383 || j == 1) { // Simple note or silence Fixed by BB 2022-02-24
 				dur = 1000L; r = 1.;
 				// BPPrintMessage(0,odInfo,"\nCalculating alpha (note or silence): k = %ld j = %ld, i = %ld, inext = %ld\n",(long)k,(long)j,(long)i,(long)inext);
@@ -1441,7 +1441,7 @@ FINDNEXTMARKED:
 				dur = (*p_Dur)[j];
 				// BPPrintMessage(0,odInfo,"\nCalculating alpha (object): k = %ld j = %ld, i = %ld, inext = %ld\n",(long)k,(long)j,(long)i,(long)inext);
 				if((*p_Tref)[j] > EPSILON && dur > EPSILON) {
-					/* Striated object */
+					// Striated object
 					r = ((double) dur) / (*p_Tref)[j];
 					BPPrintMessage(0,odInfo,"-> striated\n");
 					}
@@ -1452,18 +1452,18 @@ FINDNEXTMARKED:
 			i = inext;
 			}
 		unfinished = FALSE;
-		if(sigmaridi <= 0.) {	/* May happen if only out-time objects */
+		if(sigmaridi <= 0.) {	// May happen if only out-time objects
 			iprev = inextm;
 			continue;
 			}
 		currenttime = (*p_T)[iprev];
-		for(i=iprev; i < inextm;) {			/* Now calculate alpha's */
+		for(i=iprev; i < inextm;) {			// Now calculate alpha's
 			if(i < imaxseq) {
 				k = (*((*p_Seq)[nseq]))[i];
 				inext = i; while((*((*p_Seq)[nseq]))[++inext] == 0);
 				}
 			else {
-				k = 1;	/* Beyond end of sequence we create silences. */
+				k = 1;	// Beyond end of sequence we create silences.
 				inext = i + 1;
 				}
 			if(inext > inextm) {
@@ -1488,7 +1488,7 @@ FINDNEXTMARKED:
 			else { // Sound-object
 				dur = (*p_Dur)[j];
 				if((*p_Tref)[j] > EPSILON && dur > EPSILON) {
-					/* Striated object */
+					// Striated object
 					r = ((double) dur) / (*p_Tref)[j];
 					}
 				else r = 1.;
@@ -1496,35 +1496,35 @@ FINDNEXTMARKED:
 			alpha = To * r * d / dur / sigmaridi;
 			if(trace_object_features)
 				BPPrintMessage(0,odInfo,"+ k = %ld j = %ld alpha = %.2f To = %ld, r = %.2f d = %.2f dur = %ld sigmaridi = %.2f\n",(long)k,(long)j,(double)alpha,(long)To,(double)r,(double)d,(long)dur,(double)sigmaridi);
-			if(!unfinished && inext == inextm) {	/* Last object in section */
-				toff = (*p_T)[inext];	/* This will compensate cumulated roundings */
+			if(!unfinished && inext == inextm) {	// Last object in section
+				toff = (*p_T)[inext];	// This will compensate cumulated roundings
 				alpha = ((double)(toff - currenttime)) / dur;
 				}
 			gotcurrenttime = FALSE;
 			if(k == 0 && !unfinished) {
 				currenttime = (*p_T)[iprev] + (Milliseconds)(alpha * dur);
-				/* Must calculate it now because alpha is going to change */
+				// Must calculate it now because alpha is going to change
 				gotcurrenttime = TRUE;
 				toff = currenttime;
 				alpha = ((double)(toff - ton)) / dur;
 				k = kprev;
 				if(k == 1 && !(*p_marked)[inext]) {
-					/* alpha is meaningless for silences */
+					// alpha is meaningless for silences
 					(*p_T)[inext] = toff;
 					(*p_marked)[inext] = TRUE;
 					}
 				}
 			if(unfinished && k != 0) {
 				ton = currenttime;
-				/* Here alpha was incorrect but will be recalculated */
+				// Here alpha was incorrect but will be recalculated
 				jprev = j; kprev = k;
 				}
 			if(k == 1 && !(*p_marked)[inext]) {
-				/* This is a "short" silence beginning in the same section */
+				// This is a "short" silence beginning in the same section
 				(*p_T)[inext] = currenttime + alpha * dur;
 				(*p_marked)[inext] = TRUE;
 				}
-			if(alpha < 0.) {	/* Should no longer happen since To > ZERO */
+			if(alpha < 0.) {	// Should no longer happen since To > ZERO
 				BPPrintMessage(0,odError,"=> Err. Calculate_alpha(). alpha=%.2f",alpha);
 				alpha = 0.;
 				}
@@ -1598,8 +1598,8 @@ If so, fix the number of repetitions and the actual dilation ratio,...
 	if(GetPeriod(j,1.,&objectperiod,&cyclicafter) == MISSED) return(MISSED);
 
 	if(!(*p_FixScale)[j] && !(*p_OkExpand)[j] && !(*p_OkCompress)[j])
-		limit = TRUE;		/* dilation ratio has a specified upper limit */
-	else limit = FALSE;		/* it hasn't */
+		limit = TRUE;		// dilation ratio has a specified upper limit
+	else limit = FALSE;		// it hasn't
 
 	if((*p_PivMode)[j] == PERCENT) {
 		pivpos = (*p_alpha) * (*p_Dur)[j] * (*p_PivPos)[j] / 100.;
@@ -1804,17 +1804,17 @@ int AssignValue(int index,double value,int p,int level,long* p_kmx,
 
 int TokenToIndex(tokenbyte m,int index) {
 	switch(m) {
-		case T14:	/* _mod() */
+		case T14:	// _mod()
 			return(IMODULATION); break;
-		case T15:	/* _pitchbend() */
+		case T15:	// _pitchbend()
 			return(IPITCHBEND); break;
-		case T16:	/* _press() */
+		case T16:	// _press()
 			return(IPRESSURE); break;
-		case T19:	/* _volume() */
+		case T19:	// _volume()
 			return(IVOLUME); break;
-		case T29:	/* _pan() */
+		case T29:	// _pan()
 			return(IPANORAMIC); break;
-		case T35:	/* _value() */
+		case T35:	// _value()
 			return(index); break;
 		}
 	return(-1);
@@ -1824,17 +1824,17 @@ int TokenToIndex(tokenbyte m,int index) {
 int IndexToToken(int index) {
 	if(index < 0) return(-1);
 	switch(index) {
-		case IMODULATION:	/* _mod() */
+		case IMODULATION:	// _mod()
 			return(T14); break;
-		case IPITCHBEND:	/* _pitchbend() */
+		case IPITCHBEND:	// _pitchbend()
 			return(T15); break;
-		case IPRESSURE:	/* _press() */
+		case IPRESSURE:	// _press()
 			return(T16); break;
-		case IVOLUME:	/* _volume() */
+		case IVOLUME:	// _volume()
 			return(T19); break;
-		case IPANORAMIC:	/* _pan() */
+		case IPANORAMIC:	// _pan()
 			return(T29); break;
-		default:	/* _value() */
+		default:	// _value()
 			return(T35); break;
 		}
 	}

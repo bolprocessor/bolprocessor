@@ -1,4 +1,4 @@
-/* Graphic.c (BP3) */
+// Graphic.c (BP3)
 
 /*  This file is a part of Bol Processor 
     Copyright (c) 1990-2000 by Bernard Bel, Jim Kippen and Srikumar K. Subramanian
@@ -172,7 +172,7 @@ int DrawItem(int w,SoundObjectInstanceParameters **p_object,Milliseconds **p_t1,
 			//	else BPPrintMessage(0,odInfo,"_");
 				}
 			if(k < 0) BPPrintMessage(0,odError,"=> Err. 'k' in DrawItem(): nseq = %ld, i = %ld, k = %ld\n",(long)nseq,(long)i,(long)k);
-			if(k < 2) continue;	/* Reject '_' and '-' */
+			if(k < 2) continue;	// Reject '_' and '-'
 			if(kmode) {
 				if(trace_graphic) BPPrintMessage(1,odInfo,"kmode = TRUE\n");
 				if(p_object == NULL) {
@@ -198,7 +198,7 @@ int DrawItem(int w,SoundObjectInstanceParameters **p_object,Milliseconds **p_t1,
 			if(trace_graphic) BPPrintMessage(0,odInfo,"GraphicScaleP = %ld GraphicScaleQ = %ld, t1 = %ld t2 = %ld\n",GraphicScaleP,GraphicScaleQ,(long)t1,(long)t2);
 			t1 =  (t1 * GraphicScaleP) / GraphicScaleQ / 10;
 			t2 =  (t2 * GraphicScaleP) / GraphicScaleQ / 10;
-			j = (*p_Instance)[k].object; /* Beware: j < 0 for out-time objects */
+			j = (*p_Instance)[k].object; // Beware: j < 0 for out-time objects
 			if(trace_graphic) BPPrintMessage(0,odInfo,"j = %ld t1 = %d t2 = %d endx = %ld\n",(long)j,t1,t2,(long)endx);
 			trbeg = ((*p_Instance)[k].truncbeg * GraphicScaleP) / GraphicScaleQ / 10;
 			tt1 = leftoffset + t1 - trbeg;
@@ -612,8 +612,8 @@ int DrawObject(int j, char *label, int moved_up, int moved, double beta, int top
 		// *p_endx = t2 + leftoffset + trend;
 		*p_endy = r.bottom;
 		}
-	else {	/* Can't write label inside rectangle */
-		if(t1 == t2) { /* Draw out-time object */
+	else {	// Can't write label inside rectangle
+		if(t1 == t2) { // Draw out-time object
 			pen_size(10,0);
 			draw_line(r.left,r.top,r.left,(r.bottom + 1),"round");
 			pen_size(1,0);
@@ -1753,7 +1753,7 @@ void fill_rect_hatched_style(Rect* p_r, char* color, char* linecolor, int backwa
 	// 2026-11-15 'linecolor' and 'backward' (lines going down to the right) added for the end of objects after their last NoteOff - by Claude
 	char line[200];
 	int x1, x2, y1, y2, w, h;
-	int spacing = resize * 4;   /* distance between hatch lines */
+	int spacing = resize * 4;   // distance between hatch lines
 	if(p_r->left <= max_coordinate &&
 	   p_r->right <= max_coordinate &&
 	   p_r->top <= max_coordinate &&
@@ -1768,7 +1768,7 @@ void fill_rect_hatched_style(Rect* p_r, char* color, char* linecolor, int backwa
 			h = y2 - y1;
 
 			if(x1 >= 0 && y1 >= 0) {
-				/* Fill rectangle with base color */
+				// Fill rectangle with base color
 				my_sprintf(line, "ctx.fillStyle = '%s';\n", color);
 				fputs(line, imagePtr);
 
@@ -1776,13 +1776,13 @@ void fill_rect_hatched_style(Rect* p_r, char* color, char* linecolor, int backwa
 					(long)x1, (long)y1, (long)w, (long)h);
 				fputs(line, imagePtr);
 
-				/* Clip to rectangle so hatch stays inside */
+				// Clip to rectangle so hatch stays inside
 				fputs("ctx.save();\n", imagePtr);
 				my_sprintf(line, "ctx.beginPath(); ctx.rect(%ld,%ld,%ld,%ld); ctx.clip();\n",
 					(long)x1, (long)y1, (long)w, (long)h);
 				fputs(line, imagePtr);
 
-				/* White hatch lines at 45 degrees */
+				// White hatch lines at 45 degrees
 				my_sprintf(line, "ctx.strokeStyle = '%s';\n", linecolor);
 				fputs(line, imagePtr);
 				fputs("ctx.lineWidth = 2;\n", imagePtr);
@@ -1803,7 +1803,7 @@ void fill_rect_hatched_style(Rect* p_r, char* color, char* linecolor, int backwa
 
 				fputs("ctx.restore();\n", imagePtr);
 
-				/* Restore default fill color if needed */
+				// Restore default fill color if needed
 				fputs("ctx.fillStyle = 'black';\n", imagePtr);
 
 				imageHits++;

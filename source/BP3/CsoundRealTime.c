@@ -1,4 +1,4 @@
-/* CsoundRealTime.c (BP3) */
+// CsoundRealTime.c (BP3)
 
 /*  This file is a part of Bol Processor
 	Copyright (c) 1990-2000 by Bernard Bel, Jim Kippen and Srikumar K. Subramanian
@@ -92,6 +92,14 @@ static double CsRTInstruments[CSRT_MAXINSTR];
 static int CsRTNumberInstruments = 0;
 static int CsRTSaidError = 0;
 
+typedef struct {
+	double time;	// date (seconds) in the score
+	int key, chan, instance;
+	} CsRTMidiEvent;
+
+static CsRTMidiEvent* CsRTMidiQueue = NULL;	// silent MIDI notes waiting for their date, sorted by date (note 22)
+static long CsRTMidiSize = 0L, CsRTMidiMax = 0L;
+
 static int CsRTSend(const char* message);
 static void CsRTLine(char* line);
 static int CsRTPush(CsRTEvent** p_list,long* p_size,long* p_max,CsRTEvent* p_e,int sorted);
@@ -99,6 +107,7 @@ static void CsRTFreeEvent(CsRTEvent* p_e);
 static void CsRTSleep(long milliseconds);
 static double CsRTBarrier(void);
 static int CsRTScripts(void);
+static void CsRTSendMidiDue(void);
 static int CsRTScriptsDue(unsigned long date);
 static int CsRTWaitInstruction(int instr);
 
@@ -133,7 +142,7 @@ int CsRTOpen(void) {
 	CsRTAddress.sin_family = AF_INET;
 	CsRTAddress.sin_port = htons((unsigned short) CsoundRTport);
 	CsRTAddress.sin_addr.s_addr = htonl(INADDR_LOOPBACK); // 127.0.0.1
-	CsRTQueueSize = CsRTSentSize = 0L;
+	CsRTQueueSize = CsRTSentSize = CsRTMidiSize = 0L;
 	CsRTPendingLength = 0;
 	CsRTStarted = FALSE;
 	CsRTLastEnd = 0.;
@@ -159,6 +168,8 @@ void CsRTClose(void) {
 	free(CsRTQueue); CsRTQueue = NULL;
 	free(CsRTSent); CsRTSent = NULL;
 	free(CsRTPending); CsRTPending = NULL;
+	free(CsRTMidiQueue); CsRTMidiQueue = NULL;
+	CsRTMidiSize = CsRTMidiMax = 0L;
 	CsRTQueueSize = CsRTQueueMax = CsRTSentSize = CsRTSentMax = 0L;
 	CsRTPendingLength = CsRTPendingMax = 0;
 	return;
@@ -454,7 +465,8 @@ int CsRTFlush(int wait) {
 			return result;
 			}
 		if((result = CsRTSendDue()) != OK) return result;
-		if(!wait || CsRTQueueSize == 0L) break;
+		CsRTSendMidiDue(); // note 22
+		if(!wait || (CsRTQueueSize == 0L && CsRTMidiSize == 0L)) break;
 		CsRTSleep(2L);
 		}
 	return OK;
@@ -519,6 +531,7 @@ void CsRTPanic(void) {
 	CsRTQueueSize = 0L;
 	for(i = 0; i < CsRTSentSize; i++) CsRTFreeEvent(&CsRTSent[i]);
 	CsRTSentSize = 0L;
+	CsRTMidiSize = 0L;
 	CsRTStopAll();
 	return;
 	}
@@ -657,4 +670,66 @@ static int CsRTScripts(void) {
 		return OK; // Other scripts will be checked at the next call
 		}
 	return OK;
+	}
+
+
+// note 22
+void CsRTMidiNote(int key,int chan,int instance,double date) {
+	// Called by CscoreWrite() when it writes the line of a note of duration 0, such as an out-time note <<C0>>: if MIDI is running
+	// (--rtmidi), a NoteOn of the same key and channel with velocity 0 will be sent at the date of the note. It is not audible,
+	// but it can synchronise MIDI devices or another instance of BP3, whose input handlers accept NoteOn's with velocity 0.
+	// Other notes are not sent, to avoid doubling the flow of events.
+	CsRTMidiEvent e;
+	long i;
+	if(!rtMIDI || CsRTSocket == CSRT_NOSOCKET) return;
+	if(key < 0 || key > 127 || chan < 0 || chan > 15) return;
+	if(CsRTMidiSize >= CsRTMidiMax) {
+		long newmax = (CsRTMidiMax < 256L) ? 256L : 2L * CsRTMidiMax;
+		CsRTMidiEvent* p = (CsRTMidiEvent*) realloc(CsRTMidiQueue,(size_t) newmax * sizeof(CsRTMidiEvent));
+		if(p == NULL) {
+			BPPrintMessage(0,odError,"=> Out of memory in CsRTMidiNote()\n");
+			return;
+			}
+		CsRTMidiQueue = p;
+		CsRTMidiMax = newmax;
+		}
+	e.time = date;
+	e.key = key;
+	e.chan = chan;
+	e.instance = instance;
+	i = CsRTMidiSize;
+	while(i > 0 && CsRTMidiQueue[i - 1].time > date) i--;
+	memmove(&CsRTMidiQueue[i + 1],&CsRTMidiQueue[i],(size_t)(CsRTMidiSize - i) * sizeof(CsRTMidiEvent));
+	CsRTMidiQueue[i] = e;
+	CsRTMidiSize++;
+	return;
+	}
+
+
+// note 22
+static void CsRTSendMidiDue(void) {
+	// Send the silent MIDI notes whose date has come. Unlike Csound lines, they are not sent in advance.
+	// Those dated at or after a pending wait or hold are kept until it is over, like Csound lines (note 20).
+	UInt64 now;
+	double barrier;
+	long sent;
+	unsigned char midiData[4];
+	if(CsRTMidiSize == 0L || !CsRTStarted) return;
+	now = getClockTime();
+	barrier = CsRTBarrier();
+	sent = 0L;
+	while(sent < CsRTMidiSize) {
+		if(barrier >= 0. && CsRTMidiQueue[sent].time >= barrier - 0.0005) break;
+		if(CsRTDateToClock(CsRTMidiQueue[sent].time) > now) break;
+		midiData[0] = NoteOn + CsRTMidiQueue[sent].chan;
+		midiData[1] = CsRTMidiQueue[sent].key;
+		midiData[2] = 0;
+		sendMIDIEvent(CsRTMidiQueue[sent].instance,0,OUTmidi,0,midiData,3,0);
+		sent++;
+		}
+	if(sent > 0L) {
+		memmove(&CsRTMidiQueue[0],&CsRTMidiQueue[sent],(size_t)(CsRTMidiSize - sent) * sizeof(CsRTMidiEvent));
+		CsRTMidiSize -= sent;
+		}
+	return;
 	}

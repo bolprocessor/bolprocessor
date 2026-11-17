@@ -138,7 +138,7 @@ extern volatile char ClockOverFlow,SchedulerIsActive;
 extern char Mute,Panic;
 extern char *StopfileName, *PanicfileName, *PausefileName, *ContinuefileName;
 
-/* extern char AlertMute; */
+// extern char AlertMute;
 extern int WarnedBasedKey;
 extern int force_messages;
 
@@ -416,4 +416,4 @@ extern int WeightsFileExists;
 
 extern BPConsoleOpts gOptions;
 
-#endif /* BP3_DECL_H */
+#endif // BP3_DECL_H

@@ -1,5 +1,5 @@
-/* MIDIfiles.c (BP3) */
-/* Thanks to Srikumar K. Subramanian */
+// MIDIfiles.c (BP3)
+// Thanks to Srikumar K. Subramanian
 
 /*  This file is a part of Bol Processor
     Copyright (c) 1990-2000 by Bernard Bel, Jim Kippen and Srikumar K. Subramanian
@@ -50,24 +50,24 @@ int check_fade_out = 0;
 byte MTrk[] = { 'M', 'T', 'r', 'k' };
 
 byte header1[] = {
-0x4D, 0x54, 0x68, 0x64, /* MThd */
-0x00, 0x00, 0x00, 0x06, /* 6 bytes in header chunk */
+0x4D, 0x54, 0x68, 0x64, // MThd
+0x00, 0x00, 0x00, 0x06, // 6 bytes in header chunk
 0x00};
 
 byte header2[] = {0x00};
 
-byte header3[] = {0x03, 0xE8};	/* = 1000 */
-/* Delta-times are 1/1000th quarter-note */
+byte header3[] = {0x03, 0xE8};	// = 1000
+// Delta-times are 1/1000th quarter-note
 
 byte key_sig[] = {0x00, 0xff, 0x59, 0x02, 0x00, 0x00};
-/* key of C, major key */
+// key of C, major key
 
 byte time_sig[] = {0x00, 0xff, 0x58, 0x04, 0x01, 0x02, 0x18, 0x08};
-/* 0x00, 0xff, 0x58, 0x04 identifies time_sig */
-/* 0x01 = 1 beat per measure */
-/* 0x02 = quarter-notes */
-/* 0x18 = 24 clocks in metronome tick */
-/* 0x08 = number of 32-th notes in a quarter-note (24 clocks) */
+// 0x00, 0xff, 0x58, 0x04 identifies time_sig
+// 0x01 = 1 beat per measure
+// 0x02 = quarter-notes
+// 0x18 = 24 clocks in metronome tick
+// 0x08 = number of 32-th notes in a quarter-note (24 clocks)
 
 byte tempo_sig[] = {0x00, 0xff, 0x51, 0x03};
 
@@ -153,11 +153,11 @@ static int WriteMIDIFileHeader(FILE* fout) {
 	byte byteval,b0,b1;
 	unsigned long deltatimesinquarternote;
 
-	/* Write the MThd block to the new file */
+	// Write the MThd block to the new file
 	result = WriteRawBytes(fout, header1, sizeof(header1));
 	if(result != OK)  return ABORT;
 
-	/* Write the file type */
+	// Write the file type
 	byteval = (byte) (MIDIfileType & 0xff);
 	result = WriteRawBytes(fout, &byteval, 1L);
 	if(result != OK)  return ABORT;
@@ -165,13 +165,13 @@ static int WriteMIDIFileHeader(FILE* fout) {
 	result = WriteRawBytes(fout, header2, sizeof(header2));
 	if(result != OK)  return ABORT;
 
-	/* Write number of tracks */
-	/* This is a temporary value since type 1 & 2 files may contain more tracks */
+	// Write number of tracks
+	// This is a temporary value since type 1 & 2 files may contain more tracks
 	byteval = (byte) (1 & 0xff);
 	result = WriteRawBytes(fout, &byteval, 1L);
 	if(result != OK)  return ABORT;
 
-	/* Write division of quarter-note */
+	// Write division of quarter-note
 	if(Pclock > 0.)
 		deltatimesinquarternote = (Pclock * 1000L) / Qclock;
 	else
@@ -215,7 +215,7 @@ static int WriteBeginningOfTrack(FILE* fout, int inclMetaEvts, int isTempoOnlyTr
 	result = WriteRawBytes(fout, MTrk, sizeof(MTrk));
 	if(result != OK)  return ABORT;
 	if(!isTempoOnlyTrk) {
-		/* Remember where to write the track length */
+		// Remember where to write the track length
 		MidiLen_pos  = ftell(fout);
 		if(MidiLen_pos < 0) {
 			BPPrintMessage(0,odError, "=> Error in WriteBeginningOfTrack(): ftell() returned %ld.\n", MidiLen_pos);
@@ -237,7 +237,7 @@ static int WriteBeginningOfTrack(FILE* fout, int inclMetaEvts, int isTempoOnlyTr
 		result = WriteRawBytes(fout, tempo_sig, sizeof(tempo_sig));
 		if(result != OK)  return ABORT;
 
-		if(Pclock > 0.)	/* Striated time, or measured smooth time */
+		if(Pclock > 0.)	// Striated time, or measured smooth time
 			quarternotedur = (Pclock * 1000000L) / Qclock;
 		else
 			quarternotedur = 1000000L;
@@ -277,7 +277,7 @@ static int WriteEndOfTrack(FILE* fout) {
 	if(result != OK)  return result;
 	
 	if(MIDIbytestate > 0) {
-		/* Write out the final message. */
+		// Write out the final message.
 		result = Writedword(fout, Midi_msg, MIDIbytestate);
 		if(result != OK) return result;
 		MIDItracklength += MIDIbytestate;
@@ -286,26 +286,26 @@ static int WriteEndOfTrack(FILE* fout) {
 		MIDIfileTrackEmpty = FALSE;
 		}
 	
-	/* Finish off the track tail */
+	// Finish off the track tail
 	result = WriteRawBytes(fout, end_of_track, sizeof(end_of_track));
 	if(result != OK)  return result;
 	
 	MIDItracklength += sizeof(end_of_track);
 	
-	/* Remember where we are */
+	// Remember where we are
 	pos  = ftell(fout);
 	if(pos < 0) {
 		BPPrintMessage(0,odError, "=> Error in WriteEndOfTrack(): ftell() returned %ld.\n", pos);
 		return ABORT;
 		}
 	
-	/* Write the track length at the right place. */
+	// Write the track length at the right place.
 	result = fseek(fout, MidiLen_pos, SEEK_SET);
 	if(result != 0) return ABORT;
 	result = WriteReverse(fout, MIDItracklength);
 	if(result != OK) return result;
 	
-	/* Restore the position at the end of track */
+	// Restore the position at the end of track
 	result = fseek(fout, pos, SEEK_SET);
 	if(result != 0) return ABORT;
 	
@@ -329,7 +329,7 @@ int WriteMIDIbyte(Milliseconds time,byte midi_byte) {
 	if(!MIDIfileOpened) return(OK);
 	MIDIfileTrackEmpty = FALSE;
 
-	if(midi_byte & 0x80) {  /* MSBit of MIDI byte is 1 */
+	if(midi_byte & 0x80) {  // MSBit of MIDI byte is 1
 		// 2026-11-13 Count the bytes about to be written: the previous message and the delta time (variable length, 1 to 4 bytes).
 		// Beyond MaxOutputFileSize, events are dropped and the work is stopped, but the file can still be closed correctly.
 		Milliseconds lasttime = OldMIDIfileTime;
@@ -345,22 +345,22 @@ int WriteMIDIbyte(Milliseconds time,byte midi_byte) {
 			MIDIbytestate = 0;
 			return(OK);
 			}
-		if(MIDIbytestate > 0) {	/* Write out the accumulated message. */
+		if(MIDIbytestate > 0) {	// Write out the accumulated message.
 			if(Writedword(OpenMIDIfilePtr, Midi_msg, MIDIbytestate) != OK) goto BAD;
 			MIDItracklength += MIDIbytestate;
 			}
 		if(OldMIDIfileTime == -1L) OldMIDIfileTime = time;
-		/* This happens in the beginning of the file */
+		// This happens in the beginning of the file
 			
 		if(time < OldMIDIfileTime) OldMIDIfileTime = time;
-		/* This could happen with a bad rounding. Normally BP3 sorts out events */
+		// This could happen with a bad rounding. Normally BP3 sorts out events
 		
-		/* Write out variable length delta time value. */
+		// Write out variable length delta time value.
 		if(WriteVarLenQuantity(OpenMIDIfilePtr, (dword)(time-OldMIDIfileTime),
 				&MIDItracklength) != OK) goto BAD;
 				
 		OldMIDIfileTime = time;
-		/* Grab the new byte read. */
+		// Grab the new byte read.
 		Midi_msg = (dword)midi_byte;
 		MIDIbytestate = 1;
 		if(trace_writing_midi_file)
@@ -374,8 +374,8 @@ int WriteMIDIbyte(Milliseconds time,byte midi_byte) {
 		//	BPPrintMessage(0,odError, "=> Correcting the byte state (%d) in MIDI file\n",MIDIbytestate);
 			return(OK);
 			}
-		Midi_msg |= ((dword)midi_byte) << (8 * MIDIbytestate); /* accumulate msg */
-		MIDIbytestate++;		/* Keep track of number of bytes in msg. */
+		Midi_msg |= ((dword)midi_byte) << (8 * MIDIbytestate); // accumulate msg
+		MIDIbytestate++;		// Keep track of number of bytes in msg.
 		}
 	return(OK);
 
@@ -404,7 +404,7 @@ int NewTrack(void) {
 	return result;
 	}
 
-/* Finishes writing the track and MIDI header, then calls CloseMIDIFile2() */
+// Finishes writing the track and MIDI header, then calls CloseMIDIFile2()
 int CloseMIDIFile(void) {
 	int result;
 	byte byteval;
@@ -415,7 +415,7 @@ int CloseMIDIFile(void) {
 	if(result == OK) {
 		// FIXME: Even if the track is empty, we should probably still count it, right?
 		if(MIDIfileTrackEmpty) MIDIfileTrackNumber--;
-		/* Write again number of tracks */
+		// Write again number of tracks
 		result = fseek(OpenMIDIfilePtr, sizeof(header1) + 1 + sizeof(header2), SEEK_SET);
 		if(result != 0) {
 			result = MISSED;
@@ -431,7 +431,7 @@ int CloseMIDIFile(void) {
 	}
 
 
-/* Actually closes the MIDI file and resets globals */
+// Actually closes the MIDI file and resets globals
 static int CloseMIDIFile2(void) {
 	if(gOptions.outputFiles[ofiMidiFile].isOpen) {
 		fflush(gOptions.outputFiles[ofiMidiFile].fout);
@@ -570,7 +570,7 @@ int ResetMIDIfile(void) {
 		if(FileSaveMode == NEWFILE) CloseMIDIFile();
 		else if(MIDIfileType == 2) {
 			NewTrack();
-			if(!SoundOn) Nbytes = ZERO; 	/* Added 14/11/98 - avoids waiting on ResetMIDI() */
+			if(!SoundOn) Nbytes = ZERO; 	// Added 14/11/98 - avoids waiting on ResetMIDI()
 			}
 		}
 	return(OK);

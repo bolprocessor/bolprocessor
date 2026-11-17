@@ -1,4 +1,4 @@
-/* Compute.c (BP3) */
+// Compute.c (BP3)
 
 /*  This file is a part of Bol Processor
     Copyright (c) 1990-2000 by Bernard Bel, Jim Kippen and Srikumar K. Subramanian
@@ -177,7 +177,7 @@ int ComputeInGram(tokenbyte ***pp_a,t_gram *p_gram,int igram,int inrul,long *p_l
 	if(p_gram->p_subgram == NULL) return(OK);
 	subgram = (*(p_gram->p_subgram))[igram];
 	grtype = subgram.type;
-	pp_c = &p_c; p_c = NULL;	/* Buffer used for playing items */
+	pp_c = &p_c; p_c = NULL;	// Buffer used for playing items
 	p_candidate = p_prefrule = NULL;
 	p_totwght = NULL;
 	p_origin = p_pos = NULL;
@@ -252,8 +252,8 @@ int ComputeInGram(tokenbyte ***pp_a,t_gram *p_gram,int igram,int inrul,long *p_l
 	rep = OK;
 	maxpref = 0;
 	leftpos = ZERO;
-	incmark = 0;	/* Marker correction in SUB */
-	lastpos = 0;	/* Position for writing into B (SUB only) */
+	incmark = 0;	// Marker correction in SUB
+	lastpos = 0;	// Position for writing into B (SUB only)
 	if(grtype == SUBtype) {
 		if(*pp_a == NULL) {
 			BPPrintMessage(0,odError,"=> Err. ComputeInGram(). *pp_a = NULL");
@@ -272,7 +272,7 @@ int ComputeInGram(tokenbyte ***pp_a,t_gram *p_gram,int igram,int inrul,long *p_l
 
 	RETRY:
 	if(grtype == SUBtype)
-	/* memset((void*)**pp_b,(int) TEND,MyGetHandleSize((Handle)*pp_b)); */
+	// memset((void*)**pp_b,(int) TEND,MyGetHandleSize((Handle)*pp_b));
 		for(i=0; i < MyGetHandleSize((Handle)*pp_b)/sizeof(tokenbyte); i++)
 			(**pp_b)[i] = TEND;
 	changed = FALSE;
@@ -300,7 +300,7 @@ int ComputeInGram(tokenbyte ***pp_a,t_gram *p_gram,int igram,int inrul,long *p_l
 	CHECKINRUL:
 	freedom = FALSE; startfrom = 1;
 	try = irep = 0;
-	if(inrul > 0) {	/* Entering after '_goto' or '_failed' jump */
+	if(inrul > 0) {	// Entering after '_goto' or '_failed' jump
 		irul = inrul; j = 0;
 		rule = (*(subgram.p_rule))[irul];
 		if(((*p_pos)[j] = FindArg(pp_a,grtype,rule.p_leftarg,TRUE,p_length,meta,
@@ -432,7 +432,7 @@ int ComputeInGram(tokenbyte ***pp_a,t_gram *p_gram,int igram,int inrul,long *p_l
 						}
 					}
 				}
-			else j = 0;			/* ORD or SUB1 or POSLONG */
+			else j = 0;			// ORD or SUB1 or POSLONG
 			}
 	DOIT:
 		if((*p_repeat)) {
@@ -459,7 +459,7 @@ int ComputeInGram(tokenbyte ***pp_a,t_gram *p_gram,int igram,int inrul,long *p_l
 TRY2:
 			if(trace_compute) BPPrintMessage(0,odInfo,"try = %ld maxtry = %ld\n",(long)try,(long)maxtry);
 			if(try > maxtry) {
-				(*p_length) = LengthOf(pp_a);	/* was changed by FindArg() */
+				(*p_length) = LengthOf(pp_a);	// was changed by FindArg()
 				if((*p_length) <= ZERO) {
 					r = ABORT; goto QUIT;
 					}
@@ -477,7 +477,7 @@ TRY2:
 				if(CheckEmergency() != OK) return(ABORT);
 				goto TRY2;
 				}
-TRY3:		(*p_length) = LengthOf(pp_a);	/* was changed by FindArg() */
+TRY3:		(*p_length) = LengthOf(pp_a);	// was changed by FindArg()
 			if((*p_length) <= ZERO)  {
 				r = ABORT; goto QUIT;
 				}
@@ -739,7 +739,7 @@ MORE:
 		if(equalweight && !(*p_repeat) && !PlanProduce) goto TRY2;
 	//	rule = (*((*(p_gram->p_subgram))[igram].p_rule))[irul];
 	// rule = (*(subgram.p_rule))[irul];
-		/* Check '_repeat' */
+		// Check '_repeat'
 		if(rule.repeatcontrol > 0) {
 			nrep = ParamValue[rule.repeatcontrol];
 			}
@@ -756,7 +756,7 @@ MORE:
 			if((*p_pos)[j] == EXIT) {
 				rep = (*p_pos)[j]; goto QUIT;
 				}
-			/* Look for '_failed' */					
+			// Look for '_failed'					
 			if((ig=rule.failedgram) > 0) {
 				ir = rule.failedrule;
 				if(ig != igram) {
@@ -769,7 +769,7 @@ MORE:
 				goto CHECKINRUL;
 				}
 			}
-		/* Check '_goto' jump */
+		// Check '_goto' jump
 		if((ig=rule.gotogram) > 0) {
 			ir = rule.gotorule;
 			if(ig != igram) {
@@ -839,7 +839,7 @@ MORE:
 		//	if(length > 0) BPPrintMessage(1,odInfo,"\n");
 			}
 		if(!halt && (leftpos = NextPos(pp_a,pp_b,&lastpos,&incmark,leftpos,1)) > -1L) {
-			/* Skip next symbol and retry */
+			// Skip next symbol and retry
 			goto RETRY1;
 			}
 		if(foundone) (*p_length) = CopyBuf(pp_b,pp_a); // Copy B to A
@@ -905,8 +905,8 @@ MORE:
 				w = w + rule.incweight;
 				if(w < 0) w = 0;
 				(*((*(p_gram->p_subgram))[igram].p_rule))[irul].w = w;
-				if(w <= 0) {	/* stop substitutions when any prefered rule... */
-								/* ... becomes unvalid */
+				if(w <= 0) {	// stop substitutions when any prefered rule...
+								// ... becomes unvalid
 					if(DisplayProduce) {
 						ShowMessage(TRUE,wMessage,"A weight has decreased to 0...");
 						}
@@ -1013,7 +1013,7 @@ int Undo(tokenbyte ***pp_a, int repeat) {
 		if(r == STOP) {
 			if(repeat) {
 				StepProduce = DisplayProduce = PlanProduce = TraceProduce = FALSE;
-				r = OK;	/* Computation should be completed. */
+				r = OK;	// Computation should be completed.
 				}
 			else {
 				r = ABORT;
@@ -1054,7 +1054,7 @@ int Destroy(tokenbyte ***pp_a) {
 	size = MyGetHandleSize((Handle)*pp_a);
 	if((p_x = (tokenbyte**) GiveSpace((Size)size)) == NULL) return(ABORT);
 	if((rep=PrintArg(FALSE,FALSE,0,FALSE,0,1,stdout,wData,&p_x,pp_a)) != OK) return(ABORT);
-			/* stdout and wData are dummy: only copying A to x */
+			// stdout and wData are dummy: only copying A to x
 	if(CopyBuf(&p_x,pp_a) == ABORT) return(ABORT);
 	MyDisposeHandle((Handle*)&p_x);
 	return(OK);
@@ -1063,7 +1063,7 @@ int Destroy(tokenbyte ***pp_a) {
 
 long NextPos(tokenbyte ***pp_a,tokenbyte ***pp_b,long *p_lastpos,long *p_incmark,
 	long i,int skip) {
-/* Look for next variable or terminal */
+// Look for next variable or terminal
 	tokenbyte m,p;
 	long j,jmax;
 
@@ -1085,16 +1085,16 @@ long NextPos(tokenbyte ***pp_a,tokenbyte ***pp_b,long *p_lastpos,long *p_incmark
 				case T9:
 				case T25:
 					*p_lastpos = j;
-					return(i);		/* found */
+					return(i);		// found
 				}
 			if(m == TEND && p == TEND) {
 				*p_lastpos = j;
-				return(-1L);		/* failed */
+				return(-1L);		// failed
 				}
 			}
 		skip = FALSE;
 		i++; i++;
-		if(m == T2 && p != 0) {	/* '(:' Slave marker */
+		if(m == T2 && p != 0) {	// '(:' Slave marker
 			p = p + (*p_incmark);
 			}
 		if(j >= jmax-1) {
@@ -1102,7 +1102,7 @@ long NextPos(tokenbyte ***pp_a,tokenbyte ***pp_b,long *p_lastpos,long *p_incmark
 			BPPrintMessage(0,odError,"%s",Message);
 			return(ABORT);
 			}
-		(**pp_b)[j++] = m; (**pp_b)[j++] = p;	/* Copy any other symbol */
+		(**pp_b)[j++] = m; (**pp_b)[j++] = p;	// Copy any other symbol
 		}
 	}
 
@@ -1148,8 +1148,8 @@ int FindCandidateRules(tokenbyte ***pp_a,t_gram *p_gram,int startfrom,int igram,
 		return(ABORT);
 		}
 		
-	if(leftpos < 0L) return(0); 		/* Happens in 'SUB' grammars... */
-										/* ... because of NextPos() */
+	if(leftpos < 0L) return(0); 		// Happens in 'SUB' grammars...
+										// ... because of NextPos()
 
 	n = (*(p_gram->p_subgram))[igram].number_rule;
 //	BPPrintMessage(1,odInfo,"igram = %d number_rule = %d\n",igram,n);
@@ -1212,7 +1212,7 @@ int FindCandidateRules(tokenbyte ***pp_a,t_gram *p_gram,int startfrom,int igram,
 					}
 				while(h != NULL);
 				}
-			if(rule.ctrl > 0) {		/* <Kx> */
+			if(rule.ctrl > 0) {		// <Kx>
 				rule.w = rule.weight = ParamValue[rule.ctrl];
 				if(trace_weights) BPPrintMessage(1,odInfo,"ParamValue[%d] = %ld for rule.ctrl = %d\n",rule.ctrl,ParamValue[rule.ctrl],rule.ctrl);
 				}
@@ -1243,7 +1243,7 @@ int FindCandidateRules(tokenbyte ***pp_a,t_gram *p_gram,int startfrom,int igram,
 //	Print(wTrace,"Remaining rules startfrom = %d\n",startfrom);
 	if(startfrom > n) return(0);
 	if(grtype == POSLONGtype && ((p_length)=(long**)GiveSpace((Size) (n + 1) * sizeof(long))) == NULL) return(ABORT);
-	(*p_totwght)[0] = 1;	/* Needed if only one candidate in a LIN grammar */
+	(*p_totwght)[0] = 1;	// Needed if only one candidate in a LIN grammar
 	if(mode == ANAL) {
 		startfrom = n; dir = -1; *p_equalweight = FALSE;
 		}
@@ -1255,7 +1255,7 @@ int FindCandidateRules(tokenbyte ***pp_a,t_gram *p_gram,int startfrom,int igram,
 		rule = (*((*(p_gram->p_subgram))[igram].p_rule))[irul];
 		// BPPrintMessage(1,odInfo,"Trying every rule igram = %d irul = %d\n",igram,irul);
 		if(mode == PROD) {
-			if(rule.ctrl > 0) {		/* <Kx> */
+			if(rule.ctrl > 0) {		// <Kx>
 				rule.w = rule.weight = ParamValue[rule.ctrl];
 				*p_equalweight = FALSE;
 				if(trace_weights) BPPrintMessage(1,odInfo,"irul = %d rule.ctrl = %d w = %d\n",irul,rule.ctrl,rule.w);
@@ -1264,11 +1264,11 @@ int FindCandidateRules(tokenbyte ***pp_a,t_gram *p_gram,int startfrom,int igram,
 				if(trace_weights) BPPrintMessage(1,odInfo,"irul = %d w = %d\n",irul,rule.w);
 				continue;
 				}
-			if(rule.operator == 2) continue; /*  <--  */
+			if(rule.operator == 2) continue; // <--
 			}
-		if(mode == TEMP && rule.operator == 2) continue; /*  <--  */
+		if(mode == TEMP && rule.operator == 2) continue; // <--
 		if(mode == ANAL) {
-			if(rule.operator == 1) continue; /*  -->  */
+			if(rule.operator == 1) continue; // -->
 			if(!learn && (w = rule.weight) == 0) continue;
 			}
 		if(mode == PROD || mode == TEMP) {
@@ -1388,7 +1388,7 @@ int FindCandidateRules(tokenbyte ***pp_a,t_gram *p_gram,int startfrom,int igram,
 							rule = (*((*(p_gram->p_subgram))[igram].p_rule))[irul];
 							if(rule.w == INT_MAX) {
 								(*p_candidate)[0] = irul;
-								(*p_totwght)[0] = 1;	/* Not used */
+								(*p_totwght)[0] = 1;	// Not used
 								(*p_pos)[0] = posmin - rule.leftoffset;
 								*p_maxpref = 1;
 								jj = 1;
@@ -1425,7 +1425,7 @@ int FindCandidateRules(tokenbyte ***pp_a,t_gram *p_gram,int startfrom,int igram,
 					break;
 				}
 			}
-		if(grtype == POSLONGtype) {	/* Find leftmost + longest derivation */
+		if(grtype == POSLONGtype) {	// Find leftmost + longest derivation
 			posmin = INT_MAX;
 			for(j=0; j < i; j++) {
 				irul = (*p_candidate)[j];
@@ -1445,7 +1445,7 @@ int FindCandidateRules(tokenbyte ***pp_a,t_gram *p_gram,int startfrom,int igram,
 					(*p_candidate)[jj] = irul = (*p_candidate)[j];
 					rule = (*((*(p_gram->p_subgram))[igram].p_rule))[irul];
 					(*p_candidate)[0] = irul;
-					(*p_totwght)[0] = 1;	/* Not used */
+					(*p_totwght)[0] = 1;	// Not used
 					(*p_pos)[0] = posmin - rule.leftoffset;
 					*p_maxpref = 1;
 					jj = 1;
@@ -1524,10 +1524,10 @@ long FindArg(tokenbyte ***pp_a,int grtype,tokenbyte **p_arg,int reset,
 
 	switch(mode) {
 		case TEMP:
-		case PROD:	/* leftmost search */
+		case PROD:	// leftmost search
 			dir = 2; startpos = 0;
 			break;
-		case ANAL:	/* rightmost search */
+		case ANAL:	// rightmost search
 			pos = 0; while((**pp_a)[pos] != TEND || (**pp_a)[pos+1] != TEND) pos += 2;
 			*p_length = pos; if(pos < 2) return(-1);
 			dir = -2; startpos = *p_length - 2;
@@ -1579,9 +1579,9 @@ int Found(int irul,tokenbyte ***pp_a,int grtype,tokenbyte **p_arg,long offset,in
 		}
 	(*p_length) = 0;
 	if(ismeta) {
-		for(i=0; i< MAXMETA2; i++) meta1[i] = -1; /* context wildcard table */
+		for(i=0; i< MAXMETA2; i++) meta1[i] = -1; // context wildcard table
 		if(reset) {
-			for(i=0; i< MAXMETA2; i++) meta[i] = -1; /* reset wildcard table */
+			for(i=0; i< MAXMETA2; i++) meta[i] = -1; // reset wildcard table
 			}
 		}
 
@@ -1598,8 +1598,8 @@ int Found(int irul,tokenbyte ***pp_a,int grtype,tokenbyte **p_arg,long offset,in
 		if(trace_compute) 
 			BPPrintMessage(0,odInfo,"Found() left neg irul = %d, istart = %d lenc = %d jstart = %d pos = %ld offset = %ld\n",irul,istart,lenc,jstart,(long)pos,(long)offset);
 		}
-	(*p_lenc1) = lenc - (istart / 4);	/* Used only for SUB */
-	if(jstart < 0) return(FALSE);	/* Not found */
+	(*p_lenc1) = lenc - (istart / 4);	// Used only for SUB
+	if(jstart < 0) return(FALSE);	// Not found
 	(*p_istart) = istart; (*p_jstart) = jstart;
 	if(istart > 0) { // 2025-03-15. Safety check: since 2026-11-09, FindArg() passes the right lenc for remote contexts, which was the cause of istart > i
 //		BPPrintMessage(0,odInfo,"Found() irul = %d, istart = %d jstart = %d, p_arg = %p, pp_a = %p, lenc = %d pos = %d offset = %d\n",irul,istart,jstart,p_arg,*pp_a,lenc,pos,offset);
@@ -1614,18 +1614,18 @@ int Found(int irul,tokenbyte ***pp_a,int grtype,tokenbyte **p_arg,long offset,in
 		i1 = (int) (*p_arg)[i]; i2 = (int) (*p_arg)[i+1];
 	//	if(trace_compute) BPPrintMessage(0,odInfo,"i = %ld arg[i] = %d, arg[i+1] = %d\n",(long)i,i1,i2);
 		j1 = (**pp_a)[j]; j2 = (**pp_a)[j+1];
-		if(j1 == TEND && j2 == TEND) { 	/* end of buffer */
-			if(i1 == T0 && i2 == 2) {			/* '#' */
+		if(j1 == TEND && j2 == TEND) { 	// end of buffer
+			if(i1 == T0 && i2 == 2) {			// '#'
 				nefound = TRUE;
 				i+=2; j-=2;
-				continue;			/* will redo this loop till end of arg */
+				continue;			// will redo this loop till end of arg
 				}
-			else return(FALSE);			/* failed */
+			else return(FALSE);			// failed
 			}
-		if(i1 == T0 && i2 == 2) {	/* '#' */
+		if(i1 == T0 && i2 == 2) {	// '#'
 			nexist = TRUE;
 			i+=2;
-			if((*p_arg)[i] == T0 && (*p_arg)[i+1] == 1) return(FALSE);	/* #? */
+			if((*p_arg)[i] == T0 && (*p_arg)[i+1] == 1) return(FALSE);	// #?
 			if((*p_arg)[i] != (tokenbyte) j1 || (*p_arg)[i+1] != (tokenbyte) j2) nefound = TRUE;
 			instan[xi++] = (tokenbyte) j1; instan[xi++] = (tokenbyte) j2;
 			goto NEXT;
@@ -1637,39 +1637,39 @@ int Found(int irul,tokenbyte ***pp_a,int grtype,tokenbyte **p_arg,long offset,in
 					instan[xi++] = (tokenbyte) j1; instan[xi++] = (tokenbyte) j2;
 					goto NEXT;
 					break;
-				case T3:	/* terminal */
-				case T4:	/* variable */
-				case T7:	/* out-time object or simple note */
-				case T8:	/* synchronization tag */
-				case T9:	/* time pattern */
-				case T10:	/* performance control */
-				case T11:	/* performance control */
-				case T12:	/* performance control */
-				case T13:	/* performance control */
-				case T14:	/* performance control */
-				case T15:	/* performance control */
-				case T16:	/* performance control */
-				case T17:	/* performance control */
-				case T18:	/* performance control */
-				case T19:	/* performance control */
-				case T20:	/* performance control */
-				case T21:	/* performance control */
-				case T22:	/* performance control */
-				case T23:	/* performance control */
-				case T24:	/* performance control */
-				case T25:	/* simple note */
-				case T26:	/* performance control */
-				case T27:	/* performance control */
-				case T28:	/* performance control */
-				case T29:	/* performance control */
-				case T30:	/* performance control */
-				case T31:	/* performance control */
-				case T32:	/* _ins() */
-				case T33:	/* performance control */
-				case T34:	/* performance control */
-				case T35:	/* performance control */
-				case T36:	/* performance control */
-				case T46:	/* _part() */
+				case T3:	// terminal
+				case T4:	// variable
+				case T7:	// out-time object or simple note
+				case T8:	// synchronization tag
+				case T9:	// time pattern
+				case T10:	// performance control
+				case T11:	// performance control
+				case T12:	// performance control
+				case T13:	// performance control
+				case T14:	// performance control
+				case T15:	// performance control
+				case T16:	// performance control
+				case T17:	// performance control
+				case T18:	// performance control
+				case T19:	// performance control
+				case T20:	// performance control
+				case T21:	// performance control
+				case T22:	// performance control
+				case T23:	// performance control
+				case T24:	// performance control
+				case T25:	// simple note
+				case T26:	// performance control
+				case T27:	// performance control
+				case T28:	// performance control
+				case T29:	// performance control
+				case T30:	// performance control
+				case T31:	// performance control
+				case T32:	// _ins()
+				case T33:	// performance control
+				case T34:	// performance control
+				case T35:	// performance control
+				case T36:	// performance control
+				case T46:	// _part()
 					instan[xi++] = (tokenbyte) j1;
 					instan[xi++] = (tokenbyte) j2;
 					goto NEXT;
@@ -1683,48 +1683,48 @@ int Found(int irul,tokenbyte ***pp_a,int grtype,tokenbyte **p_arg,long offset,in
 					if(j2 != 8 && j2 != 9) return(FALSE);
 					goto OKMETA;
 					break;
-				case T3:	/* terminal */
-				case T4:	/* variable */
-				case T7:	/* out-time object or simple note */
-				case T8:	/* synchronization tag */
-				case T9:	/* time pattern */
-				case T10:	/* performance control */
-				case T11:	/* performance control */
-				case T12:	/* performance control */
-				case T13:	/* performance control */
-				case T14:	/* performance control */
-				case T15:	/* performance control */
-				case T16:	/* performance control */
-				case T17:	/* performance control */
-				case T18:	/* performance control */
-				case T19:	/* performance control */
-				case T20:	/* performance control */
-				case T21:	/* performance control */
-				case T22:	/* performance control */
-				case T23:	/* performance control */
-				case T24:	/* performance control */
-				case T25:	/* simple note */
-				case T26:	/* performance control */
-				case T27:	/* performance control */
-				case T28:	/* performance control */
-				case T29:	/* performance control */
-				case T30:	/* performance control */
-				case T31:	/* performance control */
-				case T32:	/* _ins() */
-				case T33:	/* performance control */
-				case T34:	/* performance control */
-				case T35:	/* performance control */
-				case T36:	/* performance control */
-				case T46:	/* _part() */
+				case T3:	// terminal
+				case T4:	// variable
+				case T7:	// out-time object or simple note
+				case T8:	// synchronization tag
+				case T9:	// time pattern
+				case T10:	// performance control
+				case T11:	// performance control
+				case T12:	// performance control
+				case T13:	// performance control
+				case T14:	// performance control
+				case T15:	// performance control
+				case T16:	// performance control
+				case T17:	// performance control
+				case T18:	// performance control
+				case T19:	// performance control
+				case T20:	// performance control
+				case T21:	// performance control
+				case T22:	// performance control
+				case T23:	// performance control
+				case T24:	// performance control
+				case T25:	// simple note
+				case T26:	// performance control
+				case T27:	// performance control
+				case T28:	// performance control
+				case T29:	// performance control
+				case T30:	// performance control
+				case T31:	// performance control
+				case T32:	// _ins()
+				case T33:	// performance control
+				case T34:	// performance control
+				case T35:	// performance control
+				case T36:	// performance control
+				case T46:	// _part()
 	OKMETA:
 					i2 = i2 + i2;
-					if(meta[i2] != -1)	{	/* metavariable unification */
+					if(meta[i2] != -1)	{	// metavariable unification
 						if(meta[i2] == (tokenbyte)j1
 							&& meta[++i2] == (tokenbyte)j2) goto NEXT;
 						else return(FALSE);
 						}
 					else {
-						if(!reset) {			 /* context */
+						if(!reset) {			 // context
 							if(meta1[i2] != -1)	{
 								if(meta1[i2] == (tokenbyte)j1
 									&& meta1[++i2] == (tokenbyte)j2) goto NEXT;
@@ -1745,21 +1745,21 @@ int Found(int irul,tokenbyte ***pp_a,int grtype,tokenbyte **p_arg,long offset,in
 					break;
 				}
 			}
-		if(i1 != j1 || i2 != j2) return(FALSE);	/* not found */
+		if(i1 != j1 || i2 != j2) return(FALSE);	// not found
 	NEXT:	(*p_length)++;
 		}
 	if(grtype == SUBtype) (*p_length) = (*p_length) - (*p_lenc1); 
 	(*p_length) *= 2;
 	if(trace_compute) BPPrintMessage(0,odInfo,"Found() right irul = %d, length = %ld grtype = %d SUBtype = %d\n",irul,(long)(*p_length),grtype,SUBtype);
 	result = (!nexist || nefound);
-	if(ismeta && result && !reset) {	/* searching context */
+	if(ismeta && result && !reset) {	// searching context
 		for(i=0; i< MAXMETA2; i+=2) {
 			if(meta1[i] != -1) {
-				meta[i] = meta1[i];		/* Copy metavariables created in context */
+				meta[i] = meta1[i];		// Copy metavariables created in context
 				meta[i+1] = meta1[i+1];
 				}
-			if((j1 = (int) meta[i]) != -1) {	/* Check that metavariables have ... */
-				j2 = (int) meta[i+1];			/* ... distinct instances. */
+			if((j1 = (int) meta[i]) != -1) {	// Check that metavariables have ...
+				j2 = (int) meta[i+1];			// ... distinct instances.
 				for(j=0; j < i; j+=2) {
 					if(meta[j] == (tokenbyte) j1 && meta[j+1] == (tokenbyte) j2) {
 						return(FALSE);
@@ -1777,8 +1777,8 @@ long Derive(tokenbyte ***pp_a,t_gram *p_gram,tokenbyte ***pp_b,long *p_length,in
 	int irul,
 	long pos,long *p_leftpos,int grtype,int repeat,int *p_changed,long *p_lastpos,
 	long *p_incmark,int mode,UInt64 time_end_compute) {
-/* Apply rule 'irul' of gram 'igram'. */
-/* 'pos' is the leftmost occurrence of the left argument in a[] */
+// Apply rule 'irul' of gram 'igram'.
+// 'pos' is the leftmost occurrence of the left argument in a[]
 	tokenbyte **p_arg1,**p_arg2;
 	int imode,m,p;
 	unsigned long i,i1;
@@ -1825,7 +1825,7 @@ long Derive(tokenbyte ***pp_a,t_gram *p_gram,tokenbyte ***pp_b,long *p_length,in
 		}
 	else {
 		if(grtype == SUBtype) imode = 3;
-		else imode = 1;	/* 'repeat' or LIN or SUB1 or POSLONG or ANAL */
+		else imode = 1;	// 'repeat' or LIN or SUB1 or POSLONG or ANAL
 		}
 	inmark = CountMarkers(&dif,p_arg1,p_arg2);
 
@@ -1857,7 +1857,7 @@ long Insert(int grtype,tokenbyte ***pp_origin,tokenbyte ***pp_dest,t_rule rule,l
 	tokenbyte *ptr1,*ptr2,posdif,instan[MAXLIN],meta[MAXMETA2],meta1[MAXMETA2];
 	Size oldsize,newsize,incmark,blocksize;
 
-	/* *pp_origin = *pp_dest except in 'SUB' subgrammars. */
+	// *pp_origin = *pp_dest except in 'SUB' subgrammars.
 
 	if(ChangedGrammar || ChangedSettings) return(0);
 	if(*pp_dest == NULL) {
@@ -1879,7 +1879,7 @@ long Insert(int grtype,tokenbyte ***pp_origin,tokenbyte ***pp_dest,t_rule rule,l
 	//	BPPrintMessage(0,odInfo,"MySetHandleSize %ld\n",(long) newsize);
 		MySetHandleSize((Handle*)pp_dest,newsize);
 		}
-	incmark = (*p_incmark); /* used in SUB subgrammar only */
+	incmark = (*p_incmark); // used in SUB subgrammar only
 	pos1 = pos;
 	if(trace_compute) BPPrintMessage(0,odInfo,"Insert() pos1 = %ld\n",(long)pos1);
 
@@ -1895,7 +1895,7 @@ long Insert(int grtype,tokenbyte ***pp_origin,tokenbyte ***pp_dest,t_rule rule,l
 	if(CheckEmergency() != OK) return(ABORT);
 
 	switch(imode) {
-		case 0:	{						/* RND rule */
+		case 0:	{						// RND rule
 			UsedRandom = TRUE;
 			do {
 				randomnumber = bp3_rand();
@@ -1914,7 +1914,7 @@ long Insert(int grtype,tokenbyte ***pp_origin,tokenbyte ***pp_dest,t_rule rule,l
 				!OkContext(pp_origin,grtype,rule,pos1,length,meta,instan,PROD,time_end_compute));
 			break;
 			}
-		case 1:	{ 			/* ANAL or LEFT rule or LIN or ORD or SUB1 or POSLONG grammar */
+		case 1:	{ 			// ANAL or LEFT rule or LIN or ORD or SUB1 or POSLONG grammar
 			if(!Found(-1,pp_origin,grtype,p_arg1,offset,rule.leftnegcontext,&lenc1,pos1,1,
 				instan,meta,meta1,&istart,&jstart,&length,rule.ismeta,time_end_compute)) {
 				BPPrintMessage(0,odError,"=> Err Insert().  Not found");
@@ -1924,10 +1924,10 @@ long Insert(int grtype,tokenbyte ***pp_origin,tokenbyte ***pp_dest,t_rule rule,l
 				BPPrintMessage(0,odError,"=> Err Insert().  Not OkContext");
 				return(ABORT);
 				}
-			/* this was necessary for loading instan[] and meta[] */
+			// this was necessary for loading instan[] and meta[]
 			break;
 			}
-		case 2:	{								/* RIGHT rule */
+		case 2:	{								// RIGHT rule
 			pos1 = (*p_lengthorigin) - 2;
 			while(!Found(-1,pp_origin,grtype,p_arg1,offset,rule.leftnegcontext,&lenc1,pos1,
 				1,instan,meta,meta1,&istart,&jstart,&length,rule.ismeta,time_end_compute)
@@ -1941,7 +1941,7 @@ long Insert(int grtype,tokenbyte ***pp_origin,tokenbyte ***pp_dest,t_rule rule,l
 				}
 			break;
 			}
-		case 3:	{								/* SUB grammar */
+		case 3:	{								// SUB grammar
 			if(!Found(-1,pp_origin,grtype,p_arg1,offset,rule.leftnegcontext,&lenc1,pos1,1,
 				instan,meta,meta1,&istart,&jstart,&length,rule.ismeta,time_end_compute)) {
 				BPPrintMessage(0,odError,"=> Err Insert().  Not found");
@@ -1951,7 +1951,7 @@ long Insert(int grtype,tokenbyte ***pp_origin,tokenbyte ***pp_dest,t_rule rule,l
 				BPPrintMessage(0,odError,"=> Err Insert().  Not OkContext\n");
 				return(ABORT);
 				}
-			Countmark(rule.p_leftarg,&length1); /* Only to calculate length1 */
+			Countmark(rule.p_leftarg,&length1); // Only to calculate length1
 			*p_leftpos +=
 				length1 - (2 * rule.leftnegcontext) - offset - rule.rightoffset;
 					// Rem: offset = rule.leftoffset in SUB subgrammar
@@ -1964,7 +1964,7 @@ long Insert(int grtype,tokenbyte ***pp_origin,tokenbyte ***pp_dest,t_rule rule,l
 	jmax = jstart + length + dif - 1;
 	// jmax = jstart + length + dif; // Maybe?
 
-	if(grtype == SUBtype) {	/* Don't rewrite leftmost contexts */ 
+	if(grtype == SUBtype) {	// Don't rewrite leftmost contexts 
 		istart += rule.leftoffset + 4L * lenc1;
 		jstart = (*p_lastpos);
 		jmax = jstart + length1 - (2 * rule.leftnegcontext) + dif - rule.leftoffset
@@ -1978,7 +1978,7 @@ long Insert(int grtype,tokenbyte ***pp_origin,tokenbyte ***pp_dest,t_rule rule,l
 	if(grtype != SUBtype) {
 		i0 = pos1 + length - (2 * lenc1);
 		j0 = i0 + dif;
-		if(dif != 0) {	/* This is a quicker procedure */
+		if(dif != 0) {	// This is a quicker procedure
 			if(trace_compute) 
 				BPPrintMessage(0,odError,"Moving memory quickly dif = %ld\n",(long)dif);
 			blocksize = (LengthOf(pp_dest) - i0 + 2) * sizeof(tokenbyte);
@@ -2006,19 +2006,19 @@ long Insert(int grtype,tokenbyte ***pp_origin,tokenbyte ***pp_dest,t_rule rule,l
 			return(ABORT);
 			}
 		// if((*p_arg2)[i] == TEND && (*p_arg2)[i+1] == TEND) break;  // Maybe for security
-		if((*p_arg2)[i] == T0 && (*p_arg2)[i+1] == 2) {		/* '#' */
+		if((*p_arg2)[i] == T0 && (*p_arg2)[i+1] == 2) {		// '#'
 			m = (**pp_dest)[j] = instan[xi++];
 			p = (**pp_dest)[j+1] = instan[xi++];
 			if(trace_compute) BPPrintMessage(0,odInfo,"wild card '#' i = %d j = %d m = %d p = %d xi = %d\n",i,j,m,p,xi);
 			i += 2;
 			}
 		else {
-			if((*p_arg2)[i] == T0 && (*p_arg2)[i+1] == 1) {		/* '?' */
+			if((*p_arg2)[i] == T0 && (*p_arg2)[i+1] == 1) {		// '?'
 				m = (**pp_dest)[j] = instan[xi++];
 				p = (**pp_dest)[j+1] = instan[xi++];
 				}
 			else {
-				if((*p_arg2)[i] == T6) {					/* '?ii' */
+				if((*p_arg2)[i] == T6) {					// '?ii'
 					ii = (int) (*p_arg2)[i+1];
 					ii += ii;
 					m = (**pp_dest)[j] = meta[ii];
@@ -2028,10 +2028,10 @@ long Insert(int grtype,tokenbyte ***pp_origin,tokenbyte ***pp_dest,t_rule rule,l
 					m = (**pp_dest)[j] = (*p_arg2)[i];
 					p = (**pp_dest)[j+1] = (*p_arg2)[i+1];
 					if(grtype == SUBtype) {
-						if(m == T2 && p == 0) {		/* "(=" */
+						if(m == T2 && p == 0) {		// "(="
 							incmark++;
 							}
-						if(m == T2 && p != 0) {		/* "(:" */
+						if(m == T2 && p != 0) {		// "(:"
 							(**pp_dest)[j+1] += (tokenbyte)(*p_incmark);
 							}
 						}
@@ -2068,11 +2068,11 @@ long Insert(int grtype,tokenbyte ***pp_origin,tokenbyte ***pp_dest,t_rule rule,l
 
 
 int Cormark(tokenbyte ***pp_a,long from,long inmark) {
-/* Recalculate slave markers after derivation... */
+// Recalculate slave markers after derivation...
 // Checked by BB, 6 Nov 2020, with -gr.dhin-- seems OK
 // However, 'from' is too large when the work string does not contain markers…
 	long i;
-	tokenbyte m,p,q;		/* 'from' is the position of rightmost symbol inserted */
+	tokenbyte m,p,q;		// 'from' is the position of rightmost symbol inserted
 
 	for(i = from, q = 1; (**pp_a)[i] != TEND || (**pp_a)[i+1] != TEND; i += 2) {
 		m = (int) (**pp_a)[i];
@@ -2090,14 +2090,14 @@ int Cormark(tokenbyte ***pp_a,long from,long inmark) {
 
 
 long CountMarkers(long *p_dif,tokenbyte **p_arg1,tokenbyte **p_arg2) {
-/* How many zero markers are created by this derivation ? */
+// How many zero markers are created by this derivation ?
 	long n1,n2;
 	long l1,l2;
 
 	n1 = Countmark(p_arg1,&l1);
 	n2 = Countmark(p_arg2,&l2);
-	(*p_dif) = l2 - l1;		/* also return how much length of buffer */
-	return(n2-n1);						/* will be increased */
+	(*p_dif) = l2 - l1;		// also return how much length of buffer
+	return(n2-n1);						// will be increased
 	}
 
 
@@ -2134,7 +2134,7 @@ int ChangeFlagsInRule(t_gram *p_gram,int igram,int irul) {
 				rep = ABORT;
 				goto QUIT;
 				}
-			/* Increment flag used to activate rule */
+			// Increment flag used to activate rule
 			if((**h).x > 0) (*p_Flag)[(**h).x] += (**h).increment;
 			h = (**h).p;
 			}
@@ -2142,7 +2142,7 @@ int ChangeFlagsInRule(t_gram *p_gram,int igram,int irul) {
 		}
 	h = (*((*(p_gram->p_subgram))[igram].p_rule))[irul].p_rightflag;
 	if(h != NULL) {
-		do {					/* Change flags created by rule */
+		do {					// Change flags created by rule
 			if((**h).x > Jflag) {
 				BPPrintMessage(0,odError,"=> Err. p_Swtch (4) igram = %d irul = %d\n",igram,irul);
 				rep = ABORT;

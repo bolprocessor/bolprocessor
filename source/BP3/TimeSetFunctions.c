@@ -1,4 +1,4 @@
-/* TimeSetFunctions.c (BP3) */
+// TimeSetFunctions.c (BP3)
 
 /*  This file is a part of Bol Processor
     Copyright (c) 1990-2000 by Bernard Bel, Jim Kippen and Srikumar K. Subramanian
@@ -84,7 +84,7 @@ int Locate(int nseq,unsigned long** p_imaxseq,long imax,long kmax,Milliseconds *
 	imax2 = imax + 20;
 	n = 0;
 
-	/* All these below should be replaced with single records !!! */
+	// All these below should be replaced with single records !!!
 
 	if((p_BreakTempoPrev = (char**) GiveSpace((Size)imaxseq2 * sizeof(char))) == NULL)
 		return(ABORT);
@@ -172,24 +172,24 @@ INCREMENT:
 		(*p_ddelta1)[ii] = (*p_ddelta2)[ii] = ZERO;
 		}
 	
-	/* Update tscover */
+	// Update tscover
 	(*p_tscover)[inext] = (*p_tscover)[i];
-	if(j < 16384) {	/* Not a simple note */
+	if(j < 16384) {	// Not a simple note
 		if(((*p_maxcoverend)[i] != Infpos
 						&& (*p_tscover)[i] < ((*p_ts2)[i] - (*p_maxcoverend)[i])))
 			(*p_tscover)[inext] = (*p_ts2)[i] - (*p_maxcoverend)[i];
 		}
 
-	/* Update tsgap */
+	// Update tsgap
 	if((*p_maxgapend)[i] != Infpos) (*p_tsgap)[inext] = (*p_ts2)[i] + (*p_maxgapend)[i];
 	else (*p_tsgap)[inext] = (*p_maxgapend)[i];
 	
-	/* Update Ts */
+	// Update Ts
 	if((*p_Ts)[i] < (*p_ts2)[i]) {
 		(*p_Ts)[inext] = (*p_ts2)[i];
 		if(j < 16384 && j > 1 && j < Jbol) (*p_BreakTempoPrev)[inext] = (*p_BreakTempo)[j];
 		// Fixed j > 1 && j < Jbol by BB 2022-02-23
-		else (*p_BreakTempoPrev)[inext] = FALSE; /* Simple note or silence */
+		else (*p_BreakTempoPrev)[inext] = FALSE; // Simple note or silence
 		}
 	else {
 		(*p_Ts)[inext] = (*p_Ts)[i];
@@ -209,7 +209,7 @@ CHECK:
 
 	// BPPrintMessage(0,odInfo,"nseq = %ld p_imaxseq = %ld\n",(long)nseq,(long)(*p_imaxseq)[nseq]); 
 
-	if(k == -1) {	/* 'NIL' end-of-line marker */
+	if(k == -1) {	// 'NIL' end-of-line marker
 		if((nature_time == SMOOTH) && (nseq == 0) && first) {
 			(*p_ddelta0)[i] = (*p_ts2)[iprev];
 		//	BPPrintMessage(0,odError,"\n=> ddelta0[%ld] = %ld\n",(long)i,(long)(*p_ddelta0)[i]);
@@ -245,13 +245,13 @@ CHECK:
 			}
 		else {
 			if(result == ABORT) goto QUIT;
-			/* result = MISSED */
+			// result = MISSED
 			goto FINDMORE;
 			}
 		}
 
 	inext = i; while((*((*p_Seq)[nseq]))[++inext] == 0);
-	j = (*p_Instance)[k].object;	/* j can't be 0 because of previous inext calculation */
+	j = (*p_Instance)[k].object;	// j can't be 0 because of previous inext calculation
 
 	(*p_Instance)[k].truncbeg = ZERO;
 	(*p_Instance)[k].truncend = ZERO;
@@ -261,7 +261,7 @@ CHECK:
 
 	if(i == i0 || (NoAlphabet && (nature_time != SMOOTH))) goto INCREMENT;
 
-	if(j < 0) j = -j;	/* Out-time object */
+	if(j < 0) j = -j;	// Out-time object
 	if(ibreak == 0) {
 		if(j >= 16384 || (*p_BreakTempo)[j]) ibreak = i;
 		}
@@ -391,15 +391,15 @@ NEWCHOICE1:
 	(*p_tp2)[i] = (*p_time2)[i] + (*p_ddelta0)[i];
 	(*p_ddelta1)[i] = (*p_delta1)[i] = ZERO;
 	(*p_Instance)[k].truncend = ZERO;
-	if(sol1 == 2) { /* Truncate beginning */
+	if(sol1 == 2) { // Truncate beginning
 		(*p_Instance)[k].truncbeg = shift1;
 		}
 	else {
 		(*p_Instance)[k].truncbeg = ZERO;
 		(*p_tp2)[i] = (*p_tp2)[i] + shift1;
-		if(sol1 == 0) (*p_delta1)[i] = shift1;	/* Shift object */
+		if(sol1 == 0) (*p_delta1)[i] = shift1;	// Shift object
 		if(sol1 == 1) {
-			(*p_ddelta1)[i] = shift1;	/* Break tempo */
+			(*p_ddelta1)[i] = shift1;	// Break tempo
 			// BPPrintMessage(0,odInfo,"\nBreaking tempo, shift1 = %ld\n",(long)shift1);
 			}
 		}
@@ -526,13 +526,13 @@ NEWCHOICE2:
 	delta2mem = (*p_delta2)[i]; ddelta2mem = (*p_ddelta2)[i];
 
 	(*p_ts2)[i] = (*p_ts2)[i] + shift2;
-	if(sol2 == 3) { /* Truncate end */
+	if(sol2 == 3) { // Truncate end
 		(*p_Instance)[k].truncend = (*p_Instance)[k].truncend - shift2;
 		}
 	else {
 		(*p_ts1)[i] = (*p_ts1)[i] + shift2;
-		if(sol2 == 0) (*p_delta2)[i] = (*p_delta2)[i] + shift2;	/* Shift object */
-		if(sol2 == 1) (*p_ddelta2)[i] = (*p_ddelta2)[i] + shift2;	/* Break tempo */
+		if(sol2 == 0) (*p_delta2)[i] = (*p_delta2)[i] + shift2;	// Shift object
+		if(sol2 == 1) (*p_ddelta2)[i] = (*p_ddelta2)[i] + shift2;	// Break tempo
 		}
 	
 	shift3 = (*p_Ts)[i] - (*p_ts1)[i];
@@ -545,7 +545,7 @@ NEWCHOICE2:
 		}
 	else {
 		if(choice2 > 1) {
-			(*p_ts1)[i] = ts1mem; (*p_ts2)[i] = ts2mem;	/* TruncEnd[] is unchanged */
+			(*p_ts1)[i] = ts1mem; (*p_ts2)[i] = ts2mem;	// TruncEnd[] is unchanged
 			(*p_delta2)[i] = delta2mem; (*p_ddelta2)[i] = ddelta2mem;
 			goto NEWCHOICE2;
 			}
@@ -597,7 +597,7 @@ DECREMENT:
 			if(j < 16384)
 				my_sprintf(Message,"\nCol %ld NewTs=%ld ts1= %ld ts2=%ld Tsm=%ld \"%s\"  This object is not the one concerned.",
 				(long)i,(long)(*p_Ts)[i],(long)(*p_ts1)[i],(long)(*p_ts2)[i],(long)Tsm,*((*p_Bol)[j]));
-			else	/* Simple note */
+			else	// Simple note
 				my_sprintf(Message,"\nCol %ld NewTs=%ld ts1= %ld ts2=%ld Tsm=%ld \"%s\"  This object is not the one concerned.",
 				(long)i,(long)(*p_Ts)[i],(long)(*p_ts1)[i],(long)(*p_ts2)[i],(long)Tsm,
 				*((*(p_NoteName[NoteConvention]))[j-16384]));
@@ -681,7 +681,7 @@ int Solution_is_accepted(int nsol,int nseq,unsigned long **p_imaxseq,long kmax,M
 			(long)i,*((*p_Patt)[j-Jbol]),(long)(*p_t1)[i],(long)(*p_t2)[i],(long)(*p_Instance)[k].truncbeg ,
 			(long)(*p_Instance)[k].truncend ,(*p_Instance)[k].alpha,(long)(*p_delta)[k] ,
 			(long)((*p_ddelta0)[i]+(*p_ddelta1)[i]+(*p_ddelta2)[i]));
-					else	/* Simple note */
+					else	// Simple note
 						my_sprintf(Message,
 			"#%ld \"%s\" [%ld,%ld] TruncBeg=%ld TruncEnd=%ld alpha=%f delta=%ld DELTA=%ld\n",
 			(long)i,*((*(p_NoteName[NoteConvention]))[j-16384]),(long)(*p_t1)[i],
@@ -761,18 +761,18 @@ int Situation_ok(int nseq, int i, int i0, int j, Milliseconds shift, Millisecond
 		}
 	if(i == i0) return(YES);
 	if((nature_time == SMOOTH) && (nseq == 0)) return(NO);
-	/* else if(NoAlphabet) return(YES); */
-	if(shift == ZERO) return(YES);													/* 2 */
-	if((nature_time != SMOOTH) && j == 1) return(YES);		/* Silence "-" */
+	// else if(NoAlphabet) return(YES);
+	if(shift == ZERO) return(YES);													// 2
+	if((nature_time != SMOOTH) && j == 1) return(YES);		// Silence "-"
 	if(shift < ZERO) {
-		if(j > 16383) return(YES);		/* Simple note */
-		if(discontinuityok || (tsgap >= t1 && (-shift <= maxgapbeg))) return(YES);	/* 1 */
+		if(j > 16383) return(YES);		// Simple note
+		if(discontinuityok || (tsgap >= t1 && (-shift <= maxgapbeg))) return(YES);	// 1
 		}																	
 	if(shift > ZERO) {
 		if(nature_time == SMOOTH && !(*p_marked)[i]) return(NO);
-		if((j == 1 || j > 16383) && nature_time == SMOOTH) return(NO);	/* Fixed 5/7/97, modified 25/4/98 and 10/6/98 */
+		if((j == 1 || j > 16383) && nature_time == SMOOTH) return(NO);	// Fixed 5/7/97, modified 25/4/98 and 10/6/98
 		if(coverok || (t1 >= tscover && (maxcoverbeg == Infpos
-							|| ts <= (t1 + maxcoverbeg)))) return(YES); 			/* 3 */
+							|| ts <= (t1 + maxcoverbeg)))) return(YES); 			// 3
 		}
 	return(NO);
 	}
@@ -788,7 +788,7 @@ char Possible_choices(solset sol,char BreakTempoPrev,int i,int i0,int j,long k,i
 	sol[3] = Truncate end
 	sol[4] = Revise previous object(s)	*/
 	
-/*	side = 1 means correcting clockwise, side = 2 anticlockwise */
+// side = 1 means correcting clockwise, side = 2 anticlockwise
 
 	int n,nmax,choice;
 	Milliseconds maxmove,mustmove;
@@ -986,10 +986,10 @@ Milliseconds Alternate_correction1(int i,int i0,int nseq,Milliseconds shift,Mill
 		t1 = (*p_ts1)[i];
 		shift -= s1;
 		}
-	if(shift == ZERO) return(ZERO); 	/* Situation 2 */
+	if(shift == ZERO) return(ZERO); 	// Situation 2
 	if(shift < ZERO) {
 		if(discontinuityok) return(ZERO);
-		s1 = t1 - tsgap;				/* Situation 1 */
+		s1 = t1 - tsgap;				// Situation 1
 		if(maxgapbeg != Infpos) s2 = - shift - maxgapbeg;
 		else s2 = Infneg;
 		if(s1 <= ZERO && s2 <= ZERO) return(ZERO);
@@ -1075,7 +1075,7 @@ int Get_choice(solset sol_set, p_list2 ***p_s, p_list2 ***p_olds, int *p_redo,
 			my_sprintf(Message,"=> Error i: Get_choice. ");
 			BPPrintMessage(0,odError,"%s",Message);
 			}
-		if(isol == BACKTRACK) {	/* All choices have been exhausted */
+		if(isol == BACKTRACK) {	// All choices have been exhausted
 			if(**p_olds == NULL) {
 				isol = ABORT;
 				}

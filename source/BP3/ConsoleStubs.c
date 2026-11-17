@@ -1,5 +1,5 @@
-/* ConsoleStubs.c (BP3) */
-/* August 11, 2013 */
+// ConsoleStubs.c (BP3)
+// August 11, 2013
 
 /*  This file is a part of Bol Processor
 Copyright (c) 1990-2000 by Bernard Bel, Jim Kippen and Srikumar K. Subramanian
@@ -41,7 +41,7 @@ POSSIBILITY OF SUCH DAMAGE.
 // #include "ConsoleGlobals.h"
 // #include "ConsoleMessages.h"
 
-/* Stubs to replace missing functions from BP3 Carbon GUI and from Mac OS X Carbon libraries */
+// Stubs to replace missing functions from BP3 Carbon GUI and from Mac OS X Carbon libraries
 
 /* These are BP3 functions -- some of these may end up utilizing callbacks
    set by host application using the client API ... */

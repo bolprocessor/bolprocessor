@@ -1,5 +1,5 @@
-/* ConsoleMain.c (BP3) */
-/* August 7, 2013 */
+// ConsoleMain.c (BP3)
+// August 7, 2013
 
 /*  This file is a part of Bol Processor
 Copyright (c) 1990-2000 by Bernard Bel, Jim Kippen and Srikumar K. Subramanian
@@ -365,7 +365,7 @@ CLEANUP:
 	free(eventStack);
 	return EXIT_SUCCESS;
 	}
-#endif /* __BP3_WASM__ */
+#endif // __BP3_WASM__
 
 void CreateDoneFile(void) {
 	FILE * thisfile;
@@ -846,11 +846,11 @@ const char gOptionList[] =
 	"\n"
 	"  play:            play all items in the input data file\n"
 	"  play-item N:      play the Nth item in the input data file (not implemented)\n"
-/*	"  play-all:         play all items in the input data file\n" */
+// "  play-all:         play all items in the input data file\n"
 	"  analyze:   analyze item in the input data file using the grammar\n"
-/*	"  analyze-item N:   analyze the Nth item's derivation using the grammar\n" */
+// "  analyze-item N:   analyze the Nth item's derivation using the grammar\n"
 	"  expand:           expand item in the input data file to a complete polymetric expression\n"
-/*	"  show-beats N:     display the Nth item using periods to show the beats\n" */
+// "  show-beats N:     display the Nth item using periods to show the beats\n"
 	"\n"
 	"  compile:          check the syntax of input files and }ort errors\n"
 	"  templates:        produce templates from the grammar\n"
@@ -862,7 +862,7 @@ const char gOptionList[] =
 	"  The following file types can currently be loaded and used. Paths and names are given in 'fname':\n"
 	"\n"
 	"  -da fname:        load data file 'fname'\n"
-/*	"  -gl fname:        load glossary file 'fname'\n" */
+// "  -gl fname:        load glossary file 'fname'\n"
 	"  -gr fname:        load grammar file 'fname'\n"
 	"  -to fname:        load tonality file 'fname'\n"
 	"  -al fname:        load alphabet file 'fname'\n"
@@ -892,7 +892,7 @@ const char gOptionList[] =
 	"  --csoundout outfile:    write Csound score to file 'outfile'\n"
 	"  --midiout outfile:      write Midi score to file 'outfile'\n"
 	"  --eventlistout outfile:      write event list to file 'outfile'\n"
-/*	"  --midiformat num:       use Midi file format 0, 1, or 2 (default is 1)\n" */
+// "  --midiformat num:       use Midi file format 0, 1, or 2 (default is 1)\n"
 	"  --rtmidi:   play real-time Midi\n"
 	"  --csoundrt port:        play real-time Csound, sending the score to a Csound server listening to UDP port 'port'\n"
 	"                          of this computer, e.g. started with: csound -odac --port=10789 --orc 0-default.orc\n"
@@ -991,7 +991,7 @@ int ParsePostInitArgs(int argc, char* args[], BPConsoleOpts* opts) {
 
 	Seed = 0L;
 	while(argn < argc) {
-		/* check if it is an input file */
+		// check if it is an input file
 		argDone = FALSE;
 		if(args[argn][0] == '-' || args[argn][0] == '+') {
 			// check for matching file prefix
@@ -1034,7 +1034,7 @@ int ParsePostInitArgs(int argc, char* args[], BPConsoleOpts* opts) {
 			argDone = TRUE;
 			}
 		if(!argDone) {
-			/* check if it is an option */
+			// check if it is an option
 			if(args[argn][0] == '-') {
 				if(strcmp(args[argn], "-d") == 0 || strcmp(args[argn], "-D") == 0 || strcmp(args[argn], "--display") == 0)	{ // Modified 2024-06-29
 					opts->displayItems = TRUE;
@@ -1179,7 +1179,7 @@ int ParsePostInitArgs(int argc, char* args[], BPConsoleOpts* opts) {
 					}
 				}
 			else {
-				/* check if it is an action */
+				// check if it is an action
 				// FIXME? help says that actions are case-insensitive
 				if(strcmp(args[argn], "compile") == 0)	{
 					action = compile;
@@ -1732,7 +1732,7 @@ int PrepareWeightsDestination(BPConsoleOpts* opts) {
 	return OK;
 	}
 
-/* Utility functions */
+// Utility functions
 
 void extract_and_append(char* input, char* output) {
 	char *ptr = input;
@@ -1756,7 +1756,7 @@ int path_exists(char *path) {
 	return (stat(path, &buffer) == 0); // Returns 1 if exists, 0 otherwise
 	}
 
-/* Returns TRUE if string s is an integer, otherwise FALSE. */
+// Returns TRUE if string s is an integer, otherwise FALSE.
 int isInteger(const char* s) {
 	int i = 0;
 	if(s[i] != '-' && s[i] != '+' && !isdigit(s[i])) return FALSE;

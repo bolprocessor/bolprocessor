@@ -1,4 +1,4 @@
-/* CompileGrammar.c (BP3) */
+// CompileGrammar.c (BP3)
 
 /*  This file is a part of Bol Processor
     Copyright (c) 1990-2000 by Bernard Bel, Jim Kippen and Srikumar K. Subramanian
@@ -110,7 +110,7 @@ int CompileGrammar(int verbose,t_gram* p_gram) {
 		}
 	p_gram->number_gram = igram = 1;
 	(*(p_gram->p_subgram))[1].number_rule = 0;
-	done = TRUE; /* Flag meaning that current number of rules is correct. */
+	done = TRUE; // Flag meaning that current number of rules is correct.
 	(*(p_gram->p_subgram))[1].oldindex = 0;
 	(*(p_gram->p_subgram))[1].type = RNDtype;
 	(*(p_gram->p_subgram))[igram].stop = (*(p_gram->p_subgram))[igram].print
@@ -222,7 +222,7 @@ int CompileGrammar(int verbose,t_gram* p_gram) {
 			check = 2; // Will not create a script line
 			rep = ExecScriptLine(NULL,wScript,check,FALSE,p_line2,dummy,&posinstr,&i,&i);
 			if(rep == OK) {
-				/* This will set InitThere to 1 if "Play ..." instruction has been found. */
+				// This will set InitThere to 1 if "Play ..." instruction has been found.
 				if(InitThere == 0) {
 					InitThere = 2;
 					if((p_InitScriptLine=(char**) GiveSpace((Size)
@@ -248,7 +248,7 @@ int CompileGrammar(int verbose,t_gram* p_gram) {
 			goto NEXTLINE;
 			}
 			
-		/* Skip headers */
+		// Skip headers
 		p = &(*p_line)[0]; q = &(FilePrefix[wData][0]);
 		if((Match(TRUE,p_line,&q,4)) && p_gram->number_gram == 1
 			&& (*(p_gram->p_subgram))[1].number_rule == 0) goto NEXTLINE;
@@ -392,7 +392,7 @@ int CompileGrammar(int verbose,t_gram* p_gram) {
 	}
 
 
-int InsertSubgramTypes(t_gram* p_gram) {	/* Insert 'ORD', 'RND', etc. */
+int InsertSubgramTypes(t_gram* p_gram) {	// Insert 'ORD', 'RND', etc.
 	long pos,posmax,posline;
 	double n,d;
 	char *p,*q,**p_line;
@@ -507,21 +507,21 @@ int Renumber(t_gram* p_gram,char **p_line,long posline,long *p_pos,int igram,int
 		if((*p_line)[i] == '\0') break;
 		line2[i] = (*p_line)[i];
 		}
-	line2[i] = '\0';	/* Grammar numbers are in the beginning of 'line'... */
-						/* No need to check beyond MAXLIN. */
+	line2[i] = '\0';	// Grammar numbers are in the beginning of 'line'...
+						// No need to check beyond MAXLIN.
 	if(line2[0] == '\0') return(OK);
 
 	j = MyHandleLen(p_line) - 1; while(j > 0 && MySpace((*p_line)[j])) j--;
 	i = 0; while(MySpace(c=(*p_line)[i]) && i < j) i++;
 
-	/* Insert 'gram#' */
+	// Insert 'gram#'
 	p = &line2[i]; q = &GRAMstring[0]; pos3 = posline;
 	insertedgram = TRUE;
 	if(Match(FALSE,&p,&q,5)) {
 		insertedgram = FALSE;
 		i += 5; k = 0; pos2 = pos1 = posline + 5;
 		pos3 = pos2;
-		/* Find first digit of subgram index */
+		// Find first digit of subgram index
 		while(MySpace(c=(*p_line)[i])) {
 			i++; pos1++; pos2++; pos3++;
 			}
@@ -529,7 +529,7 @@ int Renumber(t_gram* p_gram,char **p_line,long posline,long *p_pos,int igram,int
 			c -= '0'; k = 10 * k + c; i++; pos2++; pos3++;
 			}
 		if(k != igram) {
-			/* Modify subgram index */
+			// Modify subgram index
 			*p_changednumber = TRUE;
 			SelectBehind(pos1,pos2,TEH[wGrammar]);
 			TextDeleteBehind(wGrammar);
@@ -537,8 +537,8 @@ int Renumber(t_gram* p_gram,char **p_line,long posline,long *p_pos,int igram,int
 			PrintBehind(wGrammar,line2);
 			dif = strlen(line2) - (pos2 - pos1);
 			MaintainSelectionInGrammar(pos1,dif);
-			if(pos1 < Sel1) Sel1 += dif; /* Used in PlaySelection() */
-			if(pos1 < Sel2) Sel2 += dif; /* Used in PlaySelection() */
+			if(pos1 < Sel1) Sel1 += dif; // Used in PlaySelection()
+			if(pos1 < Sel2) Sel2 += dif; // Used in PlaySelection()
 			*p_pos += dif; *p_posmax += dif; pos3 += dif;
 			(*((*(p_gram->p_subgram))[igram].p_rule))[irul].oldgramindex = k;
 			(*((*(p_gram->p_subgram))[igram].p_rule))[irul].oldrulindex = irul;
@@ -552,7 +552,7 @@ int Renumber(t_gram* p_gram,char **p_line,long posline,long *p_pos,int igram,int
 			}
 		}
 	else {
-		/* Insert 'gram#' and subgram index */
+		// Insert 'gram#' and subgram index
 		*p_changednumber = TRUE;
 		SelectBehind(posline,posline,TEH[wGrammar]);
 		my_sprintf(line2,"%s%ld",GRAMstring,(long)igram);
@@ -564,7 +564,7 @@ int Renumber(t_gram* p_gram,char **p_line,long posline,long *p_pos,int igram,int
 		*p_pos += dif; *p_posmax += dif; pos3 += dif;
 		}
 	
-	/* Modify or insert rule index */
+	// Modify or insert rule index
 	k = 0;
 	while(MySpace(c=(*p_line)[i]) && i < j) {
 		i++; k++;
@@ -580,7 +580,7 @@ int Renumber(t_gram* p_gram,char **p_line,long posline,long *p_pos,int igram,int
 			k = 10 * k + c;
 			pos2++;
 			}
-		if(k == irul) return(OK); 	/* Index was correct */
+		if(k == irul) return(OK); 	// Index was correct
 		SelectBehind(pos1,pos2,TEH[wGrammar]);
 		TextDeleteBehind(wGrammar);
 		my_sprintf(line2,"%ld",(long)irul);
@@ -598,7 +598,7 @@ int Renumber(t_gram* p_gram,char **p_line,long posline,long *p_pos,int igram,int
 		return(OK);
 		}
 	else {
-	/* No index found.  Insert it. */
+	// No index found.  Insert it.
 NOTFOUND:
 		if(insertedgram) my_sprintf(line2,"[%ld] ",(long)irul);
 		else {
@@ -745,7 +745,7 @@ int UpdateProcedureIndex(int jproc,int igram,int irul,int ig,int ir,int mode) {
 		p = &(*p_line)[i]; q = &GRAMstring[0];
 		if(Match(FALSE,&p,&q,5)) {
 			i += 5; k = 0;
-			/* Find subgram index */
+			// Find subgram index
 			while(MySpace(c=(*p_line)[i])) i++;
 			while(!MySpace(c=(*p_line)[i]) && c != '\0' && c != '[') {
 				c -= '0';
@@ -843,13 +843,13 @@ int CompileAlphabet(void) {
 
 	if(ReleaseAlphabetSpace() != OK) return(ABORT);
 
-	Jhomo = 0; Jbol = 2;	/* Counting will not include "_" and "-" */
+	Jhomo = 0; Jbol = 2;	// Counting will not include "_" and "-"
 
 	if((rep=GetAlphabetSpace()) != OK) {	// This creates "_" and "-"
 		ReleaseAlphabetSpace();
 		goto ERR;
 		}
-	if((rep=ReadAlphabet(TRUE)) != OK){		/* Just count */
+	if((rep=ReadAlphabet(TRUE)) != OK){		// Just count
 	//	ReleaseAlphabetSpace(); 2026-05-08
 		goto ERR;
 		}
@@ -866,11 +866,11 @@ int CompileAlphabet(void) {
 			MystrcpyStringToTable(p_Homo,i,"\0");
 			if((ptr1 = (int**) GiveSpace((Size)(Jbol) * sizeof(int))) == NULL) return(ABORT);
 			(*p_Image)[i] = ptr1;
-			/* Every homomorphism is set to identity */
+			// Every homomorphism is set to identity
 			for(j=0; j < Jbol; j++) (*((*p_Image)[i]))[j] = j;
 			if((ptr1 = (int**) GiveSpace((Size)(128) * sizeof(int))) == NULL) return(ABORT);
 			(*p_NoteImage)[i] = ptr1;
-			/* Every homomorphism is set to identity */
+			// Every homomorphism is set to identity
 			for(j=0; j < 128; j++) (*((*p_NoteImage)[i]))[j] = 16384 + j;
 			}
 		}
@@ -887,7 +887,7 @@ int CompileAlphabet(void) {
 		} */
 
 	Jbol = 2;
-	if((rep=ReadAlphabet(FALSE)) != OK) {	/* Now creating bols */
+	if((rep=ReadAlphabet(FALSE)) != OK) {	// Now creating bols
 		ReleaseAlphabetSpace();
 		goto ERR;
 		}
@@ -918,7 +918,7 @@ int ReadAlphabet(int justcount) {
 	while(ReadLine(NO,YES,wAlphabet,&pos,posmax,&p_line,&gap) == OK) {
 		if((*p_line)[0] != '\0' && strstr(*p_line,Arrowstring) != NULLSTR
 				&& strstr(*p_line,operatorbetweenquotes) == NULLSTR) {
-			/*  Arrow is there and it is not between single quotes (check is incomplete) $$$ */
+			// Arrow is there and it is not between single quotes (check is incomplete) $$$
 			foundoperator = TRUE;
 			break;
 			}
@@ -1176,7 +1176,7 @@ int GetBol(char **p_line,int *p_i) {
 	i = (*p_i);
 	if(trace_compile_alphabet) BPPrintMessage(0,odInfo,"Getting bols in line: %s\n",(*p_line));
 	if((*p_line)[*p_i] == '\'') {
-		/* Read terminal between single quotes */
+		// Read terminal between single quotes
 		for(j=(*p_i)+1;(c=(*p_line)[j]) != '\0' && c != '\''; j++){};
 		j++;
 		if(trace_compile_alphabet) BPPrintMessage(0,odInfo,"terminal between single quotes j = %d\n",j);
@@ -1216,7 +1216,7 @@ int GetBol(char **p_line,int *p_i) {
 
 int OkChar(char c) {
 	// Characters accepted in variable names
-	/* if(isalnum(c)) return(TRUE); */
+	// if(isalnum(c)) return(TRUE);
 	if(!iscntrl(c) && !ispunct(c) && !MySpace(c)) return(TRUE);
 	switch(c) {
 		case '\'':
@@ -1236,7 +1236,7 @@ int OkChar(char c) {
 
 int OkBolChar(char c) {
 	// Characters accepted as first one of terminal name
-	if(islower(c) || isupper(c)) return(YES); /* Modified 23/11/2009 BB */
+	if(islower(c) || isupper(c)) return(YES); // Modified 23/11/2009 BB
 	switch(c) {
 		case '\'':
 			return(YES);
@@ -1310,7 +1310,7 @@ int CreateBol(int reload,int checknotes,char **p_x, int justcount, int mark, int
 			}
 		}
 	if(diff && checknotes) {
-		/* Maybe it's a simple note */
+		// Maybe it's a simple note
 		cv = NoteConvention;
 		if(trace_compile_alphabet) BPPrintMessage(0,odInfo, "Checking notes, convention = %d\n",cv);
 		for(j=0; j < 128; j++) {
@@ -1461,12 +1461,12 @@ int ParseGrammarLine(t_gram* p_gram,char** p_line,int *p_onerulefound,int tracec
 	ptr = &p; pp1 = &p1; pp2 = &p2; pp3 = &p3; pp4 = &p4;
 	p = &((*p_line)[0]); beforefirstrule = TRUE;
 	if((c=NextChar(ptr))  == '\0') return(0);
-	if(c == '/' && (*ptr)[1] == '/') return(0);	/* Found '//' */
+	if(c == '/' && (*ptr)[1] == '/') return(0);	// Found '//'
 	if(c != '_' && !isalpha(c)) beforefirstrule = FALSE;
 	*pp1 = *ptr; q = &GRAMstring[0];
-	if(Match(FALSE,ptr,&q,strlen(GRAMstring))) {	/* Found 'gram#' */
+	if(Match(FALSE,ptr,&q,strlen(GRAMstring))) {	// Found 'gram#'
 		beforefirstrule = FALSE;
-		(*ptr) += strlen(GRAMstring);	/* Skip subgram number */
+		(*ptr) += strlen(GRAMstring);	// Skip subgram number
 		while(MySpace(**ptr)) (*ptr)++;
 		while((**ptr) >= '0' && (**ptr) <= '9') (*ptr)++;
 		while(!MySpace(**ptr) && (**ptr) != '\0') (*ptr)++;
@@ -1488,39 +1488,39 @@ int ParseGrammarLine(t_gram* p_gram,char** p_line,int *p_onerulefound,int tracec
 				if(j > 0) {
 					proc = TRUE;
 					switch(j) {
-						case 3:	/* _stop */
+						case 3:	// _stop
 							(*(p_gram->p_subgram))[igram].stop = TRUE;
 							break;
-						case 4:	/* _print */
+						case 4:	// _print
 							(*(p_gram->p_subgram))[igram].print = TRUE;
 							break;
-						case 5:	/* _printOn */
+						case 5:	// _printOn
 							(*(p_gram->p_subgram))[igram].printon = TRUE;
 							break;
-						case 6:	/* _printOff */
+						case 6:	// _printOff
 							(*(p_gram->p_subgram))[igram].printoff = TRUE;
 							break;
-						case 7:	/* _stepOn */
+						case 7:	// _stepOn
 							(*(p_gram->p_subgram))[igram].stepon = TRUE;
 							break;
-						case 8:	/* _stepOff */
+						case 8:	// _stepOff
 							(*(p_gram->p_subgram))[igram].stepoff = TRUE;
 							break;
-						case 9:	/* _traceOn */
+						case 9:	// _traceOn
 							(*(p_gram->p_subgram))[igram].traceon = TRUE;
 							break;
-						case 10:	/* _traceOff */
+						case 10:	// _traceOff
 							(*(p_gram->p_subgram))[igram].traceoff = TRUE;
 							break;
-						case 11:	/* _destru */
+						case 11:	// _destru
 							(*(p_gram->p_subgram))[igram].destru = TRUE;
 							p_gram->hasproc = TRUE;
 							break;
-						case 12:	/* _randomize */
+						case 12:	// _randomize
 							(*(p_gram->p_subgram))[igram].randomize = TRUE;
 							WillRandomize = TRUE;
 							break;
-						case 13:	/* _mm */
+						case 13:	// _mm
 							if(!NotFoundMetronom) {
 								Println(wTrace,"=> Instruction '_mm()' should not appear more than once in the grammar");
 								return(7);
@@ -1528,8 +1528,8 @@ int ParseGrammarLine(t_gram* p_gram,char** p_line,int *p_onerulefound,int tracec
 							NotFoundMetronom = FALSE;
 							if(ChangeMetronom(j,x) != OK) return(7);
 							break;
-						case 14:	/* _striated */
-						case 15:	/* _smooth */
+						case 14:	// _striated
+						case 15:	// _smooth
 							if(!NotFoundNatureTime) {
 								Println(wTrace,"=> Instruction '_smooth' or '_striated' should not appear more than once in the grammar");
 								return(7);
@@ -1537,7 +1537,7 @@ int ParseGrammarLine(t_gram* p_gram,char** p_line,int *p_onerulefound,int tracec
 							NotFoundNatureTime = FALSE;
 							if(ChangeMetronom(j,x) != OK) return(7);
 							break;
-						case 16:	/* _srand */
+						case 16:	// _srand
 							(*(p_gram->p_subgram))[igram].seed = y;
 							break;
 						}
@@ -1572,7 +1572,7 @@ int ParseGrammarLine(t_gram* p_gram,char** p_line,int *p_onerulefound,int tracec
 				if(initparam == INT_MAX) {
 					w = 127;
 					}
-				else {	/* Found '<Kx=y>' */
+				else {	// Found '<Kx=y>'
 					if(initparam < 0) {
 						my_sprintf(Message,"Negative weight '<K%ld=%ld>' not allowed...\n",
 							(long)i,(long)initparam);
@@ -1635,14 +1635,14 @@ int ParseGrammarLine(t_gram* p_gram,char** p_line,int *p_onerulefound,int tracec
 		(*((*(p_gram->p_subgram))[igram].p_rule))[irul].p_leftcontext =
 		(*((*(p_gram->p_subgram))[igram].p_rule))[irul].p_rightcontext = NULL;
 		if(result < 0) return(result);
-		else return(15); /* error in argument */
+		else return(15); // error in argument
 		}
-	/* ClearMarkers(&pp_leftp); */
+	// ClearMarkers(&pp_leftp);
 	if(*p_pleftcontext != NULL) {
-		pp_a = (**p_pleftcontext)->p_arg; /* ClearMarkers(&pp_a); */
+		pp_a = (**p_pleftcontext)->p_arg; // ClearMarkers(&pp_a);
 		}
 	if(*p_prightcontext != NULL) {
-		pp_a = (**p_prightcontext)->p_arg; /* ClearMarkers(&pp_a); */
+		pp_a = (**p_prightcontext)->p_arg; // ClearMarkers(&pp_a);
 		}
 	(*((*(p_gram->p_subgram))[igram].p_rule))[irul].p_leftarg = pp_leftp;
 	(*((*(p_gram->p_subgram))[igram].p_rule))[irul].p_leftflag = h_flag;
@@ -1653,12 +1653,12 @@ int ParseGrammarLine(t_gram* p_gram,char** p_line,int *p_onerulefound,int tracec
 	/* if(*p_pleftcontext != NULL || *p_prightcontext != NULL)
 		NotBPCase[3] = TRUE;	Remote context(s) found */
 	h_flag = NULL;
-	NextChar(pp3); /* $$$  GetNilString(pp3); skip "lambda" */
+	NextChar(pp3); // $$$  GetNilString(pp3); skip "lambda"
 	if((pp_rightp=Encode(p_gram,FALSE,FALSE,igram,irul,pp3,pp4,p_plx,p_prx,&meta,2,
 			&h_flag,FALSE,&result)) == NULL) {
 		(*((*(p_gram->p_subgram))[igram].p_rule))[irul].p_rightarg = NULL;
 		if(result < 0) return(result);
-		else return(15); /* error in argument */
+		else return(15); // error in argument
 		}
 	if(h_flag != NULL && (type == SUBtype || type == SUB1type || type == POSLONGtype)) return(49);
 	if(Analyzing) ClearMarkers(&pp_rightp,TRUE); // 2026-04-17
@@ -1692,16 +1692,16 @@ int ParseGrammarLine(t_gram* p_gram,char** p_line,int *p_onerulefound,int tracec
 int ShowNotBP(t_gram* p_gram) {
 	int i,j=1;
 	static char *err[] = {
-		"Rule(s) with 'lambda', 'empty', 'null' or 'nil' as right argument",	/* 0 */
-		" ", 		/* 1 suppressed */
-		"'SUB' or 'SUB1' or 'POSLONG' substitutions(s)",	/* 2 */
-		"No rule is valid for parsing.  Use '<->' instead of '-->'", /* 3 */
-		"Rule contains polymetric structure(s)",		/* 4 */
-		"Rule contains decreasing weight",	/* 5 */
-		"Rule contains a '/flag/'",	/* 6 */
-		"Using tool(s): '_destru','_goto','_failed','_repeat','_retro','_rndseq','_keyxpand','_stepOn','_stepOff','_stop'", /* 7 */
-		"Grammar is empty!",	/* 8 */
-		"Period notation is not handled in grammars"	/* 9 suppressed */
+		"Rule(s) with 'lambda', 'empty', 'null' or 'nil' as right argument",	// 0
+		" ", 		// 1 suppressed
+		"'SUB' or 'SUB1' or 'POSLONG' substitutions(s)",	// 2
+		"No rule is valid for parsing.  Use '<->' instead of '-->'", // 3
+		"Rule contains polymetric structure(s)",		// 4
+		"Rule contains decreasing weight",	// 5
+		"Rule contains a '/flag/'",	// 6
+		"Using tool(s): '_destru','_goto','_failed','_repeat','_retro','_rndseq','_keyxpand','_stepOn','_stepOff','_stop'", // 7
+		"Grammar is empty!",	// 8
+		"Period notation is not handled in grammars"	// 9 suppressed
 		};
 
 	if(!CompiledGr || p_gram->trueBP) return(OK);
@@ -1785,7 +1785,7 @@ void adjust_prefix(char *line) {
 		}
 	}
 
-/******** COPY GRAMMAR ********/
+// ******* COPY GRAMMAR *******
 
 
 void copy_grammar(t_gram *dest, t_gram *src, int verbose) {

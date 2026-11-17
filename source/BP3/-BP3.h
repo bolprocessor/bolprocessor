@@ -143,21 +143,21 @@ typedef struct {
 	int instance,scale;
 	} MIDI_Event, *MIDI_EventPtr;
 
-#define _NOERRORCHECK_	/* Needed in <math.h> */
+#define _NOERRORCHECK_	// Needed in <math.h>
 #define _NOSYNONYMS_
 
 // #include "midi1.h"
 
-/* Valid MIDI_Event types */ 
-#define RAW_EVENT 0		/* data only in low order byte */
-#define NORMAL_EVENT 1	/* data packed into three low order bytes */
-#define NULL_EVENT 2	/* no data */
+// Valid MIDI_Event types 
+#define RAW_EVENT 0		// data only in low order byte
+#define NORMAL_EVENT 1	// data packed into three low order bytes
+#define NULL_EVENT 2	// no data
 #define TWO_BYTE_EVENT 3	
 
-/* Add extensions for channel definitions as part of the type byte. */
+// Add extensions for channel definitions as part of the type byte.
 #define PORTA 0
 #define PORTB 32
-#define PORTB_COMPLEMENT 0xffdf /* long complement of PORTB */
+#define PORTB_COMPLEMENT 0xffdf // long complement of PORTB
 
 // Output destinations / messages types (these may be summed)
 #define odDisplay	1		// for results of produce items, expand selection, etc.
@@ -174,9 +174,9 @@ typedef struct {
 
 /* Control/Status codes 
  * These codes are common for both A & B ports */
-#define CLOCKTIME_CODE 0		/* control/status */
-#define CHANNELIZE_CODE 2		/* control only */
-#define CLEAR_SCHEDULER_CODE 3	/* control only */
+#define CLOCKTIME_CODE 0		// control/status
+#define CHANNELIZE_CODE 2		// control only
+#define CLEAR_SCHEDULER_CODE 3	// control only
 
 #if defined(_WIN64)
 	#include <windows.h>
@@ -237,34 +237,34 @@ enum {
 #define TEXTEDIT_MAXCHARS 32000L
 #define DRAG_EDGE 20
 
-#define MAXDIAGRAM 1	/* number of diagrams displayed in graphic windows */
-#define MAXPICT 2		/* number of pictures displayed in graphic windows */
-#define MAXBUTT 32		/* number of buttons created in dialogs */
-#define MAXMESSAGE 70	/* number of messages remembered */
-#define MAXLIN 400		/* length of input line in any file */
-#define MAXSCORELENGTH 5000 /* length of Csound score */
-#define MAXWEIGHT 32767	/* weight of rule in grammar */
-#define MAXPORTS 32		/* number of input/output MIDI ports */
-#define MAXCLIENTS 512 /* number of MIDI clients (in Linux) */
-#define HTMLTOKENLENGTH 80 /* estimated max length of html token */
-#define MAXINFOLENGTH 50	/* length of date message */
-#define MAXFIELDCONTENT 255	/* length of edit field in dialog window */
-#define MAXNAME 200		/* length of file name */
-#define MAXBOL 500		/* number of sound-objects */
-#define MAXSTRINGCONSTANTS 256	/* string constants */
-#define MAXNOTBPCASES 10	/* cases of non standard BP grammars */
-#define MAXCOLOR 11		/* predefined colors */
-#define MAXTICKS 3		/* ticks in time base */
-#define MAXBEATS 40		/* beats in tick cycle */
-#define MAXCHAN 16	/* number of MIDI-BP3 channels */
-#define MAXPARTS 30	/* number of parts in a score */
-#define MAXINSTRUMENTS 512	/* number of Csound instruments refered to by tied notes */
-#define MAXINS 20	/* number of Csound instruments used in a Csound performance */
-#define MAXDATABASEFIELDS 60 /* number of fields in database */
-#define MAXTIMESLICES 5000 /* max number of time slices by the OMS output time scheduling */
-#define CLOCKRES 5L /* 5ms resolution of time scheduler */
-#define CLOCKSIZE 256	/* must be a power of 2 */
-#define CLOCKLOG 8		/* log base 2 of CLOCKSIZE */
+#define MAXDIAGRAM 1	// number of diagrams displayed in graphic windows
+#define MAXPICT 2		// number of pictures displayed in graphic windows
+#define MAXBUTT 32		// number of buttons created in dialogs
+#define MAXMESSAGE 70	// number of messages remembered
+#define MAXLIN 400		// length of input line in any file
+#define MAXSCORELENGTH 5000 // length of Csound score
+#define MAXWEIGHT 32767	// weight of rule in grammar
+#define MAXPORTS 32		// number of input/output MIDI ports
+#define MAXCLIENTS 512 // number of MIDI clients (in Linux)
+#define HTMLTOKENLENGTH 80 // estimated max length of html token
+#define MAXINFOLENGTH 50	// length of date message
+#define MAXFIELDCONTENT 255	// length of edit field in dialog window
+#define MAXNAME 200		// length of file name
+#define MAXBOL 500		// number of sound-objects
+#define MAXSTRINGCONSTANTS 256	// string constants
+#define MAXNOTBPCASES 10	// cases of non standard BP grammars
+#define MAXCOLOR 11		// predefined colors
+#define MAXTICKS 3		// ticks in time base
+#define MAXBEATS 40		// beats in tick cycle
+#define MAXCHAN 16	// number of MIDI-BP3 channels
+#define MAXPARTS 30	// number of parts in a score
+#define MAXINSTRUMENTS 512	// number of Csound instruments refered to by tied notes
+#define MAXINS 20	// number of Csound instruments used in a Csound performance
+#define MAXDATABASEFIELDS 60 // number of fields in database
+#define MAXTIMESLICES 5000 // max number of time slices by the OMS output time scheduling
+#define CLOCKRES 5L // 5ms resolution of time scheduler
+#define CLOCKSIZE 256	// must be a power of 2
+#define CLOCKLOG 8		// log base 2 of CLOCKSIZE
 
 // Maximum allowed memory for the phase diagram ?
 // (or whatever is being checked in PolyMake())
@@ -523,9 +523,9 @@ enum {
 #define MAXTOKENBYTE 48
 
 // Inference modes
-#define ANAL 0	/* Modus tollens */
-#define PROD 1	/* Modus ponens */
-#define TEMP 2	/* Producing templates */
+#define ANAL 0	// Modus tollens
+#define PROD 1	// Modus ponens
+#define TEMP 2	// Producing templates
 
 // Note conventions
 #define MAXCONVENTIONS 100
@@ -535,8 +535,8 @@ enum {
 #define KEYS 3
 // #define CUSTOM 4
 
-#define NOTESIZE 20	/* Length of note/key name. Used by EnglishNotes(), FrenchNotes() */
-					/*  and p_NoteName and p_AltNoteName */
+#define NOTESIZE 20	// Length of note/key name. Used by EnglishNotes(), FrenchNotes()
+					// and p_NoteName and p_AltNoteName
 
 #define BOL 0
 #define PATTERN 1
@@ -563,15 +563,15 @@ enum {
 
 // Interface constants
 
-#define SBARWIDTH 15	/* Width of menu bar, controller, etc. */
+#define SBARWIDTH 15	// Width of menu bar, controller, etc.
 #define MINWINDOWHEIGHT 80
 #define MINWINDOWWIDTH 80
 
-#define MAXMENU 9		/* number of menus in menu bar */
-#define MAXMENUITEMS 26 /* number of items in each menu */
-#define MAXWIND 15	/* number of windows */
-#define MAXDIAL 25	/* number of dialogs */
-#define WMAX 40		/* number of windows = MAXDIAL + MAXWIND */
+#define MAXMENU 9		// number of menus in menu bar
+#define MAXMENUITEMS 26 // number of items in each menu
+#define MAXWIND 15	// number of windows
+#define MAXDIAL 25	// number of dialogs
+#define WMAX 40		// number of windows = MAXDIAL + MAXWIND
 #define MAXMESSAGES 50000 // Maximum number of messsages (0 if unlimited)
 #define DEFTMAXOUTPUTFILESIZE 500 // Default value (MB) of MaxOutputFileSize, the maximum size of each output file: MIDI file, Csound score, event list, data, trace and weights. Work stops when it is reached. 2026-11-13
 
@@ -889,34 +889,34 @@ typedef enum {
 
 // -----------  BP3 constants  -------------------------------
 
-#define MAXMIDI 1000	/* length of line encoding MIDI event */
-#define BOLSIZE 30		/* length of terminal name */
-#define MAXFLAG 8		/* default number of flags */
-#define MAXEVENTSCRIPT 8	/* default number of event script lines */
-#define FIELDSIZE 1000	/* standard size of field in poly structure */
-#define MAXVAR 30		/* initial number of variables in grammar or script */
-#define HOMOSIZE 20		/* length of homomorphism identifier */
-#define MAXDISPL 1000	/* minimum size of display */
-#define MAXLEVEL 128	/* parentheses level */
-#define MAXDERIV 10000 	/* number of derivation steps */
-#define MAXTAB 20		/* number of tab sections for display */
-#define MAXMETA 32		/* number of metavariables in a rule */
-#define MAXMETA2 65		/* 2 * MAXMETA + 1 */
-#define MAXPARAMCTRL 128	/* number of MIDI controllers + 1 */
-#define MAXPARAMS 30	/* number of additional parameters in a set of Csound instruments */
-#define MAXWAIT 64		/* number of synchronization tags */
-#define MAXTIME 59944L	/* max computation time (milliseconds) */
+#define MAXMIDI 1000	// length of line encoding MIDI event
+#define BOLSIZE 30		// length of terminal name
+#define MAXFLAG 8		// default number of flags
+#define MAXEVENTSCRIPT 8	// default number of event script lines
+#define FIELDSIZE 1000	// standard size of field in poly structure
+#define MAXVAR 30		// initial number of variables in grammar or script
+#define HOMOSIZE 20		// length of homomorphism identifier
+#define MAXDISPL 1000	// minimum size of display
+#define MAXLEVEL 128	// parentheses level
+#define MAXDERIV 10000 	// number of derivation steps
+#define MAXTAB 20		// number of tab sections for display
+#define MAXMETA 32		// number of metavariables in a rule
+#define MAXMETA2 65		// 2 * MAXMETA + 1
+#define MAXPARAMCTRL 128	// number of MIDI controllers + 1
+#define MAXPARAMS 30	// number of additional parameters in a set of Csound instruments
+#define MAXWAIT 64		// number of synchronization tags
+#define MAXTIME 59944L	// max computation time (milliseconds)
 #define MAXCHARTRACE 5000000
 #define MAXCHARDATA 5000000
 
-#define MAXMODE 3		/* number of derivation modes: LEFT, etc. */
+#define MAXMODE 3		// number of derivation modes: LEFT, etc.
 #define MODELENGTH 6
-#define MAXNIL 4		/* number of nil string representations */
+#define MAXNIL 4		// number of nil string representations
 #define NILLENGTH 7
 #define MODELENGTH 6
 
-#define MAXTYPE 7		/* number of subgram types: RND, etc. */
-#define TYPELENGTH 8 	/* length of subgram type */
+#define MAXTYPE 7		// number of subgram types: RND, etc.
+#define TYPELENGTH 8 	// length of subgram type
 #define RNDtype 0
 #define ORDtype 1
 #define LINtype 2
@@ -925,22 +925,22 @@ typedef enum {
 #define TEMtype 5
 #define POSLONGtype 6
 
-#define MAXHTMLDIACR 62	/* number of discritical HTML tags */
+#define MAXHTMLDIACR 62	// number of discritical HTML tags
 #define INSTRLENGTH 17
 #define DESTROYproc 0
-#define MAXARROW 3		/* number of rule operators: '-->', etc. */
+#define MAXARROW 3		// number of rule operators: '-->', etc.
 #define ARROWLENGTH 4
-#define MAXCODE 21		/* number of special characters: ()+;=:/ etc. accessible to users */
-#define MAXCODE2 24		/* number of special characters: ()+;=:/ etc. used by BP3 */
+#define MAXCODE 21		// number of special characters: ()+;=:/ etc. accessible to users
+#define MAXCODE2 24		// number of special characters: ()+;=:/ etc. used by BP3
 #define VERSIONLENGTH 15
-#define MAXKEY 128		/* number of keys in MIDI standard */
+#define MAXKEY 128		// number of keys in MIDI standard
 
 // ----------------  MIDI Status bytes -----------------
 
 #define NoteOff 128
 #define NoteOn 144
 #define KeyPressure 160
-#define ControlChange 176 /* Controllers 0 to 121 */
+#define ControlChange 176 // Controllers 0 to 121
 #define ChannelMode 176
 #define ProgramChange 192
 #define ChannelPressure 208
@@ -1109,18 +1109,18 @@ struct s_list2 {
 typedef struct s_list2 p_list2;
 
 struct s_rule {
-	p_flaglist **p_leftflag;	/* list of flags attached to left argument */
-	p_flaglist **p_rightflag;	/* list of flags attached to right argument */
+	p_flaglist **p_leftflag;	// list of flags attached to left argument
+	p_flaglist **p_rightflag;	// list of flags attached to right argument
 	int mode;
 	int operator;
-	int weight;			/* original weight */
-	int incweight;		/* weight increment */
-	int w;				/* current weight during computation */
-	int ctrl;			/* weight controller, e.g. <K1>,<K2>, etc. */
-	char ismeta;			/* '1' if contains metavariables '?x' */
-	int leftoffset;		/* length of left (proximate) context (in tokenbytes) */
-	int rightoffset;	/* length of right (proximate) context (in tokenbytes) */
-	int leftnegcontext;	/* length of left negative context common to both arguments (in symbols, i.e. 4 tokenbytes per symbol) */
+	int weight;			// original weight
+	int incweight;		// weight increment
+	int w;				// current weight during computation
+	int ctrl;			// weight controller, e.g. <K1>,<K2>, etc.
+	char ismeta;			// '1' if contains metavariables '?x'
+	int leftoffset;		// length of left (proximate) context (in tokenbytes)
+	int rightoffset;	// length of right (proximate) context (in tokenbytes)
+	int leftnegcontext;	// length of left negative context common to both arguments (in symbols, i.e. 4 tokenbytes per symbol)
 	tokenbyte **p_leftarg,**p_rightarg;
 	p_context p_leftcontext,p_rightcontext;
 	int oldgramindex,oldrulindex;
@@ -1221,7 +1221,7 @@ typedef struct {
 #define PanoramicChannel(i) (*((*p_Instance)[i].contparameters.values))[IPANORAMIC].channel
 #define PanoramicMode(i) (*((*p_Instance)[i].contparameters.values))[IPANORAMIC].mode
 
-struct s_INscripttype {	/* Script line executed by MIDI input event */
+struct s_INscripttype {	// Script line executed by MIDI input event
 	int key;
 	int chan;
 	int scriptline;
@@ -1240,13 +1240,13 @@ struct s_OUTscripttype {
 typedef struct s_OUTscripttype OUTscripttype;
 
 
-struct s_express {	/* Expressions used in scripts */
-	short type;		/* See infra */
+struct s_express {	// Expressions used in scripts
+	short type;		// See infra
 	char **name;
 	struct s_express **leftarg;
 	struct s_express **rightarg;
 	int ivariable;
-	short valuetype;	/* See infra */
+	short valuetype;	// See infra
 	short instantiated;
 	long intvalue;
 	double floatvalue;
@@ -1282,8 +1282,8 @@ struct s_CsoundParam {
 typedef struct s_CsoundParam CsoundParam;
 
 struct s_CsoundInstrument {
-	int iargmax;	/* Total number of arguments */
-	int ipmax;	/* Number of untyped parameters */
+	int iargmax;	// Total number of arguments
+	int ipmax;	// Number of untyped parameters
 	CsoundParam** paramlist;
 	regression rPitchBend;
 	regression rVolume;
@@ -1584,11 +1584,11 @@ typedef struct {
 	} QDGlobals, *GrafPtr, *CGrafPtr, *GWorldPtr, **GDHandle, Cursor;
 
 typedef struct {
-	const char *text;   /* start of the line in the original string        */
-	size_t      len;    /* length of the line INCLUDING its trailing <BR>  */
-	double      date;   /* p2 (start time) if this is an i-statement       */
-	long        order;  /* original position, for a stable sort            */
-	int         is_i;   /* 1 if this is a sortable i-statement             */
+	const char *text;   // start of the line in the original string
+	size_t      len;    // length of the line INCLUDING its trailing <BR>
+	double      date;   // p2 (start time) if this is an i-statement
+	long        order;  // original position, for a stable sort
+	int         is_i;   // 1 if this is a sortable i-statement
 	} ScoreLine;
 
 // Layout of the pianoroll of an item, computed by PreparePianoroll() (Graphic.c) and used by MakeSound()
@@ -1608,4 +1608,4 @@ typedef struct {
 // This macro is used to avoid "unused parameter" warnings
 #define BP_NOT_USED(x) (void)(x)
 
-#endif /* _H_BP3 */
+#endif // _H_BP3

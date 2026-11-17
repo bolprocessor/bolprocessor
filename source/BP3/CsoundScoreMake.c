@@ -1,4 +1,4 @@
-/* CsoundScoreMake.c (BP3) */ 
+// CsoundScoreMake.c (BP3) 
 
 /*  This file is a part of Bol Processor
     Copyright (c) 1990-2000 by Bernard Bel, Jim Kippen and Srikumar K. Subramanian
@@ -39,6 +39,7 @@
 #endif
 
 #include "-BP3decl.h"
+// Comments "// note N (real-time Csound)" in this file refer to the numbered notes of the technical description of real-time Csound: https://bolprocessor.org/tech-analysis-of-real-time-csound/
  
 int trace_cs_scoremake = 0;
 
@@ -771,6 +772,11 @@ WRITECSCORELINE:
 		if(trace_cs_scoremake) BPPrintMessage(0,odInfo,"going out because !OutCsound)\n");
 		goto SORTIR;
 		}
+
+	// note 22 (real-time Csound)
+	// Real-time Csound with MIDI running: notes of duration 0, such as out-time notes <<C0>> used for synchronisation,
+	// are also sent to MIDI as silent notes (velocity 0) at their date
+	if(CsoundRT && rtMIDI && onoffline != LINE && fabs((*scorearg)[3]) < 0.0005) CsRTMidiNote(key,chan,kcurrentinstance,(*scorearg)[2]);
 
 	// Now to the score
 	my_sprintf(line,"i%ld ",(long)index);

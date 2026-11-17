@@ -1,4 +1,4 @@
-/* Misc.c (BP3) */
+// Misc.c (BP3)
 
 /*  This file is a part of Bol Processor
     Copyright (c) 1990-2000 by Bernard Bel, Jim Kippen and Srikumar K. Subramanian
@@ -59,7 +59,7 @@
 		}
 #elif defined(__BP3_WASM__)
 	void mysleep(long waitTime) {
-		/* No-op in WASM — cannot block the main thread */
+		// No-op in WASM — cannot block the main thread
 		(void)waitTime;
 		}
 #endif
@@ -189,7 +189,7 @@ int GetInteger(int test, const char* line, int* p_i) {
 
 	n = 0; done = FALSE; sign = 1;
 	if(test && *p_i >= strlen(line)) return(INT_MAX);
-	/* Sometimes reading special arrays that start with '\0' */
+	// Sometimes reading special arrays that start with '\0'
 	do {
 		c = line[*p_i];
 		if(!done && c == '-' && sign == 1) {
@@ -391,7 +391,7 @@ int MySpace(char c) {
 	if(isspace(c)) return(YES);
 	// -54 = 0xCA (202) which is a non-breaking space (in Mac Roman)
 	// '\20' = 0x10 (16) which is control-P and ???
-	if(c == (char) -54 || c == '\20') return(YES);	/* option space, ctrl-p */
+	if(c == (char) -54 || c == '\20') return(YES);	// option space, ctrl-p
 	return(NO);
 	}
 
@@ -599,7 +599,7 @@ int GetSeName(int w) {
 			Created[iSettings] = FALSE;
 			return(OK);
 			}
-		else return(MISSED); 	/* Name is unchanged: no need to reload */
+		else return(MISSED); 	// Name is unchanged: no need to reload
 		}
 	else return(MISSED);
 	}
@@ -706,9 +706,9 @@ int SetGrammarTempo(void) {
 	p_line = NULL;
 	pos = posline = ZERO;
 	rep = OK;
-	MystrcpyHandleToString(MAXLIN,0,line1,(*p_GramProcedure)[13]);	/* _mm() */
-	MystrcpyHandleToString(MAXLIN,0,line2,(*p_GramProcedure)[14]);	/* _striated */
-	MystrcpyHandleToString(MAXLIN,0,line3,(*p_GramProcedure)[15]);	/* _smooth() */
+	MystrcpyHandleToString(MAXLIN,0,line1,(*p_GramProcedure)[13]);	// _mm()
+	MystrcpyHandleToString(MAXLIN,0,line2,(*p_GramProcedure)[14]);	// _striated
+	MystrcpyHandleToString(MAXLIN,0,line3,(*p_GramProcedure)[15]);	// _smooth()
 	while(ReadLine(NO,YES,w,&pos,posmax,&p_line,&gap) == OK) {
 		if((*p_line)[0] == '\0' || (*p_line)[0] == '\r') continue;
 		for(j=0; j < WMAX; j++) {
@@ -729,7 +729,7 @@ int SetGrammarTempo(void) {
 		q = GRAMstring;
 		if(Match(FALSE,p_line,&q,strlen(GRAMstring))) break;
 		MyLock(TRUE,(Handle)p_line);
-		if(strstr(*p_line,line1) != NULLSTR) {	/* _mm() */
+		if(strstr(*p_line,line1) != NULLSTR) {	// _mm()
 FOUNDIT:
 			SelectBehind(posline,pos,TEH[w]);
 			TextDelete(w);
