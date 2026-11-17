@@ -36,7 +36,7 @@
 #endif
 
 #include "-BP3decl.h"
-// Comments "// note N (real-time Csound)" in this file refer to the numbered notes of the technical description of real-time Csound: https://bolprocessor.org/tech-analysis-of-realtime-csound/
+// Comments "// note N (real-time Csound)" in this file refer to the numbered notes of the technical description of real-time Csound: https://bolprocessor.org/tech-analysis-of-real-time-csound/
 
 // extern FILE * imagePtr;
 
@@ -44,6 +44,9 @@ char graphic_scheme[] = "canvas";
 int resize = 4; // Rescaling the image to get high resolution
 long max_coordinate = 16383; // Nobody knows why this fits! Added by BB 2021-03-23 
 int Lastx2[MAXKEY];
+// 2026-11-17 When the pianoroll follows a tonal scale (see PreparePianoroll()), y position of each key below the top line of the note scale, proportional to its pitch in cents - by Claude
+static int RollKeyY[MAXKEY];
+static int RollUsesScale = FALSE;
 
 // Flags for debugging:
 int trace_graphic = 0;
@@ -1369,7 +1372,9 @@ int DrawPianoNote(char* type,int key,int chan, Milliseconds timeon, Milliseconds
 	timeon = Round(((double)timeon * GraphicScaleP) / GraphicScaleQ / 10.);
 	timeoff = Round(((double)timeoff * GraphicScaleP) / GraphicScaleQ / 10.);
 	x1 = p_r->left + leftoffset + timeon;
-	y = (maxkey - key - 1) * hrect + topoffset;
+	// 'topoffset' is that of the note scale + 'hrect' (see PreparePianoroll())
+	if(RollUsesScale && key >= minkey && key <= maxkey) y = RollKeyY[key] + topoffset - hrect;
+	else y = (maxkey - key - 1) * hrect + topoffset;
 	x2 = x1 + timeoff - timeon;
 	if((x1 - Lastx2[key]) < 4) {
 		x1 += 2; // Separate identical notes when replayed
@@ -1399,16 +1404,132 @@ int DrawPianoNote(char* type,int key,int chan, Milliseconds timeon, Milliseconds
 	}
 
 
-int DrawNoteScale(Rect* p_r,int w,int minkey,int maxkey,int hrect,int leftoffset,int topoffset) {
-	int y,key,xmin,xmax;
-	char line[20];
+static int KeyInScale(int i_scale,int key,int *p_keyclass,double *p_cents) {
+	// 2026-11-17 Find the note class of 'key' in the scale and its pitch in cents above the base key, as GetPitchWithScale() does. Return FALSE if the scale doesn't use this key - by Claude
+	int keyclass,octave,numgrades,basekey,period;
+	double ratio,interval;
+
+	numgrades = (*Scale)[i_scale].numgrades;
+	basekey = (*Scale)[i_scale].basekey;
+	period = (numgrades <= 12) ? numgrades : (*Scale)[i_scale].numnotes;
+	if(numgrades <= 12) keyclass = modulo(key - basekey,period);
+	else keyclass = (*((*Scale)[i_scale].keyclass))[modulo(key - basekey,period)];
+	octave = (int) floor(((double) key - basekey) / period);
+	*p_keyclass = keyclass;
+	if(strcmp(*((*(*Scale)[i_scale].notenames)[keyclass]),"•") == 0) return(FALSE);
+	ratio = (*((*Scale)[i_scale].tuningratio))[keyclass];
+	interval = (*Scale)[i_scale].interval;
+	if(ratio <= 0. || interval <= 1.) return(FALSE);
+	*p_cents = 1200. * (log2(ratio) + octave * log2(interval));
+	return(TRUE);
+	}
+
+static void SetRollKeyPositions(int i_scale,int minkey,int maxkey) {
+	// 2026-11-17 Fill 'RollKeyY' so that the distance between keys is proportional to their interval in cents. The smallest interval gets 10 pixels, within limits - by Claude
+	int key,keyclass,ok[MAXKEY];
+	double cents[MAXKEY],last,smallest,scale;
+
+	smallest = Infpos;
+	last = -Infpos;
+	for(key = minkey; key <= maxkey; key++) {
+		ok[key] = KeyInScale(i_scale,key,&keyclass,&cents[key]);
+		if(!ok[key]) continue;
+		if(last > -Infpos && (cents[key] - last) > 0.5 && (cents[key] - last) < smallest) smallest = cents[key] - last;
+		last = cents[key];
+		}
+	if(last == -Infpos) { // No pitch found: same spacing for all keys
+		for(key = minkey; key <= maxkey; key++) cents[key] = 100. * key;
+		smallest = 100.;
+		}
+	else {
+		// A key not used by the scale gets the pitch of the key below it, or of the first key used
+		last = -Infpos;
+		for(key = minkey; key <= maxkey; key++) {
+			if(ok[key]) last = cents[key];
+			else cents[key] = last;
+			}
+		for(key = maxkey; key >= minkey; key--) {
+			if(cents[key] > -Infpos) last = cents[key];
+			else cents[key] = last;
+			}
+		}
+	scale = (smallest < Infpos) ? 10. / smallest : 0.1;
+	if(scale < 0.1) scale = 0.1;	// 120 pixels per octave
+	if(scale > 1.) scale = 1.;		// 1200 pixels per octave
+	for(key = minkey; key <= maxkey; key++)
+		RollKeyY[key] = (int) floor(0.5 + scale * (cents[maxkey] - cents[key]));
+	RollUsesScale = TRUE;
+	}
+
+int PianorollScale(long kmax) {
+	// 2026-11-17 Return the index of the tonal scale of the notes of the item, if they all use the same one and it names its notes, otherwise 0 - by Claude
+	int j,i_scale,this_scale,i_note,named;
+	long k;
+
+	if(Scale == NULL || NumberScales < 1) return(0);
+	i_scale = 0;
+	for(k = 2; k <= kmax; k++) {
+		j = (*p_Instance)[k].object;
+		if(j < 0) j = -j;
+		if(j < 16384 && (j < 2 || j >= Jbol)) continue;
+		this_scale = FindScale((*p_Instance)[k].scale);
+		if(this_scale < 1 || this_scale > NumberScales) continue;
+		if(i_scale == 0) i_scale = this_scale;
+		else if(this_scale != i_scale) return(0); // Several scales: their key numbers don't name the same notes
+		}
+	if(i_scale == 0) return(0);
+	// Scales whose notes are all named "•" use the note convention
+	named = FALSE;
+	for(i_note = 0; i_note < (*Scale)[i_scale].numgrades; i_note++) {
+		if(strcmp(*((*(*Scale)[i_scale].notenames)[i_note]),"•") != 0) {
+			named = TRUE; break;
+			}
+		}
+	if(!named) return(0);
+	return(i_scale);
+	}
+
+int DrawNoteScale(Rect* p_r,int w,int i_scale,int minkey,int maxkey,int hrect,int leftoffset,int topoffset) {
+	int y,ylabel,key,xmin,xmax,keyclass,period,base;
+	double cents;
+	char line[MAXLIN];
 
 	if(imagePtr == NULL) return OK;
 	pen_size(2,0);
 	xmin = p_r->left + 41;
 	xmax = p_r->right - 28;
 	if(leftoffset < 0) xmax -= (hrect * (leftoffset - 1));
-	if(NoteConvention > KEYS) {
+	if(i_scale > 0) {
+		// 2026-11-17 Name every key after the tonal scale. The base note of the scale (e.g. 'sa') starts each period - by Claude
+		period = ((*Scale)[i_scale].numgrades <= 12) ? (*Scale)[i_scale].numgrades : (*Scale)[i_scale].numnotes;
+		// Keys are placed according to their pitch in cents (see SetRollKeyPositions()). A name too close to the one below it is not written, except that of the base note
+		text_style(9,"arial");
+		ylabel = max_coordinate;
+		for(key = minkey; key <= maxkey; key++) {
+			if(RollUsesScale) y = RollKeyY[key] + topoffset;
+			else y = (maxkey - key) * hrect + topoffset;
+			if(!KeyInScale(i_scale,key,&keyclass,&cents)) continue; // Key not used by this scale
+			base = (modulo(key - (*Scale)[i_scale].basekey,period) == 0);
+			PrintThisNote(i_scale,key,0,-1,line);
+			// Names "key#NN" carry no octave number, so the octave above 'key#60' would also be 'key#60'
+			if(strncmp(line,"key#",4) == 0) my_sprintf(line,"key#%d",key);
+			if(base) {
+				stroke_style("rgb(0,117,117)");
+				fill_style("black");
+				}
+			else {
+				stroke_style("rgb(215,215,215)");
+				fill_style("rgb(90,90,90)");
+				}
+			if(base || (ylabel - y) >= 9) {
+				fill_text(line,5,y + 3);
+				fill_text(line,xmax + 5,y + 3);
+				ylabel = y;
+				}
+			draw_line(xmin,y,xmax,y,"");
+			}
+		}
+	else if(NoteConvention > KEYS) {
 		stroke_style("rgb(186,186,0)");
 		fill_style("rgb(186,186,0)");
 		for(key=6; key < 128; key+=2) {
@@ -1733,7 +1854,7 @@ int PreparePianoroll(long kmax,int cswrite,long *p_tmin,long *p_tmax,unsigned lo
 	// Compute the limits in time and pitch of the pianoroll of the item, then draw its background and note scale.
 	// '*p_tmin' and '*p_tmax' are the limits in time (ms), updated to those of the pianoroll.
 	// Moved from MakeSound() (2026-11-13)
-	int j,k,key,minkey,maxkey,trans,objectchannel,c0,c1,htext,hrect,leftoffset,topoffset,instr_index,result,w;
+	int j,k,key,minkey,maxkey,trans,objectchannel,c0,c1,htext,hrect,leftoffset,topoffset,instr_index,result,w,i_scale,basekey,period;
 	long i,tmin,tmax,the_end,endxmax,endymax,yruler;
 	double beta,postroll,pivotloc,howmuch;
 	Rect graphrect;
@@ -1799,11 +1920,28 @@ int PreparePianoroll(long kmax,int cswrite,long *p_tmin,long *p_tmax,unsigned lo
 			if(key > maxkey) maxkey = key;
 			}
 		}
-	minkey = (minkey / 6) * 6;
-	maxkey = 6 + ((maxkey / 6) * 6);
-	if(minkey > maxkey)  minkey = maxkey = 60;
 	hrect = 3;
 	htext = 14;
+	// 2026-11-17 If the notes of the item belong to a tonal scale, its note names are displayed for every key, and the range extends to whole periods of the scale (e.g. sa_4 to sa_5), with more space between keys - by Claude
+	i_scale = PianorollScale(kmax);
+	if(i_scale > 0 && minkey <= maxkey) {
+		basekey = (*Scale)[i_scale].basekey;
+		period = ((*Scale)[i_scale].numgrades <= 12) ? (*Scale)[i_scale].numgrades : (*Scale)[i_scale].numnotes;
+		minkey = basekey + period * (int) floor(((double) minkey - basekey) / period);
+		maxkey = basekey + period * (int) ceil(((double) maxkey - basekey) / period);
+		if(maxkey == minkey) maxkey += period;
+		if(minkey < 0) minkey = 0;
+		if(maxkey > 127) maxkey = 127;
+		hrect = 10;
+		SetRollKeyPositions(i_scale,minkey,maxkey);
+		}
+	else {
+		RollUsesScale = FALSE;
+		i_scale = 0;
+		minkey = (minkey / 6) * 6;
+		maxkey = 6 + ((maxkey / 6) * 6);
+		if(minkey > maxkey)  minkey = maxkey = 60;
+		}
 	// Start the pianoroll at date 0, or earlier if a pivot or a pre-roll creates negative dates.
 	// Starting at a positive 'tmin' would make 'leftoffset' negative and hide the ruler.
 	if(tmin > ZERO) tmin = ZERO;
@@ -1812,7 +1950,8 @@ int PreparePianoroll(long kmax,int cswrite,long *p_tmin,long *p_tmax,unsigned lo
 	tmax = tmin + Nplay * (tmax - tmin);
 	endxmax = 50 + 13 + 30 + ((tmax - tmin) * GraphicScaleP) / GraphicScaleQ / 10;
 	if(endxmax < 100) endxmax = 100;
-	endymax = topoffset + ((maxkey - minkey) * hrect) + 10;
+	if(RollUsesScale) endymax = topoffset + RollKeyY[minkey] + 10;
+	else endymax = topoffset + ((maxkey - minkey) * hrect) + 10;
 	// 2026-11-15 Finalize the previous image before changing WidthMax (see DrawItem()) - fixed by Claude
 	if(ShowGraphic && imagePtr != NULL) EndImageFile();
 	if(WidthMax < 32000 && WidthMax < (2 * endxmax + 40)) WidthMax = 2 * endxmax + 40;
@@ -1831,16 +1970,19 @@ int PreparePianoroll(long kmax,int cswrite,long *p_tmin,long *p_tmax,unsigned lo
 	p_roll->hrect = hrect;
 	p_roll->minkey = minkey;
 	p_roll->maxkey = maxkey;
+	p_roll->scale = i_scale;
 	p_roll->topoffset = topoffset;
 
 	if(ShowGraphic) {
-		result = DrawItemBackground(&graphrect,imaxstreak,htext,hrect,leftoffset,NO,p_delta,&yruler,topoffset,p_overflow,"pianoroll");
+		// The background (ruler and time streaks) keeps the layout of the default key height 3
+		result = DrawItemBackground(&graphrect,imaxstreak,htext,3,leftoffset,NO,p_delta,&yruler,topoffset,p_overflow,"pianoroll");
 		p_roll->graphrect = graphrect;
 		if(result != OK || *p_overflow) return(result);
-		DrawNoteScale(&graphrect,w,minkey,maxkey,hrect,leftoffset,topoffset);
+		DrawNoteScale(&graphrect,w,i_scale,minkey,maxkey,hrect,leftoffset,topoffset);
 		}
 	p_roll->graphrect = graphrect;
-	p_roll->topoffset = topoffset + 3;
+	// DrawPianoNote() draws key 'key' at (maxkey - key - 1) * hrect + topoffset, so this puts it on the line of its key
+	p_roll->topoffset = topoffset + hrect;
 	Hmin[w] = Hmax[w] = 0;
 	Hzero[w] = Vzero[w] = 0;
 	Vmin[w] = Vmax[w] = 0;

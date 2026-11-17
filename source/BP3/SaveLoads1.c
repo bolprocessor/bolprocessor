@@ -37,7 +37,7 @@
 #endif
 
 #include "-BP3decl.h"
-// Comments "// note N (real-time Csound)" in this file refer to the numbered notes of the technical description of real-time Csound: https://bolprocessor.org/tech-analysis-of-realtime-csound/
+// Comments "// note N (real-time Csound)" in this file refer to the numbered notes of the technical description of real-time Csound: https://bolprocessor.org/tech-analysis-of-real-time-csound/
 // Comments "// note N (microtonality)" in this file refer to the numbered notes of the technical description of this algorithm: https://bolprocessor.org/tech-analysis-of-microtonality/
 
 int trace_load_settings = 0;

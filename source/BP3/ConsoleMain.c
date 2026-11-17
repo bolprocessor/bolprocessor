@@ -39,7 +39,7 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #include "-BP3.h"
 #include "-BP3main.h"
-// Comments "// note N (real-time Csound)" in this file refer to the numbered notes of the technical description of real-time Csound: https://bolprocessor.org/tech-analysis-of-realtime-csound/
+// Comments "// note N (real-time Csound)" in this file refer to the numbered notes of the technical description of real-time Csound: https://bolprocessor.org/tech-analysis-of-real-time-csound/
 
 // #include "ConsoleGlobals.h"
 // #include "ConsoleMessages.h"
@@ -1766,7 +1766,8 @@ int isInteger(const char* s) {
 	return TRUE;
 	}
 
-void StopWaiting(int key,char ch) {
+int StopWaiting(int key,char ch) {
+	// Returns TRUE if the event ended a wait instruction, otherwise FALSE
 	unsigned long time_now,thisscripttime;
 	int j;
 	if(CsoundRT) time_now = CsRTScriptTime(); // note 20 (real-time Csound)
@@ -1793,11 +1794,11 @@ void StopWaiting(int key,char ch) {
 			StopPlay = FALSE;
 			if(!CsoundRT) TimeStopped +=  1000 * MIDIsyncDelay; // Necessary to restore the timing of the next events. Real-time Csound: see CsRTScripts()
 			((*p_INscript)[j]).chan = -1; // This input script is now deactivated
-			return;
+			return(TRUE);
 			}
 		else continue;
 		}
-	return;
+	return(FALSE);
 	}
 
 int FindOutputDirectory(void) {

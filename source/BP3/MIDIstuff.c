@@ -35,7 +35,7 @@
 
 #include "-BP3.h"
 #include "-BP3decl.h"
-// Comments "// note N (real-time Csound)" in this file refer to the numbered notes of the technical description of real-time Csound: https://bolprocessor.org/tech-analysis-of-realtime-csound/
+// Comments "// note N (real-time Csound)" in this file refer to the numbered notes of the technical description of real-time Csound: https://bolprocessor.org/tech-analysis-of-real-time-csound/
 
 int trace_midi_filter = 0;
 int trace_driver = 0;
@@ -415,6 +415,9 @@ int HandleInputEvent(const MIDIPacket* packet,MIDI_Event* e,int index) {
 	c0 = e->status;
 	channel = (c0 % 16) + 1;
 	c = c0 - channel + 1;
+	// 2026-11-17: a Start, Continue or Stop message ends a wait instruction expecting it before it can control the performance (option StopPauseContinue).
+	// Otherwise, with this option, Continue only reset StopPlay and the "wait for Continue" instruction stopped the performance again, while "wait for Stop" was never released - fixed by Claude
+	if((c0 == Start || c0 == Continue || c0 == Stop) && StopWaiting(c0,'\0')) return(OK);
 	if(Interactive) {
 		if(StopPauseContinue && c0 == Stop) {
 			StopPlay = TRUE;
@@ -431,8 +434,7 @@ int HandleInputEvent(const MIDIPacket* packet,MIDI_Event* e,int index) {
 	switch(c0) {
 		case Start:
 		case Continue:
-		case Stop:
-			StopWaiting(c0,'\0');
+		case Stop: // No wait instruction was expecting this message
 			return(OK);
 			break;
 		}

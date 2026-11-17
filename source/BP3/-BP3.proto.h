@@ -483,7 +483,8 @@ double CombineVolume(double,double,int);
 int SendControl(ContinuousControl**,Milliseconds,int,int,int,int,int,int*,char***,
 	Milliseconds***,int***,MIDIcontrolstatus**,PerfParameters****);
 int InterruptSound(void);
-int DrawNoteScale(Rect*,int,int,int,int,int,int);
+int DrawNoteScale(Rect*,int,int,int,int,int,int,int);
+int PianorollScale(long);
 int DrawPianoNote(char*,int,int,Milliseconds,Milliseconds,int,int,int,int,int,Rect*);
 long Findibm(int,Milliseconds,int);
 int DrawItemBackground(Rect*,unsigned long,int,int,int,int,Milliseconds**,long*,int,int*,char*);
@@ -912,7 +913,7 @@ void WriteTimeFile(int);
 int stop(int,char*);
 void send_note(char*);
 
-void StopWaiting(int,char);
+int StopWaiting(int,char);
 int CreateMicrotonalScale(char*,char*,char*,char*,char*,char*);
 double GetPitchWithScale(int,int,int,double,int);
 int modulo(int,int);

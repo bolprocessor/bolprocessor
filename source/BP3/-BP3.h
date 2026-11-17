@@ -1599,6 +1599,7 @@ typedef struct {
 	int topoffset;		// y position of the top of the note scale
 	int hrect;			// Height of one key (pixels)
 	int minkey,maxkey;	// Range of keys displayed
+	int scale;			// Index of the tonal scale whose note names are displayed, or 0 for the note convention
 	} PianoRoll;
 
 

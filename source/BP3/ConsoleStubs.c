@@ -37,7 +37,7 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #include "-BP3.h"
 #include "-BP3decl.h"
-// Comments "// note N (real-time Csound)" in this file refer to the numbered notes of the technical description of real-time Csound: https://bolprocessor.org/tech-analysis-of-realtime-csound/
+// Comments "// note N (real-time Csound)" in this file refer to the numbered notes of the technical description of real-time Csound: https://bolprocessor.org/tech-analysis-of-real-time-csound/
 // #include "ConsoleGlobals.h"
 // #include "ConsoleMessages.h"
 

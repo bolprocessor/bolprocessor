@@ -99,6 +99,8 @@ static void CsRTFreeEvent(CsRTEvent* p_e);
 static void CsRTSleep(long milliseconds);
 static double CsRTBarrier(void);
 static int CsRTScripts(void);
+static int CsRTScriptsDue(unsigned long date);
+static int CsRTWaitInstruction(int instr);
 
 
 // note 2
@@ -489,6 +491,18 @@ int CsRTEnd(void) {
 			}
 		CsRTSleep(20L);
 		}
+	// 2026-11-17: scripts dated at the end of the last note (e.g. "_script(MIDI send Continue) _script(wait for Stop)" after the last note) were never executed, since the loop ends at that date - fixed by Claude
+	while(CsRTScriptsDue((unsigned long)(CsRTLastEnd * 1000000.) + 1000L)) {
+		if((result = stop(0,"CsRTEnd scripts")) != OK) {
+			CsRTPanic();
+			return result;
+			}
+		if((result = CsRTScripts()) != OK) {
+			CsRTPanic();
+			return result;
+			}
+		CsRTSleep(1L);
+		}
 	BPPrintMessage(0,odInfo,"Real-time Csound performance: %.3f seconds\n",CsRTLastEnd);
 	CsRTStarted = FALSE;
 	CsRTLastEnd = 0.;
@@ -519,6 +533,24 @@ long CsRTDate(long* p_end) {
 	now = getClockTime();
 	if(now <= CsRTOrigin) return 0L;
 	return (long)((now - CsRTOrigin) / 1000L);
+	}
+
+
+// note 20
+static int CsRTScriptsDue(unsigned long date) {
+	// TRUE if a wait, hold or MIDI message (Start, Continue, Stop) dated at or before 'date' (microseconds) has not been executed
+	int j, instr;
+	for(j = 1; j <= Jinscript; j++) {
+		if((*p_INscript)[j].chan == -1 || !CsRTWaitInstruction((*p_INscript)[j].scriptline)) continue;
+		if((*p_INscript)[j].time <= date) return TRUE;
+		}
+	for(j = 1; j <= Joutscript; j++) {
+		if((*p_OUTscript)[j].chan == -1) continue;
+		instr = (*p_OUTscript)[j].scriptline;
+		if(instr != 17 && instr != 190 && instr != 191 && instr != 192) continue;
+		if((*p_OUTscript)[j].time <= date) return TRUE;
+		}
+	return FALSE;
 	}
 
 
