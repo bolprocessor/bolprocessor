@@ -485,7 +485,7 @@ int SendControl(ContinuousControl**,Milliseconds,int,int,int,int,int,int*,char**
 int InterruptSound(void);
 int DrawNoteScale(Rect*,int,int,int,int,int,int,int);
 int PianorollScale(long);
-int DrawPianoNote(char*,int,int,Milliseconds,Milliseconds,int,int,int,int,int,Rect*);
+int DrawPianoNote(char*,int,int,Milliseconds,Milliseconds,int,int,int,int,int,Rect*,double,double);
 long Findibm(int,Milliseconds,int);
 int DrawItemBackground(Rect*,unsigned long,int,int,int,int,Milliseconds**,long*,int,int*,char*);
 double GetTableValue(double,long,Coordinates**,double,double);
@@ -542,6 +542,7 @@ int CompileCsoundObjects(void);
 int CompileRegressions(void);
 int CompileObjectScore(int,int*);
 int FindCsoundInstrument(char*);
+int NoCsoundInstrumentFile(void);
 int FixStringConstant(char*);
 int FixNumberConstant(char*);
 long Find_im(int,int);

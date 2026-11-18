@@ -503,7 +503,8 @@ void WriteTimeFile(int force) {
 	long date;
 	FILE* ptr;
 	long end;
-	if((!rtMIDI && !CsoundRT) || (rtMIDI && FirstNoteOn) || StopPlay || PausePlay || strlen(TimefileName) == 0) return;
+	// With real-time Csound, MIDI ports (rtMIDI) only serve interaction: no NoteOn clears FirstNoteOn (fixed 2026-11-18)
+	if((!rtMIDI && !CsoundRT) || (rtMIDI && !CsoundRT && FirstNoteOn) || StopPlay || PausePlay || strlen(TimefileName) == 0) return;
 	now = getClockTime(); // microseconds
 	if(!force && now < next_write) return;
 	next_write = now + 200000L; // Every 200 ms
@@ -920,7 +921,10 @@ const char gOptionList[] =
 	"./bp play -se ./ctests/Imported_MusicXML/-se.Ombres_errantes -da ./[your_path]/0.bpda -to ./tonality_resources/-to.tryTunings --eventlistout ./my_output/Ombres_errantes.csv --traceout ./temp_bolprocessor/trace_my_session_my_project.txt --english\n"
 	"(This will produce 'Ombres_errantes.csv', 'rameau_en_sib.scl' and 'rameau_en_sib.kbm' in the 'my_output' folder. If the --traceout option is not specified, no image will be created.)\n\n"
 	"./bp produce -se ./ctests/-se.koto3 -gr ./ctests/-gr.koto3 -al ./ctests/-al.abc1 -so ./ctests/-so.abc1 --eventlistout ./my_output/koto3.csv --traceout ./temp_bolprocessor/trace_my_session_my_project.txt\n"
-	"(This will produce 'koto3.csv' and 'abc1.json' in the 'my_output' folder. If the --traceout option is not specified, no image will be created.)\n"
+	"(This will produce 'koto3.csv' and 'abc1.json' in the 'my_output' folder. If the --traceout option is not specified, no image will be created.)\n\n"
+	"csound -odac -d -m0 --port=10789 --orc ./csound_resources/tryCsound.orc &\n"
+	"./bp play -se ./ctests/-se.tryCsound -cs ./csound_resources/-cs.tryCsound -da ./[your_path]/0.bpda --csoundrt 10789 --csoundout ./my_output/tryCsound.sco --traceout ./temp_bolprocessor/trace_my_session_my_project.txt --english\n"
+	"(The first line starts a Csound server listening to UDP port 10789 with the orchestra 'tryCsound.orc' named in '-cs.tryCsound'. The second line plays the item saved in '0.bpda' (e.g. an item of '-da.tryCsound') in real-time Csound on this server, and also writes its score to 'tryCsound.sco' in the 'my_output' folder; --csoundout is optional. The server keeps running after the performance and can be used again; stop it with 'kill %%1' or 'pkill csound'.)\n"
 	;
 
 void PrintUsage(char* programName) {

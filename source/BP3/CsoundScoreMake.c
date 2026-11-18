@@ -43,6 +43,13 @@
  
 int trace_cs_scoremake = 0;
 
+static double PitchbendRangeCents(int ins,int chan) {
+	// 2026-11-18 Range (cents) of the pitchbend: that of the Csound instrument, otherwise the one set by _pitchrange() on the channel, with which _pitchbend() values in cents were converted (see SetVariation()). 0 means raw values - by Claude
+	if((*p_CsInstrument)[ins].pitchbendrange > 0.) return((double) (*p_CsInstrument)[ins].pitchbendrange);
+	if(chan >= 0 && chan < MAXCHAN && PitchbendRange[chan + 1] > 0) return((double) PitchbendRange[chan + 1]);
+	return(0.);
+	}
+
 int CscoreWrite(Milliseconds cut_the_end,Rect* p_graphrect,int leftoffset,int topoffset,int hrect,int minkey,int maxkey,int strikeagain,int onoffline,double beta,Milliseconds time_ms,int iline,int key,int velocity,int chan,int instrument,int j,int nseq,int kcurrentinstance,PerfParameters ****pp_currentparams,int scale,int blockkey) {
 	// j is the sound-object prototype
 	// onoffline = LINE  -- copy Csound score line from object-prototype
@@ -121,7 +128,12 @@ int CscoreWrite(Milliseconds cut_the_end,Rect* p_graphrect,int leftoffset,int to
 
 	if(Jinstr < 2) {
 		ins = 0;
-		if((*p_CsInstrumentIndex)[ins] == -1) index = 1;
+		if((*p_CsInstrumentIndex)[ins] == -1) {
+			// 2026-11-18 No '-cs' file: the instrument of _ins() is that of the default orchestra "0-default.orc".
+			// Lines of the Csound scores of sound-objects still use instrument 1.
+			if(onoffline != LINE && instrument > 0) index = instrument;
+			else index = 1;
+			}
 		else index = (*p_CsInstrumentIndex)[ins];
 		}
 	else {
@@ -298,7 +310,8 @@ int CscoreWrite(Milliseconds cut_the_end,Rect* p_graphrect,int leftoffset,int to
 		if(trace_cs_scoremake && (*params)[IPITCHBEND].active)
 			BPPrintMessage(0,odInfo,"• (*params)[IPITCHBEND] is active, ins = %d range = %d, index = %d\n",(int)ins,(int)(*p_CsInstrument)[ins].pitchbendrange,(*p_CsPitchBendStartIndex)[ins]);
 	//	if((*p_CsPitchBendStartIndex)[ins] != -1 && (*params)[IPITCHBEND].active && (*p_CsInstrument)[ins].pitchbendrange > 0.) { // 2025-10-27
-		if((*p_CsInstrument)[ins].pitchbendrange > 0. && (*params)[IPITCHBEND].active) { 
+		// 2026-11-18 The range set by _pitchrange() is used if the instrument has none (see PitchbendRangeCents()) - fixed by Claude
+		if(PitchbendRangeCents(ins,chan) > 0. && (*params)[IPITCHBEND].active) { 
 			startvalue = (*params)[IPITCHBEND].startvalue;
 			endvalue = (*params)[IPITCHBEND].endvalue;
 			imax = (*params)[IPITCHBEND].imax;
@@ -316,7 +329,7 @@ int CscoreWrite(Milliseconds cut_the_end,Rect* p_graphrect,int leftoffset,int to
 			if(alpha1 > -0.01 && alpha1 < 1.01)
 				x = GetTableValue(alpha1,imax,(*params)[IPITCHBEND].point,startvalue,endvalue);
 			else x = startvalue;
-			cents_add1 = (x - DEFTPITCHBEND) * (*p_CsInstrument)[ins].pitchbendrange / DEFTPITCHBEND;
+			cents_add1 = (x - DEFTPITCHBEND) * PitchbendRangeCents(ins,chan) / DEFTPITCHBEND;
 			if(trace_cs_scoremake) BPPrintMessage(0,odInfo,"cents_add1 = %.2f, cents_base = %.2f, alpha1 = %.2f\n",cents_add1,cents_base,alpha1);
 			}
 		else cents_add1 = 0.;
@@ -333,15 +346,12 @@ int CscoreWrite(Milliseconds cut_the_end,Rect* p_graphrect,int leftoffset,int to
 			// note 4 (microtonality)
 			if(i_scale > 0 && i_scale <= NumberScales) { 
 			//	BPPrintMessage(0,odInfo,"blockkey = %d\n",blockkey);
-				x = GetPitchWithScale(i_scale,kcurrentinstance,key,cents_add1,blockkey);
+				// 2026-11-18 As in CPS format below, the pitchbend changes the frequency only if the instrument has no pitchbend argument, otherwise it was applied twice - fixed by Claude
+				x = GetPitchWithScale(i_scale,kcurrentinstance,key,((*p_CsPitchBendStartIndex)[ins] < 0) ? cents_add1 : 0.,blockkey);
 				if(x == Infpos) return(ABORT);
 				pitch_format = IGNORER;
-				// 2026-11-11: the deviation of the scale from equal temperament (same key, same A4freq) is displayed
-				// in the comment of the score line, excluding the pitchbend already shown as "-> ..." - fixed by Claude
-				if(x > 0.) {
-					xx = A4freq * exp((((double)key) - ((double)C4key + 9.)) / 12. * log(2.));
-					cents_base = 1200. * log(x / xx) / log(2.) - cents_add1;
-					}
+				// 2026-11-18: the note is that of the scale, so its deviation from equal temperament is not displayed in the comment of the score line. Only a pitchbend is displayed, as "-> ..." - by Claude
+				cents_base = 0.;
 				}
 			}
 		switch(pitch_format) {
@@ -427,7 +437,7 @@ int CscoreWrite(Milliseconds cut_the_end,Rect* p_graphrect,int leftoffset,int to
 		(*scorearg)[iarg] = x;
 		// 2026-11-08: the comment shows cents, calculated like cents_add1 from the raw pitchbend.
 		// Previously "cents_add2 = x" displayed the remapped value, which is only in cents if the instrument's pitchbend fields are in cents (e.g. 15564 instead of 180 cents for an instrument whose pitchbend fields range 0..16383) - fixed by Claude
-		cents_add2 = (pitchbend_end - DEFTPITCHBEND) * (*p_CsInstrument)[ins].pitchbendrange / DEFTPITCHBEND;
+		cents_add2 = (pitchbend_end - DEFTPITCHBEND) * PitchbendRangeCents(ins,chan) / DEFTPITCHBEND;
 		}
 	else cents_add2 = 0.;
 
@@ -763,7 +773,9 @@ WRITECSCORELINE:
 		timeoff = (Milliseconds) 1000 * ((*scorearg)[2] + (*scorearg)[3]);
 			
 		if(trace_cs_scoremake) BPPrintMessage(0,odInfo,"key = %d, chan = %d, timeon = %ld, timeoff = %ld, minkey = %d maxkey = %d\n",key,chan,(long)timeon,(long)timeoff,minkey,maxkey);
-		DrawPianoNote("csound",key,chan,timeon,timeoff,leftoffset,topoffset,hrect,minkey,maxkey,p_graphrect);
+		// 2026-11-18 The note is drawn from its pitchbend at the start to that at the end, as displayed in the comment of the score line. Variations described by tables are ignored - by Claude
+		DrawPianoNote("csound",key,chan,timeon,timeoff,leftoffset,topoffset,hrect,minkey,maxkey,p_graphrect,
+			cents_add1,((*p_CsPitchBendEndIndex)[ins] > 0) ? cents_add2 : cents_add1);
 	//	BPPrintMessage(1,odInfo," key #%d draw_line(%d,%d) p_r->left = %d\n",key,timeon,timeoff,p_graphrect->left);
 		}
 

@@ -400,7 +400,7 @@ int MakeSound(long *p_kmax,unsigned long imaxstreak,int maxnsequences,long tmin,
 
 	if(cswrite) {
 		if(Jinstr == 1 && (*p_CsInstrumentIndex)[0] == -1) {
-			BPPrintMessage(0,odInfo,"\nCouldn't find a Csound instrument index. Value '1' will be assigned by default\n\n");
+			BPPrintMessage(0,odInfo,"\nNo '-cs' file: notes are played by instrument 1 of the default orchestra, unless _ins() selects another one\n\n");
 			}
 		if(!ConvertMIDItoCsound) {
 			if((result=PrepareCsFile()) != OK) goto OVER;
@@ -1162,7 +1162,7 @@ int MakeSound(long *p_kmax,unsigned long imaxstreak,int maxnsequences,long tmin,
 										if(showpianoroll) {
 											result = OK;
 											if(!cswrite)  // 2026-03-31
-												result = DrawPianoNote("midi",c1,localchan,(*p_last_timeon[localchan])[c1],(t0 + t1),roll.noteoffset,roll.topoffset,roll.hrect,roll.minkey,roll.maxkey,&roll.graphrect);
+												result = DrawPianoNote("midi",c1,localchan,(*p_last_timeon[localchan])[c1],(t0 + t1),roll.noteoffset,roll.topoffset,roll.hrect,roll.minkey,roll.maxkey,&roll.graphrect,0.,0.);
 											if(result != OK) goto OVER;
 											}
 										(*((*pp_currentparams)[nseq]))->starttime[c1] = (t0 + t1) / 1000.;
@@ -1526,7 +1526,7 @@ int SendNoteOffAndDraw(int key,int chan,int kinstance,int scale,int blockkey,Mil
 	if(!showpianoroll) return(OK);
 	if(trace_makesound)
 		BPPrintMessage(1,odInfo,"* DrawPianoNote() key = %d start = %ld end = %ld nseq = %d\n",key,(*p_timeon)[key],(long)date,nseq);
-	result = DrawPianoNote("midi",key,chan,(*p_timeon)[key],date,p_roll->noteoffset,p_roll->topoffset,p_roll->hrect,p_roll->minkey,p_roll->maxkey,&(p_roll->graphrect));
+	result = DrawPianoNote("midi",key,chan,(*p_timeon)[key],date,p_roll->noteoffset,p_roll->topoffset,p_roll->hrect,p_roll->minkey,p_roll->maxkey,&(p_roll->graphrect),0.,0.);
 	if(result != OK) return(result);
 	if(forgettimeon) (*p_timeon)[key] = 0L;
 	return(OK);

@@ -354,13 +354,13 @@ int CompileObjectScore(int j,int *p_longerCsound) {
 		param = Myatof(line,&p,&q);
 		if(istempo) {
 			if(ip == 1 && param != 0) {
-				my_sprintf(Message,"=> BP3 can't compile this Csound score: argument following 't' should be 0.");
+				my_sprintf(Message,"=> BP3 can't compile this Csound score: field following 't' should be 0.");
 				BPPrintMessage(0,odError,"%s\n",Message);
 				result = MISSED;
 				goto SORTIR;
 				}
 			if(ip > 2) {
-				my_sprintf(Message,"=> BP3 can't compile this Csound score: more than %ld arguments following 't'",
+				my_sprintf(Message,"=> BP3 can't compile this Csound score: more than %ld fields following 't'",
 					(long)ip-1L);
 				BPPrintMessage(0,odError,"%s\n",Message);
 				result = MISSED;
@@ -368,7 +368,7 @@ int CompileObjectScore(int j,int *p_longerCsound) {
 				}
 			if(ip == 2) {
 				if(param <= 0.) {
-					my_sprintf(Message,"=> Incorrect Csound score: 2nd argument following 't' should be positive.");
+					my_sprintf(Message,"=> Incorrect Csound score: 2nd field following 't' should be positive.");
 					BPPrintMessage(0,odError,"%s\n",Message);
 					result = MISSED;
 					goto SORTIR;
@@ -448,7 +448,7 @@ int CompileObjectScore(int j,int *p_longerCsound) {
 					break;
 				case 2:
 					if(param < 0) {
-						BPPrintMessage(0,odError,"=> Can't compile Csound score because a negative date was found: %.2f\n(2nd argument)",param);
+						BPPrintMessage(0,odError,"=> Can't compile Csound score because a negative date was found: %.2f\n(2nd field)",param);
 						result = MISSED; goto SORTIR;
 						}
 					param = (param * 60000.) / tempo;
@@ -457,7 +457,7 @@ int CompileObjectScore(int j,int *p_longerCsound) {
 				case 3:
 					if(param < 0) {
 						// FIXME ? any way to allow neg. dur? This has multiple uses with Csound -- akozar
-						BPPrintMessage(0,odError,"=> Can't compile Csound score because a negative duration was found.\n(3d argument)");
+						BPPrintMessage(0,odError,"=> Can't compile Csound score because a negative duration was found.\n(3rd field)");
 						result = MISSED; goto SORTIR;
 						}
 					param = (param * 60000.) / tempo;
@@ -508,11 +508,11 @@ int CompileObjectScore(int j,int *p_longerCsound) {
 					if(++nparam >= maxparam) {
 						if((*p_CsInstrumentIndex)[ins] > 0)
 							my_sprintf(Message,
-								"=> Csound instrument %ld accepts %ld arguments but the score is supplying more",
+								"=> Csound instrument %ld accepts %ld fields but the score is supplying more",
 								(long)(*p_CsInstrumentIndex)[ins],(long)(maxparam+3));
 						else
 							my_sprintf(Message,
-								"=> Default Csound instrument requires %ld arguments but the score is supplying more",
+								"=> Default Csound instrument requires %ld fields but the score is supplying more",
 								(long)(maxparam+3));
 						BPPrintMessage(0,odError,"%s\n",Message);
 						result = ABORT;
@@ -531,11 +531,11 @@ int CompileObjectScore(int j,int *p_longerCsound) {
 			if(ip < 4) {
 				if((*p_CsInstrumentIndex)[ins] > 0)
 					my_sprintf(Message,
-						"=> Csound instrument %ld requires at least 3 arguments whereas the score is supplying %ld",
+						"=> Csound instrument %ld requires at least 3 fields whereas the score is supplying %ld",
 						(long)(*p_CsInstrumentIndex)[ins],(long)(ip-1));
 				else
 					my_sprintf(Message,
-						"=> Default Csound instrument requires at least 3 arguments whereas the score is supplying %ld",
+						"=> Default Csound instrument requires at least 3 fields whereas the score is supplying %ld",
 						(long)(ip-1));
 				BPPrintMessage(0,odError,"%s\n",Message);
 				if(Jinstr < 2)
@@ -713,6 +713,13 @@ SORTIR:
 	return(result);
 	}
 
+int NoCsoundInstrumentFile(void) {
+	// 2026-11-18 TRUE if no '-cs' file defines instruments. The default orchestra "0-default.orc" is then used,
+	// and a number in _ins() is the number of one of its instruments (1, 2, 3, 4, 10)
+	if(Jinstr == 0) return(TRUE);
+	return(Jinstr == 1 && p_CsInstrumentIndex != NULL && (*p_CsInstrumentIndex)[0] == -1);
+	}
+
 int FindCsoundInstrument(char* line) {
 	// Find the instrument index in the compiled '-cs' file
 	int i,j,isnumber;
@@ -736,6 +743,7 @@ int FindCsoundInstrument(char* line) {
 			return MISSED;
 			}
 		if(trace_find_instrument) BPPrintMessage(0,odInfo,"@§ found number i = %d\n",i);
+		if(NoCsoundInstrumentFile()) return(i); // 2026-11-18 Instrument i of the default orchestra
 		for(j = 0; j < Jinstr; j++) {
 		//	BPPrintMessage(0,odInfo,"InstrumentIndex[%d] = %d, i = %d (%s)\n",j,(*p_CsInstrumentIndex)[j],i,(*(*pp_CsInstrumentName)[j]));
 			if(i == (*p_CsInstrumentIndex)[j]) {
@@ -764,7 +772,7 @@ int FindCsoundInstrument(char* line) {
 		BPPrintMessage(0,odError,"=> Instrument #%d was not found in a '-cs' instrument file\n",i);
 		return(1);
 		}
-	else BPPrintMessage(0,odError,"=> Instrument \"%s\" was not found in a '-cs' instrument file",line);
+	else BPPrintMessage(0,odError,"=> Instrument \"%s\" was not found in a '-cs' instrument file\n",line);
 	return(1);
 	}
 
@@ -1030,7 +1038,7 @@ int ExportJsonCsoundInstrument(int instrument) {
 	if(strlen(CsoundOrchestraName) > 0)
 		SaveEscapedStringAsJson(csjson,"CsoundOrchestraName","","Csound orchestra file",CsoundOrchestraName);
 	else SaveEscapedStringAsJson(csjson,"CsoundOrchestraName","","Csound orchestra file","no file");
-	SAVE_INSTR_INT(iargmax,"","Number of arguments");
+	SAVE_INSTR_INT(iargmax,"","Number of fields");
 
 	for(chan = 1; chan <= MAXCHAN; chan++) {
 		if(WhichCsoundInstrumentForChannel[chan] > 0) {
@@ -1050,32 +1058,32 @@ int ExportJsonCsoundInstrument(int instrument) {
 		}
 
 	// Argument indexes
-	SAVE_CS_INT(CsDilationRatioIndex,"Argument of dilation ratio (-1 means empty)");
-	SAVE_CS_INT(CsAttackVelocityIndex,"Argument of attack velocity (-1 means empty)");
-	SAVE_CS_INT(CsReleaseVelocityIndex,"Argument of release velocity (-1 means empty)");
+	SAVE_CS_INT(CsDilationRatioIndex,"Field of dilation ratio (-1 means empty)");
+	SAVE_CS_INT(CsAttackVelocityIndex,"Field of attack velocity (-1 means empty)");
+	SAVE_CS_INT(CsReleaseVelocityIndex,"Field of release velocity (-1 means empty)");
 	// SAVE_CS_INT(CsoundTempo,"");
-	SAVE_CS_INT(CsPitchIndex,"Argument of pitch");
+	SAVE_CS_INT(CsPitchIndex,"Field of pitch");
 	SaveStringAsJson(csjson,"CsPitchFormat","enum","CsPitchFormat",CsPitchFormatName((int)(*p_CsPitchFormat)[j]));
-	SAVE_CS_INT(CsVolumeStartIndex,"Argument of start volume");
-	SAVE_CS_INT(CsVolumeEndIndex,"Argument of end volume");
-	SAVE_CS_INT(CsPitchBendStartIndex,"Argument of start pitchbend");
-	SAVE_CS_INT(CsPitchBendEndIndex,"Argument of end pitchbend");
-	SAVE_CS_INT(CsPressureStartIndex,"Argument of start pressure");
-	SAVE_CS_INT(CsPressureEndIndex,"Argument of end pressure");
-	SAVE_CS_INT(CsModulationStartIndex,"Argument of start modulation");
-	SAVE_CS_INT(CsModulationEndIndex,"Argument of end modulation");
-	SAVE_CS_INT(CsPanoramicStartIndex,"Argument of start panoramic");
-	SAVE_CS_INT(CsPanoramicEndIndex,"Argument of end panoramic");
+	SAVE_CS_INT(CsVolumeStartIndex,"Field of start volume");
+	SAVE_CS_INT(CsVolumeEndIndex,"Field of end volume");
+	SAVE_CS_INT(CsPitchBendStartIndex,"Field of start pitchbend");
+	SAVE_CS_INT(CsPitchBendEndIndex,"Field of end pitchbend");
+	SAVE_CS_INT(CsPressureStartIndex,"Field of start pressure");
+	SAVE_CS_INT(CsPressureEndIndex,"Field of end pressure");
+	SAVE_CS_INT(CsModulationStartIndex,"Field of start modulation");
+	SAVE_CS_INT(CsModulationEndIndex,"Field of end modulation");
+	SAVE_CS_INT(CsPanoramicStartIndex,"Field of start panoramic");
+	SAVE_CS_INT(CsPanoramicEndIndex,"Field of end panoramic");
 
 	// Pitchbend range
 	SaveFloatAsJson(csjson,"pitchbendrange","cents","pitchbendrange",CSI.pitchbendrange);
 
 	// Tables
-	SAVE_INSTR_INT(pitchbendtable,"","Argument of pitchbend table (-1 means empty)");
-	SAVE_INSTR_INT(volumetable,"","Argument of volume table (-1 means empty)");
-	SAVE_INSTR_INT(pressuretable,"","Argument of pressure table (-1 means empty)");
-	SAVE_INSTR_INT(modulationtable,"","Argument of modulation table (-1 means empty)");
-	SAVE_INSTR_INT(panoramictable,"","Argument of panoramic table (-1 means empty)");
+	SAVE_INSTR_INT(pitchbendtable,"","Field of pitchbend table (-1 means empty)");
+	SAVE_INSTR_INT(volumetable,"","Field of volume table (-1 means empty)");
+	SAVE_INSTR_INT(pressuretable,"","Field of pressure table (-1 means empty)");
+	SAVE_INSTR_INT(modulationtable,"","Field of modulation table (-1 means empty)");
+	SAVE_INSTR_INT(panoramictable,"","Field of panoramic table (-1 means empty)");
 
 	// GEN types
 	SAVE_INSTR_INT(pitchbendGEN,"","Pitchbend GEN type");
