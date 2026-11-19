@@ -238,6 +238,8 @@ int AddEventToList(int k) {
 					}
 				else i_scale = -1;
 				PrintThisNote(i_scale,j-16384,0,-1,line);
+				// 2026-11-19 Names "key#NN" carry no octave number, so the octave above 'key#60' was also written 'key#60', as in DrawNoteScale() - fixed by Claude
+				if(strncmp(line,"key#",4) == 0 && isdigit(line[4])) my_sprintf(line,"key#%d",j-16384);
 				my_sprintf(label,"<<%s>>",line);
 				}
 			else if(j < Jbol) {
@@ -262,6 +264,8 @@ int AddEventToList(int k) {
 			}
 		else i_scale = -1;
 		PrintThisNote(i_scale,j-16384,0,-1,label);
+		// 2026-11-19 Names "key#NN" carry no octave number, so the octave above 'key#60' was also written 'key#60', as in DrawNoteScale() - fixed by Claude
+		if(strncmp(label,"key#",4) == 0 && isdigit(label[4])) my_sprintf(label,"key#%d",j-16384);
 	//	BPPrintMessage(0,odInfo,"@@@ scale = %d, i_scale = %d, label = %s\n",scale,i_scale,label);
 		}
 	if(sound_object) {

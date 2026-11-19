@@ -75,13 +75,16 @@ int ExportSCL(int i_scale,char* scale_path,char* label) {
 	fprintf(fout,"! Exported by the Bol Processor\n");
 	numgrades = (*Scale)[i_scale].numgrades;
 	fprintf(fout,"%d\n",numgrades);
+	// 2026-11-19 Names are stored by grade, whereas 'keyclass' is indexed by named note, so names were shifted and then repeated the first one. Unnamed grades ('•') are written without a name, and the name of the first note (1/1, implicit in SCALA files) is given in a comment, as in the PHP export - fixed by Claude
+	char **name0 = (*(*Scale)[i_scale].notenames)[0];
+	if(name0 != NULL && strcmp(*name0,"•") != 0) fprintf(fout,"! 1/1 %s\n",*name0);
 	for(i_note = 1; i_note <= numgrades; i_note++) {
 		ratio = (*(*Scale)[i_scale].tuningratio)[i_note];	
 		int cents = (int)lround(1200.0 * log2(ratio));
-		if(cents == 1200) fprintf(fout,"2/1 ");
-		else fprintf(fout,"%d cents ",cents);
-		keyclass = (*((*Scale)[i_scale].keyclass))[i_note];
-		fprintf(fout,"%s",*((*(*Scale)[i_scale].notenames)[keyclass]));
+		if(cents == 1200) fprintf(fout,"2/1");
+		else fprintf(fout,"%d cents",cents);
+		char **this_name = (*(*Scale)[i_scale].notenames)[i_note];
+		if(this_name != NULL && strcmp(*this_name,"•") != 0) fprintf(fout," %s",*this_name);
 		fprintf(fout,"\n");
 		}
 	my_fclose(fout);
@@ -102,7 +105,9 @@ int ExportKBM(int i_scale,char* scale_path,char* label) {
 	fprintf(fout,"! Exported by the Bol Processor\n");
 	fprintf(fout,"! Size of map. The pattern repeats every so many keys:\n");
 	numgrades = (*Scale)[i_scale].numgrades;
-	fprintf(fout,"%d\n",numgrades);
+	// 2026-11-19 As in PrintThisNote(), consecutive keys play consecutive grades in a scale of up to 12 grades, and consecutive named grades otherwise, so that the pattern repeats every 'numnotes' keys. Before, 'keyclass' was read beyond the named notes - fixed by Claude
+	int period = (numgrades <= 12) ? numgrades : (*Scale)[i_scale].numnotes;
+	fprintf(fout,"%d\n",period);
 	fprintf(fout,"! First MIDI note number to retune:\n0\n");
 	fprintf(fout,"! Last MIDI note number to retune:\n127\n");
 	fprintf(fout,"! Middle note where the first entry in the mapping is mapped to:\n%d\n",(*Scale)[i_scale].basekey);
@@ -110,8 +115,9 @@ int ExportKBM(int i_scale,char* scale_path,char* label) {
 	fprintf(fout,"! Frequency to tune the above note to (floating point e.g. 440.0):\n%.3f\n",(*Scale)[i_scale].basefreq);
 	fprintf(fout,"! Scale degree to consider as formal octave:\n%d\n",numgrades);
 	fprintf(fout,"! Mapping\n");
-	for(i_note = 0; i_note < numgrades; i_note++) {
-		keyclass = (*((*Scale)[i_scale].keyclass))[i_note];
+	for(i_note = 0; i_note < period; i_note++) {
+		if(numgrades <= 12) keyclass = i_note;
+		else keyclass = (*((*Scale)[i_scale].keyclass))[i_note];
 		fprintf(fout,"%d",keyclass);
 		fprintf(fout,"\n");
 		}
@@ -162,6 +168,7 @@ int CreateMicrotonalScale(char* line, char* name, char* note_names, char* key_nu
 				//	BPPrintMessage(0,odError,"numgrades = %d\n",numgrades);
 					(*Scale)[NumberScales].tuningratio = (double**) GiveSpace((Size)((numgrades + 1) * sizeof(double)));
 					(*Scale)[NumberScales].notenames = (char****) GiveSpace((Size)((numgrades + 1) * sizeof(char**)));
+					for(i = 0; i <= numgrades; i++) (*((*Scale)[NumberScales].notenames))[i] = NULL; // 2026-11-19 GiveSpace() doesn't clear memory, and ExportSCL() checks missing names
 					(*Scale)[NumberScales].keys = (int**) GiveSpace((Size)((numgrades + 1) * sizeof(int)));
 					(*Scale)[NumberScales].keyclass = (int**) GiveSpace((Size)((numgrades + 1) * sizeof(int)));
 					for(i = 0; i <= numgrades; i++) num[i] = den[i] = 0;
@@ -218,6 +225,12 @@ int CreateMicrotonalScale(char* line, char* name, char* note_names, char* key_nu
 								}
 							j = 0; 
 							}
+						}
+					// 2026-11-19 The name before the closing '/' (the last grade, e.g. 2/1) was not stored, so 'notenames[numgrades]' was NULL. It is used only by ExportSCL(), and is not counted as a note - fixed by Claude
+					if(j > 0 && j_note <= numgrades) {
+						ptr = NULL;
+						MystrcpyStringToHandle(&ptr,this_note);
+						(*((*Scale)[NumberScales].notenames))[j_note] = ptr;
 						}
 					if(numnotes == 0) {
 						NumberScales--;

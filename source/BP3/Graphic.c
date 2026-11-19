@@ -254,6 +254,8 @@ int DrawItem(int w,SoundObjectInstanceParameters **p_object,Milliseconds **p_t1,
 							&((*p_Instance)[k].map0),
 							&((*p_Instance)[k].map1));
 						PrintThisNote(i_scale,key,0,-1,line);
+						// 2026-11-19 Names "key#NN" carry no octave number, so the octave above 'key#60' was also written 'key#60' - fixed by Claude
+						if(strncmp(line,"key#",4) == 0 && isdigit(line[4])) my_sprintf(line,"key#%d",key);
 						if(trace_scale) BPPrintMessage(0,odInfo,"DrawItem i_scale = %d\n",i_scale);
 						}
 					}
@@ -273,6 +275,7 @@ int DrawItem(int w,SoundObjectInstanceParameters **p_object,Milliseconds **p_t1,
 							&((*p_Instance)[k].map0),
 							&((*p_Instance)[k].map1));
 						PrintThisNote(i_scale,key,0,-1,line2);
+						if(strncmp(line2,"key#",4) == 0 && isdigit(line2[4])) my_sprintf(line2,"key#%d",key); // 2026-11-19 As above
 						strcat(line,line2);
 						strcat(line,">>");
 						}
@@ -1544,7 +1547,7 @@ int DrawNoteScale(Rect* p_r,int w,int i_scale,int minkey,int maxkey,int hrect,in
 			else y = (maxkey - key) * hrect + topoffset;
 			PrintThisNote(i_scale,key,0,-1,line);
 			// Names "key#NN" carry no octave number, so the octave above 'key#60' would also be 'key#60'
-			if(strncmp(line,"key#",4) == 0) my_sprintf(line,"key#%d",key);
+			if(strncmp(line,"key#",4) == 0 && isdigit(line[4])) my_sprintf(line,"key#%d",key);
 			fill_text(line,5,y + 3);
 			fill_text(line,xmax + 5,y + 3);
 			draw_line(xmin,y,xmax,y,"");
