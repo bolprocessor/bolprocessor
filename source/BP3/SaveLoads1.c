@@ -73,7 +73,7 @@ int LoadTonality(void) {
 	while(isspace((unsigned char)(*p))) p++;
 	if(*p != '{') {
 		free(json_data);
-		BPPrintMessage(0,odError,"=> Tonality file ‘%s’ is in the old format. It will be converted to JSON when any page of the PHP interface is opened, if it is in the ‘tonality_resources’ folder\n",FileName[wTonality]);
+		BPPrintMessage(0,odError,"=> Tonality file ‘%s’ is in the old format. It will be converted to JSON when any page of the PHP interface is opened, if it is in the ‘tonality_resources’ or ‘my_tonality_resources’ folder\n",FileName[wTonality]);
 		return(LoadTonalityOldFormat());
 		}
 	result = LoadTonalityJSON(p);
@@ -294,6 +294,24 @@ ERREUR:
 static char *ReadWholeFile(const char*);
 static FILE *OpenPrototypesExport(char*,size_t);
 static void ClosePrototypesExport(FILE*,const char*);
+static void CsoundResourcePath(const char*);
+
+static void CsoundResourcePath(const char *name) {
+	// 2026-11-19 Sets FileName[wCsoundResources] to the Csound resource file named in a sound-object prototypes file, relative to the root of the application (e.g. "csound_resources/-cs.Mozart"). The PHP interface keeps the files created or changed by the user in "my_csound_resources", and the fixed files of the distribution in "csound_resources". A file of "my_csound_resources" is taken first, as in the interface - by Claude
+	const char *fixed = "csound_resources/";
+	FILE *test;
+	if(strncmp(name,fixed,strlen(fixed)) == 0) {
+		my_sprintf(Message,"../my_%s",name);
+		test = fopen(Message,"r");
+		if(test != NULL) {
+			fclose(test);
+			strcpy(FileName[wCsoundResources],Message);
+			return;
+			}
+		}
+	my_sprintf(Message,"../%s",name);
+	strcpy(FileName[wCsoundResources],Message);
+	}
 
 static char *ReadWholeFile(const char *filename) {
 	// Returns the content of a file as a string to be freed, or NULL. Binary mode keeps the size right on Windows with CRLF line endings
@@ -1719,8 +1737,7 @@ int LoadObjectPrototypesJSON(const char *json_text) {
 	name = CsJsonString(json,"CsoundInstrumentsFile");
 	if(name != NULL && strlen(name) > 5) {
 		// The name contains the path (csound_resources)
-		my_sprintf(Message,"../%s",name);
-		strcpy(FileName[wCsoundResources], Message);
+		CsoundResourcePath(name);
 		BPPrintMessage(0,odInfo, "Trying to load Csound instruments: %s\n", FileName[wCsoundResources]);
 		if((result = LoadCsoundInstruments(0,1)) != OK) {
 			rep = result;
@@ -2023,8 +2040,7 @@ int LoadObjectPrototypesOldFormat(int checkversion,int tryname) {
 	if(trace_load_prototypes) BPPrintMessage(0,odInfo, "Line (empty?) = [%s]\n",line2);
 	if(strlen(line2) > 5) { // Fixed by BB 2022-02-18
 		// Note that line2 contains the path (csound_resources)
-		my_sprintf(Message,"../%s",line2);
-		strcpy(FileName[wCsoundResources], Message);
+		CsoundResourcePath(line2);
 		BPPrintMessage(0,odInfo, "Trying to load Csound instruments: %s\n", FileName[wCsoundResources]);
 		if((result = LoadCsoundInstruments(0,1)) != OK) return(result);
 		}
