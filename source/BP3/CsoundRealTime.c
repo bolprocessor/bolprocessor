@@ -722,7 +722,8 @@ static void CsRTSendMidiDue(void) {
 	sent = 0L;
 	while(sent < CsRTMidiSize) {
 		if(barrier >= 0. && CsRTMidiQueue[sent].time >= barrier - 0.0005) break;
-		if(CsRTDateToClock(CsRTMidiQueue[sent].time) > now) break;
+		// They are delayed by CsoundRTMidiDelay (option --csoundrt-delay), the time of the output buffer of the server, so that they come with the sound
+		if(CsRTDateToClock(CsRTMidiQueue[sent].time + CsoundRTMidiDelay / 1000.) > now) break;
 		midiData[0] = NoteOn + CsRTMidiQueue[sent].chan;
 		midiData[1] = CsRTMidiQueue[sent].key;
 		midiData[2] = 0;

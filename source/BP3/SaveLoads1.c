@@ -73,7 +73,7 @@ int LoadTonality(void) {
 	while(isspace((unsigned char)(*p))) p++;
 	if(*p != '{') {
 		free(json_data);
-		BPPrintMessage(0,odError,"=> Tonality file ‘%s’ is in the old format. It will be converted to JSON when any page of the PHP interface is opened, if it is in the ‘tonality_resources’ or ‘my_tonality_resources’ folder\n",FileName[wTonality]);
+		BPPrintMessage(0,odError,"=> Tonality file ‘%s’ is in the old format. It will be converted to JSON when any page of the PHP interface is opened, if it is in the ‘tonality_resources’ or ‘tonality_resources_private’ folder\n",FileName[wTonality]);
 		return(LoadTonalityOldFormat());
 		}
 	result = LoadTonalityJSON(p);
@@ -297,11 +297,11 @@ static void ClosePrototypesExport(FILE*,const char*);
 static void CsoundResourcePath(const char*);
 
 static void CsoundResourcePath(const char *name) {
-	// 2026-11-19 Sets FileName[wCsoundResources] to the Csound resource file named in a sound-object prototypes file, relative to the root of the application (e.g. "csound_resources/-cs.Mozart"). The PHP interface keeps the files created or changed by the user in "my_csound_resources", and the fixed files of the distribution in "csound_resources". A file of "my_csound_resources" is taken first, as in the interface - by Claude
+	// 2026-11-19 Sets FileName[wCsoundResources] to the Csound resource file named in a sound-object prototypes file, relative to the root of the application (e.g. "csound_resources/-cs.Mozart"). The PHP interface keeps the files created or changed by the user in "csound_resources_private" (called "my_csound_resources" until 2026-11-20), and the fixed files of the distribution in "csound_resources". A file of "csound_resources_private" is taken first, as in the interface - by Claude
 	const char *fixed = "csound_resources/";
 	FILE *test;
 	if(strncmp(name,fixed,strlen(fixed)) == 0) {
-		my_sprintf(Message,"../my_%s",name);
+		my_sprintf(Message,"../csound_resources_private/%s",name + strlen(fixed));
 		test = fopen(Message,"r");
 		if(test != NULL) {
 			fclose(test);

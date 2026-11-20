@@ -899,6 +899,7 @@ const char gOptionList[] =
 	"                          of this computer, e.g. started with: csound -odac --port=10789 --orc 0-default.orc\n"
 	"                          (with --csoundout, the score is also written to a file)\n"
 	"                          (with --rtmidi, the MIDI ports are used for interaction, e.g. _script(wait for C3 channel 1))\n"
+	"  --csoundrt-delay ms:    delay of the silent MIDI notes sent with real-time Csound (default 46 ms)\n"
 	"\n"
 	"OPTIONS (Computation):\n"
 /*	"  -s or --start string   use 'string' as the start string (default is \"S\")\n"
@@ -1130,6 +1131,14 @@ int ParsePostInitArgs(int argc, char* args[], BPConsoleOpts* opts) {
 						}
 					else {
 						BPPrintMessage(0,odError, "\n=> Missing or incorrect UDP port after --csoundrt\n\n");
+						return ABORT;
+						}
+					}
+				else if(strcmp(args[argn], "--csoundrt-delay") == 0)	{
+					// note 22 (real-time Csound): delay (ms) of silent MIDI notes, the time of the output buffer of the Csound server
+					if(++argn < argc && isdigit((unsigned char) args[argn][0]) && atoi(args[argn]) <= 10000) CsoundRTMidiDelay = atoi(args[argn]);
+					else {
+						BPPrintMessage(0,odError, "\n=> Missing or incorrect number of milliseconds after --csoundrt-delay\n\n");
 						return ABORT;
 						}
 					}
