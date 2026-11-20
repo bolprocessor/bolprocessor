@@ -1,4 +1,4 @@
-Bol Processor (https://bp3.tech) is based on initial work by ethnomusicologist Jim Kippen and computer scientist Bernard Bel in the early 1980s.  Their work had been granted support by:
+Bol Processor (https://bp3.tech) is a research and development project based on initial work by ethnomusicologist Jim Kippen and computer scientist Bernard Bel in the early 1980s.  Their work had been granted support by:
 
 - International Society for Traditional Arts Research (ISTAR, New Delhi)
 - Department of Social and Cultural Anthropology, University of Belfast (UK)
@@ -12,12 +12,12 @@ Further development between 1986 and 1998 was part of research projects under th
 - Association ISTAR France
 - Centre de Sciences Humaines (CSH, French Ministry of External Affairs, New Delhi)
 
-Bol Processor has been developed thanks to feedback and cooperation of several musicians and computer scientists.
+The Bol Processor program has been developed thanks to feedback and cooperation of several musicians and computer scientists.
 
-Thanks to Harm Visser, Jim Ross, Tom Demeyer, Nadaka and Didier, Paul Sheldon, and Sterling Beckwith for musical material, comments, code examples, help in uploading and distributing.  To Otto Laske and Jim Kippen for supporting the underlying research work.  To Srikumar Karaikudi Subramanian for additional development of BP2.  To Barry Vercoe for encouraging work with Csound.  And to the GMEB folks in Bourges for their 1997 award...
+Thanks to Harm Visser, Jim Ross, Tom Demeyer, Nadaka and Didier, Paul Sheldon, and Sterling Beckwith for musical material, comments, code examples, help in uploading and distributing.  To Otto Laske for supporting the underlying research work.  To Srikumar Karaikudi Subramanian for additional development of BP2.  To Barry Vercoe for encouraging work with Csound.  And to the GMEB folks in Bourges for their 1997 award...
 
-MacOS X and Carbon porting by Anthony Kozar
+MacOS X and Carbon porting by Anthony Kozar.
 
 The interface plays MIDI files with SpessaSynth by Spessasus (https://github.com/spessasus/spessasynth_lib, Apache-2.0 licence), using the GeneralUser GS sound bank by S. Christian Collins (https://www.schristiancollins.com). SpessaSynth also relies on fflate by Arjun Barrett (MIT licence) and stb-vorbis (Apache-2.0 licence). Their licences are in "php/spessasynth".
 
-The default Csound orchestra "0-default.orc" plays piano samples from the Salamander Grand Piano V3 by Alexander Holm (https://freepats.zenvoid.org/Piano/acoustic-grand-piano.html, Creative Commons Attribution 3.0 licence), and flute samples from the University of Iowa Musical Instrument Samples (https://theremin.music.uiowa.edu/MIS.html), as does "Beethoven.orc" with its string samples. Details are in the "ReadMe.txt" files of their folders in "csound_resources".
+(More credits in the "csound_resources" directory.)
