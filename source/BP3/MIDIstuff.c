@@ -1882,13 +1882,13 @@ int SendToDriver(int kcurrentinstance, int scale, int blockkey, Milliseconds tim
 	}
 
 long SendToStack(MIDI_Event event,Milliseconds time,int kcurrentinstance,int i_scale,long count) {
-	unsigned long time_now;
+	long time_now; // 2026-11-21: signed, otherwise (time - time_now) wrapped to a huge value when an event was late, and the loop never ended
 	int result;
 	if(!ComputeWhilePlay) {
 		if(FirstEventTime == 0L) FirstEventTime = getClockTime() / 1000;
 		check_stop_instructions(time);
 		while(TRUE) {
-			time_now = (getClockTime() - TimeStopped) / 1000 - FirstEventTime; // Milliseconds
+			time_now = (long)((getClockTime() - TimeStopped) / 1000 - FirstEventTime); // Milliseconds
 			if((result=stop(1,"SendToStack")) != OK) return(count);
 			if((time - time_now) <= AdvanceTime) break;
 			if(eventCount > 0L) { // 2026-11-16: send the stacked events whose date has come while waiting
