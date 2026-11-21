@@ -20,4 +20,4 @@ MacOS X and Carbon porting by Anthony Kozar.
 
 The interface plays MIDI files with SpessaSynth by Spessasus (https://github.com/spessasus/spessasynth_lib, Apache-2.0 licence), using the GeneralUser GS sound bank by S. Christian Collins (https://www.schristiancollins.com). SpessaSynth also relies on fflate by Arjun Barrett (MIT licence) and stb-vorbis (Apache-2.0 licence). Their licences are in "php/spessasynth".
 
-(More credits in the "csound_resources" directory.)
+👉 More credits in the Csound resources directory

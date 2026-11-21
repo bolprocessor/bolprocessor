@@ -657,7 +657,7 @@ int LoadCsoundInstrumentsJSON(const char *json_text) {
 	// note 19 (real-time Csound)
 	// 2026-11-16: the orchestra matters, since the instruments of this file must match the ones it defines
 	if(strlen(CsoundOrchestraName) > 0 && strcmp(CsoundOrchestraName,"no file") != 0)
-		BPPrintMessage(0,odInfo,"Csound orchestra named in this file: %s\n",CsoundOrchestraName);
+		BPPrintMessage(0,odInfo,"%s named in this file: %s\n",(strstr(CsoundOrchestraName,".scd") != NULL) ? "SuperCollider SynthDef file" : "Csound orchestra",CsoundOrchestraName);
 	else BPPrintMessage(0,odInfo,"No Csound orchestra is named in this file\n");
 
 	// Csound tables, put on top of Csound scores
@@ -1044,7 +1044,7 @@ int LoadCsoundInstrumentsOldFormat(int checkversion,int tryname) {
 	// note 19 (real-time Csound)
 	// 2026-11-16: the orchestra matters, since the instruments of this file must match the ones it defines
 	if(strlen(CsoundOrchestraName) > 0 && strcmp(CsoundOrchestraName,"no file") != 0)
-		BPPrintMessage(0,odInfo,"Csound orchestra named in this file: %s\n",CsoundOrchestraName);
+		BPPrintMessage(0,odInfo,"%s named in this file: %s\n",(strstr(CsoundOrchestraName,".scd") != NULL) ? "SuperCollider SynthDef file" : "Csound orchestra",CsoundOrchestraName);
 	else BPPrintMessage(0,odInfo,"No Csound orchestra is named in this file\n");
 	if(ReadOne(FALSE,FALSE,TRUE,csfile,TRUE,&p_line,&p_completeline,&pos) == MISSED) goto QUIT;
 	result = OK;

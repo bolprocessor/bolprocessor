@@ -367,7 +367,7 @@ short gFileType[] =   {5,6,1,1,1,1,1,7,13,0,1,1,14,8,1,1,15,19,1,1,1,2,15,15,11,
 	// FilePrefix, FileExtension, and DocumentTypeName map window/file index to their appropriate strings
 char FilePrefix[][5] = {"-gr.","-al.","\0","\0","\0","-tr.","\0","-da.",
 	"+sc.","\0","\0","\0","-gl.","-in.","-wg.","\0","-tb.","-md.","\0","\0","\0","-kb.",
-	"\0","\0","\0","-se.","-so.","\0","\0","\0","\0","\0","\0","\0","\0","-cs.","\0","\0","-to.","\0"};
+	"\0","\0","\0","-se.","-so.","\0","\0","\0","\0","\0","\0","\0","\0","-cs.","\0","\0","-to.","-sc."};
 char FileOldPrefix[][5] = {"-gr.","-ho.","\0","\0","\0","-tr.","\0","-da.",
 	"+sc.","\0","\0","\0","-gl.","-in.","-wg.","\0","-tb.","-md.","\0","\0","\0","-kb.",
 	"\0","\0","\0","-se.","-mi.","\0","\0","\0","\0","\0","\0","\0","\0","-cs.","\0","\0","\0","\0"};
@@ -409,6 +409,9 @@ int MinPeriod;
 float EndFadeOut,AdvanceTime;
 double CsScoreEnd = 0.; // End (seconds) of the last note written to the Csound score, used when CSOUND_SECTIONS is 0
 int CsoundRT = FALSE, CsoundRTport = 0, CsoundRTMidiDelay = 46; // Real-time Csound, option "--csoundrt port", see CsoundRealTime.c
+int SuperColliderRT = FALSE, SuperColliderResource = FALSE; // SuperColliderResource: a "-sc" file has been loaded (option "-sc"), whose instrument names are SynthDef names. Real-time SuperCollider, option "--scrt port[@host]", see CsoundRealTime.c (CsoundRT is TRUE as well)
+char SuperColliderHost[256] = "127.0.0.1"; // Also the host of real-time OSC
+int OSCRT = FALSE; // 2026-11-21 Real-time OSC (Max, Pd...), option "--osc port[@host]", see CsoundRealTime.c (CsoundRT is TRUE as well)
 int CurrentVolume[MAXCHAN+1];
 long WindowParID[WMAX],ParIDstartup,ParIDbp2;
 // Str255 DeftVolName;

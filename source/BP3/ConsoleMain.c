@@ -870,6 +870,7 @@ const char gOptionList[] =
 	"  -se fname:        load settings file 'fname'\n"
 	"  -so fname:        load sound-object prototypes file 'fname'\n"
 	"  -cs fname:        load Csound instrument definitions file 'fname'\n"
+	"  -sc fname:        load SuperCollider instrument definitions file 'fname' (format of '-cs' files; instrument NAME is played by SynthDef NAME)\n"
 	"  -wg fname:        create/modify rule weights file 'fname'\n"
 	"\n"
 	"  These file-type markers currently are recognized but ignored:\n"
@@ -900,6 +901,12 @@ const char gOptionList[] =
 	"                          (with --csoundout, the score is also written to a file)\n"
 	"                          (with --rtmidi, the MIDI ports are used for interaction, e.g. _script(wait for C3 channel 1))\n"
 	"  --csoundrt-delay ms:    delay of the silent MIDI notes sent with real-time Csound (default 46 ms)\n"
+	"  --scrt port[@host]:     play real-time SuperCollider, sending notes as OSC messages to a SuperCollider server (scsynth)\n"
+	"                          listening to UDP port 'port' (57110 when started by SuperCollider) of this computer or of 'host'\n"
+	"                          Instrument n is played by SynthDef \"bp<n>\", with arguments sustain, freq (Hz), vol, vel, pan...\n"
+	"                          (options --csoundout, --rtmidi and --csoundrt-delay work as with --csoundrt)\n"
+	"  --osc port[@host]:      play real-time OSC, sending notes as OSC messages (/bp/note, /bp/off...) at their dates to a program\n"
+	"                          such as Max or Pd listening to UDP port 'port' of this computer or of 'host' (see CsoundRealTime.c)\n"
 	"\n"
 	"OPTIONS (Computation):\n"
 /*	"  -s or --start string   use 'string' as the start string (default is \"S\")\n"
@@ -1131,6 +1138,50 @@ int ParsePostInitArgs(int argc, char* args[], BPConsoleOpts* opts) {
 						}
 					else {
 						BPPrintMessage(0,odError, "\n=> Missing or incorrect UDP port after --csoundrt\n\n");
+						return ABORT;
+						}
+					}
+				else if(strcmp(args[argn], "--scrt") == 0)	{
+					// Real-time SuperCollider (2026-11-20): the score is built as for real-time Csound, and its notes are sent
+					// as OSC messages to a SuperCollider server (scsynth), see CsoundRealTime.c
+					char *at;
+					if(++argn < argc && (CsoundRTport = atoi(args[argn])) > 0 && CsoundRTport < 65536) {
+						at = strchr(args[argn],'@');
+						if(at != NULL) {
+							if(strlen(at + 1) == 0 || strlen(at + 1) >= 256) {
+								BPPrintMessage(0,odError, "\n=> Missing or incorrect host after --scrt %d@\n\n",CsoundRTport);
+								return ABORT;
+								}
+							strcpy(SuperColliderHost,at + 1);
+							}
+						CsoundRT = SuperColliderRT = TRUE;
+						opts->writeCsoundScore = TRUE;
+						opts->outOptsChanged = TRUE;
+						}
+					else {
+						BPPrintMessage(0,odError, "\n=> Missing or incorrect UDP port after --scrt\n\n");
+						return ABORT;
+						}
+					}
+				else if(strcmp(args[argn], "--osc") == 0)	{
+					// Real-time OSC (2026-11-21): the score is built as for real-time Csound, and its notes are sent as generic OSC messages
+					// (/bp/note, /bp/off...) to a program such as Max or Pd, at their dates, see CsoundRealTime.c
+					char *at;
+					if(++argn < argc && (CsoundRTport = atoi(args[argn])) > 0 && CsoundRTport < 65536) {
+						at = strchr(args[argn],'@');
+						if(at != NULL) {
+							if(strlen(at + 1) == 0 || strlen(at + 1) >= 256) {
+								BPPrintMessage(0,odError, "\n=> Missing or incorrect host after --osc %d@\n\n",CsoundRTport);
+								return ABORT;
+								}
+							strcpy(SuperColliderHost,at + 1);
+							}
+						CsoundRT = OSCRT = TRUE;
+						opts->writeCsoundScore = TRUE;
+						opts->outOptsChanged = TRUE;
+						}
+					else {
+						BPPrintMessage(0,odError, "\n=> Missing or incorrect UDP port after --osc\n\n");
 						return ABORT;
 						}
 					}
@@ -1444,6 +1495,16 @@ int LoadInputFiles(const char* pathnames[WMAX]) {
 					strcpy(FileName[wCsoundResources],pathnames[w]);
 					result = LoadCsoundInstruments(0,1);
 					if(result != OK)  return result;
+					break;
+				case wSuperColliderResources:
+					// 2026-11-20 A "-sc" file has the format of a "-cs" file. Its instruments are played by the SynthDefs of the same names
+					// in real-time SuperCollider (see SCRTNoteMessage()). It replaces a "-cs" file given as well.
+					if(pathnames[wCsoundResources] != NULL) BPPrintMessage(0,odWarning,"=> Both a '-cs' and a '-sc' file are given: the instruments of the '-sc' file are used\n");
+					strcpy(FileName[wCsoundResources],pathnames[w]);
+					LoadedCsoundInstruments = FALSE;
+					result = LoadCsoundInstruments(0,1);
+					if(result != OK)  return result;
+					SuperColliderResource = TRUE;
 					break;
 				case wTonality:
 					strcpy(FileName[wTonality],pathnames[w]);

@@ -42,10 +42,32 @@
 // so that the next item is computed while the last notes are sounding.
 // Stop, panic and pause turn off the notes of the instruments used, including the ones already sent and not yet started.
 
+// Real-time SuperCollider (2026-11-20)
+// With option "--scrt port[@host]", CsoundRT is TRUE as well and the score is built in the same way, with pitches in Hz (see CscoreWrite()).
+// Each "i" line is sent to a SuperCollider server (scsynth) as an OSC message "/s_new" in a bundle whose time tag is the date of the note,
+// so that scsynth starts it at the exact sample. Instrument n is played by SynthDef "bp<n>", with named arguments (see SCRTNoteMessage()).
+// Notes are created in group SCRT_GROUP. Their SynthDefs should end them after "sustain" seconds, and release them when "gate" is set to 0.
+// "f" lines are not sent: SuperCollider has no function tables. Notes of duration 0 are not sent either.
+// Stop, panic and pause clear the bundles scheduled by the server (/clearSched) and release the notes of the group.
+
+// Real-time OSC (2026-11-21)
+// With option "--osc port[@host]", CsoundRT is TRUE as well, and notes are sent as generic OSC messages to a program such as Max or Pd
+// listening to this UDP port. Unlike SuperCollider, these programs act on a message as soon as it arrives, ignoring time tags:
+// messages are sent at the date of each event, not in advance. The messages (see OSCNoteMessage()):
+//    /bp/start                                     at the start of a performance
+//    /bp/note id instrument name key freq duration velocity channel [name value]...   at the start of a note
+//    /bp/off id instrument name key channel         at its end (not for notes of duration 0)
+//    /bp/stop                                       when the performance is stopped or paused, or for panic: silence all notes
+//    /bp/end                                        at the end of a performance
+// 'id' identifies a note among those playing; 'name' is that of the instrument in the '-sc' or '-cs' file, or "bp<n>";
+// 'freq' is in Hz (scales included), 'duration' in seconds, 'velocity' 0-127 and 'channel' 1-16 are those of the MIDI note,
+// and the named values are those sent to SuperCollider SynthDefs (vol, vol2, vel, pan, pan2, mod, mod2, bend, bend2, parameters...).
+
 // Comments "// note N" in this file refer to the numbered notes of the technical description of this algorithm: https://bolprocessor.org/tech-analysis-of-real-time-csound/
 
 #include "-BP3.h"
 #include "-BP3decl.h"
+#include <stdint.h> // uint32_t (UInt32 is a MacOS type, unknown on Windows)
 
 #if defined(_WIN64)
 	#include <winsock2.h>
@@ -59,6 +81,8 @@
 	#include <netinet/in.h>
 	#include <arpa/inet.h>
 	#include <unistd.h>
+	#include <netdb.h>
+	#include <time.h>
 	typedef int CsRTsocket;
 	#define CSRT_NOSOCKET (-1)
 	#define CsRTclosesocket close
@@ -69,13 +93,25 @@
 #define CSRT_LATENCY 0.3		// seconds: the performance starts this time after the first item has been computed
 #define CSRT_MAXMESSAGE 65000	// bytes: maximum size of a UDP message
 #define CSRT_MAXINSTR 512		// maximum number of instruments turned off by CsRTStopAll()
+#define SCRT_GROUP 2100000000	// node ID of the group of notes created in the SuperCollider server, above the IDs allocated by its clients
+								// SCRT_GROUP + 1 is the node of the effects (SynthDef "bp_fx")
+#define SCRT_MAXARGS 64			// maximum number of named arguments of a note sent to SuperCollider
+#define SCRT_ENVSEGMENTS 16		// 2026-11-21 maximum number of segments of an envelope sent to SuperCollider (array argument of 4 + 4 * 16 values)
+#define SCRT_MAXENVS 16			// maximum number of envelopes of a note
 
 typedef struct {
 	double time;	// date (seconds) in the score
 	double target;	// date (seconds since CsRTOrigin) at which it was sent to start, only for lines in CsRTSent
 	char* head;		// e.g. "i1" or "f101"
 	char* rest;		// the fields after p2, starting with a space or empty
+	unsigned char* osc;	// real-time SuperCollider: the OSC message, without its time tag
+	int osclength;
 	} CsRTEvent;
+
+typedef struct {
+	unsigned char* data;
+	int length, max, ok;
+	} OSCBuffer;
 
 static CsRTsocket CsRTSocket = CSRT_NOSOCKET;
 static struct sockaddr_in CsRTAddress;
@@ -91,6 +127,25 @@ static double CsRTLastEnd = 0.;		// end (seconds) of the last note in the score
 static double CsRTInstruments[CSRT_MAXINSTR];
 static int CsRTNumberInstruments = 0;
 static int CsRTSaidError = 0;
+static UInt64 SCRTClockToNTP = 0;	// real-time SuperCollider: NTP time (32.32 fixed point) minus getClockTime() in the same unit
+static long OSCNoteId = 0;			// real-time OSC: number of the last note
+typedef struct {			// 2026-11-21 real-time SuperCollider: a function table of the score (GEN 7 or 5), sent as envelopes
+	int number;			// table number, e.g. 101 for "f101"
+	int points;			// number of values
+	double* value;		// values
+	double* length;		// length[k] is the length of the segment from value[k] to value[k + 1]
+	} SCRTTable;
+
+typedef struct {		// an envelope argument of /s_new, e.g. "slideenv"
+	char name[20];
+	int points;
+	double level[SCRT_ENVSEGMENTS + 1];
+	double time[SCRT_ENVSEGMENTS];	// fractions of the duration of the note
+	} SCRTEnvelope;
+
+static SCRTTable* SCRTTables = NULL;
+static int SCRTNumberTables = 0, SCRTMaxTables = 0;
+static int OSCInfoKey = -1, OSCInfoChan = 0, OSCInfoVelocity = 0; // real-time OSC: MIDI key, channel and velocity of the next note line, see CsRTNoteInfo()
 
 typedef struct {
 	double time;	// date (seconds) in the score
@@ -110,6 +165,20 @@ static int CsRTScripts(void);
 static void CsRTSendMidiDue(void);
 static int CsRTScriptsDue(unsigned long date);
 static int CsRTWaitInstruction(int instr);
+static const char* CsRTName(void);
+static int SCRTSend(OSCBuffer* b);
+static void SCRTCalibrate(void);
+static int SCRTInstrumentIndex(int instrument);
+static void SCRTNoteMessage(OSCBuffer* b,int instrument,double duration,const char* fields);
+static void OSCNoteMessage(OSCBuffer* b,OSCBuffer* off,int instrument,double duration,const char* fields);
+static void OSCSendAddress(const char* address);
+static void SCRTSendBundle(unsigned char* message,int length,UInt64 clock);
+static void SCRTStartGroup(void);
+static void OSCInit(OSCBuffer* b);
+static void OSCFree(OSCBuffer* b);
+static void OSCInt32(OSCBuffer* b,uint32_t x);
+static void OSCFloat(OSCBuffer* b,double x);
+static void OSCString(OSCBuffer* b,const char* s);
 
 
 // note 2
@@ -142,13 +211,32 @@ int CsRTOpen(void) {
 	CsRTAddress.sin_family = AF_INET;
 	CsRTAddress.sin_port = htons((unsigned short) CsoundRTport);
 	CsRTAddress.sin_addr.s_addr = htonl(INADDR_LOOPBACK); // 127.0.0.1
+	if((SuperColliderRT || OSCRT) && strcmp(SuperColliderHost,"127.0.0.1") != 0) {
+		struct addrinfo hints, *result;
+		memset(&hints,0,sizeof(hints));
+		hints.ai_family = AF_INET;
+		hints.ai_socktype = SOCK_DGRAM;
+		if(getaddrinfo(SuperColliderHost,NULL,&hints,&result) != 0 || result == NULL) {
+			BPPrintMessage(0,odError,"=> Unknown host \"%s\" for real-time %s\n",SuperColliderHost,CsRTName());
+			CsRTclosesocket(CsRTSocket);
+			CsRTSocket = CSRT_NOSOCKET;
+			return ABORT;
+			}
+		CsRTAddress.sin_addr = ((struct sockaddr_in*) result->ai_addr)->sin_addr;
+		freeaddrinfo(result);
+		}
 	CsRTQueueSize = CsRTSentSize = CsRTMidiSize = 0L;
 	CsRTPendingLength = 0;
 	CsRTStarted = FALSE;
 	CsRTLastEnd = 0.;
 	CsRTNumberInstruments = 0;
 	CsRTSaidError = 0;
-	BPPrintMessage(0,odInfo,"Real-time Csound: sending score lines to UDP port %d of this computer\n",CsoundRTport);
+	if(SuperColliderRT)
+		BPPrintMessage(0,odInfo,"Real-time SuperCollider: sending notes to UDP port %d of %s\n",CsoundRTport,SuperColliderHost);
+	else if(OSCRT)
+		BPPrintMessage(0,odInfo,"Real-time OSC: sending notes to UDP port %d of %s\n",CsoundRTport,SuperColliderHost);
+	else BPPrintMessage(0,odInfo,"Real-time Csound: sending score lines to UDP port %d of this computer\n",CsoundRTport);
+	OSCNoteId = 0;
 	return OK;
 	}
 
@@ -170,6 +258,12 @@ void CsRTClose(void) {
 	free(CsRTPending); CsRTPending = NULL;
 	free(CsRTMidiQueue); CsRTMidiQueue = NULL;
 	CsRTMidiSize = CsRTMidiMax = 0L;
+	for(i = 0; i < SCRTNumberTables; i++) {
+		free(SCRTTables[i].value);
+		free(SCRTTables[i].length);
+		}
+	free(SCRTTables); SCRTTables = NULL;
+	SCRTNumberTables = SCRTMaxTables = 0;
 	CsRTQueueSize = CsRTQueueMax = CsRTSentSize = CsRTSentMax = 0L;
 	CsRTPendingLength = CsRTPendingMax = 0;
 	return;
@@ -213,6 +307,8 @@ void CsRTText(const char* format,va_list args) {
 
 
 // note 5
+static void SCRTStoreTable(int number,const char* fields);
+
 static void CsRTLine(char* line) {
 	// Queue an "i" or "f" line with its date
 	char *p, *q, *end, type;
@@ -237,8 +333,16 @@ static void CsRTLine(char* line) {
 	if(end == q) return;
 	duration = strtod(end,&p); // p3
 	if(p == end) duration = 0.;
+	if(SuperColliderRT && type == 'f') { // 2026-11-21 Function tables are not sent: they are kept and sent as envelopes with the notes using them
+		SCRTStoreTable((int) floor(instrument),q); // The fields after p1
+		return;
+		}
+	if(SuperColliderRT && duration <= 0.) return; // Notes of duration 0 are only synchronisation signals
+	if(OSCRT && type != 'i') return; // No function tables
 	e.time = time;
 	e.target = 0.;
+	e.osc = NULL;
+	e.osclength = 0;
 	e.head = (char*) malloc((size_t)(q - line) + 1);
 	e.rest = (char*) malloc(strlen(end) + 1);
 	if(e.head == NULL || e.rest == NULL) {
@@ -254,6 +358,54 @@ static void CsRTLine(char* line) {
 		if(*p == ' ' || *p == '\t') memmove(p,p + 1,strlen(p));
 		}
 	strcpy(e.rest,end);
+	if(OSCRT) {
+		// The note, and its end as another event
+		OSCBuffer b, off;
+		CsRTEvent e2;
+		OSCInit(&b);
+		OSCInit(&off);
+		OSCNoteMessage(&b,&off,(int) floor(instrument),duration,end);
+		if(!b.ok || !off.ok) {
+			OSCFree(&b);
+			OSCFree(&off);
+			CsRTFreeEvent(&e);
+			BPPrintMessage(0,odError,"=> Out of memory in CsRTLine()\n");
+			return;
+			}
+		e.osc = b.data;
+		e.osclength = b.length;
+		if(duration > 0.) {
+			e2.time = time + duration;
+			e2.target = 0.;
+			e2.head = (char*) malloc(8);
+			e2.rest = (char*) malloc(8);
+			if(e2.head != NULL && e2.rest != NULL) {
+				strcpy(e2.head,"off");
+				strcpy(e2.rest,"");
+				e2.osc = off.data;
+				e2.osclength = off.length;
+				off.data = NULL;
+				if(CsRTPush(&CsRTQueue,&CsRTQueueSize,&CsRTQueueMax,&e2,TRUE) != OK) CsRTFreeEvent(&e2);
+				}
+			else {
+				free(e2.head); free(e2.rest);
+				}
+			}
+		OSCFree(&off);
+		}
+	else if(SuperColliderRT) {
+		OSCBuffer b;
+		OSCInit(&b);
+		SCRTNoteMessage(&b,(int) floor(instrument),duration,end);
+		if(!b.ok) {
+			OSCFree(&b);
+			CsRTFreeEvent(&e);
+			BPPrintMessage(0,odError,"=> Out of memory in CsRTLine()\n");
+			return;
+			}
+		e.osc = b.data;
+		e.osclength = b.length;
+		}
 	if(CsRTPush(&CsRTQueue,&CsRTQueueSize,&CsRTQueueMax,&e,TRUE) != OK) {
 		CsRTFreeEvent(&e);
 		return;
@@ -313,6 +465,7 @@ static void CsRTSleep(long milliseconds) {
 static void CsRTFreeEvent(CsRTEvent* p_e) {
 	free(p_e->head); p_e->head = NULL;
 	free(p_e->rest); p_e->rest = NULL;
+	free(p_e->osc); p_e->osc = NULL;
 	return;
 	}
 
@@ -324,7 +477,7 @@ static int CsRTSend(const char* message) {
 	// note 18
 	if(length > CSRT_MAXMESSAGE) {
 		if(CsRTSaidError++ < 5)
-			BPPrintMessage(0,odError,"=> A line of %ld bytes is too long to be sent to Csound: %.40s...\n",(long) length,message);
+			BPPrintMessage(0,odError,"=> A line of %ld bytes is too long to be sent to %s: %.40s...\n",(long) length,CsRTName(),message);
 		return MISSED;
 		}
 	if(sendto(CsRTSocket,message,(int) length,0,(struct sockaddr*) &CsRTAddress,sizeof(CsRTAddress)) < 0) {
@@ -370,12 +523,32 @@ static int CsRTSendDue(void) {
 		// Lines dated at or after a pending wait or hold are kept until it is over (half a millisecond is tolerated for rounding)
 		if(barrier >= 0. && e.time >= barrier - 0.0005) break;
 		delay = ((double) CsRTDateToClock(e.time) - (double) now) / 1000000.;
-		if(delay > CSRT_LOOKAHEAD) break;
+		if(delay > (OSCRT ? 0. : CSRT_LOOKAHEAD)) break; // Real-time OSC: at the date of the event
 		// note 10
+		if(OSCRT && delay < 0. && delay > -0.05) delay = 0.; // A few milliseconds late since the loop checks the queue every 2 ms
 		if(delay < 0.) {
 			// Late, e.g. because computing the item took longer than the end of the previous one: the rest of the performance is shifted
 			CsRTOrigin += (UInt64)(-delay * 1000000.);
 			delay = 0.;
+			}
+		if(OSCRT) {
+			OSCBuffer b;
+			b.data = e.osc;
+			b.length = b.max = e.osclength;
+			b.ok = TRUE;
+			SCRTSend(&b);
+			if(CsoundTrace) BPPrintMessage(0,odInfo,"OSC <- %s at %.3f s\n",(strcmp(e.head,"off") == 0) ? "/bp/off" : "/bp/note",e.time);
+			sent++;
+			CsRTFreeEvent(&e); // Sent at its date: nothing to send again after a pause
+			continue;
+			}
+		if(SuperColliderRT) {
+			SCRTSendBundle(e.osc,e.osclength,now + (UInt64)(delay * 1000000.));
+			if(CsoundTrace) BPPrintMessage(0,odInfo,"SuperCollider <- bp%s at +%.4f s:%.200s\n",e.head + 1,delay,e.rest);
+			sent++;
+			e.target = e.time;
+			if(CsRTPush(&CsRTSent,&CsRTSentSize,&CsRTSentMax,&e,FALSE) != OK) CsRTFreeEvent(&e);
+			continue;
 			}
 		length = strlen(e.head) + strlen(e.rest) + 32;
 		message = (char*) malloc(length);
@@ -405,7 +578,29 @@ static void CsRTStopAll(void) {
 	char *code, line[128];
 	size_t size;
 	int i;
-	if(CsRTSocket == CSRT_NOSOCKET || CsRTNumberInstruments == 0) return;
+	if(CsRTSocket == CSRT_NOSOCKET) return;
+	if(OSCRT) {
+		OSCSendAddress("/bp/stop");
+		return;
+		}
+	if(CsRTNumberInstruments == 0) return;
+	if(SuperColliderRT) {
+		// Bundles already sent are cancelled, and the notes playing are released
+		OSCBuffer b;
+		OSCInit(&b);
+		OSCString(&b,"/clearSched");
+		OSCString(&b,",");
+		SCRTSend(&b);
+		b.length = 0;
+		OSCString(&b,"/n_set");
+		OSCString(&b,",isf");
+		OSCInt32(&b,(uint32_t) SCRT_GROUP);
+		OSCString(&b,"gate");
+		OSCFloat(&b,0.);
+		SCRTSend(&b);
+		OSCFree(&b);
+		return;
+		}
 	size = 256 + (size_t) CsRTNumberInstruments * 64;
 	code = (char*) malloc(size);
 	if(code == NULL) return;
@@ -435,6 +630,11 @@ int CsRTFlush(int wait) {
 		CsRTOrigin = getClockTime() + (UInt64)(CSRT_LATENCY * 1000000.);
 		if(CsRTQueue[0].time < 0.) CsRTOrigin += (UInt64)(-CsRTQueue[0].time * 1000000.);
 		CsRTStarted = TRUE;
+		if(SuperColliderRT) {
+			SCRTCalibrate();
+			SCRTStartGroup();
+			}
+		if(OSCRT) OSCSendAddress("/bp/start");
 		}
 	while(TRUE) {
 		// note 11
@@ -469,7 +669,7 @@ int CsRTFlush(int wait) {
 		if((result = CsRTSendDue()) != OK) return result;
 		CsRTSendMidiDue(); // note 22
 		if(!wait || (CsRTQueueSize == 0L && CsRTMidiSize == 0L)) break;
-		CsRTSleep(2L);
+		CsRTSleep(OSCRT ? 1L : 2L); // Real-time OSC sends events at their dates: they are checked more often
 		}
 	return OK;
 	}
@@ -517,7 +717,8 @@ int CsRTEnd(void) {
 			}
 		CsRTSleep(1L);
 		}
-	BPPrintMessage(0,odInfo,"Real-time Csound performance: %.3f seconds\n",CsRTLastEnd);
+	if(OSCRT) OSCSendAddress("/bp/end");
+	BPPrintMessage(0,odInfo,"Real-time %s performance: %.3f seconds\n",CsRTName(),CsRTLastEnd);
 	CsRTStarted = FALSE;
 	CsRTLastEnd = 0.;
 	return OK;
@@ -735,4 +936,547 @@ static void CsRTSendMidiDue(void) {
 		CsRTMidiSize -= sent;
 		}
 	return;
+	}
+
+
+// ----------------------- Real-time SuperCollider (2026-11-20) -----------------------
+
+static const char* CsRTName(void) {
+	return SuperColliderRT ? "SuperCollider" : (OSCRT ? "OSC" : "Csound");
+	}
+
+
+void CsRTNoteInfo(int key,int chan,int velocity) {
+	// 2026-11-21 Called by CscoreWrite() before it writes the line of a note: its MIDI key, channel (0-15) and velocity, sent by real-time OSC
+	OSCInfoKey = key;
+	OSCInfoChan = chan;
+	OSCInfoVelocity = velocity;
+	return;
+	}
+
+
+static void OSCSendAddress(const char* address) {
+	// A message without arguments, e.g. "/bp/stop"
+	OSCBuffer b;
+	OSCInit(&b);
+	OSCString(&b,address);
+	OSCString(&b,",");
+	SCRTSend(&b);
+	OSCFree(&b);
+	if(CsoundTrace) BPPrintMessage(0,odInfo,"OSC <- %s\n",address);
+	return;
+	}
+
+
+static void OSCInit(OSCBuffer* b) {
+	b->data = NULL;
+	b->length = b->max = 0;
+	b->ok = TRUE;
+	return;
+	}
+
+
+static void OSCFree(OSCBuffer* b) {
+	free(b->data);
+	OSCInit(b);
+	return;
+	}
+
+
+static int OSCRoom(OSCBuffer* b,int n) {
+	// Make room for n more bytes
+	unsigned char* p;
+	int newmax;
+	if(!b->ok) return FALSE;
+	if(b->length + n <= b->max) return TRUE;
+	newmax = 2 * (b->length + n) + 64;
+	p = (unsigned char*) realloc(b->data,(size_t) newmax);
+	if(p == NULL) {
+		b->ok = FALSE;
+		return FALSE;
+		}
+	b->data = p;
+	b->max = newmax;
+	return TRUE;
+	}
+
+
+static void OSCInt32(OSCBuffer* b,uint32_t x) {
+	// OSC numbers are big-endian
+	if(!OSCRoom(b,4)) return;
+	b->data[b->length++] = (unsigned char)(x >> 24);
+	b->data[b->length++] = (unsigned char)(x >> 16);
+	b->data[b->length++] = (unsigned char)(x >> 8);
+	b->data[b->length++] = (unsigned char) x;
+	return;
+	}
+
+
+static void OSCFloat(OSCBuffer* b,double x) {
+	float f;
+	uint32_t u;
+	f = (float) x;
+	memcpy(&u,&f,4);
+	OSCInt32(b,u);
+	return;
+	}
+
+
+static void OSCString(OSCBuffer* b,const char* s) {
+	// A string is followed by 1 to 4 null bytes, so that its length is a multiple of 4
+	int n, padded;
+	n = (int) strlen(s);
+	padded = (n + 4) & ~3;
+	if(!OSCRoom(b,padded)) return;
+	memcpy(b->data + b->length,s,(size_t) n);
+	memset(b->data + b->length + n,0,(size_t)(padded - n));
+	b->length += padded;
+	return;
+	}
+
+
+static int SCRTSend(OSCBuffer* b) {
+	if(!b->ok || b->length == 0) return MISSED;
+	if(b->length > CSRT_MAXMESSAGE) {
+		if(CsRTSaidError++ < 5) BPPrintMessage(0,odError,"=> An OSC message of %d bytes is too long to be sent to SuperCollider\n",b->length);
+		return MISSED;
+		}
+	if(sendto(CsRTSocket,(const char*) b->data,b->length,0,(struct sockaddr*) &CsRTAddress,sizeof(CsRTAddress)) < 0) {
+		if(CsRTSaidError++ < 5)
+			BPPrintMessage(0,odError,"=> Could not send a message to SuperCollider on UDP port %d of %s\n",CsoundRTport,SuperColliderHost);
+		return MISSED;
+		}
+	return OK;
+	}
+
+
+static void SCRTCalibrate(void) {
+	// OSC time tags are NTP times: seconds since 1900 in the upper 32 bits, fraction in the lower 32 bits.
+	// The offset between the system time and getClockTime() is measured at the start of each performance,
+	// so that time tags have the resolution of getClockTime(). The server compares them with the system time of its own computer.
+	UInt64 seconds, fraction, clock;
+#if defined(_WIN64)
+	FILETIME ft;
+	ULARGE_INTEGER t;
+	GetSystemTimeAsFileTime(&ft); // 100 ns units since 1601
+	clock = getClockTime();
+	t.LowPart = ft.dwLowDateTime;
+	t.HighPart = ft.dwHighDateTime;
+	seconds = t.QuadPart / 10000000ULL - 9435484800ULL; // 1601 -> 1900
+	fraction = ((t.QuadPart % 10000000ULL) << 32) / 10000000ULL;
+#else
+	struct timespec ts;
+	clock_gettime(CLOCK_REALTIME,&ts);
+	clock = getClockTime();
+	seconds = (UInt64) ts.tv_sec + 2208988800ULL; // 1970 -> 1900
+	fraction = ((UInt64) ts.tv_nsec << 32) / 1000000000ULL;
+#endif
+	SCRTClockToNTP = ((seconds << 32) + fraction) - ((clock / 1000000ULL) << 32) - (((clock % 1000000ULL) << 32) / 1000000ULL);
+	return;
+	}
+
+
+static void SCRTSendBundle(unsigned char* message,int length,UInt64 clock) {
+	// Send a message in a bundle to be executed at 'clock' (microseconds of getClockTime())
+	OSCBuffer b;
+	UInt64 tag;
+	if(message == NULL || length <= 0) return;
+	tag = SCRTClockToNTP + ((clock / 1000000ULL) << 32) + (((clock % 1000000ULL) << 32) / 1000000ULL);
+	OSCInit(&b);
+	OSCString(&b,"#bundle");
+	OSCInt32(&b,(uint32_t)(tag >> 32));
+	OSCInt32(&b,(uint32_t)(tag & 0xFFFFFFFFULL));
+	OSCInt32(&b,(uint32_t) length);
+	if(OSCRoom(&b,length)) {
+		memcpy(b.data + b.length,message,(size_t) length);
+		b.length += length;
+		}
+	SCRTSend(&b);
+	OSCFree(&b);
+	return;
+	}
+
+
+static void SCRTStartGroup(void) {
+	// Create the group of notes at the head of the root node. It may already exist (previous performance):
+	// the error message of the server is then turned off for this bundle by "/error -1".
+	OSCBuffer b, m;
+	OSCInit(&b);
+	OSCInit(&m);
+	OSCString(&b,"#bundle");
+	OSCInt32(&b,0);
+	OSCInt32(&b,1); // Time tag 1: immediately
+	OSCString(&m,"/error");
+	OSCString(&m,",i");
+	OSCInt32(&m,(uint32_t) -1);
+	OSCInt32(&b,(uint32_t) m.length);
+	if(m.ok && OSCRoom(&b,m.length)) {
+		memcpy(b.data + b.length,m.data,(size_t) m.length);
+		b.length += m.length;
+		}
+	m.length = 0;
+	OSCString(&m,"/g_new");
+	OSCString(&m,",iii");
+	OSCInt32(&m,(uint32_t) SCRT_GROUP);
+	OSCInt32(&m,0); // add to head
+	OSCInt32(&m,0); // of the root node
+	OSCInt32(&b,(uint32_t) m.length);
+	if(m.ok && OSCRoom(&b,m.length)) {
+		memcpy(b.data + b.length,m.data,(size_t) m.length);
+		b.length += m.length;
+		}
+	// The effects (SynthDef "bp_fx", e.g. a reverb reading a bus to which notes send part of their sound) are started after the group.
+	// Nothing happens if they are already running, or if this SynthDef is not defined.
+	m.length = 0;
+	OSCString(&m,"/s_new");
+	OSCString(&m,",siii");
+	OSCString(&m,"bp_fx");
+	OSCInt32(&m,(uint32_t)(SCRT_GROUP + 1));
+	OSCInt32(&m,3); // add after
+	OSCInt32(&m,(uint32_t) SCRT_GROUP);
+	OSCInt32(&b,(uint32_t) m.length);
+	if(m.ok && OSCRoom(&b,m.length)) {
+		memcpy(b.data + b.length,m.data,(size_t) m.length);
+		b.length += m.length;
+		}
+	SCRTSend(&b);
+	OSCFree(&b);
+	OSCFree(&m);
+	return;
+	}
+
+
+static int SCRTInstrumentIndex(int instrument) {
+	// Index in the '-cs' or '-sc' file of the instrument numbered 'instrument', or -1 if there is none
+	int ins;
+	if(NoCsoundInstrumentFile() || p_CsInstrumentIndex == NULL) return -1;
+	for(ins = 0; ins < Jinstr; ins++)
+		if((*p_CsInstrumentIndex)[ins] == instrument) return ins;
+	return -1;
+	}
+
+
+static int SCRTArguments(int instrument,double duration,const char* fields,char names[][16],double* values,char* name,size_t namesize,int rawfields);
+static int SCRTEnvelopes(int instrument,const char* fields,SCRTEnvelope* envs);
+
+static void SCRTNoteMessage(OSCBuffer* b,int instrument,double duration,const char* fields) {
+	// The message "/s_new <SynthDef> -1 0 SCRT_GROUP name value name value..." creating a note, see SCRTArguments(),
+	// followed by envelopes "name [array]", see SCRTEnvelopes()
+	char names[SCRT_MAXARGS][16], tags[2 * SCRT_MAXARGS + 8 + SCRT_MAXENVS * (8 + 4 * SCRT_ENVSEGMENTS)], name[128];
+	double values[SCRT_MAXARGS];
+	SCRTEnvelope envs[SCRT_MAXENVS];
+	int nargs, nenvs, i, k;
+	nargs = SCRTArguments(instrument,duration,fields,names,values,name,sizeof(name),TRUE);
+	nenvs = SCRTEnvelopes(instrument,fields,envs);
+	strcpy(tags,",siii");
+	for(i = 0; i < nargs; i++) strcat(tags,"sf");
+	for(i = 0; i < nenvs; i++) {
+		strcat(tags,"s[");
+		for(k = 0; k < 4 * envs[i].points; k++) strcat(tags,"f"); // 4 + 4 * (points - 1) values
+		strcat(tags,"]");
+		}
+	OSCString(b,"/s_new");
+	OSCString(b,tags);
+	OSCString(b,name);
+	OSCInt32(b,(uint32_t) -1);	// node ID chosen by the server
+	OSCInt32(b,0);				// add to head
+	OSCInt32(b,(uint32_t) SCRT_GROUP);
+	for(i = 0; i < nargs; i++) {
+		OSCString(b,names[i]);
+		OSCFloat(b,values[i]);
+		}
+	for(i = 0; i < nenvs; i++) {
+		// The array of an Env in SuperCollider: initial level, number of segments, release node, loop node (-99 = none),
+		// then for each segment: level, time, shape (1 = linear), curve
+		OSCString(b,envs[i].name);
+		OSCFloat(b,envs[i].level[0]);
+		OSCFloat(b,(double) (envs[i].points - 1));
+		OSCFloat(b,-99.);
+		OSCFloat(b,-99.);
+		for(k = 1; k < envs[i].points; k++) {
+			OSCFloat(b,envs[i].level[k]);
+			OSCFloat(b,envs[i].time[k - 1]);
+			OSCFloat(b,1.);
+			OSCFloat(b,0.);
+			}
+		}
+	return;
+	}
+
+
+static void SCRTStoreTable(int number,const char* fields) {
+	// 2026-11-21 Keep function table 'number' of the score, if it is made of straight segments (GEN 7, or 5 taken as straight)
+	// 'fields' is the text after p1: start date, size, GEN number, then value, length, value, length... value
+	double x[2 * SCRT_MAXARGS + 1], gen;
+	int n, i, k;
+	const char* p;
+	char* end;
+	SCRTTable* t;
+
+	p = fields;
+	for(i = 0; i < 3; i++) { // start date, size, GEN
+		gen = strtod(p,&end);
+		if(end == p) return;
+		p = end;
+		}
+	n = 0;
+	while(n < 2 * SCRT_MAXARGS + 1) {
+		x[n] = strtod(p,&end);
+		if(end == p) break;
+		n++;
+		p = end;
+		}
+	for(k = 0; k < SCRTNumberTables; k++) if(SCRTTables[k].number == number) break; // A table may be defined again
+	if(k < SCRTNumberTables) {
+		free(SCRTTables[k].value);
+		free(SCRTTables[k].length);
+		SCRTTables[k].value = SCRTTables[k].length = NULL;
+		SCRTTables[k].points = 0;
+		}
+	if((fabs(gen) != 7. && fabs(gen) != 5.) || n < 3 || (n % 2) == 0) return; // Other GENs are not sent
+	if(k == SCRTNumberTables) {
+		if(SCRTNumberTables >= SCRTMaxTables) {
+			int max = (SCRTMaxTables == 0) ? 64 : 2 * SCRTMaxTables;
+			SCRTTable* more = (SCRTTable*) realloc(SCRTTables,max * sizeof(SCRTTable));
+			if(more == NULL) return;
+			SCRTTables = more;
+			SCRTMaxTables = max;
+			}
+		SCRTNumberTables++;
+		}
+	t = &SCRTTables[k];
+	t->number = number;
+	t->points = (n + 1) / 2;
+	t->value = (double*) malloc(t->points * sizeof(double));
+	t->length = (double*) malloc(t->points * sizeof(double));
+	if(t->value == NULL || t->length == NULL) {
+		free(t->value); free(t->length);
+		t->value = t->length = NULL;
+		t->points = 0;
+		return;
+		}
+	for(i = 0; i < t->points; i++) {
+		t->value[i] = x[2 * i];
+		t->length[i] = (i < t->points - 1) ? x[2 * i + 1] : 0.;
+		}
+	return;
+	}
+
+
+static int SCRTEnvelope1(SCRTEnvelope* env,const char* name,int start,int end,int table,const double* field,int nfields) {
+	// The envelope of one parameter: table number field[table - 4] if it is a table kept by SCRTStoreTable(),
+	// otherwise a straight line from field[start - 4] to field[end - 4] (or to the start value if there is no end)
+	int k, i, n;
+	double total, position, step, a, b;
+	SCRTTable* t;
+
+	if(start < 4 || start - 4 >= nfields) return FALSE;
+	snprintf(env->name,sizeof(env->name),"%s",name);
+	t = NULL;
+	if(table >= 4 && table - 4 < nfields && field[table - 4] > 0.) {
+		for(k = 0; k < SCRTNumberTables; k++)
+			if(SCRTTables[k].number == (int) field[table - 4] && SCRTTables[k].points > 1) {
+				t = &SCRTTables[k];
+				break;
+				}
+		}
+	if(t == NULL) {
+		env->points = 2;
+		env->level[0] = field[start - 4];
+		env->level[1] = (end >= 4 && end - 4 < nfields) ? field[end - 4] : field[start - 4];
+		env->time[0] = 1.;
+		return TRUE;
+		}
+	total = 0.;
+	for(i = 0; i < t->points - 1; i++) total += t->length[i];
+	if(total <= 0.) return FALSE;
+	if(t->points <= SCRT_ENVSEGMENTS + 1) {
+		env->points = t->points;
+		for(i = 0; i < t->points; i++) env->level[i] = t->value[i];
+		for(i = 0; i < t->points - 1; i++) env->time[i] = t->length[i] / total;
+		return TRUE;
+		}
+	// Too many segments: the table is sampled at SCRT_ENVSEGMENTS + 1 regular positions
+	env->points = SCRT_ENVSEGMENTS + 1;
+	step = total / SCRT_ENVSEGMENTS;
+	i = 0;
+	a = 0.; // position of value i
+	for(n = 0; n <= SCRT_ENVSEGMENTS; n++) {
+		position = n * step;
+		while(i < t->points - 2 && a + t->length[i] < position) {
+			a += t->length[i];
+			i++;
+			}
+		b = (t->length[i] > 0.) ? (position - a) / t->length[i] : 0.;
+		if(b > 1.) b = 1.;
+		if(b < 0.) b = 0.;
+		env->level[n] = t->value[i] + b * (t->value[i + 1] - t->value[i]);
+		if(n < SCRT_ENVSEGMENTS) env->time[n] = 1. / SCRT_ENVSEGMENTS;
+		}
+	return TRUE;
+	}
+
+
+static int SCRTEnvelopes(int instrument,const char* fields,SCRTEnvelope* envs) {
+	// 2026-11-21 Real-time SuperCollider: the envelopes of the continuous parameters of the instrument described in the '-sc' file,
+	// over the duration of the note (times are fractions of it, so that a SynthDef reads them with EnvGen.kr(..., timeScale: sustain)):
+	// "volenv", "bendenv", "pressenv", "modenv", "panenv", and NAME + "env" for an additional parameter NAME (e.g. "slideenv").
+	// Each follows the function table named in the score line if there is one (GEN 7), otherwise goes straight from the start value to the end value.
+	double field[SCRT_MAXARGS];
+	int nfields, nenvs, ins, k;
+	const char* p;
+	char* end;
+	char name[24];
+
+	ins = SCRTInstrumentIndex(instrument);
+	if(ins < 0 || p_CsInstrument == NULL) return 0;
+	nfields = 0;
+	strtod(fields,&end); // p3
+	p = end;
+	while(nfields < SCRT_MAXARGS) {
+		double x = strtod(p,&end);
+		if(end == p) break;
+		field[nfields++] = x;
+		p = end;
+		}
+	nenvs = 0;
+	if(SCRTEnvelope1(&envs[nenvs],"volenv",(*p_CsVolumeStartIndex)[ins],(*p_CsVolumeEndIndex)[ins],(*p_CsInstrument)[ins].volumetable,field,nfields)) nenvs++;
+	if(SCRTEnvelope1(&envs[nenvs],"bendenv",(*p_CsPitchBendStartIndex)[ins],(*p_CsPitchBendEndIndex)[ins],(*p_CsInstrument)[ins].pitchbendtable,field,nfields)) nenvs++;
+	if(SCRTEnvelope1(&envs[nenvs],"pressenv",(*p_CsPressureStartIndex)[ins],(*p_CsPressureEndIndex)[ins],(*p_CsInstrument)[ins].pressuretable,field,nfields)) nenvs++;
+	if(SCRTEnvelope1(&envs[nenvs],"modenv",(*p_CsModulationStartIndex)[ins],(*p_CsModulationEndIndex)[ins],(*p_CsInstrument)[ins].modulationtable,field,nfields)) nenvs++;
+	if(SCRTEnvelope1(&envs[nenvs],"panenv",(*p_CsPanoramicStartIndex)[ins],(*p_CsPanoramicEndIndex)[ins],(*p_CsInstrument)[ins].panoramictable,field,nfields)) nenvs++;
+	if((*p_CsInstrument)[ins].paramlist != NULL) {
+		CsoundParam* param;
+		for(k = 0; k < (*p_CsInstrument)[ins].ipmax && nenvs < SCRT_MAXENVS; k++) {
+			param = &(*((*p_CsInstrument)[ins].paramlist))[k];
+			if(param->name == NULL || *(param->name) == NULL || (*(param->name))[0] == '\0') continue;
+			snprintf(name,sizeof(name),"%.13senv",*(param->name));
+			if(SCRTEnvelope1(&envs[nenvs],name,param->startindex,param->endindex,param->table,field,nfields)) nenvs++;
+			}
+		}
+	return nenvs;
+	}
+
+
+static void OSCNoteMessage(OSCBuffer* b,OSCBuffer* off,int instrument,double duration,const char* fields) {
+	// 2026-11-21 Real-time OSC: "/bp/note id instrument name key freq duration velocity channel [name value]..." in 'b',
+	// and "/bp/off id instrument name key channel" in 'off'. The named values are those of SCRTArguments(), except
+	// "sustain" and "freq" which are given before, and the raw fields p4, p5...
+	char names[SCRT_MAXARGS][16], tags[2 * SCRT_MAXARGS + 16], name[128];
+	double values[SCRT_MAXARGS], freq;
+	int nargs, i, key, chan, velocity;
+	long id;
+	nargs = SCRTArguments(instrument,duration,fields,names,values,name,sizeof(name),FALSE);
+	freq = 0.;
+	for(i = 0; i < nargs; i++) if(strcmp(names[i],"freq") == 0) freq = values[i];
+	key = OSCInfoKey;
+	if(key < 0 || key > 127) key = (freq > 0.) ? (int) lround(69. + 12. * log(freq / 440.) / log(2.)) : 0;
+	if(key < 0) key = 0;
+	if(key > 127) key = 127;
+	chan = OSCInfoChan + 1;
+	velocity = OSCInfoVelocity;
+	OSCInfoKey = -1; // Used by this line only
+	id = ++OSCNoteId;
+	strcpy(tags,",iisifffi");
+	for(i = 0; i < nargs; i++) if(strcmp(names[i],"sustain") != 0 && strcmp(names[i],"freq") != 0) strcat(tags,"sf");
+	OSCString(b,"/bp/note");
+	OSCString(b,tags);
+	OSCInt32(b,(uint32_t) id);
+	OSCInt32(b,(uint32_t) instrument);
+	OSCString(b,name);
+	OSCInt32(b,(uint32_t) key);
+	OSCFloat(b,freq);
+	OSCFloat(b,duration);
+	OSCFloat(b,(double) velocity);
+	OSCInt32(b,(uint32_t) chan);
+	for(i = 0; i < nargs; i++) {
+		if(strcmp(names[i],"sustain") == 0 || strcmp(names[i],"freq") == 0) continue;
+		OSCString(b,names[i]);
+		OSCFloat(b,values[i]);
+		}
+	OSCString(off,"/bp/off");
+	OSCString(off,",iisii");
+	OSCInt32(off,(uint32_t) id);
+	OSCInt32(off,(uint32_t) instrument);
+	OSCString(off,name);
+	OSCInt32(off,(uint32_t) key);
+	OSCInt32(off,(uint32_t) chan);
+	return;
+	}
+
+
+static int SCRTArguments(int instrument,double duration,const char* fields,char names[][16],double* values,char* name,size_t namesize,int rawfields) {
+	// 'fields' is the text of the score line after p2. Returns the number of named arguments in names[] and values[], and the name of the instrument.
+	// The message "/s_new bp<instrument> -1 0 SCRT_GROUP name value name value..." creating a note.
+	// Arguments: "sustain" (p3, seconds), then the fields of the instrument described in the '-cs' file (or the default fields):
+	// "freq" (Hz), "vol", "vol2" (start and end volume), "vel" (attack velocity), "relvel", "pan", "pan2", "mod", "mod2",
+	// "press", "press2", "bend", "bend2", the additional parameters of the instrument under their names (start and end values,
+	// e.g. "splash" and "splash2"), and every field p4, p5... under the name "p4", "p5"...
+	// A SynthDef ignores the arguments it does not declare.
+	// 2026-11-20 With a '-sc' file (option "-sc"), the SynthDef is the one named like the instrument, e.g. "violin" for _ins(violin).
+	// Otherwise, or if the instrument has no name, it is "bp<n>".
+	double field[SCRT_MAXARGS];
+	int nfields, nargs, i, ip, ins, found;
+	const char* p;
+	char* end;
+	struct { int index; const char* name; } named[13];
+
+	nfields = 0; // field[k] is p(k+4)
+	strtod(fields,&end); // 'fields' starts with p3, which is 'duration'
+	p = end;
+	while(nfields < SCRT_MAXARGS) {
+		double x = strtod(p,&end);
+		if(end == p) break;
+		field[nfields++] = x;
+		p = end;
+		}
+	nargs = 0;
+	strcpy(names[nargs],"sustain");
+	values[nargs++] = duration;
+	ins = SCRTInstrumentIndex(instrument);
+	found = (ins >= 0);
+	if(!found) ins = 0; // Default fields, as in CscoreWrite()
+	named[0].index = (p_CsPitchFormat != NULL && (*p_CsPitchFormat)[ins] == IGNORER) ? -1 : (*p_CsPitchIndex)[ins]; named[0].name = "freq";
+	named[1].index = (*p_CsVolumeStartIndex)[ins]; named[1].name = "vol";
+	named[2].index = (*p_CsVolumeEndIndex)[ins]; named[2].name = "vol2";
+	named[3].index = (*p_CsAttackVelocityIndex)[ins]; named[3].name = "vel";
+	named[4].index = (*p_CsReleaseVelocityIndex)[ins]; named[4].name = "relvel";
+	named[5].index = (*p_CsPanoramicStartIndex)[ins]; named[5].name = "pan";
+	named[6].index = (*p_CsPanoramicEndIndex)[ins]; named[6].name = "pan2";
+	named[7].index = (*p_CsModulationStartIndex)[ins]; named[7].name = "mod";
+	named[8].index = (*p_CsModulationEndIndex)[ins]; named[8].name = "mod2";
+	named[9].index = (*p_CsPressureStartIndex)[ins]; named[9].name = "press";
+	named[10].index = (*p_CsPressureEndIndex)[ins]; named[10].name = "press2";
+	named[11].index = (*p_CsPitchBendStartIndex)[ins]; named[11].name = "bend";
+	named[12].index = (*p_CsPitchBendEndIndex)[ins]; named[12].name = "bend2";
+	for(i = 0; i < 13 && nargs < SCRT_MAXARGS; i++) {
+		ip = named[i].index;
+		if(ip < 4 || ip - 4 >= nfields) continue;
+		strcpy(names[nargs],named[i].name);
+		values[nargs++] = field[ip - 4];
+		}
+	if(found && (*p_CsInstrument)[ins].paramlist != NULL) {
+		// Additional parameters of the instrument
+		CsoundParam* param;
+		int k, index;
+		for(k = 0; k < (*p_CsInstrument)[ins].ipmax && nargs < SCRT_MAXARGS - 1; k++) {
+			param = &(*((*p_CsInstrument)[ins].paramlist))[k];
+			if(param->name == NULL || *(param->name) == NULL || (*(param->name))[0] == '\0') continue;
+			for(i = 0; i < 2; i++) {
+				index = (i == 0) ? param->startindex : param->endindex;
+				if(index < 4 || index - 4 >= nfields) continue;
+				snprintf(names[nargs],sizeof(names[nargs]),"%.13s%s",*(param->name),(i == 0) ? "" : "2");
+				values[nargs++] = field[index - 4];
+				}
+			}
+		}
+	for(i = 0; rawfields && i < nfields && nargs < SCRT_MAXARGS; i++) {
+		snprintf(names[nargs],16,"p%d",i + 4);
+		values[nargs++] = field[i];
+		}
+	// SuperCollider: the instrument's name is used with a '-sc' file only. Real-time OSC: with any '-sc' or '-cs' file.
+	if((SuperColliderResource || OSCRT) && found && pp_CsInstrumentName != NULL && (*pp_CsInstrumentName)[ins] != NULL && (*((*pp_CsInstrumentName)[ins]))[0] != '\0')
+		snprintf(name,namesize,"%s",*((*pp_CsInstrumentName)[ins]));
+	else snprintf(name,namesize,"bp%d",instrument);
+	return nargs;
 	}

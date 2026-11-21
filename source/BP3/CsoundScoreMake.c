@@ -354,6 +354,8 @@ int CscoreWrite(Milliseconds cut_the_end,Rect* p_graphrect,int leftoffset,int to
 				cents_base = 0.;
 				}
 			}
+		// 2026-11-20 Real-time SuperCollider: the pitch is sent as a frequency in Hz (argument "freq" of the SynthDef)
+		if((SuperColliderRT || OSCRT) && pitch_format != IGNORER) pitch_format = CPS; // 2026-11-21 Also for real-time OSC
 		switch(pitch_format) {
 			case OPPC:
 				x = octave + ((double) pitchclass) / 100.;
@@ -789,6 +791,9 @@ WRITECSCORELINE:
 	// Real-time Csound with MIDI running: notes of duration 0, such as out-time notes <<C0>> used for synchronisation,
 	// are also sent to MIDI as silent notes (velocity 0) at their date
 	if(CsoundRT && rtMIDI && onoffline != LINE && fabs((*scorearg)[3]) < 0.0005) CsRTMidiNote(key,chan,kcurrentinstance,(*scorearg)[2]);
+
+	// 2026-11-21 Real-time OSC sends the MIDI key, channel and velocity of the note, which the score line does not contain
+	if(OSCRT) CsRTNoteInfo((onoffline != LINE) ? key : -1,chan,(onoffline != LINE) ? (*perf)->velocity[key] : velocity);
 
 	// Now to the score
 	my_sprintf(line,"i%ld ",(long)index);

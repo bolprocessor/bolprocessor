@@ -6,12 +6,9 @@ https://github.com/bolprocessor/bolprocessor/blob/graphics-for-BP3/BP3-changes.t
 Geeks can also read the "to-do" file:
 https://raw.githubusercontent.com/bolprocessor/bolprocessor/graphics-for-BP3/BP3-To-Do.txt
 
-2026-11-16 -> 2026-11-20 (version 3.6.2)
-This is the first version running **real-time Csound** on MacOS, Windows and Linux. It has been checked on MacOS 26.6.2, Windows 10 and Linux Ubuntu. We hope to get reports of its operation on Windows 11 and other brands of Linux.
-Csound default orchestra '0-default.orc' now includes high-quality instruments 'piano' and 'flute' which support panoramic, pitchbend, etc.
-Real-time Csound can be combined with interactions in real-time MIDI: run '-da.tryWait' for a demo, and https://bolprocessor.org/interactions-in-midi-and-csound/ for explanations.
-Tonality and Csound resources can be imported, created or modified within the user's personal space, which remains unaffected by Bol Processor updates. Standard distribution resources cannot be edited, but they can be duplicated to create editable versions.
-Csound resources (instruments, orchestra) can be entirely imported/created/edited/exported.
+2026-11-21 (version 3.7.0)
+This is the first version to connect to almost all brands of sound design software via UDP, OSC or specific protocols. These include: Csound and MIDI (previously implemented), Ableton Live, SuperCollider, Max, Max for Live, TouchDesigner and Pure Data, to name a few. Similar resources for Csound are available for SuperCollider, and designing or importing more instruments is straightforward. Read more at: https://bolprocessor.org/output/.
+UDP, OSC and real-time Csound output protocols can be supplemented with flows of MIDI events, which can be used to synchronise and control productions.
 
 Don't forget to update the PHP interface:
 https://github.com/bolprocessor/php-frontend/
@@ -19,6 +16,14 @@ Also reload the set of examples:
 https://github.com/bolprocessor/bp3-ctests/archive/main.zip
 => Running an installer (MacOS/Windows) or a script (Linux) performs all operations in a single step:
 https://bolprocessor.org/install/
+
+-----
+2026-11-16 -> 2026-11-20 (version 3.6.2)
+This is the first version running **real-time Csound** on MacOS, Windows and Linux. It has been checked on MacOS 26.6.2, Windows 10 and Linux Ubuntu. We hope to get reports of its operation on Windows 11 and other brands of Linux.
+Csound default orchestra '0-default.orc' now includes high-quality instruments 'piano' and 'flute' which support panoramic, pitchbend, etc.
+Real-time Csound can be combined with interactions in real-time MIDI: run '-da.tryWait' for a demo, and https://bolprocessor.org/interactions-in-midi-and-csound/ for explanations.
+Tonality and Csound resources can be imported, created or modified within the user's personal space, which remains unaffected by Bol Processor updates. Standard distribution resources cannot be edited, but they can be duplicated to create editable versions.
+Csound resources (instruments, orchestra) can be entirely imported/created/edited/exported.
 
 -----
 2026-11-14 -> 2026-11-16 (version 3.6.1)

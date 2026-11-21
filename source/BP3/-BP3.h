@@ -36,7 +36,7 @@
 #ifndef _H_BP3
 #define _H_BP3
 
-#define SHORT_VERSION "3.6.2"
+#define SHORT_VERSION "3.7.0"
 #define IDSTRING ( "Version " SHORT_VERSION " (" __DATE__ " - " __TIME__ ")")
 #define MAXVERSION 31
 
@@ -677,6 +677,7 @@ enum {
 #define wPrototype8 36
 #define wCsoundTables 37
 #define wTonality 38
+#define wSuperColliderResources 39	// 2026-11-20 "-sc" files: same format as "-cs" files, read into the same variables
 // #define wMIDIorchestra 38
 
 // DITL indexes

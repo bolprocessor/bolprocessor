@@ -273,6 +273,9 @@ int CompileGrammar(int verbose,t_gram* p_gram) {
 		p = &(*p_line)[0]; q = &(FilePrefix[wCsoundResources][0]);
 		if((Match(TRUE,p_line,&q,4)) && p_gram->number_gram == 1
 			&& (*(p_gram->p_subgram))[1].number_rule == 0) goto NEXTLINE;
+		p = &(*p_line)[0]; q = &(FilePrefix[wSuperColliderResources][0]);
+		if((Match(TRUE,p_line,&q,4)) && p_gram->number_gram == 1
+			&& (*(p_gram->p_subgram))[1].number_rule == 0) goto NEXTLINE;
 
 		p = &(*p_line)[0]; q = &(FilePrefix[wKeyboard][0]);
 		if((Match(TRUE,p_line,&q,4)) && p_gram->number_gram == 1

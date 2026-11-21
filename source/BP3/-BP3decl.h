@@ -337,6 +337,8 @@ extern int MinPeriod;
 extern float EndFadeOut,AdvanceTime;
 extern double CsScoreEnd;
 extern int CsoundRT, CsoundRTport, CsoundRTMidiDelay;
+extern int SuperColliderRT, SuperColliderResource, OSCRT;
+extern char SuperColliderHost[];
 extern int CurrentVolume[MAXCHAN+1];
 extern char FilePrefix[WMAX][5];
 extern char FileOldPrefix[WMAX][5];
