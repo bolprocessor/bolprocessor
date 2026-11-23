@@ -769,10 +769,10 @@ int FindCsoundInstrument(char* line) {
 		BPPrintMessage(0,odInfo,"👉 You probably forgot to create or declare a '-cs' instrument file\n");
 		}
 	if(isnumber) {
-		BPPrintMessage(0,odError,"=> Instrument #%d was not found in a '-cs' instrument file\n",i);
+		BPPrintMessage(0,odError,"=> Instrument #%d was not found in a '-cs' or '-sc' instrument file\n",i);
 		return(1);
 		}
-	else BPPrintMessage(0,odError,"=> Instrument \"%s\" was not found in a '-cs' instrument file\n",line);
+	else BPPrintMessage(0,odError,"=> Instrument \"%s\" was not found in a '-cs' or '-sc' instrument file\n",line);
 	return(1);
 	}
 

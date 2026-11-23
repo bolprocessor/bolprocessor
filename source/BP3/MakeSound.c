@@ -147,7 +147,7 @@ int MakeSound(long *p_kmax,unsigned long imaxstreak,int maxnsequences,long tmin,
 		ItemNumber++;
 	//  BPPrintMessage(1,odInfo,"@@ 👉 %ld !!!\n",(long)ItemNumber);
 		// note 15 (real-time Csound)
-		if(!CsoundRT && (MaxItemsProduce > 0) && ItemNumber > MaxItemsProduce) { // No limit in real-time Csound, as in real-time MIDI
+		if((!CsoundRT || CsRTDumpName != NULL) && (MaxItemsProduce > 0) && ItemNumber > MaxItemsProduce) { // No limit in real-time Csound, as in real-time MIDI, except with --rt-dump
 			if(ItemNumber == (MaxItemsProduce + 1L)) BPPrintMessage(1,odInfo,"👉 %ld items have been produced\n",(long)(ItemNumber - 1L));
 			return(OK);
 			}

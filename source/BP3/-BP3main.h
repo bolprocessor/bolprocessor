@@ -412,6 +412,7 @@ int CsoundRT = FALSE, CsoundRTport = 0, CsoundRTMidiDelay = 46; // Real-time Cso
 int SuperColliderRT = FALSE, SuperColliderResource = FALSE; // SuperColliderResource: a "-sc" file has been loaded (option "-sc"), whose instrument names are SynthDef names. Real-time SuperCollider, option "--scrt port[@host]", see CsoundRealTime.c (CsoundRT is TRUE as well)
 char SuperColliderHost[256] = "127.0.0.1"; // Also the host of real-time OSC
 int OSCRT = FALSE; // 2026-11-21 Real-time OSC (Max, Pd...), option "--osc port[@host]", see CsoundRealTime.c (CsoundRT is TRUE as well)
+char* CsRTDumpName = NULL; // 2026-11-22 Option "--rt-dump file": with --csoundrt, --scrt or --osc, the messages are written to this file instead of being sent, without waiting for real time (regression tests), see CsoundRealTime.c
 int CurrentVolume[MAXCHAN+1];
 long WindowParID[WMAX],ParIDstartup,ParIDbp2;
 // Str255 DeftVolName;

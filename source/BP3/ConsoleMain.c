@@ -907,6 +907,8 @@ const char gOptionList[] =
 	"                          (options --csoundout, --rtmidi and --csoundrt-delay work as with --csoundrt)\n"
 	"  --osc port[@host]:      play real-time OSC, sending notes as OSC messages (/bp/note, /bp/off...) at their dates to a program\n"
 	"                          such as Max or Pd listening to UDP port 'port' of this computer or of 'host' (see CsoundRealTime.c)\n"
+	"  --rt-dump outfile:      with --csoundrt, --scrt or --osc: write the messages to file 'outfile' as text, each with its date,\n"
+	"                          instead of sending them, and don't wait for real time (no server is needed: used for tests)\n"
 	"\n"
 	"OPTIONS (Computation):\n"
 /*	"  -s or --start string   use 'string' as the start string (default is \"S\")\n"
@@ -932,7 +934,9 @@ const char gOptionList[] =
 	"(This will produce 'koto3.csv' and 'abc1.json' in the 'my_output' folder. If the --traceout option is not specified, no image will be created.)\n\n"
 	"csound -odac -d -m0 --port=10789 --orc ./csound_resources/tryCsound.orc &\n"
 	"./bp play -se ./ctests/-se.tryCsound -cs ./csound_resources/-cs.tryCsound -da ./[your_path]/0.bpda --csoundrt 10789 --csoundout ./my_output/tryCsound.sco --traceout ./temp_bolprocessor/trace_my_session_my_project.txt --english\n"
-	"(The first line starts a Csound server listening to UDP port 10789 with the orchestra 'tryCsound.orc' named in '-cs.tryCsound'. The second line plays the item saved in '0.bpda' (e.g. an item of '-da.tryCsound') in real-time Csound on this server, and also writes its score to 'tryCsound.sco' in the 'my_output' folder; --csoundout is optional. The server keeps running after the performance and can be used again; stop it with 'kill %%1' or 'pkill csound'.)\n"
+	"(The first line starts a Csound server listening to UDP port 10789 with the orchestra 'tryCsound.orc' named in '-cs.tryCsound'. The second line plays the item saved in '0.bpda' (e.g. an item of '-da.tryCsound') in real-time Csound on this server, and also writes its score to 'tryCsound.sco' in the 'my_output' folder; --csoundout is optional. The server keeps running after the performance and can be used again; stop it with 'kill %%1' or 'pkill csound'.)\n\n"
+	"./bp produce -se ./ctests/-se.Vina3 -gr ./ctests/-gr.vina3 -to ./tonality_resources/-to.Vina -sc ./supercollider_resources/-sc.Vina --scrt 57110 --rt-dump ./my_output/vina3.txt --english --seed 1\n"
+	"(This will write to 'vina3.txt' in the 'my_output' folder the OSC messages that real-time SuperCollider would send to a server, one per line preceded by its date in seconds, without a server and without waiting for real time. The same works with --osc and --csoundrt. It is used for comparing the outputs of two versions of the console, see 'run-ctests.sh'.)\n"
 	;
 
 void PrintUsage(char* programName) {
@@ -1182,6 +1186,15 @@ int ParsePostInitArgs(int argc, char* args[], BPConsoleOpts* opts) {
 						}
 					else {
 						BPPrintMessage(0,odError, "\n=> Missing or incorrect UDP port after --osc\n\n");
+						return ABORT;
+						}
+					}
+				else if(strcmp(args[argn], "--rt-dump") == 0)	{
+					// 2026-11-22 With --csoundrt, --scrt or --osc: the messages are written to a file as text instead of being sent,
+					// without waiting for real time, so that the outputs of two builds can be compared (run-ctests.sh)
+					if(++argn < argc) CsRTDumpName = args[argn];
+					else {
+						BPPrintMessage(0,odError, "\n=> Missing filename after %s\n\n", args[argn-1]);
 						return ABORT;
 						}
 					}

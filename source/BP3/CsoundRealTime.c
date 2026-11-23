@@ -63,6 +63,12 @@
 // 'freq' is in Hz (scales included), 'duration' in seconds, 'velocity' 0-127 and 'channel' 1-16 are those of the MIDI note,
 // and the named values are those sent to SuperCollider SynthDefs (vol, vol2, vel, pan, pan2, mod, mod2, bend, bend2, parameters...).
 
+// Option "--rt-dump file" (2026-11-22)
+// With --csoundrt, --scrt or --osc, messages are written to 'file' as text instead of being sent, one per line preceded by its date
+// in the score (seconds): "$i1 ..." lines for Csound, decoded OSC messages for SuperCollider and OSC (bundles without their time tags,
+// which depend on the clock). Nothing waits for real time, scripts (waits, holds) are not executed, and the number of items is limited
+// as for files. This lets run-ctests.sh compare the outputs of two builds without a server.
+
 // Comments "// note N" in this file refer to the numbered notes of the technical description of this algorithm: https://bolprocessor.org/tech-analysis-of-real-time-csound/
 
 #include "-BP3.h"
@@ -145,6 +151,8 @@ typedef struct {		// an envelope argument of /s_new, e.g. "slideenv"
 
 static SCRTTable* SCRTTables = NULL;
 static int SCRTNumberTables = 0, SCRTMaxTables = 0;
+static FILE* CsRTDump = NULL;		// option "--rt-dump": file to which messages are written
+static double CsRTDumpDate = 0.;	// date written before the next message
 static int OSCInfoKey = -1, OSCInfoChan = 0, OSCInfoVelocity = 0; // real-time OSC: MIDI key, channel and velocity of the next note line, see CsRTNoteInfo()
 
 typedef struct {
@@ -179,12 +187,28 @@ static void OSCFree(OSCBuffer* b);
 static void OSCInt32(OSCBuffer* b,uint32_t x);
 static void OSCFloat(OSCBuffer* b,double x);
 static void OSCString(OSCBuffer* b,const char* s);
+static void OSCDump(const unsigned char* data,int length);
+
+static int CsRTOn(void) {
+	// TRUE if messages are sent to a socket or written to the file of option "--rt-dump"
+	return (CsRTSocket != CSRT_NOSOCKET || CsRTDump != NULL);
+	}
 
 
 // note 2
 int CsRTOpen(void) {
 	// Called by ParsePostInitArgs() for option "--csoundrt port"
-	if(CsRTSocket != CSRT_NOSOCKET) return OK;
+	if(CsRTOn()) return OK;
+	if(CsRTDumpName != NULL) {
+		// Option "--rt-dump": no socket, messages are written to a file
+		CsRTDump = fopen(CsRTDumpName,"w");
+		if(CsRTDump == NULL) {
+			BPPrintMessage(0,odError,"=> Could not create file %s for option --rt-dump\n",CsRTDumpName);
+			return ABORT;
+			}
+		BPPrintMessage(0,odInfo,"Real-time %s: writing messages to %s, without waiting for real time\n",CsRTName(),CsRTDumpName);
+		goto START;
+		}
 	if(CsoundRTport < 1 || CsoundRTport > 65535) {
 		BPPrintMessage(0,odError,"=> Incorrect UDP port %d for real-time Csound\n",CsoundRTport);
 		return ABORT;
@@ -225,13 +249,16 @@ int CsRTOpen(void) {
 		CsRTAddress.sin_addr = ((struct sockaddr_in*) result->ai_addr)->sin_addr;
 		freeaddrinfo(result);
 		}
+START:
 	CsRTQueueSize = CsRTSentSize = CsRTMidiSize = 0L;
 	CsRTPendingLength = 0;
 	CsRTStarted = FALSE;
 	CsRTLastEnd = 0.;
 	CsRTNumberInstruments = 0;
 	CsRTSaidError = 0;
-	if(SuperColliderRT)
+	CsRTDumpDate = 0.;
+	if(CsRTDump != NULL) {} // Message given above
+	else if(SuperColliderRT)
 		BPPrintMessage(0,odInfo,"Real-time SuperCollider: sending notes to UDP port %d of %s\n",CsoundRTport,SuperColliderHost);
 	else if(OSCRT)
 		BPPrintMessage(0,odInfo,"Real-time OSC: sending notes to UDP port %d of %s\n",CsoundRTport,SuperColliderHost);
@@ -250,6 +277,10 @@ void CsRTClose(void) {
 #if defined(_WIN64)
 		WSACleanup();
 #endif
+		}
+	if(CsRTDump != NULL) {
+		fclose(CsRTDump);
+		CsRTDump = NULL;
 		}
 	for(i = 0; i < CsRTQueueSize; i++) CsRTFreeEvent(&CsRTQueue[i]);
 	for(i = 0; i < CsRTSentSize; i++) CsRTFreeEvent(&CsRTSent[i]);
@@ -277,7 +308,7 @@ void CsRTText(const char* format,va_list args) {
 	int length;
 	size_t needed;
 	char *start, *end;
-	if(CsRTSocket == CSRT_NOSOCKET) return;
+	if(!CsRTOn()) return;
 	va_copy(args2,args);
 	length = vsnprintf(NULL,0,format,args2);
 	va_end(args2);
@@ -480,6 +511,10 @@ static int CsRTSend(const char* message) {
 			BPPrintMessage(0,odError,"=> A line of %ld bytes is too long to be sent to %s: %.40s...\n",(long) length,CsRTName(),message);
 		return MISSED;
 		}
+	if(CsRTDump != NULL) {
+		fprintf(CsRTDump,"%.4f %s\n",CsRTDumpDate,message);
+		return OK;
+		}
 	if(sendto(CsRTSocket,message,(int) length,0,(struct sockaddr*) &CsRTAddress,sizeof(CsRTAddress)) < 0) {
 		if(CsRTSaidError++ < 5)
 			BPPrintMessage(0,odError,"=> Could not send a message to Csound on UDP port %d\n",CsoundRTport);
@@ -515,10 +550,15 @@ static int CsRTSendDue(void) {
 		else CsRTSent[j++] = CsRTSent[i];
 		}
 	CsRTSentSize = j;
-	barrier = CsRTBarrier();
+	barrier = (CsRTDump != NULL) ? -1. : CsRTBarrier(); // Scripts are not executed with --rt-dump
 	sent = 0L;
 	while(sent < CsRTQueueSize) {
 		e = CsRTQueue[sent];
+		if(CsRTDump != NULL) {
+			// Option "--rt-dump": every line is written at once, with its date
+			CsRTDumpDate = e.time;
+			now = CsRTDateToClock(e.time);
+			}
 		// note 20
 		// Lines dated at or after a pending wait or hold are kept until it is over (half a millisecond is tolerated for rounding)
 		if(barrier >= 0. && e.time >= barrier - 0.0005) break;
@@ -547,7 +587,7 @@ static int CsRTSendDue(void) {
 			if(CsoundTrace) BPPrintMessage(0,odInfo,"SuperCollider <- bp%s at +%.4f s:%.200s\n",e.head + 1,delay,e.rest);
 			sent++;
 			e.target = e.time;
-			if(CsRTPush(&CsRTSent,&CsRTSentSize,&CsRTSentMax,&e,FALSE) != OK) CsRTFreeEvent(&e);
+			if(CsRTDump != NULL || CsRTPush(&CsRTSent,&CsRTSentSize,&CsRTSentMax,&e,FALSE) != OK) CsRTFreeEvent(&e);
 			continue;
 			}
 		length = strlen(e.head) + strlen(e.rest) + 32;
@@ -561,7 +601,7 @@ static int CsRTSendDue(void) {
 		free(message);
 		sent++;
 		e.target = e.time;
-		if(CsRTPush(&CsRTSent,&CsRTSentSize,&CsRTSentMax,&e,FALSE) != OK) CsRTFreeEvent(&e);
+		if(CsRTDump != NULL || CsRTPush(&CsRTSent,&CsRTSentSize,&CsRTSentMax,&e,FALSE) != OK) CsRTFreeEvent(&e);
 		}
 	if(sent > 0L) {
 		memmove(&CsRTQueue[0],&CsRTQueue[sent],(size_t)(CsRTQueueSize - sent) * sizeof(CsRTEvent));
@@ -578,7 +618,7 @@ static void CsRTStopAll(void) {
 	char *code, line[128];
 	size_t size;
 	int i;
-	if(CsRTSocket == CSRT_NOSOCKET) return;
+	if(!CsRTOn()) return;
 	if(OSCRT) {
 		OSCSendAddress("/bp/stop");
 		return;
@@ -623,13 +663,14 @@ int CsRTFlush(int wait) {
 	int result;
 	long i;
 	UInt64 pausestart;
-	if(CsRTSocket == CSRT_NOSOCKET) return OK;
+	if(!CsRTOn()) return OK;
 	// note 8
 	if(!CsRTStarted) {
 		if(CsRTQueueSize == 0L) return OK;
 		CsRTOrigin = getClockTime() + (UInt64)(CSRT_LATENCY * 1000000.);
 		if(CsRTQueue[0].time < 0.) CsRTOrigin += (UInt64)(-CsRTQueue[0].time * 1000000.);
 		CsRTStarted = TRUE;
+		CsRTDumpDate = (CsRTQueue[0].time < 0.) ? CsRTQueue[0].time : 0.;
 		if(SuperColliderRT) {
 			SCRTCalibrate();
 			SCRTStartGroup();
@@ -662,7 +703,7 @@ int CsRTFlush(int wait) {
 				}
 			CsRTOrigin += getClockTime() - pausestart;
 			}
-		if((result = CsRTScripts()) != OK) { // note 20
+		if(CsRTDump == NULL && (result = CsRTScripts()) != OK) { // note 20
 			CsRTPanic();
 			return result;
 			}
@@ -671,6 +712,7 @@ int CsRTFlush(int wait) {
 		if(!wait || (CsRTQueueSize == 0L && CsRTMidiSize == 0L)) break;
 		CsRTSleep(OSCRT ? 1L : 2L); // Real-time OSC sends events at their dates: they are checked more often
 		}
+	if(CsRTDump != NULL) fflush(CsRTDump); // The items already produced are kept if the console is stopped by a time limit
 	return OK;
 	}
 
@@ -679,7 +721,7 @@ int CsRTFlush(int wait) {
 int CsRTEnd(void) {
 	// Called by CloseCsScore(): send the remaining lines and wait for the end of the last note
 	int result;
-	if(CsRTSocket == CSRT_NOSOCKET) return OK;
+	if(!CsRTOn()) return OK;
 	if(CsRTPendingLength > 0) {
 		CsRTPending[CsRTPendingLength] = '\0';
 		CsRTLine(CsRTPending);
@@ -691,7 +733,8 @@ int CsRTEnd(void) {
 		}
 	if((result = CsRTFlush(TRUE)) != OK) return result;
 	if(!CsRTStarted) return OK;
-	while(getClockTime() < CsRTDateToClock(CsRTLastEnd)) {
+	CsRTDumpDate = CsRTLastEnd;
+	while(CsRTDump == NULL && getClockTime() < CsRTDateToClock(CsRTLastEnd)) {
 		if((result = stop(0,"CsRTEnd")) != OK) {
 			CsRTPanic();
 			return result;
@@ -706,7 +749,7 @@ int CsRTEnd(void) {
 		CsRTSleep(20L);
 		}
 	// 2026-11-17: scripts dated at the end of the last note (e.g. "_script(MIDI send Continue) _script(wait for Stop)" after the last note) were never executed, since the loop ends at that date - fixed by Claude
-	while(CsRTScriptsDue((unsigned long)(CsRTLastEnd * 1000000.) + 1000L)) {
+	while(CsRTDump == NULL && CsRTScriptsDue((unsigned long)(CsRTLastEnd * 1000000.) + 1000L)) {
 		if((result = stop(0,"CsRTEnd scripts")) != OK) {
 			CsRTPanic();
 			return result;
@@ -729,7 +772,7 @@ int CsRTEnd(void) {
 void CsRTPanic(void) {
 	// Called after stop or panic: nothing more is sent, and the notes are turned off
 	long i;
-	if(CsRTSocket == CSRT_NOSOCKET) return;
+	if(!CsRTOn()) return;
 	for(i = 0; i < CsRTQueueSize; i++) CsRTFreeEvent(&CsRTQueue[i]);
 	CsRTQueueSize = 0L;
 	for(i = 0; i < CsRTSentSize; i++) CsRTFreeEvent(&CsRTSent[i]);
@@ -884,7 +927,7 @@ void CsRTMidiNote(int key,int chan,int instance,double date) {
 	// Other notes are not sent, to avoid doubling the flow of events.
 	CsRTMidiEvent e;
 	long i;
-	if(!rtMIDI || CsRTSocket == CSRT_NOSOCKET) return;
+	if(!rtMIDI || CsRTSocket == CSRT_NOSOCKET) return; // Not with --rt-dump
 	if(key < 0 || key > 127 || chan < 0 || chan > 15) return;
 	if(CsRTMidiSize >= CsRTMidiMax) {
 		long newmax = (CsRTMidiMax < 256L) ? 256L : 2L * CsRTMidiMax;
@@ -1035,11 +1078,96 @@ static void OSCString(OSCBuffer* b,const char* s) {
 	}
 
 
+static int OSCDumpMessage(const unsigned char* data,int length,char* text,size_t size) {
+	// Text of an OSC message: address, then its arguments (int32, float32, string, arrays [...]). Returns FALSE if it is not readable.
+	int i, n, k, ntags;
+	const char *address, *tags;
+	size_t len;
+	uint32_t u;
+	float f;
+	char item[300];
+
+	#define OSC_STRING(p) { \
+		if(i >= length) return FALSE; \
+		n = (int) strnlen((const char*)(data + i),(size_t)(length - i)); \
+		if(i + n >= length) return FALSE; \
+		p = (const char*)(data + i); \
+		i += (n + 4) & ~3; \
+		}
+	i = 0;
+	OSC_STRING(address);
+	OSC_STRING(tags);
+	if(tags[0] != ',') return FALSE;
+	snprintf(text,size,"%s",address);
+	ntags = (int) strlen(tags);
+	for(k = 1; k < ntags; k++) {
+		switch(tags[k]) {
+			case 'i':
+			case 'f':
+				if(i + 4 > length) return FALSE;
+				u = ((uint32_t) data[i] << 24) | ((uint32_t) data[i + 1] << 16) | ((uint32_t) data[i + 2] << 8) | (uint32_t) data[i + 3];
+				i += 4;
+				if(tags[k] == 'i') snprintf(item,sizeof(item)," %d",(int)(int32_t) u);
+				else {
+					memcpy(&f,&u,4);
+					snprintf(item,sizeof(item)," %.6g",(double) f);
+					}
+				break;
+			case 's': {
+				const char* str;
+				OSC_STRING(str);
+				snprintf(item,sizeof(item)," %.256s",str);
+				break;
+				}
+			case '[': strcpy(item," ["); break;
+			case ']': strcpy(item," ]"); break;
+			default: snprintf(item,sizeof(item)," (type %c)",tags[k]); k = ntags; break;
+			}
+		len = strlen(text);
+		if(len + strlen(item) + 1 < size) strcat(text,item);
+		}
+	#undef OSC_STRING
+	return TRUE;
+	}
+
+
+static void OSCDump(const unsigned char* data,int length) {
+	// Option "--rt-dump": write an OSC message or bundle to the file as text, preceded by its date.
+	// The elements of a bundle are written on lines of their own, without the time tag of the bundle.
+	char* text;
+	int i, n;
+	uint32_t u;
+	if(CsRTDump == NULL || data == NULL || length <= 0) return;
+	if(length >= 16 && memcmp(data,"#bundle",8) == 0) {
+		i = 16;
+		while(i + 4 <= length) {
+			u = ((uint32_t) data[i] << 24) | ((uint32_t) data[i + 1] << 16) | ((uint32_t) data[i + 2] << 8) | (uint32_t) data[i + 3];
+			n = (int) u;
+			i += 4;
+			if(n <= 0 || i + n > length) break;
+			OSCDump(data + i,n);
+			i += n;
+			}
+		return;
+		}
+	text = (char*) malloc(8 * (size_t) length + 64);
+	if(text == NULL) return;
+	if(OSCDumpMessage(data,length,text,8 * (size_t) length + 64)) fprintf(CsRTDump,"%.4f %s\n",CsRTDumpDate,text);
+	else fprintf(CsRTDump,"%.4f (unreadable OSC message of %d bytes)\n",CsRTDumpDate,length);
+	free(text);
+	return;
+	}
+
+
 static int SCRTSend(OSCBuffer* b) {
 	if(!b->ok || b->length == 0) return MISSED;
 	if(b->length > CSRT_MAXMESSAGE) {
 		if(CsRTSaidError++ < 5) BPPrintMessage(0,odError,"=> An OSC message of %d bytes is too long to be sent to SuperCollider\n",b->length);
 		return MISSED;
+		}
+	if(CsRTDump != NULL) {
+		OSCDump(b->data,b->length);
+		return OK;
 		}
 	if(sendto(CsRTSocket,(const char*) b->data,b->length,0,(struct sockaddr*) &CsRTAddress,sizeof(CsRTAddress)) < 0) {
 		if(CsRTSaidError++ < 5)
