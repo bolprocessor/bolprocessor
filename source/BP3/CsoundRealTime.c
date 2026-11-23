@@ -339,6 +339,7 @@ void CsRTText(const char* format,va_list args) {
 
 // note 5
 static void SCRTStoreTable(int number,const char* fields);
+static void OSCPushEnvelopes(int instrument,double time,double duration,const char* fields);
 
 static void CsRTLine(char* line) {
 	// Queue an "i" or "f" line with its date
@@ -364,7 +365,7 @@ static void CsRTLine(char* line) {
 	if(end == q) return;
 	duration = strtod(end,&p); // p3
 	if(p == end) duration = 0.;
-	if(SuperColliderRT && type == 'f') { // 2026-11-21 Function tables are not sent: they are kept and sent as envelopes with the notes using them
+	if((SuperColliderRT || OSCRT) && type == 'f') { // 2026-11-21 Function tables are not sent: they are kept and sent as envelopes with the notes using them (2026-11-23 also in real-time OSC, see OSCPushEnvelopes())
 		SCRTStoreTable((int) floor(instrument),q); // The fields after p1
 		return;
 		}
@@ -441,6 +442,7 @@ static void CsRTLine(char* line) {
 		CsRTFreeEvent(&e);
 		return;
 		}
+	if(OSCRT && duration > 0.) OSCPushEnvelopes((int) floor(instrument),time,duration,end); // After the note, at the same date
 	if(type == 'i') {
 		if(duration > 0. && (time + duration) > CsRTLastEnd) CsRTLastEnd = time + duration;
 		if(instrument > 0.) {
@@ -577,7 +579,7 @@ static int CsRTSendDue(void) {
 			b.length = b.max = e.osclength;
 			b.ok = TRUE;
 			SCRTSend(&b);
-			if(CsoundTrace) BPPrintMessage(0,odInfo,"OSC <- %s at %.3f s\n",(strcmp(e.head,"off") == 0) ? "/bp/off" : "/bp/note",e.time);
+			if(CsoundTrace) BPPrintMessage(0,odInfo,"OSC <- %s at %.3f s\n",(strcmp(e.head,"off") == 0) ? "/bp/off" : ((strcmp(e.head,"env") == 0) ? "/bp/env" : "/bp/note"),e.time);
 			sent++;
 			CsRTFreeEvent(&e); // Sent at its date: nothing to send again after a pause
 			continue;
@@ -1529,6 +1531,71 @@ static void OSCNoteMessage(OSCBuffer* b,OSCBuffer* off,int instrument,double dur
 	OSCString(off,name);
 	OSCInt32(off,(uint32_t) key);
 	OSCInt32(off,(uint32_t) chan);
+	return;
+	}
+
+
+static void OSCPushEnvelopes(int instrument,double time,double duration,const char* fields) {
+	// 2026-11-23 Real-time OSC: for each continuous parameter of the note that follows a function table with intermediate values
+	// (see SCRTEnvelopes()), the message "/bp/env id instrument name parameter time value time value...", queued after the /bp/note
+	// of the same date. Times are seconds from the start of the note, from 0 to its duration; 'parameter' is the name used in /bp/note
+	// ("vol", "bend", "press", "mod", "pan" or the name of an additional parameter). Parameters going straight from their start value
+	// to their end value get no /bp/env, since /bp/note gives both values.
+	SCRTEnvelope envs[SCRT_MAXENVS];
+	char names[SCRT_MAXARGS][16], tags[8 + 2 * (SCRT_ENVSEGMENTS + 1)], name[128], param[24];
+	double values[SCRT_MAXARGS], t;
+	int nenvs, i, k;
+	size_t length;
+	OSCBuffer b;
+	CsRTEvent e;
+
+	nenvs = SCRTEnvelopes(instrument,fields,envs);
+	if(nenvs == 0) return;
+	SCRTArguments(instrument,duration,fields,names,values,name,sizeof(name),FALSE); // Only for the name of the instrument
+	for(i = 0; i < nenvs; i++) {
+		if(envs[i].points <= 2) continue;
+		// Intermediate values on the straight line from the start value to the end value add nothing to /bp/note
+		t = 0.;
+		for(k = 1; k < envs[i].points - 1; k++) {
+			t += envs[i].time[k - 1];
+			if(fabs(envs[i].level[k] - (envs[i].level[0] + t * (envs[i].level[envs[i].points - 1] - envs[i].level[0]))) > 0.001) break;
+			}
+		if(k == envs[i].points - 1) continue;
+		snprintf(param,sizeof(param),"%s",envs[i].name);
+		length = strlen(param);
+		if(length > 3 && strcmp(param + length - 3,"env") == 0) param[length - 3] = '\0'; // "slideenv" -> "slide"
+		strcpy(tags,",iiss");
+		for(k = 0; k < envs[i].points; k++) strcat(tags,"ff");
+		OSCInit(&b);
+		OSCString(&b,"/bp/env");
+		OSCString(&b,tags);
+		OSCInt32(&b,(uint32_t) OSCNoteId); // The note just made by OSCNoteMessage()
+		OSCInt32(&b,(uint32_t) instrument);
+		OSCString(&b,name);
+		OSCString(&b,param);
+		t = 0.;
+		for(k = 0; k < envs[i].points; k++) {
+			if(k > 0) t += envs[i].time[k - 1] * duration;
+			if(k == envs[i].points - 1) t = duration; // No rounding error on the last date
+			OSCFloat(&b,t);
+			OSCFloat(&b,envs[i].level[k]);
+			}
+		e.time = time;
+		e.target = 0.;
+		e.head = (char*) malloc(8);
+		e.rest = (char*) malloc(8);
+		if(!b.ok || e.head == NULL || e.rest == NULL) {
+			free(e.head); free(e.rest);
+			OSCFree(&b);
+			BPPrintMessage(0,odError,"=> Out of memory in OSCPushEnvelopes()\n");
+			return;
+			}
+		strcpy(e.head,"env");
+		strcpy(e.rest,"");
+		e.osc = b.data;
+		e.osclength = b.length;
+		if(CsRTPush(&CsRTQueue,&CsRTQueueSize,&CsRTQueueMax,&e,TRUE) != OK) CsRTFreeEvent(&e);
+		}
 	return;
 	}
 

@@ -67,6 +67,7 @@ int MakeSound(long *p_kmax,unsigned long imaxstreak,int maxnsequences,long tmin,
 	long **p_inext,**p_inext1;
 	Milliseconds **p_t1,**p_nextd;
 	double **p_periodgap;
+	double **p_nextperiodstart;
 	char **p_silence,**p_onoff;
 	int time_pattern,simplenote,outtime,send_more,foundfirsteventinperiod,foundlasteventinperiod,foundfirstevent;
 	double alpha,beta,date,olddate,preroll,postroll,objectperiod,cyclicafter,time_nextperiod_start,firstcycleduration;
@@ -74,7 +75,7 @@ int MakeSound(long *p_kmax,unsigned long imaxstreak,int maxnsequences,long tmin,
 	long this_date;
 
 	// MIDI events and keys
-	int c0,c1,oldc1,c2,ch,chan,key,sequence,trans,strike,strikeagain,onoff,rs,localchan,localvelocity,objectchannel,scale,blockkey;
+	int c0,c1,oldc1,c2,ch,chan,key,sequence,trans,strike,strikeagain,onoff,rs,localchan,localvelocity,linevelocity,objectchannel,scale,blockkey;
 	char **p_keychannel[MAXCHAN+1];		// Number of NoteOns of each key on each channel
 	long **p_last_timeon[MAXCHAN+1];	// Date of the last NoteOn of each key on each channel
 	unsigned int currswitchstate[MAXCHAN+1];
@@ -190,6 +191,10 @@ int MakeSound(long *p_kmax,unsigned long imaxstreak,int maxnsequences,long tmin,
 	if((p_iendperiod = (int**) GiveSpace((Size)MaxObjects*sizeof(int))) == NULL) return(ABORT);
 	if((p_icycle = (int**) GiveSpace((Size)MaxObjects*sizeof(int))) == NULL) return(ABORT);
 	if((p_periodgap = (double**) GiveSpace((Size)MaxObjects*sizeof(double))) == NULL) return(ABORT);
+	// 2026-11-23 Start of the next period of each cyclic object instance. It was a single variable, reset when another object started:
+	// a cyclic object resumed after it (e.g. a sequence of objects played over it) restarted from its second period,
+	// so periods were played again - fixed by Claude
+	if((p_nextperiodstart = (double**) GiveSpace((Size)MaxObjects*sizeof(double))) == NULL) return(ABORT);
 	if((p_nextd = (Milliseconds**) GiveSpace((Size)MaxObjects*sizeof(Milliseconds))) == NULL) return(ABORT);
 	if((p_t1 = (Milliseconds**) GiveSpace((Size)MaxObjects*sizeof(Milliseconds))) == NULL) return(ABORT);
 	if((p_onoff = (char**) GiveSpace((Size)MaxObjects*sizeof(char))) == NULL) return(ABORT);
@@ -251,6 +256,7 @@ int MakeSound(long *p_kmax,unsigned long imaxstreak,int maxnsequences,long tmin,
 	// note 3
 	for(k = 2; k <= (*p_kmax); k++) {
 		(*p_inext1)[k] = (*p_inext)[k] = ZERO;
+		(*p_nextperiodstart)[k] = -1.;
 		time_pattern = send_more = FALSE;
 		preroll = postroll = 0.;
 		(*p_inext1)[k] = 0;
@@ -659,9 +665,11 @@ int MakeSound(long *p_kmax,unsigned long imaxstreak,int maxnsequences,long tmin,
 							foundfirsteventinperiod = foundlasteventinperiod = FALSE;
 							}
 						}
+					time_nextperiod_start = (*p_nextperiodstart)[kcurrentinstance];
 					if(objectperiod > 0. && time_nextperiod_start < 0) {
 						time_nextperiod_start = (*p_Instance)[kcurrentinstance].starttime - (*p_Instance)[kcurrentinstance].truncbeg + cyclicafter + objectperiod;
 						if(preroll < ZERO) time_nextperiod_start -= preroll;
+						(*p_nextperiodstart)[kcurrentinstance] = time_nextperiod_start;
 						if(trace_makesound) 
 							BPPrintMessage(0,odInfo,"@ time_nextperiod_start = %.2f ms for kcurrentinstance = %d\n",time_nextperiod_start,kcurrentinstance);
 						}
@@ -726,7 +734,7 @@ int MakeSound(long *p_kmax,unsigned long imaxstreak,int maxnsequences,long tmin,
 				result = OK;
 				(*p_onoff)[kcurrentinstance] = TRUE;
 				(*p_icycle)[kcurrentinstance] = 1;
-				time_nextperiod_start = -1.;
+				time_nextperiod_start = (*p_nextperiodstart)[kcurrentinstance] = -1.;
 				(*p_silence)[kcurrentinstance] = FALSE;
 		/*		if(objectchannel > 0) chan = objectchannel - 1;
 				else chan = 0;
@@ -972,7 +980,13 @@ int MakeSound(long *p_kmax,unsigned long imaxstreak,int maxnsequences,long tmin,
 						else startsilence = end_this_event = ZERO;
 						if(trace_makesound) 
 							BPPrintMessage(0,odInfo,"Before CscoreWrite(2) kcurrentinstance = %ld, j = %ld, beta = %.2f, t0 = %ld, t1 = %ld, t2 = %ld, t3 = %ld, c1 = %ld, c2 = %ld, localchan = %d instrument = %d\n",(long)kcurrentinstance,(long)j,beta,(long)t0,(long)t1,t2,t3,(long)c1,(long)c2,localchan,instrument);
-						if((result=CscoreWrite(cut_the_end,&roll.graphrect,roll.noteoffset,roll.topoffset,roll.hrect,roll.minkey,roll.maxkey,strikeagain,LINE,beta,(t0 + t1),ievent,0,0,localchan,instrument,j,nseq,kcurrentinstance,pp_currentparams,scale,blockkey)) == ABORT) goto OVER;
+						// 2026-11-23 The velocity of the object (_vel(), or the default if its prototype refuses velocity changes), only used by real-time OSC
+						// for its /bp/note messages, which sent 0 for the lines of sound-objects. ClipVelocity() is not called since its random
+						// velocity would change the random sequence - fixed by Claude
+						linevelocity = (j >= Jbol || (*p_OkVelocity)[j]) ? localvelocity : DeftVelocity;
+						if(linevelocity < 1) linevelocity = 1;
+						if(linevelocity > 127) linevelocity = 127;
+						if((result=CscoreWrite(cut_the_end,&roll.graphrect,roll.noteoffset,roll.topoffset,roll.hrect,roll.minkey,roll.maxkey,strikeagain,LINE,beta,(t0 + t1),ievent,0,linevelocity,localchan,instrument,j,nseq,kcurrentinstance,pp_currentparams,scale,blockkey)) == ABORT) goto OVER;
 						}
 					goto NEWPERIOD;
 					}
@@ -1228,6 +1242,7 @@ NEWPERIOD:
 					t1 = time_nextperiod_start;
 					t1 += (*p_periodgap)[kcurrentinstance];
 					time_nextperiod_start += objectperiod;
+					(*p_nextperiodstart)[kcurrentinstance] = time_nextperiod_start;
 					if(trace_makesound) BPPrintMessage(0,odInfo,"@§§ t1 = %ld, time_nextperiod_start = %ld, periodgap = %ld\n",(long)t1,(long)time_nextperiod_start,(long)(*p_periodgap)[kcurrentinstance]);
 					if(t1 >= t3) {
 						if(trace_makesound) BPPrintMessage(0,odInfo,"§§§ t1 >= t3, t1 = %ld, t2 = %ld, t3 = %ld\n",(long)t1,(long)t2,(long)t3);
@@ -1477,6 +1492,7 @@ OVER2:
 	MyDisposeHandle((Handle*)&p_iendperiod);
 	MyDisposeHandle((Handle*)&p_icycle);
 	MyDisposeHandle((Handle*)&p_periodgap);
+	MyDisposeHandle((Handle*)&p_nextperiodstart);
 	MyDisposeHandle((Handle*)&p_nextd);
 	MyDisposeHandle((Handle*)&p_t1);
 	MyDisposeHandle((Handle*)&p_currmapped);

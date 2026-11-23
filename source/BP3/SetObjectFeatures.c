@@ -724,6 +724,24 @@ int SetVariation(tokenbyte targettoken,CurrentParameters **p_deftcurrentparamete
 					if(seq == seqmem && objectsfound > 0 && !foundconcatenation) {
 						okincrease = FALSE;
 						}
+					// 2026-11-23 A structure following a sound-object or note in the same field starts after it, as a following object does.
+					// Its objects are counted as empty (level > 0), so that the table of "C4 _value(x,10) {2,C4 C4 C4} _value(x,0)" spanned
+					// the structure and was compressed into the duration of the first C4 - fixed by Claude
+					if(level == levelmem && seq == seqmem && nonemptyfound > 0 && !foundconcatenation
+							&& tableisbeingbuilt && !tablemade && !forgetmakingtable && t.point != NULL) {
+						if(targettokenfoundafterobject > 0 && followedwithgap) {
+							(*(t.point))[t.imax].i = itable;
+							(*(t.point))[t.imax].value = 0.; // The last value is not yet known, see "found following object" below
+							tableisbeingbuilt = FALSE;
+							tablemade = TRUE;
+							(t.imax)++;
+							}
+						else {
+							forgetmakingtable = TRUE;
+							tableisbeingbuilt = FALSE;
+							}
+						if(trace_set_variation) BPPrintMessage(0,odInfo,"structure following an object: tablemade = %d, forgetmakingtable = %d\n",tablemade,forgetmakingtable);
+						}
 					if(level >= 0) {
 						(*p_seq)[level] = seq;
 						(*p_notinthisfield)[level] = notinthisfield;
@@ -798,7 +816,20 @@ int SetVariation(tokenbyte targettoken,CurrentParameters **p_deftcurrentparamete
 				}
 				
 			if(seq != seqmem) continue;
-			
+			// 2026-11-23 Also skip the objects of a structure nested in another field: entering "{" resets 'seq' to 0,
+			// so that in "{_cont(x) _value(x,0) C4 _value(x,10) C4 _value(x,0), {C4 C4, D4 D4}}" the notes of the second field
+			// were counted as part of the last C4 of the first one, and its table was wrong - fixed by Claude
+			if(!foundconcatenation && level > levelmem) {
+				int k, other = FALSE;
+				for(k = levelmem; k < level; k++) {
+					if((*p_seq)[k] != ((k == levelmem) ? seqmem : 0)) {
+						other = TRUE;
+						break;
+						}
+					}
+				if(other) continue;
+				}
+
 			if((m == T25 || m == T9 || ((m == T3 || m == T47) && p >= 1)) && level <= 0) {
 				nonemptyobject = TRUE;
 				objectsfound++;
