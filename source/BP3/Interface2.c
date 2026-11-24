@@ -271,6 +271,8 @@ int IsEmpty(int w) {
 				q = &(FilePrefix[j][0]);
 				if(Match(TRUE,p_line,&q,4)) goto NEXTLINE;
 				}
+			q = PYTHON_PREFIX; // 2026-11-24
+			if(Match(TRUE,p_line,&q,4)) goto NEXTLINE;
 			if(w == wScript || w == wGlossary || w == wInteraction) {
 				// Discard line
 				q = line;

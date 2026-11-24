@@ -678,6 +678,7 @@ enum {
 #define wCsoundTables 37
 #define wTonality 38
 #define wSuperColliderResources 39	// 2026-11-20 "-sc" files: same format as "-cs" files, read into the same variables
+#define PYTHON_PREFIX "-py."	// 2026-11-24 "-py.NAME" on top of a grammar or data names the Python program "NAME.py" receiving real-time OSC (osc_resources), used by the interface only: the console skips the line - by Claude
 // #define wMIDIorchestra 38
 
 // DITL indexes

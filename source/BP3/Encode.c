@@ -81,6 +81,8 @@ tokenbyte **Encode(t_gram* p_gram,int sequence,int notargument, int igram, int i
 			q = &(FilePrefix[j][0]);
 			if(Match(TRUE,pp1,&q,4)) goto FINISHED;
 			}
+		q = PYTHON_PREFIX; // 2026-11-24
+		if(Match(TRUE,pp1,&q,4)) goto FINISHED;
 		}
 
 	// for(; (*pp) <= (*pp2);) {  2024-05-24

@@ -297,6 +297,9 @@ int CompileGrammar(int verbose,t_gram* p_gram) {
 		p = &(*p_line)[0]; q = &(FileOldPrefix[iObjects][0]);
 		if((Match(TRUE,p_line,&q,4)) && p_gram->number_gram == 1
 			&& (*(p_gram->p_subgram))[1].number_rule == 0) goto NEXTLINE;
+		p = &(*p_line)[0]; q = PYTHON_PREFIX; // 2026-11-24
+		if((Match(TRUE,p_line,&q,4)) && p_gram->number_gram == 1
+			&& (*(p_gram->p_subgram))[1].number_rule == 0) goto NEXTLINE;
 			
 		needsnumber = FALSE; igram = 0; irul = 0;
 		if(trace_compile_grammar) BPPrintMessage(0,odInfo,"Parsing: %s\n",*p_line);
@@ -433,6 +436,8 @@ int InsertSubgramTypes(t_gram* p_gram) {	// Insert 'ORD', 'RND', etc.
 			q = &(FilePrefix[i][0]);
 			if(Match(TRUE,p_line,&q,4)) goto NEXTLINE;
 			}
+		q = PYTHON_PREFIX; // 2026-11-24
+		if(Match(TRUE,p_line,&q,4)) goto NEXTLINE;
 	
 		p = &(*p_line)[0];
 		if(GetSubgramType(&p) != -1) {

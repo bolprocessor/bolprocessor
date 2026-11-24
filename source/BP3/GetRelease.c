@@ -1267,6 +1267,8 @@ int GetGrammarSpace(t_gram* p_gram) {
 				q = &(FilePrefix[i][0]);
 				if(Match(TRUE,p_line,&q,4)) goto NEXTLINE;
 				}
+			q = PYTHON_PREFIX; // 2026-11-24
+			if(Match(TRUE,p_line,&q,4)) goto NEXTLINE;
 			}
 		if(Mystrcmp(p_line,"DATA:") == 0) goto END;
 		if(Mystrcmp(p_line,"COMMENT:") == 0) goto END;
