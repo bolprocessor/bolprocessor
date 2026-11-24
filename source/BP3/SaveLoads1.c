@@ -1305,7 +1305,6 @@ int LoadSettings(const char *filename, int startup) {
 		else if(strcmp(key,"SamplingRate") == 0) SamplingRate = intvalue;
 		else if(strcmp(key,"StopPauseContinue") == 0) StopPauseContinue = intvalue;
 
-		else if(strcmp(key,"IgnoreFields") == 0) IgnoreFields = intvalue;
 		else if(strcmp(key,"TraceZouleb") == 0) TraceZouleb = intvalue;
 
 		else if(strcmp(key,"DefaultBlockKey") == 0) DefaultBlockKey = intvalue;

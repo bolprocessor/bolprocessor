@@ -123,15 +123,9 @@ int PolyMake(tokenbyte ***pp_a,double *p_maxseq,int notrailing) {
 		ichunk = ilimit = ZERO;
 		endprocess = ZERO;
 		level = 0;
-		if(!IgnoreFields) {
-			r = Zouleb(&p_b,&pos_init,0,0,FALSE,0,Infpos,NOSEED,&ilimit,&endprocess,FALSE);
-			if(r != OK && r != STOP) goto QUIT;
-			DeleteSerialTools(&p_b);
-			}
-		else {
-			BPPrintMessage(0,odInfo,"=> The “Ignore field separators” is set. We will use the old algorithm!\n");
-			r = ZoulebOld(&p_b,&level,&pos_init,FALSE,FALSE,0,FALSE,FALSE,FALSE);
-			}
+		r = Zouleb(&p_b,&pos_init,0,0,FALSE,0,Infpos,NOSEED,&ilimit,&endprocess,FALSE);
+		if(r != OK && r != STOP) goto QUIT;
+		DeleteSerialTools(&p_b);
 		if(TraceProduce && !TraceDetail) {
 			Print(wTrace,"\nResult = ");
 			if((r=PrintWorkString(FALSE,wTrace,FALSE,FALSE,&p_b)) != OK) return(r);
