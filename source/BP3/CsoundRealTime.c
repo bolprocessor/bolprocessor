@@ -1561,7 +1561,7 @@ static void OSCPushEnvelopes(int instrument,double time,double duration,const ch
 			if(fabs(envs[i].level[k] - (envs[i].level[0] + t * (envs[i].level[envs[i].points - 1] - envs[i].level[0]))) > 0.001) break;
 			}
 		if(k == envs[i].points - 1) continue;
-		snprintf(param,sizeof(param),"%s",envs[i].name);
+		snprintf(param,sizeof(param),"%.*s",(int) sizeof(envs[i].name),envs[i].name); // The precision tells GCC that the name fits
 		length = strlen(param);
 		if(length > 3 && strcmp(param + length - 3,"env") == 0) param[length - 3] = '\0'; // "slideenv" -> "slide"
 		strcpy(tags,",iiss");
