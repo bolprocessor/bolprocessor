@@ -879,6 +879,8 @@ PRINTPROLONGATIONS:
 					case 29: // _transposecont
 					case 30: // _transposestep
 						p += 34; break;
+					case 31: // _breath
+						p += 37; break;
 					}
 				my_sprintf(line,"%s ",*((*p_PerformanceControl)[p]));
 				if((r=Display('\0',nhomo,levpar,homoname,depth,p_maxib,pp_a,&i,istemplate,

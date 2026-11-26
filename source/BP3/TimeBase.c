@@ -266,7 +266,7 @@ static double TbBeatToDate(double beat) {
 	lo = 0L; hi = TBmapsize - 1L; // Last segment starting at or before 'beat'
 	while(lo < hi) {
 		k = (lo + hi + 1L) / 2L;
-		if(TBmapbeat[k] <= beat) lo = k;
+		if(TBmapbeat[k] <= beat + 1e-9) lo = k; // After a breath, two segments start at the same beat: the second one is taken
 		else hi = k - 1L;
 		}
 	return(TbRealDate(TBmapdate[lo] + (beat - TBmapbeat[lo]) * TBmapms[lo]));
@@ -452,6 +452,149 @@ static int TbPush(double **p_stack,long *p_size,long *p_max,double x) {
 	return(OK);
 	}
 
+typedef struct {
+	double scale,speed;	// Tempo before the '{'
+	double start;		// Date of the '{'
+	long field;			// Index of the field containing the '{'
+	double firstend;	// End of the first field (the duration of the expression), or -1 before its first ','
+	} TbLevel;
+
+typedef struct {
+	double date,ms;		// Start and duration of the silence after '_breath'
+	long measure;		// Index of the expression of the top level (measure) it belongs to
+	long field;			// Index of the field it belongs to
+	int keep;			// Used by TbApplyBreaths()
+	} TbBreath;
+
+static TbBreath *TBbreath = NULL;	// 2026-11-26 Silences after '_breath' found by TbWalk()
+static long TBbreaths = 0L,TBbreathmax = 0L;
+
+static int TbBreathAdd(double date,double ms,long measure,long field) {
+	TbBreath *x;
+	if(ms <= 0.) return(OK);
+	if(TBbreaths >= TBbreathmax) {
+		if((x = (TbBreath*) realloc(TBbreath,(TBbreathmax + 64L) * sizeof(TbBreath))) == NULL) return(ABORT);
+		TBbreath = x;
+		TBbreathmax += 64L;
+		}
+	TBbreath[TBbreaths].date = date;
+	TBbreath[TBbreaths].ms = ms;
+	TBbreath[TBbreaths].measure = measure;
+	TBbreath[TBbreaths].field = field;
+	TBbreath[TBbreaths].keep = FALSE;
+	TBbreaths++;
+	return(OK);
+	}
+
+static int TbMapInsert(long k,double beat,double date,double ms) {
+	// Inserts a segment of the tempo map at index k
+	long j,newmax;
+	double *x;
+	if(TBmapsize >= TBmapmax) {
+		newmax = TBmapmax + 64L;
+		if((x = (double*) realloc(TBmapbeat,newmax * sizeof(double))) == NULL) return(ABORT);
+		TBmapbeat = x;
+		if((x = (double*) realloc(TBmapdate,newmax * sizeof(double))) == NULL) return(ABORT);
+		TBmapdate = x;
+		if((x = (double*) realloc(TBmapms,newmax * sizeof(double))) == NULL) return(ABORT);
+		TBmapms = x;
+		TBmapmax = newmax;
+		}
+	TBmapsize++;
+	for(j = TBmapsize - 1L; j > k; j--) {
+		TBmapbeat[j] = TBmapbeat[j-1]; TBmapdate[j] = TBmapdate[j-1]; TBmapms[j] = TBmapms[j-1];
+		}
+	TBmapbeat[k] = beat; TBmapdate[k] = date; TBmapms[k] = ms;
+	return(OK);
+	}
+
+static void TbPause(double start,double end) {
+	// Pause of the tempo map from 'start' to 'end' (ms): beats stop at 'start' and resume at 'end'
+	long j,k;
+	double beatd,delta;
+	if(TBmapsize == 0L || start <= 0. || end <= start) return;
+	for(k = 0L; k < TBmapsize - 1L && TBmapdate[k+1] <= start + 1e-6; k++); // Segment of the start of the pause
+	beatd = TBmapbeat[k] + (start - TBmapdate[k]) / TBmapms[k];
+	delta = (end - start) / TBmapms[k]; // Beats taken by the pause, removed from the following ones
+	for(j = k + 1L; j < TBmapsize; j++) {
+		if(TBmapdate[j] < end - 1e-6) { // A tempo set during the pause applies after it
+			TBmapdate[j] = end; TBmapbeat[j] = beatd;
+			}
+		else TBmapbeat[j] -= delta;
+		}
+	TbMapInsert(k + 1L,beatd,end,TBmapms[k]); // Beat 'beatd' is at the end of the pause (TbBeatToDate() takes the last segment of a beat)
+	return;
+	}
+
+static void TbApplyBreaths(void) {
+	// 2026-11-26 Makes a pause of the tempo map during each breath (silences after '_breath'): beats stop at its start and resume at
+	// its end, so the beats and ticks that follow are delayed by its duration. The import of MusicXML writes a breath in every voice of
+	// a measure, not always at the same date (e.g. "{25/6,{1/8,Eb4 D4} {7/8,Eb4} _breath 1/6 ..., ..., 2 _breath 1/6 {2,D4}}", where
+	// the last voice has a rest), and may add it to a rest (e.g. "_breath 19/6"). So a measure has as many breaths as the field
+	// with the most breaths, at the dates found in the most fields, each with the shortest duration found at its date.
+	long n,n0,n1,j,k,count,max,best,support,bestsupport;
+	double start,end,last;
+
+	last = -1.; // End of the previous pause
+	for(n0 = 0L; n0 < TBbreaths; n0 = n1) {
+		for(n1 = n0 + 1L; n1 < TBbreaths && TBbreath[n1].measure == TBbreath[n0].measure; n1++);
+		max = 0L; // Most breaths in a field of this measure
+		for(n = n0; n < n1; n++) {
+			for(count = 0L, j = n0; j < n1; j++) if(TBbreath[j].field == TBbreath[n].field) count++;
+			if(count > max) max = count;
+			}
+		for(n = n0; n < n1; n++) TBbreath[n].keep = FALSE;
+		for(k = 0L; k < max; k++) { // Choose 'max' dates, those found in the most fields first
+			best = -1L; bestsupport = 0L;
+			for(n = n0; n < n1; n++) {
+				if(TBbreath[n].keep) continue;
+				for(support = 0L, j = n0; j < n1; j++)
+					if(fabs(TBbreath[j].date - TBbreath[n].date) <= 1.) {
+						if(TBbreath[j].keep) break;
+						support++;
+						}
+				if(j < n1) continue; // This date was already chosen
+				if(support > bestsupport || (support == bestsupport && TBbreath[n].date < TBbreath[best].date)) {
+					best = n; bestsupport = support;
+					}
+				}
+			if(best < 0L) break;
+			TBbreath[best].keep = TRUE;
+			}
+		for(k = 0L; k < max; k++) { // Pauses in chronological order
+			best = -1L;
+			for(n = n0; n < n1; n++)
+				if(TBbreath[n].keep == TRUE && (best < 0L || TBbreath[n].date < TBbreath[best].date)) best = n;
+			if(best < 0L) break;
+			TBbreath[best].keep = 2; // Done
+			start = TBbreath[best].date; end = start + TBbreath[best].ms;
+			for(j = n0; j < n1; j++) // Shortest duration at this date
+				if(fabs(TBbreath[j].date - start) <= 1. && TBbreath[j].date + TBbreath[j].ms < end) end = TBbreath[j].date + TBbreath[j].ms;
+			if(start < last - 1.) continue; // During the previous pause
+			TbPause(start,end);
+			last = end;
+			}
+		}
+	return;
+	}
+
+static int TbDurationField(tokenbyte **p_buff,long i) {
+	// 2026-11-26 TRUE if the field starting with the silence at position i contains only silences up to a ',': the duration of an
+	// expression, e.g. "{9/2, ...}", and not a rest followed by notes, e.g. "{5/3 . C4 D4 . E4 B3}"
+	tokenbyte m,p;
+	for(; ; i += 2L) {
+		m = (*p_buff)[i]; p = (*p_buff)[i+1];
+		if(m == TEND) return(FALSE);
+		if(m == T0) {
+			if(p == 14) return(TRUE); // ','
+			if(p == 12 || p == 13) return(FALSE); // '{' or '}'
+			if(p == 21 || p == 24 || p == 11 || p == 25) i += 4L; // Marker
+			continue;
+			}
+		if(m == T25 || m == T4 || (m == T3 && p > 1)) return(FALSE); // A note or sound-object
+		}
+	}
+
 static double TbWalk(tokenbyte **p_buff,int probe) {
 	// Follows the work string after PolyMake(). Speed markers are absolute: '*' (T0 21) and '**' (T0 24) set the scale, '/' (T0 11)
 	// and '\' (T0 25) the speed, and a symbol lasts scale / speed metronome beats. Inside polymetric expressions, markers also make
@@ -459,94 +602,213 @@ static double TbWalk(tokenbyte **p_buff,int probe) {
 	// - at the top level, by the markers before a sound-object or note. Silences ('-' and '_') keep the current tempo, so that a
 	//   fractional silence such as "1/2", written '*a /2b -', doesn't change it;
 	// - for a polymetric expression of the top level, by the markers at the start of its first field (e.g. a measure
-	//   "{_tempo(18/5) {3, ...}, _tempo(18/5) ...}" imported from MusicXML), before its first symbol or expression, and (2026-11-26)
+	//   "{_tempo(18/5) {3, ...}, _tempo(18/5) ...}" imported from MusicXML), before its first expression or note, and (2026-11-26)
 	//   by the markers before a note inside this first field, e.g. "{E4 F4 _tempo(2.7) G4 F4}", so that ticks still follow the notes
-	//   after the '}'. Markers inside deeper expressions are rhythms and are ignored.
-	// The duration of a polymetric expression is that of its first field, which is followed; its other fields are skipped.
+	//   after the '}'. If this first field is a duration, a silence, its markers are a rhythm, e.g. '*1 /2 - _ _...' for "{9/2, ...}",
+	//   and the tempo is that before the '{' (TbDurationField()). Markers inside deeper expressions are rhythms and are ignored.
+	// - 2026-11-26 by every _tempo() of the path followed (top level and first fields), which PolyMake() tags with T0 26 before its
+	//   markers when PolyTempoTags is set (see PlayBuffer1()): "{_tempo(2) 9, ...}" and "{9/2, ...}" have the same markers, but only
+	//   the first one has a tag. The tags are removed by TimeBaseRemoveTags() before time setting.
+	// The duration of a polymetric expression is that of its first field, which is followed by the tempo map.
+	// 2026-11-26 The other fields are followed too, only to find the silences after '_breath' (T12 31, e.g. "D4 F4 _breath 1/6 Eb4",
+	// written by the import of MusicXML scores for breath marks, in each voice of a measure whose first field is its duration, e.g.
+	// "{25/6,{25/6,D4 F4 _breath 1/3 ...},{25/6,D4 _breath 1/6 Eb4 ...}}"). They take time but no beat (TbApplyBreaths()).
 	// With 'probe', returns the duration (ms) of the first beat of the item, or 0 if none. Otherwise makes the tempo map, starting
 	// with the duration of beats TBmapms[0] set by the probe, and returns the duration of the item (ms), or -1 on error.
 	long i,depth,skip,stacksize,stackmax;
 	tokenbyte m,p;
 	double scale,speed,x,ms,unit,beat,date,metronome,result;
-	double *stack;
-	int firstfield;
+	TbLevel *stack,*level;
+	int firstfield,breath,nested,kind;
+	long ibreath,measure,field,fields,j;
+	double nscale,nspeed,ts,tv;
 
 	metronome = 1000. * Pclock / Qclock;
 	unit = probe ? 0. : TBmapms[0]; // Duration of a beat of the item (ms)
 	TBmapsize = 0L;
+	TBbreaths = 0L;
 	stack = NULL; stacksize = stackmax = 0L;
 	scale = speed = 1.;
-	beat = date = 0.;
+	beat = date = 0.; // 'date' is that of the field being read, even if it is skipped
 	result = probe ? 0. : -1.;
 	firstfield = FALSE; // TRUE at the start of the first field of a polymetric expression of the top level
-	depth = skip = 0L; // 'skip' is the depth of the expression whose other fields are being skipped, or 0
+	breath = 0; // 1 after '_breath', 2 in the silence that follows it (TBbreath[ibreath]), until a symbol that is not a silence
+	ibreath = -1L;
+	measure = field = fields = 0L; // Index of the expression of the top level, and of the field being read
+	nested = 0; // 2 before the first symbol of the first field of an expression starting the first field of an expression of the top level
+	nscale = nspeed = 0.;
+	depth = skip = 0L; // 'skip' is the depth of the expression whose other fields are not followed by the tempo map, or 0
 	for(i = 0L; ; i += 2L) {
 		m = (*p_buff)[i]; p = (*p_buff)[i+1];
 		if(m == TEND && p == TEND) {
 			if(!probe) result = date;
 			break;
 			}
-		if(m == T0) {
-			if(p == 21 || p == 24 || p == 11 || p == 25) {
-				x = TbMarkerValue(p_buff,i);
-				i += 4L;
-				if(x <= 0. || skip > 0L) continue;
-				if(p == 21) scale = x;
-				else if(p == 24) scale = 1. / x;
-				else if(p == 11) speed = x;
-				else speed = 1. / x;
-				continue;
+		if(m == T0 && (p == 21 || p == 24 || p == 11 || p == 25)) {
+			x = TbMarkerValue(p_buff,i);
+			i += 4L;
+			if(x <= 0.) continue;
+			if(p == 21) scale = x;
+			else if(p == 24) scale = 1. / x;
+			else if(p == 11) speed = x;
+			else speed = 1. / x;
+			if(nested) { // The first scale and speed markers of this field
+				if((p == 21 || p == 24) && nscale == 0.) nscale = scale;
+				if((p == 11 || p == 25) && nspeed == 0.) nspeed = speed;
 				}
+			continue;
+			}
+		if(m == T0 && p == 26) { // Tag of a _tempo(), followed by its scale and speed markers, or by none if the tempo doesn't change
+			ts = scale; tv = speed;
+			for(j = i + 2L; j <= i + 8L && (*p_buff)[j] == T0; j += 6L) {
+				if((x = TbMarkerValue(p_buff,j)) <= 0.) break;
+				if((*p_buff)[j+1] == 21) ts = x;
+				else if((*p_buff)[j+1] == 24) ts = 1. / x;
+				else if((*p_buff)[j+1] == 11) tv = x;
+				else if((*p_buff)[j+1] == 25) tv = 1. / x;
+				else break;
+				}
+			if(skip == 0L) {
+				unit = metronome * ts / tv;
+				firstfield = FALSE; nested = 0;
+				if(probe) {
+					result = unit;
+					break;
+					}
+				}
+			continue;
+			}
+		if(nested > 0 && (m == T0 || m == T25 || m == T3 || m == T4)) {
+			// 2026-11-26 A measure imported from MusicXML whose first field is an expression starting with its duration, written as a silence:
+			// the tempo is that of the first markers of this duration, e.g. '*15 /14 - _ _ _' in "{_vel(64) {4,_tempo(14/15) G4 ...,
+			// _tempo(14/15) ...}}", whose tempo is not written before the inner '{', and '*15 /13 *5 /26 - _ _ ...' in "{_tempo(13/15) {25/6, ...}}",
+			// whose further markers make the rhythm
+			kind = nested;
+			nested = 0;
+			if(m == T3 && p <= 1 && (nscale > 0. || nspeed > 0.)) {
+				unit = metronome * (nscale > 0. ? nscale : scale) / (nspeed > 0. ? nspeed : speed);
+				firstfield = FALSE;
+				if(probe) {
+					result = unit;
+					break;
+					}
+				}
+			else if(kind == 2 && probe) { // The tempo set at the inner '{'
+				result = unit;
+				break;
+				}
+			}
+		if(m == T0) {
 			if(p == 12) { // '{'
+				breath = 0; // The first field of an expression is its duration, written as a silence if it is a number, e.g. '{2,G5}'
 				if(skip == 0L && firstfield) { // An expression starting the first field of an expression of the top level
-					unit = metronome * scale / speed;
+					unit = metronome * scale / speed; // Unless its first field is a duration (see above)
 					firstfield = FALSE;
-					if(probe) break;
+					nested = 2; nscale = nspeed = 0.;
 					}
 				if(depth == 0L) firstfield = TRUE;
 				depth++;
-				if(skip > 0L) continue;
-				if(TbPush(&stack,&stacksize,&stackmax,scale) != OK || TbPush(&stack,&stacksize,&stackmax,speed) != OK) {
-					result = probe ? 0. : -1.;
-					break;
+				if(stacksize >= stackmax) {
+					if((level = (TbLevel*) realloc(stack,(stackmax + 32L) * sizeof(TbLevel))) == NULL) {
+						result = probe ? 0. : -1.;
+						break;
+						}
+					stack = level;
+					stackmax += 32L;
 					}
+				level = &(stack[stacksize++]);
+				level->scale = scale; level->speed = speed; level->start = date; level->firstend = -1.;
+				level->field = field;
+				if(depth == 1L) measure++;
+				field = ++fields;
 				continue;
 				}
-			if(p == 14) { // ',': the other fields of this expression are skipped
+			if(p == 14) { // ',': the other fields of this expression are not followed by the tempo map
 				if(skip == 0L) skip = depth;
-				firstfield = FALSE;
+				firstfield = FALSE; breath = 0;
+				if(stacksize > 0L) {
+					level = &(stack[stacksize - 1L]);
+					if(level->firstend < 0.) level->firstend = date;
+					date = level->start; scale = level->scale; speed = level->speed;
+					}
+				field = ++fields;
 				continue;
 				}
 			if(p == 13) { // '}'
 				if(skip == depth) skip = 0L;
 				depth--;
-				firstfield = FALSE;
-				if(skip == 0L && stacksize >= 2L) {
-					speed = stack[--stacksize]; scale = stack[--stacksize];
+				firstfield = FALSE; breath = 0;
+				if(stacksize > 0L) {
+					level = &(stack[--stacksize]);
+					if(level->firstend >= 0.) date = level->firstend;
+					scale = level->scale; speed = level->speed;
+					field = level->field;
 					}
+				if(depth == 0L) measure++; // Breaths of the top level after an expression are not those of the expression
 				continue;
 				}
 			continue;
 			}
-		if(skip > 0L) continue;
+		if(m == T12 && p == 31) { // '_breath'
+			breath = 1;
+			continue;
+			}
 		if(m != T25 && m != T3 && m != T4) continue; // Out-time objects, synchronisation tags, performance controls... take no time
 		ms = metronome * scale / speed; // Duration of this symbol
-		if(firstfield || (depth <= 1L && (m == T25 || m == T4 || p > 1))) { // 2026-11-26 Also in the first field of an expression of the top level, e.g. {E4 F4 _tempo(2.7) G4 F4}
-			unit = ms;
-			firstfield = FALSE;
-			if(probe) {
-				result = unit;
-				break;
+		if(breath > 0 && m == T3 && p <= 1) { // A silence '-' after '_breath', or its prolongation '_'
+			if(!probe) {
+				if(breath == 2 && ibreath >= 0L) TBbreath[ibreath].ms += ms;
+				else {
+					if(TbBreathAdd(date,ms,measure,field) != OK) break;
+					ibreath = TBbreaths - 1L;
+					}
+				}
+			breath = 2;
+			}
+		else breath = 0;
+		if(skip == 0L) {
+			if(firstfield && depth == 1L && m == T3 && p <= 1 && stacksize > 0L && TbDurationField(p_buff,i)) { // 2026-11-26 A duration: its markers are a rhythm, e.g. "{9/2, ...}"
+				unit = metronome * stack[stacksize - 1L].scale / stack[stacksize - 1L].speed;
+				firstfield = FALSE;
+				if(probe) {
+					result = unit;
+					break;
+					}
+				}
+			if(firstfield || (depth <= 1L && (m == T25 || m == T4 || p > 1))) { // 2026-11-26 Also in the first field of an expression of the top level, e.g. {E4 F4 _tempo(2.7) G4 F4}
+				unit = ms;
+				firstfield = FALSE;
+				if(probe) {
+					result = unit;
+					break;
+					}
+				}
+			if(!probe) {
+				if(TbMapAdd(beat,date,unit) != OK) break;
+				beat += ms / unit;
 				}
 			}
-		if(probe) continue;
-		if(TbMapAdd(beat,date,unit) != OK) break;
-		beat += ms / unit;
 		date += ms;
 		}
 	if(probe && result <= 0. && unit > 0.) result = unit;
+	if(!probe && result > 0.) TbApplyBreaths();
 	if(stack != NULL) free(stack);
 	return(result);
+	}
+
+void TimeBaseRemoveTags(tokenbyte **p_buff) {
+	// 2026-11-26 Removes the tags T0 26 of _tempo() written by PolyMake() for TimeBaseSetStructure(), before time setting
+	long i,k;
+	tokenbyte m,p;
+	if(p_buff == NULL) return;
+	for(i = k = 0L; ; i += 2L) {
+		m = (*p_buff)[i]; p = (*p_buff)[i+1];
+		if(m == T0 && p == 26) continue;
+		(*p_buff)[k] = m; (*p_buff)[k+1] = p;
+		k += 2L;
+		if(m == TEND && p == TEND) break;
+		}
+	return;
 	}
 
 void TimeBaseSetStructure(tokenbyte **p_buff) {

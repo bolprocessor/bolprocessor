@@ -157,6 +157,7 @@ char ChangedVolume[MAXCHAN+1],ChangedPanoramic[MAXCHAN+1],ChangedModulation[MAXC
 int WhichCsoundInstrumentForChannel[MAXCHAN+1],WhichCsoundInstrumentForPart[MAXPARTS+1]; // 2026-11-12 int rather than char, and parts - fixed by Claude
 int Jbol,Jfunc,Jinstr,Jinscript,Joutscript,Maxinscript,Maxoutscript,iProto,Jcontrol,Jpatt,Jvar,Jflag,MaxVar,
 	Jhomo,**p_VarStatus,iCsoundInstrument;
+int PolyTempoTags = FALSE; // 2026-11-26 PolyMake() writes a tag T0 26 before the markers of each _tempo() (see TimeBase.c)
 int FreezeWindows,StartFromOne,rtMIDI,OutCsound,OutBPdata,MustChangeInput,SmartCursor,NotSaidKpress,**p_MemGram,**p_MemRul,SaidChannel;
 int CaptureSource;
 FILE* CapturePtr;

@@ -796,6 +796,7 @@ int GetPerformanceControl(char **pp,int arg_nr,int *p_n,int quick,long *p_u,long
 		case 62: // _transposefixed
 		case 63: // _transposecont
 		case 64: // _transposestep
+		case 68: // _breath 2026-11-26
 			*pp = ptr;
 			if((*ptr) == '(') {
 				my_sprintf(Message,"\nShould not find '(' after '%s'",*((*p_PerformanceControl)[jinstr]));

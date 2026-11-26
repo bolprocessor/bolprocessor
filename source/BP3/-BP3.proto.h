@@ -469,6 +469,7 @@ void TimeBaseCancel(void);
 int TimeBaseGraphicTicks(Milliseconds,Milliseconds**,int**);
 int TimeBaseGraphicBeats(Milliseconds,Milliseconds**);
 void TimeBaseSetItemEnd(Milliseconds,unsigned long);
+void TimeBaseRemoveTags(tokenbyte**);
 void TimeBaseSetStructure(tokenbyte**);
 void TimeBaseMute(int);
 int SendControlChange(int,int,int,Milliseconds,int,int*);

@@ -653,6 +653,11 @@ Assigns random fluctuations in range +/- x to the timings of following "sound-ob
 • 'x' is the fluctuation in milliseconds.
 • Range of x is 0..32767.  Values less than the "quantization" will produce no effect.
 • Related topics: "_rndvel", "_srand".
+### _breath [Performance control]
+Indicates that the next silence is a breath (a "grace rest"), as written by the import of
+    MusicXML scores, e.g. "D4 F4 _breath 1/6 Eb4". The silence is played, but the ticks
+    of a time base and the beats of the graphics are delayed by its duration instead of
+    counting it.
 ### _velcont [Performance control]
 Indicates that velocity should change continuously. [Equivalent to "_velstep" in
     current version]

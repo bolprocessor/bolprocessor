@@ -120,6 +120,7 @@ extern char ChangedVolume[MAXCHAN+1],ChangedPanoramic[MAXCHAN+1],ChangedModulati
 extern int WhichCsoundInstrumentForChannel[MAXCHAN+1],WhichCsoundInstrumentForPart[MAXPARTS+1];
 extern int Jbol,Jinstr,Jfunc,Jinscript,Joutscript,Maxinscript,Maxoutscript,iProto,Jcontrol,Jpatt,Jvar,Jflag,
 	MaxVar,Jhomo,**p_VarStatus,iCsoundInstrument;
+extern int PolyTempoTags;
 extern int FreezeWindows,StartFromOne,rtMIDI,OutCsound,OutBPdata,MustChangeInput,
 	SmartCursor,NotSaidKpress,**p_MemGram,**p_MemRul,SaidChannel;
 extern int CaptureSource;

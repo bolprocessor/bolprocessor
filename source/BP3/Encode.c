@@ -342,6 +342,9 @@ tokenbyte **Encode(t_gram* p_gram,int sequence,int notargument, int igram, int i
 								if(trace_scale) BPPrintMessage(0,odInfo,"Encode() T44 i = %ld n = %d\n",i,n);
 							}
 						break;
+					case 68: // _breath 2026-11-26 The next silence is a breath, outside the beats of the time base (see TbWalk() in TimeBase.c)
+						(*p_buff)[i++] = T12; (*p_buff)[i++] = (tokenbyte) 31;
+						break;
 					case 66: // _capture()
 						if(rtMIDI) {
 							(*p_buff)[i++] = T45; (*p_buff)[i++] = (tokenbyte) n;

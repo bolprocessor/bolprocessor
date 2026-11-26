@@ -1252,6 +1252,13 @@ int PolyExpand(tokenbyte **p_b,tokenbyte ***pp_a,unsigned long idorg,unsigned lo
 				(*p_firstistempo)[a] = TRUE;
 				firstistempo = FALSE;
 				}
+			if(PolyTempoTags) { // 2026-11-26 Tag T0 26 before the markers of this tempo, so that the tempo map of the time base can tell a tempo from a rhythm (see TbWalk()). Removed by TimeBaseRemoveTags() before time setting
+				(*((*pp_c)[a]))[ic++] = T0;
+				(*((*pp_c)[a]))[ic++] = 26;
+				if(Check_ic(ic,p_maxic,a,pp_c) != OK) {
+					result = ABORT; goto SORTIR;
+					}
+				}
 			prevspeed = speed;
 			prevscale = scaling;
 			speed = oldspeed * ptempo;

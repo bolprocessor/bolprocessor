@@ -881,7 +881,7 @@ const char gOptionList[] =
 	"  -sc fname:        load SuperCollider instrument definitions file 'fname' (format of '-cs' files; instrument NAME is played by SynthDef NAME)\n"
 	"  -wg fname:        create/modify rule weights file 'fname'\n"
 	"  -tb fname:        load time base file 'fname' (ticks superposed to each item, sent to MIDI files and the MIDI output)\n"
-	"  --mute-ticks:     don't play the ticks of the time base (they are still shown in the graphics)\n"
+	"  --mute-ticks:     don't play the ticks of the time base (the graphics show the beats instead)\n"
 	"\n"
 	"  These file-type markers currently are recognized but ignored:\n"
 	"      -in  -kb  -md  -mi  -tr  +sc \n"

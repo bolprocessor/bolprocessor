@@ -321,8 +321,11 @@ int PlayBuffer1(tokenbyte ***pp_buff,int onlypianoroll) {
 			}
 		BPPrintMessage(0,odInfo,"\n");
 		}
+	PolyTempoTags = TRUE; // 2026-11-26 Tags of _tempo() for TimeBaseSetStructure()
 	while((result=PolyMake(pp_buff,&maxseqapprox,YES)) == AGAIN){};
+	PolyTempoTags = FALSE;
 	TimeBaseSetStructure(result == OK ? *pp_buff : NULL); // 2026-11-25 Tempo map of the item for the ticks of a time base (see TimeBase.c)
+	TimeBaseRemoveTags(*pp_buff);
 	if(trace_play) {
 		i = 0;
 		BPPrintMessage(1,odInfo,"\nPlayBuffer after PolyMake:\n");
