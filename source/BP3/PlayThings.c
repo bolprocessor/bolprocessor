@@ -322,6 +322,7 @@ int PlayBuffer1(tokenbyte ***pp_buff,int onlypianoroll) {
 		BPPrintMessage(0,odInfo,"\n");
 		}
 	while((result=PolyMake(pp_buff,&maxseqapprox,YES)) == AGAIN){};
+	TimeBaseSetStructure(result == OK ? *pp_buff : NULL); // 2026-11-25 Tempo map of the item for the ticks of a time base (see TimeBase.c)
 	if(trace_play) {
 		i = 0;
 		BPPrintMessage(1,odInfo,"\nPlayBuffer after PolyMake:\n");
@@ -360,6 +361,7 @@ int PlayBuffer1(tokenbyte ***pp_buff,int onlypianoroll) {
 	result = OK;
 	SetTimeOn = FALSE;
 	if(trace_play) BPPrintMessage(1,odInfo,"\n@ tmin = %ld, tmax = %ld, rtMIDI = %d\n",(long)tmin,(long)tmax,rtMIDI);
+	TimeBaseSetItemEnd(tmax,maxseq); // 2026-11-25 Vertical lines of the ticks of a time base in the graphics; 2026-11-26 dates of the phase diagram (see TimeBase.c)
 
 	// if(ShowGraphic) BPPrintMessage(0,odInfo, "Shall we draw graphics?\n");
 	if(Create_set) {

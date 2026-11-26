@@ -1379,32 +1379,8 @@ void closeMIDISystem() {
 
 int ListenToEvents() {
 	int r = OK;
-	char ch;
-	unsigned long current_time;
 	if(EmergencyExit || Panic) return ABORT;
-	if(WaitForSpace) { // Does not work, we keep it for later
-#if !defined(_WIN64)
-		if(isatty(STDIN_FILENO)) enable_raw_mode();
-	else {
-		BPPrintMessage(0,odError,"=> This environment does not communicate with the keyboard. Instruction _script(Wait for Space) will be ignored\n");
-		WaitForSpace = FALSE;
-		StopWaiting(0,' ');
-		}
-#endif 
-    #if !defined(_WIN64)
-		if(read(STDIN_FILENO, &ch, 1) != 1) ch = getchar();
-    #else
-		ch = _getch();
-    #endif
-		if(ch == ' ') {
-			WaitForSpace = FALSE;
-			BPPrintMessage(0,odInfo, "The space bar has been pressed: %d\n",ch);
-			StopWaiting(0,' ');
-			}
-#if !defined(_WIN64)
-		if(isatty(STDIN_FILENO)) disable_raw_mode();
-#endif 
-		}
+	CheckSpaceBar(); // _script(Wait for Space)
 	if(!Interactive) return r;
     #if defined(__linux__)
 		snd_seq_event_t* ev = NULL;
@@ -1434,6 +1410,7 @@ void sendMIDIEvent(int kcurrentinstance,int i_scale,int direction,int blockkey,u
 	unsigned long clocktime;
 	UInt64 time_now;
 	int correction = 0;
+	int tickfallback = FALSE;
 	status = midiData[0];
 	unsigned int pitchBendValue;
 	unsigned char pitchBendLSB, pitchBendMSB;
@@ -1452,6 +1429,13 @@ void sendMIDIEvent(int kcurrentinstance,int i_scale,int direction,int blockkey,u
 		else key = 0;
 		value = midiData[2];
 		channel = channel_org = midiData[0] & 0x0F;
+		// 2026-11-25 Ticks of a time base go to the outputs whose channel filter accepts their channel. If none does, they go to the first output:
+		// the filters were set for the channels of the music, e.g. channel 1 only, which silenced ticks on channel 10
+		if(kcurrentinstance == TB_TICK_INSTANCE && !MIDImicrotonality && channel >= 0 && channel < MAXCHAN) {
+			tickfallback = TRUE;
+			for(index = 0; index < MaxOutputPorts; index++)
+				if(MIDIchannelFilter[index][channel] != '0') tickfallback = FALSE;
+			}
 	//    BPPrintMessage(1,odInfo,"@ key %d, part %d, value = %d\n",key,part,value);
 		PrintThisNote(i_scale,key,0,-1,this_key);
 		//  BPPrintMessage(0,odInfo,"§§ sendMIDIEvent %d %d %d, channel %d, i_scale = %d\n",midiData[0],midiData[1],midiData[2],(channel + 1),i_scale);
@@ -1633,7 +1617,8 @@ void sendMIDIEvent(int kcurrentinstance,int i_scale,int direction,int blockkey,u
 			for(index = 0; index < MaxOutputPorts; index++) {
 				// Here use filters to decide which port(s) this event should be sent to.
 				// note 12 (microtonality)
-				if(!MIDImicrotonality && channel >= 0 && channel < MAXCHAN && MIDIchannelFilter[index][channel] == '0') continue;
+				if(!tickfallback && !MIDImicrotonality && channel >= 0 && channel < MAXCHAN && MIDIchannelFilter[index][channel] == '0') continue;
+				if(tickfallback && index > 0) continue; // Ticks blocked by all channel filters: first output only
 				if(part > 0 && MIDIpartFilter[index][part - 1] == '0') continue;
 				if(!MIDImicrotonality && !PassOutEvent(status,index)) continue;
 				if(direction == INmidi && !PassInEvent(status,index)) continue;
@@ -1747,7 +1732,8 @@ void sendMIDIEvent(int kcurrentinstance,int i_scale,int direction,int blockkey,u
 			// Retrieve the port number for the given client
 			int client = MIDIoutput[index];
 			// note 12 (microtonality)
-			if(!MIDImicrotonality && channel >= 0 && channel < MAXCHAN && MIDIchannelFilter[index][channel] == '0') continue;
+			if(!tickfallback && !MIDImicrotonality && channel >= 0 && channel < MAXCHAN && MIDIchannelFilter[index][channel] == '0') continue;
+			if(tickfallback && index > 0) continue; // Ticks blocked by all channel filters: first output only
 			if(part > 0 && MIDIpartFilter[index][part - 1] == '0') continue;
 			if(!MIDImicrotonality && !PassOutEvent(status,index)) continue;
 			if(direction == INmidi && !PassInEvent(status,index)) continue;

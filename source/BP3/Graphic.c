@@ -1129,11 +1129,20 @@ static long StreakDate(long i,unsigned long imax,double lastperiod,Milliseconds 
 	return t;
 	}
 
+static long TbPixel(Milliseconds date,double p,char* type) {
+	// 2026-11-26 Horizontal position of a tick or beat of the time base, rounded as notes are on the pianoroll (DrawPianoNote())
+	// and truncated as objects are on the object graph (DrawItem()), so that a tick at the date of a note is drawn at its start - by Claude
+	if(type != NULL && strcmp(type,"pianoroll") == 0) return(Round(date * p));
+	return((long)((date * GraphicScaleP) / GraphicScaleQ / 10));
+	}
+
 int DrawItemBackground(Rect *p_r,unsigned long imax,int htext,int hrect,int leftoffset,
 	int interruptok,Milliseconds **p_delta,long *p_yruler,int topoffset,int *p_overflow,char* type) {
 	int result;
 	double x,xscale,p,rr,period,shift,lastperiod;
 	long i,j,k,t1,t2,y,tmem1,tmem2,tmem3,xmax,xleft,ymax,y_curr;
+	int ntbticks,*tbupper;
+	Milliseconds *tbdate,tbend;
 	char line[BOLSIZE+5],showsmalldivisions,line_image[200];
 	Str255 label;
 
@@ -1298,7 +1307,7 @@ int DrawItemBackground(Rect *p_r,unsigned long imax,int htext,int hrect,int left
 		if(i >= (long) imax && lastperiod <= 0.) break;
 		t1 = leftoffset + Round(StreakDate(i,imax,lastperiod,p_delta) * p);
 		if(i >= (long) imax && t1 >= xmax) break;
-		if((t1 > tmem1 && showsmalldivisions && t1 < xmax) || tmem1 == -Infpos) {
+		if(t1 > tmem1 && showsmalldivisions && t1 < xmax) { // 2026-11-26 The first streak was drawn alone when subdivisions are not shown, next to the first beat or tick - by Claude
 			pen_size(1,0);
 			draw_line(t1,y,t1,ymax,"");
 			tmem1 = t1 + 20;
@@ -1318,6 +1327,46 @@ int DrawItemBackground(Rect *p_r,unsigned long imax,int htext,int hrect,int left
 	pen_size(1,0);
 	stroke_style("blue");
 	text_style(10,"arial");
+	// 2026-11-25 With a time base (-tb file), the major streaks show its ticks, without numbers (see TimeBase.c)
+	// Ticks are played up to the end of the item, the end of the phase diagram, not up to the right edge of the image
+	tbend = (Milliseconds)((xmax - leftoffset) / p);
+	if((*p_T)[imax] / CorrectionFactor < tbend) tbend = (*p_T)[imax] / CorrectionFactor;
+	// 2026-11-26 Ticks of the first track (the upper track on timebase.php) are solid lines with a bar on top, like a "T", those of other tracks dashed lines
+	if(p > 0. && (ntbticks = TimeBaseGraphicTicks(tbend,&tbdate,&tbupper)) > 0) {
+		for(i = 0; i < ntbticks; i++) {
+			t1 = leftoffset + TbPixel(tbdate[i],p,type); // 2026-11-26
+			if(t1 >= xmax) break;
+			if(t1 <= tmem2) continue;
+			pen_size(4,0);
+			if(tbupper[i]) {
+				draw_line(t1,y,t1,ymax,"");
+				draw_line(t1 - 2,y,t1 + 2,y,"");
+				}
+			else draw_line(t1,y,t1,ymax,"dotted");
+			tmem2 = t1 + 2; // Ticks of several tracks may be close
+			}
+		free(tbdate); free(tbupper);
+		goto ENDMAJOR;
+		}
+	// 2026-11-25 Without a time base, beats follow the tempo of the item set by _tempo() at its top level and at the start of the first
+	// field of its polymetric expressions, as the ticks of -tb.onebeat (see TimeBaseGraphicBeats()). Up to the right edge of the image.
+	if(p > 0. && (ntbticks = TimeBaseGraphicBeats((Milliseconds)((xmax - leftoffset) / p),&tbdate)) > 0) {
+		for(i = 0; i < ntbticks; i++) {
+			t1 = leftoffset + TbPixel(tbdate[i],p,type); // 2026-11-26
+			if(t1 >= xmax) break;
+			if(t1 <= tmem2) continue;
+			my_sprintf(line,"%ld",(long)(i + StartFromOne));
+			if(t1 > tmem3) {
+				fill_text(line,t1 - 5,y - 4);
+				tmem3 = t1 + 7 * strlen(line);
+				}
+			pen_size(4,0);
+			draw_line(t1,y,t1,ymax,"");
+			tmem2 = t1 + 20;
+			}
+		free(tbdate);
+		goto ENDMAJOR;
+		}
 	for(i=1L,rr=Ratio,k=0; ; i++, rr += Kpress) {
 		if(i >= (long) imax && lastperiod <= 0.) break;
 		t1 = leftoffset + Round(StreakDate(i,imax,lastperiod,p_delta) * p);
@@ -1338,6 +1387,7 @@ int DrawItemBackground(Rect *p_r,unsigned long imax,int htext,int hrect,int left
 			k++;
 			}
 		}
+	ENDMAJOR:
 	text_style(htext,"arial");
 	stroke_style("black");
 
@@ -1642,7 +1692,9 @@ void draw_line(int x1,int y1,int x2,int y2,char* style) {
 	if((y2 < 0 || y2 > max_coordinate) && x1 == x2) y2 = max_coordinate;
 	if(x1 >= 0 && x1 <= max_coordinate && y1 >= 0 && y1 <= max_coordinate && x2 >= 0 && x2 <= max_coordinate && y2 >= 0 && y2 <= max_coordinate) {
 		if(strcmp(graphic_scheme,"canvas") == 0) {
-			if(strcmp(style,"round") == 0)
+			if(strcmp(style,"dotted") == 0) // 2026-11-26 Ticks of the time base not in its first track: short segments - by Claude
+				my_sprintf(line,"ctx.beginPath();\nctx.setLineDash([16,10]);\nctx.moveTo(%ld,%ld);\nctx.lineTo(%ld,%ld);\nctx.stroke();\nctx.setLineDash([]);\n",(long)resize * x1,(long)resize * y1,(long)resize * x2,(long)resize * y2);
+			else if(strcmp(style,"round") == 0)
 				my_sprintf(line,"ctx.beginPath();\nctx.lineCap = \"round\";\nctx.moveTo(%ld,%ld);\nctx.lineTo(%ld,%ld);\nctx.stroke();\n",(long)resize * x1,(long)resize * y1,(long)resize * x2,(long)resize * y2);
 			else
 				my_sprintf(line,"ctx.beginPath();\nctx.moveTo(%ld,%ld);\nctx.lineTo(%ld,%ld);\nctx.stroke();\n",(long)resize * x1,(long)resize * y1,(long)resize * x2,(long)resize * y2);

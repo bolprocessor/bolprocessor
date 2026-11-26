@@ -1634,8 +1634,10 @@ int SendToDriver(int kcurrentinstance, int scale, int blockkey, Milliseconds tim
 	if(ChangedGrammar || ChangedSettings) return(FINISH);
 	if(Panic || EmergencyExit) return(ABORT);
 	if(!MIDIfileOn && !rtMIDI && !EventListOn) return(OK);
+	// 2026-11-25 Ticks of the time base due before this event are sent first, in chronological order (see TimeBase.c)
+	if((result = TimeBaseSendUntil(time,p_running_status)) != OK) return(result);
 	LastTime = time;
-	
+
 	status = ByteToInt(p_e->status);
 	channel = status % 16;
 	note = ByteToInt(p_e->data1);

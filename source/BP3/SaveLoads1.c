@@ -1169,6 +1169,7 @@ int LoadSettings(const char *filename, int startup) {
 	ShowObjectGraph = TRUE;
 	ShowAllObjects = FALSE;
 	ShowPianoRoll = FALSE;
+	StartFromOne = FALSE; // 2026-11-26 Beats are numbered from 0 in the graphics unless the settings say otherwise
 	Token = Oms = FALSE;
 	UseBufferLimit = FALSE;
 //	OutCsound = FALSE;
@@ -1319,6 +1320,7 @@ int LoadSettings(const char *filename, int startup) {
 		else if(strcmp(key,"Cb_instead_of_B") == 0) NameChoice[11] = intvalue;
 		else if(strcmp(key,"ShowObjectGraph") == 0) ShowObjectGraph = intvalue;
 		else if(strcmp(key,"ShowPianoRoll") == 0) ShowPianoRoll = intvalue;
+		else if(strcmp(key,"StartFromOne") == 0) StartFromOne = intvalue; // 2026-11-26 Numbers of the beats in the graphics - by Claude
 		else if(strcmp(key,"MinPeriod") == 0) MinPeriod = intvalue;
 		else if(strcmp(key,"LiveGrammar") == 0) LiveGrammar = intvalue;
 		else if(strcmp(key,"LiveSettings") == 0) LiveSettings = intvalue;

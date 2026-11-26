@@ -23,7 +23,6 @@ Various issues
 - In the 'Event list' output format, introduce parameters and tables similar to those used in Csound.
 - Design an example demonstrating properties "Allow gap" in sound-objects.
 - Problem tracing the production of an item containing structural patterns.
-- Check that scripts can be attached to out-time objects.
 - On Linux, STOP or PANIC during a wait left the trace empty. It probably has been fixed. Test: with a MIDI input connected, play the _capture + wait forever item from -da.tryCapture and click STOP, then PANIC. Console messages must show in the browser and the _done file must be created. If an item without _capture still fails: check whether _done appears and whether the console messages are displayed. An empty trace_….txt on its own is normal for these items.
 
 
@@ -44,7 +43,7 @@ Microtonal scales and tuning systems
 ------------------------------------
 
 - Tuning the MIDI device to diapason A4 ≠ 440 Hz does not work or makes a mess (e.g. Windows 10, Microsoft GS Wavetable Synth).
-- Include values for optional stretching of octaves.
+- Include values for optional (variable) stretching of octaves. Practically, make it possible to assign a given value to the stretching of each octave.
 - Implement a performance control to set the A4 frequency (diapason) in the score.
 
 
@@ -63,7 +62,7 @@ Csound
 MIDI input
 ----------
 
-- Implement more script instructions previously designed for BP2. Try to fix "_script(Wait for space)" (No hope!)
+- Implement more script instructions previously designed for BP2.
 
 
 Real-time MIDI

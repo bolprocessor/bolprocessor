@@ -36,7 +36,7 @@
 #ifndef _H_BP3
 #define _H_BP3
 
-#define SHORT_VERSION "3.7.0"
+#define SHORT_VERSION "3.7.1"
 #define IDSTRING ( "Version " SHORT_VERSION " (" __DATE__ " - " __TIME__ ")")
 #define MAXVERSION 31
 
@@ -255,6 +255,7 @@ enum {
 #define MAXNOTBPCASES 10	// cases of non standard BP grammars
 #define MAXCOLOR 11		// predefined colors
 #define MAXTICKS 3		// ticks in time base
+#define TB_TICK_INSTANCE -2	// 2026-11-25 'kcurrentinstance' of the ticks of a time base sent to MIDI, see TimeBase.c and sendMIDIEvent()
 #define MAXBEATS 40		// beats in tick cycle
 #define MAXCHAN 16	// number of MIDI-BP3 channels
 #define MAXPARTS 30	// number of parts in a score

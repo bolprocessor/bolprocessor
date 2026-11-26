@@ -6,12 +6,9 @@ https://github.com/bolprocessor/bolprocessor/blob/graphics-for-BP3/BP3-changes.t
 Geeks can also read the "to-do" file:
 https://raw.githubusercontent.com/bolprocessor/bolprocessor/graphics-for-BP3/BP3-To-Do.txt
 
-2026-11-21 -> 2026-11-24 (version 3.7.0)
-This is the first version to connect to almost all brands of sound design software via UDP, OSC or specific protocols. These include: Csound and MIDI (previously implemented), Ableton Live, SuperCollider, Max, Max for Live, TouchDesigner and Pure Data, to name a few. Similar resources for Csound are available for SuperCollider, and designing or importing more instruments is straightforward. Read more at: https://bolprocessor.org/output/.
-UDP, OSC and real-time Csound output protocols can be supplemented with flows of MIDI events, which can be used to synchronise and control productions.
-Examples of robot control by Bol Processor grammars via OSC: https://bolprocessor.org/robot-puppet/
-Grammars -gr.VisserShapes, -gr.VisserWaves and -gr.Visser5 have been rewritten to work with the updated handling of serial tools. The "Ignore field separators" option has been removed.
-Read the last example cited in "console's instructions" explaining how to send to the output folder the OSC messages that real-time SuperCollider would send to a server, one per line preceded by its date in seconds, without a server and without waiting for real time. The same works with --osc and --csoundrt. It is used for quickly comparing the outputs of two versions of the console.
+2026-11-25 (version 3.7.1)
+The superposition of time base ticks, formerly implemented in BP2, has been restored. The declaration of a time base (e.g. "-tb.startup") on top of a grammar or data project allows for the playing of ticks (on MIDI) during a performance in MIDI, real-time Csound or SuperCollider. The beat or the tick sequence now matches all variations caused by tempo().
+Script(Wait for space) now works.
 
 Don't forget to update the PHP interface:
 https://github.com/bolprocessor/php-frontend/
@@ -19,6 +16,14 @@ Also reload the set of examples:
 https://github.com/bolprocessor/bp3-ctests/archive/main.zip
 => Running an installer (MacOS/Windows) or a script (Linux) performs all operations in a single step:
 https://bolprocessor.org/install/
+
+-----
+2026-11-21 -> 2026-11-24 (version 3.7.0)
+This is the first version to connect to almost all brands of sound design software via UDP, OSC or specific protocols. These include: Csound and MIDI (previously implemented), Ableton Live, SuperCollider, Max, Max for Live, TouchDesigner and Pure Data, to name a few. Similar resources for Csound are available for SuperCollider, and designing or importing more instruments is straightforward. Read more at: https://bolprocessor.org/output/.
+UDP, OSC and real-time Csound output protocols can be supplemented with flows of MIDI events, which can be used to synchronise and control productions.
+Examples of robot control by Bol Processor grammars via OSC: https://bolprocessor.org/robot-puppet/
+Grammars -gr.VisserShapes, -gr.VisserWaves and -gr.Visser5 have been rewritten to work with the updated handling of serial tools. The "Ignore field separators" option has been removed.
+Read the last example cited in "console's instructions" explaining how to send to the output folder the OSC messages that real-time SuperCollider would send to a server, one per line preceded by its date in seconds, without a server and without waiting for real time. The same works with --osc and --csoundrt. It is used for quickly comparing the outputs of two versions of the console.
 
 -----
 2026-11-16 -> 2026-11-20 (version 3.6.2)

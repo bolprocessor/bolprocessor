@@ -158,6 +158,7 @@ static int OSCInfoKey = -1, OSCInfoChan = 0, OSCInfoVelocity = 0; // real-time O
 typedef struct {
 	double time;	// date (seconds) in the score
 	int key, chan, instance;
+	int velocity;	// 0 for the silent notes of CsRTMidiNote(), the velocity of a tick of the time base (CsRTMidiTick())
 	} CsRTMidiEvent;
 
 static CsRTMidiEvent* CsRTMidiQueue = NULL;	// silent MIDI notes waiting for their date, sorted by date (note 22)
@@ -170,7 +171,9 @@ static void CsRTFreeEvent(CsRTEvent* p_e);
 static void CsRTSleep(long milliseconds);
 static double CsRTBarrier(void);
 static int CsRTScripts(void);
-static void CsRTSendMidiDue(void);
+static void CsRTSendMidiDue(int final);
+static void CsRTMidiPush(CsRTMidiEvent* p_e);
+static void CsRTDumpMidiUntil(double date);
 static int CsRTScriptsDue(unsigned long date);
 static int CsRTWaitInstruction(int instr);
 static const char* CsRTName(void);
@@ -558,6 +561,7 @@ static int CsRTSendDue(void) {
 		e = CsRTQueue[sent];
 		if(CsRTDump != NULL) {
 			// Option "--rt-dump": every line is written at once, with its date
+			CsRTDumpMidiUntil(e.time); // Ticks of the time base dated before this line
 			CsRTDumpDate = e.time;
 			now = CsRTDateToClock(e.time);
 			}
@@ -710,7 +714,7 @@ int CsRTFlush(int wait) {
 			return result;
 			}
 		if((result = CsRTSendDue()) != OK) return result;
-		CsRTSendMidiDue(); // note 22
+		CsRTSendMidiDue(wait && CsRTQueueSize == 0L); // note 22
 		if(!wait || (CsRTQueueSize == 0L && CsRTMidiSize == 0L)) break;
 		CsRTSleep(OSCRT ? 1L : 2L); // Real-time OSC sends events at their dates: they are checked more often
 		}
@@ -928,9 +932,44 @@ void CsRTMidiNote(int key,int chan,int instance,double date) {
 	// but it can synchronise MIDI devices or another instance of BP3, whose input handlers accept NoteOn's with velocity 0.
 	// Other notes are not sent, to avoid doubling the flow of events.
 	CsRTMidiEvent e;
-	long i;
 	if(!rtMIDI || CsRTSocket == CSRT_NOSOCKET) return; // Not with --rt-dump
 	if(key < 0 || key > 127 || chan < 0 || chan > 15) return;
+	e.time = date;
+	e.key = key;
+	e.chan = chan;
+	e.instance = instance;
+	e.velocity = 0;
+	CsRTMidiPush(&e);
+	return;
+	}
+
+
+int CsRTMidiTicksOn(void) {
+	// 2026-11-25 TRUE if the ticks of a time base can be sent to MIDI (--rtmidi) or written to the file of option --rt-dump
+	return (CsRTDump != NULL || (rtMIDI && CsRTSocket != CSRT_NOSOCKET));
+	}
+
+
+void CsRTMidiTick(int key,int chan,int velocity,double date) {
+	// 2026-11-25 Called by TimeBaseStartItem() (TimeBase.c) for each tick of the time base and its end (velocity 0), at 'date' (seconds) in the score.
+	// Ticks are sent to the MIDI output like the silent notes of CsRTMidiNote(), so that they can also synchronise other devices.
+	CsRTMidiEvent e;
+	if(!CsRTMidiTicksOn()) return;
+	if(key < 0 || key > 127 || chan < 0 || chan > 15) return;
+	e.time = date;
+	e.key = key;
+	e.chan = chan;
+	e.instance = TB_TICK_INSTANCE; // Routed to the first output if no channel filter accepts its channel (sendMIDIEvent())
+	e.velocity = velocity;
+	CsRTMidiPush(&e);
+	return;
+	}
+
+
+static void CsRTMidiPush(CsRTMidiEvent* p_e) {
+	// Insert the event in CsRTMidiQueue, sorted by date (after those of the same date)
+	long i;
+	double date;
 	if(CsRTMidiSize >= CsRTMidiMax) {
 		long newmax = (CsRTMidiMax < 256L) ? 256L : 2L * CsRTMidiMax;
 		CsRTMidiEvent* p = (CsRTMidiEvent*) realloc(CsRTMidiQueue,(size_t) newmax * sizeof(CsRTMidiEvent));
@@ -941,27 +980,45 @@ void CsRTMidiNote(int key,int chan,int instance,double date) {
 		CsRTMidiQueue = p;
 		CsRTMidiMax = newmax;
 		}
-	e.time = date;
-	e.key = key;
-	e.chan = chan;
-	e.instance = instance;
+	date = p_e->time;
 	i = CsRTMidiSize;
 	while(i > 0 && CsRTMidiQueue[i - 1].time > date) i--;
 	memmove(&CsRTMidiQueue[i + 1],&CsRTMidiQueue[i],(size_t)(CsRTMidiSize - i) * sizeof(CsRTMidiEvent));
-	CsRTMidiQueue[i] = e;
+	CsRTMidiQueue[i] = (*p_e);
 	CsRTMidiSize++;
 	return;
 	}
 
 
 // note 22
-static void CsRTSendMidiDue(void) {
-	// Send the silent MIDI notes whose date has come. Unlike Csound lines, they are not sent in advance.
+static void CsRTDumpMidiUntil(double date) {
+	// Option --rt-dump: write the queued MIDI events (ticks of the time base) dated at or before 'date', or all of them if 'date' < 0
+	long sent;
+	if(CsRTDump == NULL) return;
+	for(sent = 0L; sent < CsRTMidiSize; sent++) {
+		if(date >= 0. && CsRTMidiQueue[sent].time > date + 0.0005) break;
+		fprintf(CsRTDump,"%.4f MIDI NoteOn %d %d %d\n",CsRTMidiQueue[sent].time,CsRTMidiQueue[sent].chan + 1,CsRTMidiQueue[sent].key,CsRTMidiQueue[sent].velocity);
+		}
+	if(sent > 0L) {
+		memmove(&CsRTMidiQueue[0],&CsRTMidiQueue[sent],(size_t)(CsRTMidiSize - sent) * sizeof(CsRTMidiEvent));
+		CsRTMidiSize -= sent;
+		}
+	return;
+	}
+
+
+static void CsRTSendMidiDue(int final) {
+	// Send the silent MIDI notes and ticks of the time base whose date has come. Unlike Csound lines, they are not sent in advance.
 	// Those dated at or after a pending wait or hold are kept until it is over, like Csound lines (note 20).
+	// With --rt-dump, they are written with the lines of the score (CsRTSendDue()), and the remaining ones when 'final' (end of the item).
 	UInt64 now;
 	double barrier;
 	long sent;
 	unsigned char midiData[4];
+	if(CsRTDump != NULL) {
+		if(final) CsRTDumpMidiUntil(-1.);
+		return;
+		}
 	if(CsRTMidiSize == 0L || !CsRTStarted) return;
 	now = getClockTime();
 	barrier = CsRTBarrier();
@@ -972,7 +1029,7 @@ static void CsRTSendMidiDue(void) {
 		if(CsRTDateToClock(CsRTMidiQueue[sent].time + CsoundRTMidiDelay / 1000.) > now) break;
 		midiData[0] = NoteOn + CsRTMidiQueue[sent].chan;
 		midiData[1] = CsRTMidiQueue[sent].key;
-		midiData[2] = 0;
+		midiData[2] = CsRTMidiQueue[sent].velocity;
 		sendMIDIEvent(CsRTMidiQueue[sent].instance,0,OUTmidi,0,midiData,3,0);
 		sent++;
 		}

@@ -281,7 +281,7 @@ int Inits(void) {
 		}
 		
 	NoAlphabet = TRUE;
-	StartFromOne = TRUE;
+	StartFromOne = FALSE; // 2026-11-26 Beats are numbered from 0 in the graphics by default (setting "StartFromOne")
 	MIDIsetUpTime = 700L;	// ms
 	NewEnvironment = NewColors = Help = FALSE;
 	ObjectMode = ObjectTry = Final = LoadedScript = FALSE;

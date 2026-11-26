@@ -590,7 +590,12 @@ int MakeSound(long *p_kmax,unsigned long imaxstreak,int maxnsequences,long tmin,
 			BPPrintMessage(0,odInfo,"Tcurr = %ld, occurrence = %d, t0 = %ld (ms), t1 = %ld (ms), Time_res = %ld\n\n",(long)Tcurr,occurrence,(long)t0,(long)t1,(long)Time_res);
 			
 		if(cswrite && (result=WriteCsoundTempo(torigin)) != OK) goto OVER;
-		
+
+		// 2026-11-25 Ticks of the time base (-tb file) from date 0 to the end of this performance (see TimeBase.c)
+		// The pianoroll is drawn in the same pass as the MIDI output, so ticks are also sent when 'showpianoroll' is TRUE
+		// In real-time Csound, SuperCollider and OSC, the ticks of the item are queued for the MIDI output at once
+		if(!cswrite || CsoundRT) TimeBaseStartItem(t0,t0 + tmax);
+
 		ItemOutPutOn = TRUE;
 		doneobjects = 0; // Probably useless
 		time_nextperiod_start = -1.;
@@ -1364,6 +1369,8 @@ FINDNEXTEVENT:
 			}
 
 		// The item has been sent entirely.
+		// Send the ticks of the time base remaining before its end
+		if((result = TimeBaseEndItem(&rs)) != OK) goto OVER;
 
 		ItemOutPutOn = FALSE;
 				
@@ -1388,6 +1395,7 @@ FINDNEXTEVENT:
 
 	// note 38
 OVER:
+	TimeBaseCancel(); // No effect if the ticks of the item have been sent
 	if(result == ENDREPEAT) result = OK;
 	if(Panic || result == STOP) result = ABORT;
 	if(ChangedGrammar) {

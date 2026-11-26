@@ -50,6 +50,8 @@ char PanicfileName[500] = {0};
 char PausefileName[500] = {0};
 char ContinuefileName[500] = {0};
 char TimefileName[500] = {0};
+char SpacefileName[500] = {0}; // Created by produce.php when the space bar is pressed, see CheckSpaceBar()
+char WaitSpacefileName[500] = {0}; // Created by the console while it waits for the space bar, so that produce.php can say so
 int KeepTimeFile = FALSE; // Set when the performance is stopped, so that produce.php can display its date
 
 // function prototypes
@@ -361,6 +363,7 @@ CLEANUP:
 		}
 //	else BPPrintMessage(0,odError, "=> result was: %d\n",result);
 	if(strlen(TimefileName) > 0 && !KeepTimeFile) remove(TimefileName);
+	if(strlen(WaitSpacefileName) > 0) remove(WaitSpacefileName);
 	CreateDoneFile();
 	free(eventStack);
 	return EXIT_SUCCESS;
@@ -436,6 +439,11 @@ void CreateStopFile(void) {
 				// The browser reads the "_time" file to display the date of the real-time MIDI performance
 				snprintf(TimefileName,sizeof(TimefileName),"%s_time",thefile);
 				remove(TimefileName);
+				// _script(Wait for Space): see CheckSpaceBar()
+				snprintf(SpacefileName,sizeof(SpacefileName),"%s_space",thefile);
+				snprintf(WaitSpacefileName,sizeof(WaitSpacefileName),"%s_waitspace",thefile);
+				remove(SpacefileName);
+				remove(WaitSpacefileName);
 				}
 			else BPPrintMessage(0,odError, "=> Memory allocation failed for new_thefile in CreateStopFile()\n");
 			free(thefile);
@@ -872,9 +880,11 @@ const char gOptionList[] =
 	"  -cs fname:        load Csound instrument definitions file 'fname'\n"
 	"  -sc fname:        load SuperCollider instrument definitions file 'fname' (format of '-cs' files; instrument NAME is played by SynthDef NAME)\n"
 	"  -wg fname:        create/modify rule weights file 'fname'\n"
+	"  -tb fname:        load time base file 'fname' (ticks superposed to each item, sent to MIDI files and the MIDI output)\n"
+	"  --mute-ticks:     don't play the ticks of the time base (they are still shown in the graphics)\n"
 	"\n"
 	"  These file-type markers currently are recognized but ignored:\n"
-	"      -in  -kb  -md  -mi  -tb  -tr  +sc \n"
+	"      -in  -kb  -md  -mi  -tr  +sc \n"
 	"\n"
 /*	"  -de fname        load decisions file 'fname'\n"
 	"  -in fname        load interaction file 'fname'\n"
@@ -1246,6 +1256,10 @@ int ParsePostInitArgs(int argc, char* args[], BPConsoleOpts* opts) {
 				else if(strcmp(args[argn], "--show-production") == 0)	{
 					opts->showProduction = TRUE;
 					}
+				else if(strcmp(args[argn], "--mute-ticks") == 0)	{
+					// 2026-11-25 The ticks of the time base (-tb file) are not played, but still shown in the graphics
+					TimeBaseMute(TRUE);
+					}
 				else if(strcmp(args[argn], "--trace-production") == 0)	{
 					opts->traceProduction = TRUE;
 					}
@@ -1533,6 +1547,10 @@ int LoadInputFiles(const char* pathnames[WMAX]) {
 					BPPrintMessage(0,odInfo, "Reading sound-object prototypes file: %s\n", pathnames[w]);
 					strcpy(FileName[iObjects],pathnames[w]);
 					result = LoadObjectPrototypes(0,1);
+					if(result != OK)  return result;
+					break;
+				case wTimeBase: // 2026-11-25 Ticks superposed to the performance (see TimeBase.c)
+					result = LoadTimeBase(pathnames[w]);
 					if(result != OK)  return result;
 					break;
 				case iWeights: // Only output
@@ -1921,6 +1939,7 @@ int Trace(const char* mssg) {
 	}
 
 #if !defined(_WIN64) && !defined(__BP3_WASM__)
+#include <sys/select.h>
 struct termios orig_termios;
 void disable_raw_mode() {
 	// Restore the original terminal settings
@@ -1932,7 +1951,9 @@ void enable_raw_mode() {
 	// Get the current terminal settings
 	tcgetattr(STDIN_FILENO, &orig_termios);
 	// Register the disable_raw_mode to run when the program exits
-	atexit(disable_raw_mode);
+	static int registered = FALSE;
+	if(!registered) atexit(disable_raw_mode); // Only once: a performance may wait for the space bar several times
+	registered = TRUE;
 	// Start with the original settings
 	raw = orig_termios;
 	// Input modes: no break, no CR to NL, no parity check, no strip char, no start/stop output control
@@ -1950,3 +1971,105 @@ void enable_raw_mode() {
 	tcsetattr(STDIN_FILENO, TCSANOW, &raw);
 	}
 #endif
+
+static int StdinIsTerminal(void) {
+#if defined(_WIN64)
+	// _isatty() is also TRUE for the NUL device, which the web server gives as standard input: only a real console has a console mode
+	DWORD mode;
+	return GetConsoleMode(GetStdHandle(STD_INPUT_HANDLE),&mode) != 0;
+#elif !defined(__BP3_WASM__)
+	return isatty(STDIN_FILENO);
+#else
+	return FALSE;
+#endif
+	}
+
+static int KeyboardSpace(void) {
+	// Returns TRUE if the space bar has been pressed in the terminal running the console, without waiting
+#if defined(_WIN64)
+	if(!StdinIsTerminal()) return FALSE;
+	while(_kbhit()) {
+		if(_getch() == ' ') return TRUE;
+		}
+#elif !defined(__BP3_WASM__)
+	char ch;
+	fd_set fds;
+	struct timeval tv;
+	if(!isatty(STDIN_FILENO)) return FALSE;
+	for(;;) {
+		FD_ZERO(&fds);
+		FD_SET(STDIN_FILENO,&fds);
+		tv.tv_sec = tv.tv_usec = 0;
+		if(select(STDIN_FILENO + 1,&fds,NULL,NULL,&tv) <= 0) break;
+		if(read(STDIN_FILENO,&ch,1) != 1) break;
+		if(ch == ' ') return TRUE;
+		}
+#endif
+	return FALSE;
+	}
+
+void CheckSpaceBar(void) {
+	// Called by ListenToEvents() while WaitForSpace is set by _script(Wait for Space).
+	// The space bar is read without waiting, either in the window of the performance (produce.php
+	// creates the '_space' file) or in the terminal running the console.
+	// Previously, the console read its standard input, which blocked it, and the interface could not send it a key. Fixed 2026-11-26 by Claude
+	static int waiting = FALSE;
+	int found;
+	FILE* ptr;
+
+	if(!WaitForSpace) {
+		if(waiting) {
+			waiting = FALSE;
+			if(strlen(WaitSpacefileName) > 0) remove(WaitSpacefileName);
+#if !defined(_WIN64) && !defined(__BP3_WASM__)
+			if(isatty(STDIN_FILENO)) disable_raw_mode();
+#endif
+			}
+		return;
+		}
+	if(!waiting) {
+		if(strlen(SpacefileName) == 0 && !StdinIsTerminal()) {
+			BPPrintMessage(0,odError,"=> The space bar can't be read in this environment (no terminal and no option --traceout). Instruction _script(Wait for Space) is ignored\n");
+			WaitForSpace = FALSE;
+			StopWaiting(0,' ');
+			return;
+			}
+		waiting = TRUE;
+		if(strlen(SpacefileName) > 0) {
+			remove(SpacefileName); // A space bar pressed before the wait doesn't count
+			ptr = my_fopen(1,WaitSpacefileName,"w"); // Reports an error if the file can't be created
+			if(ptr != NULL) {
+				fprintf(ptr,"waiting\n");
+				my_fclose(ptr);
+				BPPrintMessage(0,odInfo,"Created file telling the interface to wait for the space bar: %s\n",WaitSpacefileName);
+				}
+			BPPrintMessage(0,odInfo,"The space bar will be read in file: %s\n",SpacefileName);
+			}
+		else BPPrintMessage(0,odInfo,"The space bar can only be typed in the terminal (no trace path)\n");
+		if(StdinIsTerminal()) BPPrintMessage(0,odInfo,"The space bar may also be typed in the terminal\n");
+#if !defined(_WIN64) && !defined(__BP3_WASM__)
+		if(isatty(STDIN_FILENO)) {
+			enable_raw_mode();
+			KeyboardSpace(); // Ignore keys pressed before the wait
+			}
+#endif
+		BPPrintMessage(0,odInfo,"👉 Waiting for the space bar\n");
+		return;
+		}
+	found = FALSE;
+	if(strlen(SpacefileName) > 0) {
+		ptr = my_fopen(0,SpacefileName,"r");
+		if(ptr != NULL) {
+			my_fclose(ptr);
+			remove(SpacefileName);
+			found = TRUE;
+			}
+		}
+	if(!found) found = KeyboardSpace();
+	if(!found) return;
+	BPPrintMessage(0,odInfo,"👉 The space bar has been pressed\n");
+	WaitForSpace = FALSE;
+	CheckSpaceBar(); // End of the wait
+	StopWaiting(0,' ');
+	return;
+	}
