@@ -57,7 +57,7 @@ int CscoreWrite(Milliseconds cut_the_end,Rect* p_graphrect,int leftoffset,int to
 	// onoffline = OFF -- terminate Csound process as a NoteOff has been encountered, and
 	//    write Csound score line
 
-	int i,jj,k,c,ins,index,part,assigned,paramindex,paramnameindex,this_instrument,iarg,ip,ipitch,iargmax,octave,changedpitch,overflow,comeback,pitchclass,result,maxparam,argtable,pitch_format,i_scale,mode;
+	int i,jj,k,c,ins,index,part,assigned,paramindex,paramnameindex,this_instrument,iarg,ip,ipitch,iargmax,octave,changedpitch,overflow,comeback,pitchclass,result,maxparam,argtable,pitch_format,line_format,iarg_line,i_scale,mode;
 	char line[MAXLIN],line2[MAXLIN];
 	long imax,pivloc,trbeg,starttime;
 	double time,x,xx,cents_base,cents_add1,cents_add2,deltakey,dur,**scorearg,alpha1,alpha2,startvalue,endvalue,ratio,oldtime_on;
@@ -270,7 +270,14 @@ int CscoreWrite(Milliseconds cut_the_end,Rect* p_graphrect,int leftoffset,int to
 //		if((pitch_format == OPPC || pitch_format == OPD) && (A4freq != 440. || C4key != 60) pitch_format = CPS;
 		if(onoffline == LINE) {
 			x = (*scorearg)[iarg];
-			switch(pitch_format) {
+			line_format = pitch_format;
+			// 2026-11-27 With a '-sc' file, the score line of a sound-object was written for the instrument of the same index in the '-cs' file loaded before: its pitch is read in the format and at the argument of that instrument (ObjectCsPitchFormat[], set in LoadInputFiles()) - fixed by Claude
+			if(SuperColliderResource && instrument > 0 && instrument < MAXINSTRUMENTS && ObjectCsPitchFormat[instrument] >= 0) {
+				line_format = ObjectCsPitchFormat[instrument];
+				iarg_line = ObjectCsPitchIndex[instrument];
+				if(iarg_line >= 4 && iarg_line < 4 + (*((*pp_CsoundScore)[j]))[iline].nbparameters && iarg_line <= iargmax) x = (*scorearg)[iarg_line];
+				}
+			switch(line_format) {
 				case OPPC:
 					octave = MyInt(x);
 					pitchclass = MyInt(100. * (x - octave));

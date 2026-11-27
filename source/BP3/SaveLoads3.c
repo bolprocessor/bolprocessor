@@ -190,7 +190,7 @@ int ReadOne(int bindlines, int careforhtml, int nocomment, FILE *fin,
 	remove_final_linefeed(line);
 	remove_carriage_returns(line);
 
-	size_t lineSize = utf8_strsize(line);
+	size_t lineSize = strlen(line); // 2026-11-27 Not utf8_strsize(), wrong for a line cut by fgets() within a UTF-8 character - fixed by Claude
 
 	buffer = malloc(lineSize + 1);
 	if(buffer == NULL) {

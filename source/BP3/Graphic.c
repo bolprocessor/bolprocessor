@@ -1328,9 +1328,10 @@ int DrawItemBackground(Rect *p_r,unsigned long imax,int htext,int hrect,int left
 	stroke_style("blue");
 	text_style(10,"arial");
 	// 2026-11-25 With a time base (-tb file), the major streaks show its ticks, without numbers (see TimeBase.c)
-	// Ticks are played up to the end of the item, the end of the phase diagram, not up to the right edge of the image
+	// Ticks are played up to the end of the item, including the end of its last notes, not up to the right edge of the image:
+	// TimeBaseGraphicTicks() stops at the end given by TimeBaseSetItemEnd(). 2026-11-27 The end of the phase diagram (*p_T)[imax]
+	// is not used any more: 'imax' may be the last column of a sequence, and ticks stopped before the last notes (-gr.Visser.Waves)
 	tbend = (Milliseconds)((xmax - leftoffset) / p);
-	if((*p_T)[imax] / CorrectionFactor < tbend) tbend = (*p_T)[imax] / CorrectionFactor;
 	// 2026-11-26 Ticks of the first track (the upper track on timebase.php) are solid lines with a bar on top, like a "T", those of other tracks dashed lines
 	if(p > 0. && (ntbticks = TimeBaseGraphicTicks(tbend,&tbdate,&tbupper)) > 0) {
 		for(i = 0; i < ntbticks; i++) {

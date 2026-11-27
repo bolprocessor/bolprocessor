@@ -649,6 +649,11 @@ unsigned long NextEnd(tokenbyte ***pp_a,unsigned long iorg,int *p_next_is_bracke
 				}
 			if(m == T12 && (p == 21 || p == 22)) {
 				//  _retro, _rndseq
+				// 2026-11-27 A tool placed right after this one ("_rndseq _retro {...}") is part of its range: the range of _rndseq was empty, and in "{_rndseq _retro {C4 D4 E4 F4}} C3 D3 E3 F3" (-da.trySerialTools) the structure was broken ("=> Err. PolyMake(). {} not balanced") and notes were lost - fixed by Claude
+				if((is_retro || is_rndseq || is_ordseq || is_rotate) && i == iorg + 2L) {
+					i += 2L;
+					continue;
+					}
 				if(!is_retro && !is_rndseq && !is_rndseq && !is_rotate) (*p_next_is_bracket) = TRUE;
 				return(i);
 				}

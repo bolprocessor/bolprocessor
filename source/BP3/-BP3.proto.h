@@ -150,6 +150,7 @@ int ExpandSelection(int);
 int ShowPeriods(int);
 int PlayBuffer(tokenbyte***,int);
 int OnlyCommentsInLine(int,long,long);
+int JoinItemLines(int,long);
 int PlayBuffer1(tokenbyte***,int);
 int PlayHandle(char**,int);
 int GetString1(char*);

@@ -1527,6 +1527,24 @@ int LoadInputFiles(const char* pathnames[WMAX]) {
 					// 2026-11-20 A "-sc" file has the format of a "-cs" file. Its instruments are played by the SynthDefs of the same names
 					// in real-time SuperCollider (see SCRTNoteMessage()). It replaces a "-cs" file given as well.
 					if(pathnames[wCsoundResources] != NULL) BPPrintMessage(0,odWarning,"=> Both a '-cs' and a '-sc' file are given: the instruments of the '-sc' file are used\n");
+					if(LoadedCsoundInstruments) {
+						// 2026-11-27 The Csound scores of sound-objects are written for the instruments of the '-cs' file loaded before (named by the '-so' file): keep the pitch format and argument of each instrument, so that their pitches are read correctly once the '-sc' file replaces these instruments (CscoreWrite()). Values such as "4.05" (OPPC) were read as frequencies in Hz - fixed by Claude
+						int ins_cs,index_cs;
+						for(ins_cs = 0; ins_cs < Jinstr; ins_cs++) {
+							index_cs = (*p_CsInstrumentIndex)[ins_cs];
+							if(index_cs < 0 || index_cs >= MAXINSTRUMENTS) continue;
+							ObjectCsPitchFormat[index_cs] = (*p_CsPitchFormat)[ins_cs];
+							ObjectCsPitchIndex[index_cs] = (*p_CsPitchIndex)[ins_cs];
+							}
+						}
+					else {
+						// 2026-11-27 No '-cs' file: the Csound scores of sound-objects are read as by the default instrument (ResetCsoundInstrument()), pitch in OPPC format at argument 4 (-da.tryMiscObjects, -so.tryObjects) - fixed by Claude
+						int index_cs;
+						for(index_cs = 0; index_cs < MAXINSTRUMENTS; index_cs++) {
+							ObjectCsPitchFormat[index_cs] = OPPC;
+							ObjectCsPitchIndex[index_cs] = 4;
+							}
+						}
 					strcpy(FileName[wCsoundResources],pathnames[w]);
 					LoadedCsoundInstruments = FALSE;
 					result = LoadCsoundInstruments(0,1);
@@ -1664,7 +1682,7 @@ int OpenAndReadFile(const char* pathname,char** buffer) {
 		if(strlen(line) == 0) continue;
 		i++;
   //      BPPrintMessage(0,odInfo, "line[%d] (%d) = %s\n",i,utf8_strsize(line),line);
-		size_t lineSize = utf8_strsize(line);
+		size_t lineSize = strlen(line); // 2026-11-27 Not utf8_strsize(): fgets() cuts lines longer than MAXLIN, possibly within a UTF-8 character, whose lead byte was then counted for its full size: the copy included the terminating '\0', which ended the text (e.g. a data item cut at a "—" of its comments) - fixed by Claude
 		char* newBuffer = realloc(*buffer, bufferLength + lineSize + 2); // +1 for '\n' and +1 for '\0'
 		if(newBuffer == NULL) {
 			// Handle allocation failure; clean up and exit

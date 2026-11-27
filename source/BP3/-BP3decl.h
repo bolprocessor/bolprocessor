@@ -339,6 +339,7 @@ extern float EndFadeOut,AdvanceTime;
 extern double CsScoreEnd;
 extern int CsoundRT, CsoundRTport, CsoundRTMidiDelay;
 extern int SuperColliderRT, SuperColliderResource, OSCRT;
+extern int ObjectCsPitchFormat[MAXINSTRUMENTS], ObjectCsPitchIndex[MAXINSTRUMENTS];
 extern char* CsRTDumpName;
 extern char SuperColliderHost[];
 extern int CurrentVolume[MAXCHAN+1];

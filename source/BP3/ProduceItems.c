@@ -209,8 +209,11 @@ int ProduceItems(int w,int repeat,int template,tokenbyte ***pp_start) {
 		}
 	if(Improvize) {
 		// note 15 (real-time Csound)
-		if(!rtMIDI && (!CsoundRT || CsRTDumpName != NULL) && (MaxItemsProduce > 0) && ItemNumber > MaxItemsProduce) {
+		// 2026-11-27: with a MIDI file, a Csound score or an event list, ItemNumber is incremented by MakeSound() once the item is played, so the production stops when it reaches MaxItemsProduce. Before, one more item was produced and written to the output text, then not played by MakeSound() (11 lines for 10 items in -gr.WoodblockRhythms) - fixed by Claude
+		if(!rtMIDI && (!CsoundRT || CsRTDumpName != NULL) && (MaxItemsProduce > 0) && (ItemNumber > MaxItemsProduce
+				|| ((WriteMIDIfile || OutCsound || EventListOn) && ItemNumber >= MaxItemsProduce))) {
 	//		BPPrintMessage(1,odInfo,"👉 %ld items have been produced. We stop improvizing...\n",(long)(ItemNumber - 1L));
+			if(ItemNumber == MaxItemsProduce) BPPrintMessage(1,odInfo,"👉 %ld items have been produced\n",(long)ItemNumber);
 			Improvize =  FALSE;
 			r = ABORT;
 			goto QUIT;

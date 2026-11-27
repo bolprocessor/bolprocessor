@@ -493,6 +493,8 @@ int LoadCsoundInstrumentsJSON(const char *json_text) {
 	result = MISSED;
 
 	MaxParameters = 0;
+	// 2026-11-27 The parameter names of instruments loaded before (e.g. the '-cs' file named by a '-so' file, replaced by a '-sc' file) must be forgotten: their indices were beyond the storage sized by the new MaxParameters ("=> Err. UpdateParameter(). i < 0 || i >= imax" in -da.tryCsoundObjects with SuperCollider) - fixed by Claude
+	for(j = 0; j < MAXPARAMS; j++) ParamNameIndexToInstrument[j] = ParamNameIndexToParameter[j] = ParamIndexToIp[j] = -1;
 	ins = 0;
 	cJSON_ArrayForEach(instrument,instruments) {
 		ResetCsoundInstrument(ins,YES,YES);
@@ -782,6 +784,7 @@ int LoadCsoundInstrumentsOldFormat(int checkversion,int tryname) {
 	if(trace_load_csound_instruments) BPPrintMessage(0,odInfo,"Jinstr = %d\n",Jinstr);
 
 	MaxParameters = 0;
+	for(j = 0; j < MAXPARAMS; j++) ParamNameIndexToInstrument[j] = ParamNameIndexToParameter[j] = ParamIndexToIp[j] = -1; // 2026-11-27 Forget the parameters of instruments loaded before - fixed by Claude
 	for(ins = 0; ins < max_ins; ins++) {
 		ResetCsoundInstrument(ins,YES,YES);
 		if(trace_load_csound_instruments) BPPrintMessage(0,odInfo,"ins = %d\n",ins);

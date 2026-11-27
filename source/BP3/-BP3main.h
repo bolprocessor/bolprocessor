@@ -410,6 +410,7 @@ int MinPeriod;
 float EndFadeOut,AdvanceTime;
 double CsScoreEnd = 0.; // End (seconds) of the last note written to the Csound score, used when CSOUND_SECTIONS is 0
 int CsoundRT = FALSE, CsoundRTport = 0, CsoundRTMidiDelay = 46; // Real-time Csound, option "--csoundrt port", see CsoundRealTime.c
+int ObjectCsPitchFormat[MAXINSTRUMENTS], ObjectCsPitchIndex[MAXINSTRUMENTS]; // 2026-11-27 Pitch format and argument of each instrument index of the '-cs' file loaded before a '-sc' file, i.e. of the Csound scores of sound-objects (-1 = unknown), see CscoreWrite()
 int SuperColliderRT = FALSE, SuperColliderResource = FALSE; // SuperColliderResource: a "-sc" file has been loaded (option "-sc"), whose instrument names are SynthDef names. Real-time SuperCollider, option "--scrt port[@host]", see CsoundRealTime.c (CsoundRT is TRUE as well)
 char SuperColliderHost[256] = "127.0.0.1"; // Also the host of real-time OSC
 int OSCRT = FALSE; // 2026-11-21 Real-time OSC (Max, Pd...), option "--osc port[@host]", see CsoundRealTime.c (CsoundRT is TRUE as well)

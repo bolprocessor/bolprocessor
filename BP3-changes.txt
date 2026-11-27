@@ -6,9 +6,9 @@ https://github.com/bolprocessor/bolprocessor/blob/graphics-for-BP3/BP3-changes.t
 Geeks can also read the "to-do" file:
 https://raw.githubusercontent.com/bolprocessor/bolprocessor/graphics-for-BP3/BP3-To-Do.txt
 
-2026-11-25 (version 3.7.1)
-The superposition of time base ticks, formerly implemented in BP2, has been restored. The declaration of a time base (e.g. "-tb.startup") on top of a grammar or data project allows for the playing of ticks (on MIDI) during a performance in MIDI, real-time Csound or SuperCollider. The beat or the tick sequence now matches all variations caused by tempo().
-Script(Wait for space) now works.
+2026-11-27 (version 3.7.2)
+The first version allowing the installation of a Claude AI agent.
+Read: https://bolprocessor.org/ai-agent/
 
 Don't forget to update the PHP interface:
 https://github.com/bolprocessor/php-frontend/
@@ -16,6 +16,11 @@ Also reload the set of examples:
 https://github.com/bolprocessor/bp3-ctests/archive/main.zip
 => Running an installer (MacOS/Windows) or a script (Linux) performs all operations in a single step:
 https://bolprocessor.org/install/
+
+-----
+2026-11-25 (version 3.7.1)
+The superposition of time base ticks, formerly implemented in BP2, has been restored. The declaration of a time base (e.g. "-tb.startup") on top of a grammar or data project allows for the playing of ticks (on MIDI) during a performance in MIDI, real-time Csound or SuperCollider. The beat or the tick sequence now matches all variations caused by tempo().
+Script(Wait for space) now works.
 
 -----
 2026-11-21 -> 2026-11-24 (version 3.7.0)

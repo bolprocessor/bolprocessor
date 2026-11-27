@@ -104,6 +104,7 @@ int PlaySelection(int w, int all) {
 
 	end = GetTextHandleLength(TEH[w]);
 
+	if(JoinItemLines(w,origin) == ABORT) return(ABORT); // 2026-11-27
 	end = origin;
 	while(TRUE) {
 		c = GetTextChar(w,end);
@@ -210,6 +211,116 @@ int PlaySelection(int w, int all) {
 
 	ResetMIDIfile();
 	return(r);
+	}
+
+
+static int ItemLineType(const char *t,long n) {
+	// Type of a line of text 't' of length 'n', spaces at both ends removed: 0 empty, 1 item, 2 file name (e.g. "-se.kathak"), 3 comment line ("//"), 4 start of a chunk made by data.php ("[chunk 2] ...")
+	if(n == 0) return(0);
+	if(n >= 4 && t[0] == '-' && isalpha((unsigned char)t[1]) && isalpha((unsigned char)t[2]) && t[3] == '.') return(2);
+	if(n >= 2 && t[0] == '/' && t[1] == '/') return(3);
+	if(n >= 7 && strncmp(t,"[chunk ",7) == 0) return(4);
+	return(1);
+	}
+
+int JoinItemLines(int w,long start) {
+	// 2026-11-27 Each line of the text is played as a chunk, so an item written on several lines was played as several chunks, and its graphics showed only the first one (item #1 of -da.kathak, whose phrase is wrapped on 5 lines), and an expression continued on the next line was incorrect (item #2: "'{' and '}' are not balanced").
+	// The lines of an item are now joined with spaces into a single line. Lines are not joined across an empty line (end of an item), a file name ("-se.NAME"), a comment line ("//"), or the start of a chunk made by the "PLAY safe" of data.php ("[chunk N]").
+	// A line whose braces are balanced and which contains a comma or a period outside braces is a polymetric expression without its braces ("C4 D4, E4 F4 G4", "a b . c d e"): it is put between braces, otherwise it would take the next lines into its last field, or its beats would be shared with them. Text between [ ] or ( ) is ignored. - by Claude
+	char **h,*text,*out,c;
+	long len,i,j,k,ls,le,ts,te,ko,linestart;
+	int type,level,comma,inrun,nlogical,first;
+
+	if(w < 0 || w >= WMAX || TEH[w] == NULL) return(MISSED);
+	h = WindowTextHandle(TEH[w]);
+	len = GetTextHandleLength(TEH[w]);
+	if(h == NULL || start < 0 || start >= len) return(MISSED);
+	text = *h;
+	if((out = (char*) malloc((size_t)(2 * len + 16))) == NULL) return(ABORT);
+	memcpy(out,text,(size_t)start);
+	ko = start;
+	inrun = FALSE; nlogical = 0; level = 0; comma = FALSE; first = TRUE;
+	linestart = ko;
+	i = start;
+	while(i <= len) {
+		// Find the line from 'ls' to 'le' (excluded), and the start of the next one 'j'
+		ls = i;
+		le = ls;
+		while(le < len && text[le] != '\r' && text[le] != '\n') le++;
+		j = le;
+		if(j < len && text[j] == '\r') j++;
+		if(j < len && text[j] == '\n' && (j == le || text[j-1] == '\r')) j++;
+		if(j == le && le < len) j++;
+		ts = ls; te = le;
+		while(ts < te && (text[ts] == ' ' || text[ts] == '\t')) ts++;
+		while(te > ts && (text[te-1] == ' ' || text[te-1] == '\t')) te--;
+		type = ItemLineType(text + ts,te - ts);
+		if(inrun && type != 1) {
+			// End of a run of item lines
+			if(!first && nlogical > 1 && comma && level == 0) { // Last logical line of the run needs braces
+				memmove(out + linestart + 1,out + linestart,(size_t)(ko - linestart));
+				out[linestart] = '{'; ko++;
+				out[ko++] = '}';
+				}
+			out[ko++] = '\n';
+			inrun = FALSE;
+			}
+		if(type == 1 || type == 4) {
+			if(!inrun) {
+				inrun = TRUE; nlogical = 0; level = 0; comma = FALSE; first = TRUE;
+				}
+			if(level == 0) {
+				// A new logical line starts here. The previous one, if it had a comma outside braces, is put between braces, as soon as the run has several logical lines.
+				if(!first && comma) {
+					memmove(out + linestart + 1,out + linestart,(size_t)(ko - linestart));
+					out[linestart] = '{'; ko++;
+					out[ko++] = '}';
+					}
+				if(!first) out[ko++] = ' ';
+				linestart = ko;
+				comma = FALSE;
+				nlogical++;
+				}
+			else out[ko++] = ' ';
+			for(k = ts; k < te; k++) {
+				c = text[k];
+				out[ko++] = c;
+				if(c == '[') {
+					while(k + 1 < te && text[k+1] != ']') out[ko++] = text[++k];
+					continue;
+					}
+				if(c == '(') { // Arguments of a performance control, e.g. _tempo(1.5)
+					while(k + 1 < te && text[k+1] != ')') out[ko++] = text[++k];
+					continue;
+					}
+				if(c == '{') level++;
+				else if(c == '}' && level > 0) level--;
+				else if((c == ',' || c == '.') && level == 0) comma = TRUE; // Field or beat separator outside braces
+				}
+			first = FALSE;
+			}
+		else {
+			// Empty line, file name or comment line: copied unchanged
+			memcpy(out + ko,text + ls,(size_t)(le - ls));
+			ko += le - ls;
+			if(le < len || j > le) out[ko++] = '\n';
+			}
+		if(le >= len) break;
+		i = j;
+		if(i >= len) break;
+		}
+	if(inrun) {
+		if(!first && nlogical > 1 && comma && level == 0) {
+			memmove(out + linestart + 1,out + linestart,(size_t)(ko - linestart));
+			out[linestart] = '{'; ko++;
+			out[ko++] = '}';
+			}
+		out[ko++] = '\n';
+		}
+	out[ko] = '\0';
+	i = CopyStringToTextHandle(TEH[w],out);
+	free(out);
+	return(i);
 	}
 
 

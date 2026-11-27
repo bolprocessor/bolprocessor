@@ -124,7 +124,19 @@ tokenbyte **Encode(t_gram* p_gram,int sequence,int notargument, int igram, int i
 	NOTSCALE:
 		if(c == '\n' || c == '\r' || c == '\0') break;
 		if(c == '[') {
-			if(arg_nr == 0 || arg_nr == 2 || arg_nr == 8) break;
+			if(arg_nr == 0) {
+				// 2026-11-27 A comment inside an item is skipped, and the item goes on after it: "C4 D4 [c] E4 F4" played only C4 D4. A comment left open ends the line - by Claude
+				int level = 0;
+				while((*pp) <= (*pp2) && (c = **pp) != '\0' && c != '\n' && c != '\r') {
+					if(c == '[') level++;
+					else if(c == ']' && --level == 0) break;
+					(*pp)++;
+					}
+				if(level > 0) break;
+				(*pp)++;
+				continue;
+				}
+			if(arg_nr == 2 || arg_nr == 8) break;
 			else {
 				my_sprintf(Message,"Misplaced comment in left argument\n");
 				Print(wTrace,Message);

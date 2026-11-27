@@ -274,6 +274,7 @@ int Inits(void) {
 	CsoundFileFormat = MAC;
 	MaxParameters = 0;
 	for(i = 0; i < MAXPARAMS; i++) ParamNameIndexToInstrument[i] = ParamNameIndexToParameter[i] = ParamIndexToIp[i] = -1;
+	for(i = 0; i < MAXINSTRUMENTS; i++) ObjectCsPitchFormat[i] = ObjectCsPitchIndex[i] = -1;
 
 	for(i=0; i < 6; i++) {
 		p_CsPitchBend[i] = p_CsVolume[i] = p_CsPressure[i] = p_CsModulation[i]

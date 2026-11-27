@@ -432,8 +432,8 @@ int MakeCsoundFunctionTable(int onoffline,double **scorearg,double alpha1,double
 		for(i = 1L; i <= lasti; i++) {
 			if(i == lasti)
 				newx = n - sum;	// This compensates rounding errors
-			else 
-				newx = MyInt(((*(subtable.point))[i].x - oldx) * iscale);
+			else // 2026-11-27: the position of each point is rounded, so that errors don't accumulate. Truncating the length of each segment made the points of "_value(leftforearm,0) _ _value(leftforearm,60) _ ..." early by 2% (0.488 s instead of 0.5 s, 25 points instead of 25.6) - fixed by Claude
+				newx = (long) floor((*(subtable.point))[i].x * iscale + 0.5) - sum;
 			oldx = (*(subtable.point))[i].x;
 			sum += newx;
 			my_sprintf(line2," %ld",(long)newx);

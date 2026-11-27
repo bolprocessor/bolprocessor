@@ -1713,11 +1713,11 @@ int PolyExpand(tokenbyte **p_b,tokenbyte ***pp_a,unsigned long idorg,unsigned lo
 				result = MISSED; goto SORTIR;
 				}
 			if(fixlength && (isequal != TRUE)) {
-				if(comma) my_sprintf(Message,"Conflicting field duration (field %ld)...\n",
+				// 2026-11-27 This error stops the item, so it is displayed as an error: it was printed with Print(wTrace), without "=>", and the item produced nothing without any visible reason (e.g. "/1 {/2 - _ _ /1 c_ d_ e_,/2 - _ _ _ _ /1 f_ g_,a_ b_ /2 - /1 c_ d_}" in -da.checkPoly, whose fields last 7.5, 6.5 and 8.5 beats) - fixed by Claude
+				if(comma) BPPrintMessage(0,odError,"=> Conflicting field duration (field %ld): the durations of the fields of a polymetric expression are fixed by tempo markers (e.g. /2) or numbers, and they differ. This item can't be played\n",
 					(long)(a+1L));
-				else my_sprintf(Message,"Conflicting beat duration (beat %ld)...\n",
+				else BPPrintMessage(0,odError,"=> Conflicting beat duration (beat %ld): the durations of the beats are fixed by tempo markers (e.g. /2) or numbers, and they differ. This item can't be played\n",
 					(long)(a+1L));
-				Print(wTrace,Message);
 				result = MISSED; goto SORTIR;
 				}
 			fixlength = TRUE;
