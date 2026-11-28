@@ -6,8 +6,8 @@ https://github.com/bolprocessor/bolprocessor/blob/graphics-for-BP3/BP3-changes.t
 Geeks can also read the "to-do" file:
 https://raw.githubusercontent.com/bolprocessor/bolprocessor/graphics-for-BP3/BP3-To-Do.txt
 
-2026-11-27 (version 3.7.2)
-The first version allowing the installation of a Claude AI agent.
+2026-11-27 -> 2026-11-28 (version 3.7.2)
+This version allowing the installation of a Claude AI agent. Checked on MacOS, Windows 10 and Linux.
 Read: https://bolprocessor.org/ai-agent/
 
 Don't forget to update the PHP interface:
